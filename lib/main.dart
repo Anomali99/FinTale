@@ -5,7 +5,7 @@ import 'package:provider/provider.dart';
 import 'core/theme/app_theme.dart';
 import 'core/theme/mode_provider.dart';
 import 'features/auth/auth_screen.dart';
-import 'features/dashboard/dashboard_screen.dart';
+import 'features/main_layout.dart';
 import 'firebase_options.dart';
 import 'services/auth_service.dart';
 
@@ -54,7 +54,7 @@ class AuthWrapper extends StatelessWidget {
         }
 
         if (snapshot.hasData) {
-          return const DashboardScreen();
+          return const MainLayout();
         }
 
         return const AuthScreen();

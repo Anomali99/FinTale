@@ -73,7 +73,7 @@ class _AuthScreenState extends State<AuthScreen> {
 
               const Spacer(flex: 3),
               Text(
-                'Welcome Petualang!',
+                'Welcome Adventurers!',
                 style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                   fontWeight: FontWeight.bold,
                   color: AppColors.textPrimary,
@@ -81,7 +81,7 @@ class _AuthScreenState extends State<AuthScreen> {
               ),
               const SizedBox(height: 12),
               Text(
-                'Siap mengalahkan monster hutang dan membangun kerajaan finansial Anda? Masuk sekarang untuk memulai.',
+                'Ready to defeat the debt monster and build your financial empire? Sign up now to get started.',
                 style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                   color: AppColors.textSecondary,
                   height: 1.5,
