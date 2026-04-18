@@ -1,0 +1,115 @@
+import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
+
+import '../../core/constants/app_colors.dart';
+import '../../services/auth_service.dart';
+
+class AuthScreen extends StatefulWidget {
+  const AuthScreen({super.key});
+
+  @override
+  State<AuthScreen> createState() => _AuthScreenState();
+}
+
+class _AuthScreenState extends State<AuthScreen> {
+  bool _isLoading = false;
+
+  Future<void> _handleGoogleSignIn(BuildContext context) async {
+    setState(() => _isLoading = true);
+    try {
+      final authService = Provider.of<AuthService>(context, listen: false);
+      await authService.signInWithGoogle();
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Koneksi gagal: $e'),
+          backgroundColor: AppColors.error,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final screenHeight = MediaQuery.of(context).size.height;
+
+    return Scaffold(
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 32.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'FinTale',
+                style: GoogleFonts.montserrat(
+                  textStyle: Theme.of(context).textTheme.headlineLarge,
+                  color: AppColors.primary,
+                  fontWeight: FontWeight.w900,
+                  letterSpacing: 2.0,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                'Your Journey to Financial Freedom',
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: AppColors.textSecondary,
+                ),
+              ),
+
+              const Spacer(flex: 2),
+              Center(
+                child: Image.asset(
+                  'assets/images/auth_icon.png',
+                  height: screenHeight * 0.35,
+                  fit: BoxFit.contain,
+                ),
+              ),
+
+              const Spacer(flex: 3),
+              Text(
+                'Welcome Petualang!',
+                style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.textPrimary,
+                ),
+              ),
+              const SizedBox(height: 12),
+              Text(
+                'Siap mengalahkan monster hutang dan membangun kerajaan finansial Anda? Masuk sekarang untuk memulai.',
+                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                  color: AppColors.textSecondary,
+                  height: 1.5,
+                ),
+              ),
+              const SizedBox(height: 48),
+
+              _isLoading
+                  ? const Center(
+                      child: CircularProgressIndicator(
+                        color: AppColors.primary,
+                      ),
+                    )
+                  : ElevatedButton.icon(
+                      onPressed: () => _handleGoogleSignIn(context),
+                      icon: const FaIcon(FontAwesomeIcons.google, size: 20),
+                      label: const Text('Masuk dengan Google'),
+                      style: ElevatedButton.styleFrom(
+                        minimumSize: const Size(double.infinity, 56),
+                        elevation: 4,
+                        shadowColor: AppColors.primary.withOpacity(0.3),
+                      ),
+                    ),
+              const SizedBox(height: 16),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
