@@ -100,15 +100,78 @@ class AppDictionary {
     normal: 'Allocation Rules',
     rpg: 'Guild Strategy',
   );
-
   static const TermPair appSettings = TermPair(
     normal: 'App Settings',
     rpg: 'World Settings',
   );
-
   static const TermPair notifDec = TermPair(
     normal: 'Bill & Target reminders',
     rpg: 'Quest & Threat alerts',
+  );
+  static const TermPair currentBills = TermPair(
+    normal: 'Current Bills',
+    rpg: 'Active Quests',
+  );
+  static const TermPair totalDebts = TermPair(
+    normal: 'Total Debts',
+    rpg: 'Boss Raids',
+  );
+  static const TermPair manageBills = TermPair(
+    normal: 'Manage Bills',
+    rpg: 'Master Log',
+  );
+  static const TermPair pending = TermPair(normal: 'Pending', rpg: 'Active');
+  static const TermPair overdue = TermPair(normal: 'Overdue', rpg: 'Critical');
+  static const TermPair paid = TermPair(normal: 'Paid', rpg: 'Cleared');
+  static const TermPair addRecurringBill = TermPair(
+    normal: 'Add Recurring Bill',
+    rpg: 'Add Master Quest',
+  );
+  static const TermPair addDebt = TermPair(
+    normal: 'Add Debt',
+    rpg: 'Add Boss Raid',
+  );
+  static const TermPair totalPortfolio = TermPair(
+    normal: 'Total Portfolio',
+    rpg: 'Total Troop Strength',
+  );
+  static const TermPair investedCapital = TermPair(
+    normal: 'Invested Capital',
+    rpg: 'Deployed Gold',
+  );
+  static const TermPair currentValue = TermPair(
+    normal: 'Current Value',
+    rpg: 'Current Power',
+  );
+  static const TermPair troopCount = TermPair(
+    normal: 'Units / Lots',
+    rpg: 'Troop Count',
+  );
+  static const TermPair tanker = TermPair(normal: 'Low Risk', rpg: 'Tanker');
+  static const TermPair fighter = TermPair(
+    normal: 'Medium Risk',
+    rpg: 'Fighter',
+  );
+  static const TermPair assassin = TermPair(
+    normal: 'High Risk',
+    rpg: 'Assassin',
+  );
+  static const TermPair recruit = TermPair(normal: 'Add Asset', rpg: 'Recruit');
+  static const TermPair scoutReport = TermPair(
+    normal: 'Update Value',
+    rpg: 'Scout Report',
+  );
+  static const TermPair retreat = TermPair(
+    normal: 'Withdraw',
+    rpg: 'Tactical Retreat',
+  );
+  static const TermPair claimDividend = TermPair(
+    normal: 'Claim Dividend',
+    rpg: 'Claim Tribute',
+  );
+  static const TermPair emptyAsset = TermPair(
+    normal: 'No assets here yet.\nAdd one now!',
+    rpg: 'No troops in this division.\nRecruit now!',
   );
 
   static const IconPair incomeIcon = IconPair(
@@ -142,5 +205,45 @@ class AppDictionary {
   static const IconPair historyIcon = IconPair(
     normal: FontAwesomeIcons.clockRotateLeft,
     rpg: FontAwesomeIcons.bookJournalWhills,
+  );
+  static const IconPair manageBillsIcon = IconPair(
+    normal: FontAwesomeIcons.sliders,
+    rpg: FontAwesomeIcons.featherPointed,
+  );
+  static const IconPair payBillIcon = IconPair(
+    normal: FontAwesomeIcons.check,
+    rpg: FontAwesomeIcons.wandMagicSparkles,
+  );
+  static const IconPair paidIcon = IconPair(
+    normal: FontAwesomeIcons.circleCheck,
+    rpg: FontAwesomeIcons.medal,
+  );
+  static const IconPair tankerIcon = IconPair(
+    normal: FontAwesomeIcons.vault,
+    rpg: FontAwesomeIcons.shieldHalved,
+  );
+  static const IconPair fighterIcon = IconPair(
+    normal: FontAwesomeIcons.chartLine,
+    rpg: FontAwesomeIcons.handFist,
+  );
+  static const IconPair assassinIcon = IconPair(
+    normal: FontAwesomeIcons.rocket,
+    rpg: FontAwesomeIcons.userNinja,
+  );
+  static const IconPair recruitIcon = IconPair(
+    normal: FontAwesomeIcons.folderPlus,
+    rpg: FontAwesomeIcons.flag,
+  );
+  static const IconPair scoutIcon = IconPair(
+    normal: FontAwesomeIcons.penToSquare,
+    rpg: FontAwesomeIcons.binoculars,
+  );
+  static const IconPair retreatIcon = IconPair(
+    normal: FontAwesomeIcons.moneyBillTransfer,
+    rpg: FontAwesomeIcons.personRunning,
+  );
+  static const IconPair dividendIcon = IconPair(
+    normal: FontAwesomeIcons.handHoldingDollar,
+    rpg: FontAwesomeIcons.gem,
   );
 }

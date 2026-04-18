@@ -5,9 +5,9 @@ import 'package:provider/provider.dart';
 import '../core/constants/app_colors.dart';
 import '../core/constants/app_dictionary.dart';
 import '../core/theme/mode_provider.dart';
+import 'bills/bills_screen.dart';
 import 'home/home_screen.dart';
-// import 'bills/bills_screen.dart';
-// import 'invest/invest_screen.dart';
+import 'invest/invest_screen.dart';
 // import 'history/history_screen.dart';
 
 class MainLayout extends StatefulWidget {
@@ -22,8 +22,8 @@ class _MainLayoutState extends State<MainLayout> {
 
   final List<Widget> _pages = [
     const HomeScreen(),
-    const Center(child: Text('Quest Board (Tagihan) - Coming Soon')),
-    const Center(child: Text('Armory (Investasi) - Coming Soon')),
+    const BillsScreen(),
+    const InvestScreen(),
     const Center(child: Text('Battle Log (Riwayat) - Coming Soon')),
   ];
 
