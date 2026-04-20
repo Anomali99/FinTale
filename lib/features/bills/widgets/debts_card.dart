@@ -5,46 +5,29 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/utils/currency_formatter.dart';
 
-class BossRaidTab extends StatelessWidget {
+class DebtsCard extends StatelessWidget {
   final bool isRpg;
+  final String bossName;
+  final String bossLevel;
+  final double currentHp;
+  final double maxHp;
+  final FaIconData icon;
 
-  const BossRaidTab({super.key, required this.isRpg});
+  const DebtsCard({
+    super.key,
+    required this.bossName,
+    required this.bossLevel,
+    required this.currentHp,
+    required this.maxHp,
+    required this.icon,
+    required this.isRpg,
+  });
+
+  double get hpPercentage =>
+      maxHp > 0 ? (currentHp / maxHp).clamp(0.0, 1.0) : 0.0;
 
   @override
   Widget build(BuildContext context) {
-    return ListView(
-      padding: const EdgeInsets.all(24.0),
-      children: [
-        _buildBossCard(
-          bossName: 'KPR Bank BCA',
-          bossLevel: 'Lv. 99',
-          currentHp: 200000000,
-          maxHp: 300000000,
-          icon: FontAwesomeIcons.buildingColumns,
-        ),
-        _buildBossCard(
-          bossName: 'Pinjaman Teman (Rio)',
-          bossLevel: 'Lv. 10',
-          currentHp: 1500000,
-          maxHp: 5000000,
-          icon: FontAwesomeIcons.handshake,
-        ),
-        const SizedBox(height: 100),
-      ],
-    );
-  }
-
-  Widget _buildBossCard({
-    required String bossName,
-    required String bossLevel,
-    required double currentHp,
-    required double maxHp,
-    required FaIconData icon,
-  }) {
-    final double hpPercentage = maxHp > 0
-        ? (currentHp / maxHp).clamp(0.0, 1.0)
-        : 0.0;
-
     return Container(
       margin: const EdgeInsets.only(bottom: 24),
       padding: const EdgeInsets.all(20),

@@ -6,9 +6,9 @@ import '../core/constants/app_colors.dart';
 import '../core/constants/app_dictionary.dart';
 import '../core/theme/mode_provider.dart';
 import 'bills/bills_screen.dart';
+import 'history/history_screen.dart';
 import 'home/home_screen.dart';
 import 'invest/invest_screen.dart';
-// import 'history/history_screen.dart';
 
 class MainLayout extends StatefulWidget {
   const MainLayout({super.key});
@@ -24,7 +24,7 @@ class _MainLayoutState extends State<MainLayout> {
     const HomeScreen(),
     const BillsScreen(),
     const InvestScreen(),
-    const Center(child: Text('Battle Log (Riwayat) - Coming Soon')),
+    const HistoryScreen(),
   ];
 
   void _showActionPopup(BuildContext context, bool isRpg) {
@@ -55,16 +55,16 @@ class _MainLayoutState extends State<MainLayout> {
                 leading: CircleAvatar(
                   backgroundColor: AppColors.error.withOpacity(0.2),
                   child: FaIcon(
-                    AppDictionary.payIcon.get(isRpg),
+                    MenuDict.payIcon.get(isRpg),
                     color: AppColors.error,
                     size: 18,
                   ),
                 ),
                 title: Text(
-                  AppDictionary.pay.get(isRpg),
+                  MenuDict.pay.get(isRpg),
                   style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
-                subtitle: Text(AppDictionary.payDec.get(isRpg)),
+                subtitle: Text(MenuDict.payDec.get(isRpg)),
                 onTap: () {
                   Navigator.pop(context);
                   /* TODO: Buka form bayar hutang */
@@ -76,16 +76,16 @@ class _MainLayoutState extends State<MainLayout> {
                 leading: CircleAvatar(
                   backgroundColor: Colors.blueAccent.withOpacity(0.2),
                   child: FaIcon(
-                    AppDictionary.dailyIcon.get(isRpg),
+                    MenuDict.dailyIcon.get(isRpg),
                     color: Colors.blueAccent,
                     size: 18,
                   ),
                 ),
                 title: Text(
-                  AppDictionary.daily.get(isRpg),
+                  MenuDict.daily.get(isRpg),
                   style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
-                subtitle: Text(AppDictionary.dailyDec.get(isRpg)),
+                subtitle: Text(MenuDict.dailyDec.get(isRpg)),
                 onTap: () {
                   Navigator.pop(context);
                   /* TODO: Buka form pengeluaran harian */
@@ -112,7 +112,7 @@ class _MainLayoutState extends State<MainLayout> {
         foregroundColor: Colors.white,
         elevation: 4,
         shape: const CircleBorder(),
-        child: FaIcon(AppDictionary.payIcon.get(isRpg), size: 24),
+        child: FaIcon(MenuDict.payIcon.get(isRpg), size: 24),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
 
@@ -126,25 +126,25 @@ class _MainLayoutState extends State<MainLayout> {
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
               _buildNavItem(
-                icon: AppDictionary.homeIcon.get(isRpg),
-                label: AppDictionary.home.get(isRpg),
+                icon: MenuDict.homeIcon.get(isRpg),
+                label: MenuDict.home.get(isRpg),
                 index: 0,
               ),
               _buildNavItem(
-                icon: AppDictionary.billsIcon.get(isRpg),
-                label: AppDictionary.bills.get(isRpg),
+                icon: MenuDict.billsIcon.get(isRpg),
+                label: MenuDict.bills.get(isRpg),
                 index: 1,
               ),
 
               const SizedBox(width: 48),
               _buildNavItem(
-                icon: AppDictionary.investIcon.get(isRpg),
-                label: AppDictionary.invest.get(isRpg),
+                icon: MenuDict.investIcon.get(isRpg),
+                label: MenuDict.invest.get(isRpg),
                 index: 2,
               ),
               _buildNavItem(
-                icon: AppDictionary.historyIcon.get(isRpg),
-                label: AppDictionary.history.get(isRpg),
+                icon: MenuDict.historyIcon.get(isRpg),
+                label: MenuDict.history.get(isRpg),
                 index: 3,
               ),
             ],

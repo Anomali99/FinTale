@@ -1,20 +1,23 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
-import '../core/constants/app_colors.dart';
-import '../core/constants/app_dictionary.dart';
-import '../core/theme/mode_provider.dart';
-import '../core/utils/currency_formatter.dart';
+import '../../../core/constants/app_colors.dart';
+import '../../../core/constants/app_dictionary.dart';
+import '../../../core/utils/currency_formatter.dart';
 
-class ManaBar extends StatelessWidget {
+class DailyLimit extends StatelessWidget {
+  final bool isRpg;
   final double limit;
   final double spent;
 
-  const ManaBar({super.key, required this.limit, required this.spent});
+  const DailyLimit({
+    super.key,
+    required this.limit,
+    required this.spent,
+    required this.isRpg,
+  });
 
   @override
   Widget build(BuildContext context) {
-    final isRpg = Provider.of<ModeProvider>(context).isRpgMode;
     final remaining = limit - spent;
 
     final double percentage = limit > 0
@@ -39,7 +42,7 @@ class ManaBar extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(AppDictionary.remainingToday.get(isRpg)),
+              Text(HomeDict.remainingToday.get(isRpg)),
               Text(
                 formattedRemaining,
                 style: TextStyle(

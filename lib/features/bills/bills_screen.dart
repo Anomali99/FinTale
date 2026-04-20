@@ -6,19 +6,103 @@ import 'package:provider/provider.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_dictionary.dart';
 import '../../core/theme/mode_provider.dart';
-import 'widgets/active_quest_tab.dart';
-import 'widgets/boss_raid_tab.dart';
-import 'widgets/master_log_sheet.dart';
+import 'widgets/bills_tab.dart';
+import 'widgets/debts_tab.dart';
+import 'widgets/template_tab.dart';
 
-class BillsScreen extends StatelessWidget {
+class BillsScreen extends StatefulWidget {
   const BillsScreen({super.key});
 
-  void _showMasterLog(BuildContext context, bool isRpg) {
+  @override
+  State<StatefulWidget> createState() => _BillsScreenState();
+}
+
+class _BillsScreenState extends State<BillsScreen>
+    with SingleTickerProviderStateMixin {
+  late TabController _tabController;
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 3, vsync: this);
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
+
+  void _showActionPopup(BuildContext context, bool isRpg) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) => MasterLogSheet(isRpg: isRpg),
+      builder: (context) {
+        return Container(
+          decoration: BoxDecoration(
+            color: AppColors.surface,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const SizedBox(height: 16),
+              Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: Colors.grey[700],
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              const SizedBox(height: 24),
+
+              ListTile(
+                leading: CircleAvatar(
+                  backgroundColor: Colors.blueAccent.withOpacity(0.2),
+                  child: FaIcon(
+                    BillsDict.addBillIcon.get(isRpg),
+                    color: Colors.blueAccent,
+                    size: 18,
+                  ),
+                ),
+                title: Text(
+                  BillsDict.addRecurringBill.get(isRpg),
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
+                subtitle: Text(MenuDict.dailyDec.get(isRpg)),
+                onTap: () {
+                  Navigator.pop(context);
+                  /* TODO: Navigasi ke form tambah quest */
+                },
+              ),
+              const Divider(color: Colors.white10),
+
+              ListTile(
+                leading: CircleAvatar(
+                  backgroundColor: AppColors.error.withOpacity(0.2),
+                  child: FaIcon(
+                    BillsDict.addDebtIcon.get(isRpg),
+                    color: AppColors.error,
+                    size: 18,
+                  ),
+                ),
+                title: Text(
+                  BillsDict.addDebt.get(isRpg),
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
+                subtitle: Text(MenuDict.payDec.get(isRpg)),
+                onTap: () {
+                  Navigator.pop(context);
+                  /* TODO: Navigasi ke form tambah hutang/boss */
+                },
+              ),
+              const SizedBox(height: 16),
+            ],
+          ),
+        );
+      },
     );
   }
 
@@ -31,30 +115,34 @@ class BillsScreen extends StatelessWidget {
       child: Scaffold(
         appBar: AppBar(
           title: Text(
-            AppDictionary.bills.get(isRpg),
+            MenuDict.bills.get(isRpg),
             style: GoogleFonts.poppins(fontWeight: FontWeight.bold),
           ),
           actions: [
             IconButton(
-              icon: FaIcon(AppDictionary.manageBillsIcon.get(isRpg), size: 20),
-              onPressed: () => _showMasterLog(context, isRpg),
+              icon: FaIcon(BillsDict.manageBillsIcon.get(isRpg), size: 20),
+              onPressed: () => _showActionPopup(context, isRpg),
             ),
             const SizedBox(width: 8),
           ],
           bottom: TabBar(
+            controller: _tabController,
             indicatorColor: AppColors.primary,
             labelColor: AppColors.primary,
             unselectedLabelColor: AppColors.textSecondary,
             tabs: [
-              Tab(text: AppDictionary.currentBills.get(isRpg)),
-              Tab(text: AppDictionary.totalDebts.get(isRpg)),
+              Tab(text: BillsDict.currentBills.get(isRpg)),
+              Tab(text: BillsDict.manageBills.get(isRpg)),
+              Tab(text: BillsDict.totalDebts.get(isRpg)),
             ],
           ),
         ),
         body: TabBarView(
+          controller: _tabController,
           children: [
-            ActiveQuestTab(isRpg: isRpg),
-            BossRaidTab(isRpg: isRpg),
+            BillsTab(isRpg: isRpg),
+            TemplateTab(isRpg: isRpg),
+            DebtsTab(isRpg: isRpg),
           ],
         ),
       ),

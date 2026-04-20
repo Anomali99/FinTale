@@ -7,6 +7,7 @@ import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_dictionary.dart';
 import '../../core/theme/mode_provider.dart';
 import '../../services/auth_service.dart';
+import '../../widgets/custom_button.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -232,7 +233,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             ],
                           ),
                           Text(
-                            'Lv. $_currentLevel - ${AppDictionary.noviceSaver.get(isRpg)}',
+                            'Lv. $_currentLevel - ${TitleDict.noviceSaver.get(isRpg)}',
                             style: const TextStyle(
                               color: AppColors.textSecondary,
                             ),
@@ -280,7 +281,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           const SizedBox(height: 32),
 
           Text(
-            AppDictionary.allocationRules.get(isRpg),
+            SettingsDict.allocationRules.get(isRpg),
             style: const TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.bold,
@@ -321,7 +322,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           const SizedBox(height: 32),
 
           Text(
-            AppDictionary.appSettings.get(isRpg),
+            SettingsDict.appSettings.get(isRpg),
             style: const TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.bold,
@@ -361,7 +362,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     size: 20,
                   ),
                   title: const Text('Push Notifications'),
-                  subtitle: Text(AppDictionary.notifDec.get(isRpg)),
+                  subtitle: Text(SettingsDict.notifDec.get(isRpg)),
                   trailing: Switch(
                     value: _isNotificationsEnabled,
                     activeThumbColor: AppColors.primary,
@@ -396,14 +397,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         setState(() => _selectedTheme = newValue);
                       }
                     },
-                    items: <String>['Dark', 'Light', 'System']
-                        .map<DropdownMenuItem<String>>((String value) {
-                          return DropdownMenuItem<String>(
-                            value: value,
-                            child: Text(value),
-                          );
-                        })
-                        .toList(),
+                    items: <String>['Dark'].map<DropdownMenuItem<String>>((
+                      String value,
+                    ) {
+                      return DropdownMenuItem<String>(
+                        value: value,
+                        child: Text(value),
+                      );
+                    }).toList(),
                   ),
                 ),
               ],
@@ -411,21 +412,22 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
           const SizedBox(height: 32),
 
-          TextButton.icon(
-            onPressed: () => _handleSignOut(context),
-            icon: const FaIcon(
-              FontAwesomeIcons.arrowRightFromBracket,
-              color: AppColors.error,
-              size: 20,
-            ),
-            label: const Text(
-              'Sign Out',
-              style: TextStyle(color: AppColors.error, fontSize: 16),
-            ),
-            style: TextButton.styleFrom(
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              alignment: Alignment.centerLeft,
-            ),
+          CustomButton(
+            icon: FontAwesomeIcons.arrowsRotate,
+            title: 'Sync',
+            color: Colors.blueAccent,
+            onTap: () => {
+              /* TODO: Sync */
+            },
+          ),
+
+          const SizedBox(height: 16),
+
+          CustomButton(
+            icon: FontAwesomeIcons.arrowRightFromBracket,
+            title: 'Sign Out',
+            color: AppColors.error,
+            onTap: () => _handleSignOut(context),
           ),
 
           const SizedBox(height: 48),

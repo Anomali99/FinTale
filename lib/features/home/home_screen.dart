@@ -7,8 +7,9 @@ import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_dictionary.dart';
 import '../../core/theme/mode_provider.dart';
 import '../../core/utils/currency_formatter.dart';
-import '../../widgets/mana_bar.dart';
 import '../settings/settings_screen.dart';
+import 'widgets/daily_limit.dart';
+import 'widgets/wallet_details.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -22,168 +23,8 @@ class HomeScreen extends StatelessWidget {
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       builder: (context) {
-        return DraggableScrollableSheet(
-          initialChildSize: 0.6,
-          minChildSize: 0.4,
-          maxChildSize: 0.9,
-          expand: false,
-          builder: (_, controller) {
-            return Padding(
-              padding: const EdgeInsets.all(24.0),
-              child: ListView(
-                controller: controller,
-                children: [
-                  Text(
-                    AppDictionary.walletDetails.get(isRpg),
-                    style: const TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-
-                  _buildSimpleWalletItem(
-                    icon: FontAwesomeIcons.coins,
-                    name: AppDictionary.cash.get(isRpg),
-                    amount: 1500000,
-                  ),
-                  const Divider(color: Colors.white10, height: 32),
-
-                  Theme(
-                    data: Theme.of(
-                      context,
-                    ).copyWith(dividerColor: Colors.transparent),
-                    child: ExpansionTile(
-                      tilePadding: EdgeInsets.zero,
-                      leading: CircleAvatar(
-                        backgroundColor: AppColors.surfaceVariant,
-                        child: FaIcon(
-                          FontAwesomeIcons.buildingColumns,
-                          size: 16,
-                          color: AppColors.textPrimary,
-                        ),
-                      ),
-                      title: Text(
-                        AppDictionary.bankAccount.get(isRpg),
-                        style: const TextStyle(fontSize: 16),
-                      ),
-                      trailing: Text(
-                        CurrencyFormatter.convertToIdr(10000000),
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
-                        ),
-                      ),
-                      children: [
-                        _buildSubWalletItem(name: 'Bank BCA', amount: 8000000),
-                        _buildSubWalletItem(
-                          name: 'Bank Mandiri',
-                          amount: 2000000,
-                        ),
-                      ],
-                    ),
-                  ),
-                  const Divider(color: Colors.white10, height: 16),
-
-                  Theme(
-                    data: Theme.of(
-                      context,
-                    ).copyWith(dividerColor: Colors.transparent),
-                    child: ExpansionTile(
-                      tilePadding: EdgeInsets.zero,
-                      leading: CircleAvatar(
-                        backgroundColor: AppColors.surfaceVariant,
-                        child: FaIcon(
-                          FontAwesomeIcons.mobileScreen,
-                          size: 16,
-                          color: AppColors.textPrimary,
-                        ),
-                      ),
-                      title: Text(
-                        AppDictionary.eWallet.get(isRpg),
-                        style: const TextStyle(fontSize: 16),
-                      ),
-                      trailing: Text(
-                        CurrencyFormatter.convertToIdr(500000),
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
-                        ),
-                      ),
-                      children: [
-                        _buildSubWalletItem(name: 'GoPay', amount: 350000),
-                        _buildSubWalletItem(name: 'OVO', amount: 150000),
-                      ],
-                    ),
-                  ),
-
-                  const SizedBox(height: 32),
-                  SizedBox(
-                    width: double.infinity,
-                    child: OutlinedButton.icon(
-                      onPressed: () => Navigator.pop(context),
-                      icon: const Icon(Icons.add, color: AppColors.primary),
-                      label: Text(
-                        'Add New ${isRpg ? 'Storage' : 'Wallet'}',
-                        style: const TextStyle(color: AppColors.primary),
-                      ),
-                      style: OutlinedButton.styleFrom(
-                        side: const BorderSide(color: AppColors.primary),
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            );
-          },
-        );
+        return WalletDetails(isRpg: isRpg);
       },
-    );
-  }
-
-  Widget _buildSimpleWalletItem({
-    required FaIconData icon,
-    required String name,
-    required double amount,
-  }) {
-    return Row(
-      children: [
-        CircleAvatar(
-          backgroundColor: AppColors.surfaceVariant,
-          child: FaIcon(icon, size: 16, color: AppColors.textPrimary),
-        ),
-        const SizedBox(width: 16),
-        Expanded(child: Text(name, style: const TextStyle(fontSize: 16))),
-        Text(
-          CurrencyFormatter.convertToIdr(amount),
-          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildSubWalletItem({required String name, required double amount}) {
-    return Padding(
-      padding: const EdgeInsets.only(
-        left: 56.0,
-        top: 8.0,
-        bottom: 8.0,
-        right: 8.0,
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(name, style: TextStyle(color: AppColors.textSecondary)),
-          Text(
-            CurrencyFormatter.convertToIdr(amount),
-            style: TextStyle(color: AppColors.textSecondary),
-          ),
-        ],
-      ),
     );
   }
 
@@ -205,7 +46,7 @@ class HomeScreen extends StatelessWidget {
               ),
             ),
             Text(
-              AppDictionary.noviceSaver.get(isRpg),
+              TitleDict.noviceSaver.get(isRpg),
               style: const TextStyle(
                 fontSize: 12,
                 color: AppColors.textSecondary,
@@ -271,7 +112,7 @@ class HomeScreen extends StatelessWidget {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
-                                AppDictionary.totalBalance.get(isRpg),
+                                HomeDict.totalBalance.get(isRpg),
                                 style: const TextStyle(
                                   color: AppColors.textSecondary,
                                   fontSize: 14,
@@ -321,13 +162,13 @@ class HomeScreen extends StatelessWidget {
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 FaIcon(
-                                  AppDictionary.incomeIcon.get(isRpg),
+                                  HomeDict.incomeIcon.get(isRpg),
                                   color: AppColors.success,
                                   size: 16,
                                 ),
                                 const SizedBox(width: 8),
                                 Text(
-                                  AppDictionary.income.get(isRpg),
+                                  HomeDict.income.get(isRpg),
                                   style: const TextStyle(
                                     fontWeight: FontWeight.bold,
                                   ),
@@ -349,13 +190,13 @@ class HomeScreen extends StatelessWidget {
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 FaIcon(
-                                  AppDictionary.transferIcon.get(isRpg),
+                                  HomeDict.transferIcon.get(isRpg),
                                   color: AppColors.warning,
                                   size: 16,
                                 ),
                                 const SizedBox(width: 8),
                                 Text(
-                                  AppDictionary.transfer.get(isRpg),
+                                  HomeDict.transfer.get(isRpg),
                                   style: const TextStyle(
                                     fontWeight: FontWeight.bold,
                                   ),
@@ -375,16 +216,16 @@ class HomeScreen extends StatelessWidget {
           const SizedBox(height: 32),
 
           Text(
-            AppDictionary.dailyLimit.get(isRpg),
+            HomeDict.dailyLimit.get(isRpg),
             style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 12),
-          const ManaBar(limit: 200000, spent: 50000),
+          DailyLimit(limit: 200000, spent: 50000, isRpg: isRpg),
 
           const SizedBox(height: 32),
 
           Text(
-            AppDictionary.upcomingBills.get(isRpg),
+            HomeDict.upcomingBills.get(isRpg),
             style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 12),

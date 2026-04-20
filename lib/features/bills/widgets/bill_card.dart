@@ -6,95 +6,39 @@ import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_dictionary.dart';
 import '../../../core/utils/currency_formatter.dart';
 
-class ActiveQuestTab extends StatelessWidget {
+class BillCard extends StatelessWidget {
   final bool isRpg;
+  final String title;
+  final String dueDate;
+  final double amount;
+  final FaIconData icon;
+  final bool isUrgent;
+  final bool isCleared;
 
-  const ActiveQuestTab({super.key, required this.isRpg});
+  const BillCard({
+    super.key,
+    required this.title,
+    required this.dueDate,
+    required this.amount,
+    required this.icon,
+    required this.isUrgent,
+    required this.isCleared,
+    required this.isRpg,
+  });
+
+  Color get cardColor => isCleared
+      ? AppColors.surfaceVariant.withOpacity(0.5)
+      : AppColors.surfaceVariant;
+
+  Color get textColor =>
+      isCleared ? AppColors.textSecondary : AppColors.textPrimary;
+
+  Color get accentColor => isCleared
+      ? AppColors.success
+      : (isUrgent ? AppColors.error : AppColors.primary);
 
   @override
   Widget build(BuildContext context) {
-    return ListView(
-      padding: const EdgeInsets.all(24.0),
-      children: [
-        Text(
-          AppDictionary.pending.get(isRpg).toUpperCase(),
-          style: const TextStyle(
-            fontWeight: FontWeight.bold,
-            color: AppColors.textSecondary,
-          ),
-        ),
-        const SizedBox(height: 12),
-
-        _buildQuestCard(
-          title: 'Listrik Rumah',
-          dueDate: 'Due in 2 days',
-          amount: 250000,
-          icon: FontAwesomeIcons.bolt,
-          isUrgent: true,
-          isCleared: false,
-        ),
-
-        _buildQuestCard(
-          title: 'Cicilan KPR Bulan ke-12',
-          dueDate: 'Due in 15 days',
-          amount: 1500000,
-          icon: FontAwesomeIcons.houseUser,
-          isUrgent: false,
-          isCleared: false,
-        ),
-
-        const SizedBox(height: 32),
-
-        Row(
-          children: [
-            const Expanded(child: Divider(color: Colors.white10)),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: Text(
-                AppDictionary.paid.get(isRpg).toUpperCase(),
-                style: const TextStyle(
-                  color: AppColors.success,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-            const Expanded(child: Divider(color: Colors.white10)),
-          ],
-        ),
-        const SizedBox(height: 12),
-
-        _buildQuestCard(
-          title: 'Internet WiFi',
-          dueDate: 'Paid on 2 May',
-          amount: 300000,
-          icon: FontAwesomeIcons.wifi,
-          isUrgent: false,
-          isCleared: true,
-        ),
-
-        const SizedBox(height: 100),
-      ],
-    );
-  }
-
-  Widget _buildQuestCard({
-    required String title,
-    required String dueDate,
-    required double amount,
-    required FaIconData icon,
-    required bool isUrgent,
-    required bool isCleared,
-  }) {
-    final Color cardColor = isCleared
-        ? AppColors.surfaceVariant.withOpacity(0.5)
-        : AppColors.surfaceVariant;
-    final Color textColor = isCleared
-        ? AppColors.textSecondary
-        : AppColors.textPrimary;
-    final Color accentColor = isCleared
-        ? AppColors.success
-        : (isUrgent ? AppColors.error : AppColors.primary);
-
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
@@ -177,7 +121,7 @@ class ActiveQuestTab extends StatelessWidget {
                           /* TODO: Logika Pembayaran */
                         },
                         icon: FaIcon(
-                          AppDictionary.payBillIcon.get(isRpg),
+                          BillsDict.payBillIcon.get(isRpg),
                           size: 12,
                         ),
                         label: Text(
@@ -196,7 +140,7 @@ class ActiveQuestTab extends StatelessWidget {
                 ),
               ] else ...[
                 FaIcon(
-                  AppDictionary.paidIcon.get(isRpg),
+                  BillsDict.paidIcon.get(isRpg),
                   color: AppColors.success,
                   size: 28,
                 ),

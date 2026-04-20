@@ -18,64 +18,32 @@ class IconPair {
   FaIconData get(bool isRpgMode) => isRpgMode ? rpg : normal;
 }
 
-class AppDictionary {
-  static const TermPair totalBalance = TermPair(
-    normal: 'Total Balance',
-    rpg: 'Total HP',
+class ArmoryDict {
+  static const TermPair tanker = TermPair(normal: 'Low Risk', rpg: 'Tanker');
+  static const TermPair fighter = TermPair(
+    normal: 'Medium Risk',
+    rpg: 'Fighter',
   );
-  static const TermPair walletDetails = TermPair(
-    normal: 'Wallet Details',
-    rpg: 'Inventory Details',
+  static const TermPair assassin = TermPair(
+    normal: 'High Risk',
+    rpg: 'Assassin',
   );
-  static const TermPair income = TermPair(normal: 'Income', rpg: 'Loot');
-  static const TermPair transfer = TermPair(
-    normal: 'Transfer',
-    rpg: 'Distribute',
+
+  static const IconPair tankerIcon = IconPair(
+    normal: FontAwesomeIcons.vault,
+    rpg: FontAwesomeIcons.shieldHalved,
   );
-  static const TermPair upcomingBills = TermPair(
-    normal: 'Upcoming Bills',
-    rpg: 'Active Threats',
+  static const IconPair fighterIcon = IconPair(
+    normal: FontAwesomeIcons.chartLine,
+    rpg: FontAwesomeIcons.handFist,
   );
-  static const TermPair dailyLimit = TermPair(
-    normal: 'Daily Limit',
-    rpg: 'Daily Mana',
+  static const IconPair assassinIcon = IconPair(
+    normal: FontAwesomeIcons.rocket,
+    rpg: FontAwesomeIcons.userNinja,
   );
-  static const TermPair remainingToday = TermPair(
-    normal: 'Remaining Today',
-    rpg: 'Remaining Mana',
-  );
-  static const TermPair home = TermPair(normal: 'Home', rpg: 'Guild Hall');
-  static const TermPair bills = TermPair(normal: 'Bills', rpg: 'Quest Board');
-  static const TermPair invest = TermPair(normal: 'Invest', rpg: 'Armory');
-  static const TermPair history = TermPair(
-    normal: 'History',
-    rpg: 'Battle Log',
-  );
-  static const TermPair pay = TermPair(
-    normal: 'Pay Debt',
-    rpg: 'Attack Attack Boss',
-  );
-  static const TermPair payDec = TermPair(
-    normal: 'Record a debt installment',
-    rpg: 'Record a boss battle (debt payment)',
-  );
-  static const TermPair daily = TermPair(
-    normal: 'Daily Expense',
-    rpg: 'Use Mana',
-  );
-  static const TermPair dailyDec = TermPair(
-    normal: 'Record food, transport, etc.',
-    rpg: 'Record a daily expenditure',
-  );
-  static const TermPair cash = TermPair(normal: 'Cash', rpg: 'Gold Pouch');
-  static const TermPair bankAccount = TermPair(
-    normal: 'Bank Account',
-    rpg: 'Vault',
-  );
-  static const TermPair eWallet = TermPair(
-    normal: 'E-Wallet',
-    rpg: 'Magic Satchel',
-  );
+}
+
+class TitleDict {
   static const TermPair noviceSaver = TermPair(
     normal: 'Novice Saver',
     rpg: 'Novice Adventurer',
@@ -96,6 +64,106 @@ class AppDictionary {
     normal: 'Financial Master',
     rpg: 'Guild Legend',
   );
+}
+
+class CategoryDict {
+  static const TermPair catFood = TermPair(
+    normal: 'Food & Drinks',
+    rpg: 'Potions & Rations',
+  );
+  static const TermPair catBills = TermPair(
+    normal: 'Bills & Utilities',
+    rpg: 'Guild Taxes',
+  );
+  static const TermPair catTransport = TermPair(
+    normal: 'Transportation',
+    rpg: 'Mounts & Travel',
+  );
+  static const TermPair catEntertainment = TermPair(
+    normal: 'Entertainment',
+    rpg: 'Tavern & Bards',
+  );
+
+  static const IconPair insightIcon = IconPair(
+    normal: FontAwesomeIcons.lightbulb,
+    rpg: FontAwesomeIcons.wandMagicSparkles,
+  );
+
+  static const IconPair catFoodIcon = IconPair(
+    normal: FontAwesomeIcons.utensils,
+    rpg: FontAwesomeIcons.flask,
+  );
+  static const IconPair catBillsIcon = IconPair(
+    normal: FontAwesomeIcons.fileInvoiceDollar,
+    rpg: FontAwesomeIcons.scroll,
+  );
+  static const IconPair catTransportIcon = IconPair(
+    normal: FontAwesomeIcons.car,
+    rpg: FontAwesomeIcons.horse,
+  );
+  static const IconPair catEntertainmentIcon = IconPair(
+    normal: FontAwesomeIcons.gamepad,
+    rpg: FontAwesomeIcons.music,
+  );
+}
+
+class MenuDict {
+  static const TermPair home = TermPair(normal: 'Home', rpg: 'Guild Hall');
+  static const TermPair bills = TermPair(normal: 'Bills', rpg: 'Quest Board');
+  static const TermPair invest = TermPair(normal: 'Invest', rpg: 'Armory');
+  static const TermPair history = TermPair(
+    normal: 'History',
+    rpg: 'Battle Log',
+  );
+  static const TermPair analytics = TermPair(
+    normal: 'Analytics',
+    rpg: 'Guild Report',
+  );
+
+  static const TermPair pay = TermPair(
+    normal: 'Pay Debt',
+    rpg: 'Attack Attack Boss',
+  );
+  static const TermPair payDec = TermPair(
+    normal: 'Record a debt installment',
+    rpg: 'Record a boss battle (debt payment)',
+  );
+  static const TermPair daily = TermPair(
+    normal: 'Daily Expense',
+    rpg: 'Use Mana',
+  );
+  static const TermPair dailyDec = TermPair(
+    normal: 'Record food, transport, etc.',
+    rpg: 'Record a daily expenditure',
+  );
+
+  static const IconPair payIcon = IconPair(
+    normal: FontAwesomeIcons.buildingColumns,
+    rpg: FontAwesomeIcons.khanda,
+  );
+  static const IconPair homeIcon = IconPair(
+    normal: FontAwesomeIcons.house,
+    rpg: FontAwesomeIcons.chessRook,
+  );
+  static const IconPair billsIcon = IconPair(
+    normal: FontAwesomeIcons.receipt,
+    rpg: FontAwesomeIcons.scroll,
+  );
+  static const IconPair investIcon = IconPair(
+    normal: FontAwesomeIcons.chartLine,
+    rpg: FontAwesomeIcons.shieldHalved,
+  );
+  static const IconPair historyIcon = IconPair(
+    normal: FontAwesomeIcons.clockRotateLeft,
+    rpg: FontAwesomeIcons.bookJournalWhills,
+  );
+  static const IconPair dailyIcon = IconPair(
+    normal: FontAwesomeIcons.wallet,
+    rpg: FontAwesomeIcons.flask,
+  );
+}
+
+class SettingsDict {
   static const TermPair allocationRules = TermPair(
     normal: 'Allocation Rules',
     rpg: 'Guild Strategy',
@@ -108,6 +176,54 @@ class AppDictionary {
     normal: 'Bill & Target reminders',
     rpg: 'Quest & Threat alerts',
   );
+}
+
+class HomeDict {
+  static const TermPair totalBalance = TermPair(
+    normal: 'Total Balance',
+    rpg: 'Total HP',
+  );
+  static const TermPair walletDetails = TermPair(
+    normal: 'Wallet Details',
+    rpg: 'Inventory Details',
+  );
+  static const TermPair upcomingBills = TermPair(
+    normal: 'Upcoming Bills',
+    rpg: 'Active Threats',
+  );
+  static const TermPair dailyLimit = TermPair(
+    normal: 'Daily Limit',
+    rpg: 'Daily Mana',
+  );
+  static const TermPair remainingToday = TermPair(
+    normal: 'Remaining Today',
+    rpg: 'Remaining Mana',
+  );
+  static const TermPair cash = TermPair(normal: 'Cash', rpg: 'Gold Pouch');
+  static const TermPair bankAccount = TermPair(
+    normal: 'Bank Account',
+    rpg: 'Vault',
+  );
+  static const TermPair eWallet = TermPair(
+    normal: 'E-Wallet',
+    rpg: 'Magic Satchel',
+  );
+  static const TermPair income = TermPair(normal: 'Income', rpg: 'Loot');
+  static const TermPair transfer = TermPair(
+    normal: 'Transfer',
+    rpg: 'Distribute',
+  );
+  static const IconPair incomeIcon = IconPair(
+    normal: FontAwesomeIcons.arrowTurnDown,
+    rpg: FontAwesomeIcons.sackDollar,
+  );
+  static const IconPair transferIcon = IconPair(
+    normal: FontAwesomeIcons.moneyBillTransfer,
+    rpg: FontAwesomeIcons.dolly,
+  );
+}
+
+class BillsDict {
   static const TermPair currentBills = TermPair(
     normal: 'Current Bills',
     rpg: 'Active Quests',
@@ -131,6 +247,31 @@ class AppDictionary {
     normal: 'Add Debt',
     rpg: 'Add Boss Raid',
   );
+
+  static const IconPair manageBillsIcon = IconPair(
+    normal: FontAwesomeIcons.sliders,
+    rpg: FontAwesomeIcons.featherPointed,
+  );
+  static const IconPair payBillIcon = IconPair(
+    normal: FontAwesomeIcons.check,
+    rpg: FontAwesomeIcons.wandMagicSparkles,
+  );
+  static const IconPair paidIcon = IconPair(
+    normal: FontAwesomeIcons.circleCheck,
+    rpg: FontAwesomeIcons.medal,
+  );
+  static const IconPair addDebtIcon = IconPair(
+    normal: FontAwesomeIcons.buildingColumns,
+    rpg: FontAwesomeIcons.khanda,
+  );
+
+  static const IconPair addBillIcon = IconPair(
+    normal: FontAwesomeIcons.receipt,
+    rpg: FontAwesomeIcons.scroll,
+  );
+}
+
+class InvestDict {
   static const TermPair totalPortfolio = TermPair(
     normal: 'Total Portfolio',
     rpg: 'Total Troop Strength',
@@ -143,19 +284,7 @@ class AppDictionary {
     normal: 'Current Value',
     rpg: 'Current Power',
   );
-  static const TermPair troopCount = TermPair(
-    normal: 'Units / Lots',
-    rpg: 'Troop Count',
-  );
-  static const TermPair tanker = TermPair(normal: 'Low Risk', rpg: 'Tanker');
-  static const TermPair fighter = TermPair(
-    normal: 'Medium Risk',
-    rpg: 'Fighter',
-  );
-  static const TermPair assassin = TermPair(
-    normal: 'High Risk',
-    rpg: 'Assassin',
-  );
+
   static const TermPair recruit = TermPair(normal: 'Add Asset', rpg: 'Recruit');
   static const TermPair scoutReport = TermPair(
     normal: 'Update Value',
@@ -174,62 +303,6 @@ class AppDictionary {
     rpg: 'No troops in this division.\nRecruit now!',
   );
 
-  static const IconPair incomeIcon = IconPair(
-    normal: FontAwesomeIcons.arrowTurnDown,
-    rpg: FontAwesomeIcons.sackDollar,
-  );
-  static const IconPair transferIcon = IconPair(
-    normal: FontAwesomeIcons.moneyBillTransfer,
-    rpg: FontAwesomeIcons.dolly,
-  );
-  static const IconPair payIcon = IconPair(
-    normal: FontAwesomeIcons.buildingColumns,
-    rpg: FontAwesomeIcons.khanda,
-  );
-  static const IconPair dailyIcon = IconPair(
-    normal: FontAwesomeIcons.wallet,
-    rpg: FontAwesomeIcons.flask,
-  );
-  static const IconPair homeIcon = IconPair(
-    normal: FontAwesomeIcons.house,
-    rpg: FontAwesomeIcons.chessRook,
-  );
-  static const IconPair billsIcon = IconPair(
-    normal: FontAwesomeIcons.receipt,
-    rpg: FontAwesomeIcons.scroll,
-  );
-  static const IconPair investIcon = IconPair(
-    normal: FontAwesomeIcons.chartLine,
-    rpg: FontAwesomeIcons.shieldHalved,
-  );
-  static const IconPair historyIcon = IconPair(
-    normal: FontAwesomeIcons.clockRotateLeft,
-    rpg: FontAwesomeIcons.bookJournalWhills,
-  );
-  static const IconPair manageBillsIcon = IconPair(
-    normal: FontAwesomeIcons.sliders,
-    rpg: FontAwesomeIcons.featherPointed,
-  );
-  static const IconPair payBillIcon = IconPair(
-    normal: FontAwesomeIcons.check,
-    rpg: FontAwesomeIcons.wandMagicSparkles,
-  );
-  static const IconPair paidIcon = IconPair(
-    normal: FontAwesomeIcons.circleCheck,
-    rpg: FontAwesomeIcons.medal,
-  );
-  static const IconPair tankerIcon = IconPair(
-    normal: FontAwesomeIcons.vault,
-    rpg: FontAwesomeIcons.shieldHalved,
-  );
-  static const IconPair fighterIcon = IconPair(
-    normal: FontAwesomeIcons.chartLine,
-    rpg: FontAwesomeIcons.handFist,
-  );
-  static const IconPair assassinIcon = IconPair(
-    normal: FontAwesomeIcons.rocket,
-    rpg: FontAwesomeIcons.userNinja,
-  );
   static const IconPair recruitIcon = IconPair(
     normal: FontAwesomeIcons.folderPlus,
     rpg: FontAwesomeIcons.flag,
@@ -245,5 +318,76 @@ class AppDictionary {
   static const IconPair dividendIcon = IconPair(
     normal: FontAwesomeIcons.handHoldingDollar,
     rpg: FontAwesomeIcons.gem,
+  );
+}
+
+class HistoryDict {
+  static const TermPair analytics = TermPair(
+    normal: 'Analytics',
+    rpg: 'Guild Report',
+  );
+  static const TermPair filter = TermPair(normal: 'Filter', rpg: 'Sort Magic');
+  static const TermPair internalTransfer = TermPair(
+    normal: 'Wallet Transfer',
+    rpg: 'Supply Caravan',
+  );
+  static const TermPair adminFee = TermPair(
+    normal: 'Admin Fee',
+    rpg: 'Caravan Toll',
+  );
+  static const TermPair topExpenses = TermPair(
+    normal: 'Top Expenses',
+    rpg: 'Major Threats',
+  );
+
+  static const TermPair macroOverview = TermPair(
+    normal: 'Cash Flow Overview',
+    rpg: 'Trinity of Mana',
+  );
+  static const TermPair breakdownExpense = TermPair(
+    normal: 'Expense Breakdown',
+    rpg: 'Damage Analysis',
+  );
+  static const TermPair breakdownInvest = TermPair(
+    normal: 'Investment Breakdown',
+    rpg: 'Armory Analysis',
+  );
+  static const TermPair cashFlow = TermPair(
+    normal: 'Cash Flow',
+    rpg: 'Mana Flow',
+  );
+  static const TermPair expense = TermPair(
+    normal: 'Expense',
+    rpg: 'Damage Taken',
+  );
+
+  static const TermPair unallocated = TermPair(
+    normal: 'Unallocated (Idle)',
+    rpg: 'Idle Mana',
+  );
+  static const TermPair oraclesInsight = TermPair(
+    normal: 'Financial Insight',
+    rpg: "Oracle's Prophecy",
+  );
+
+  static const IconPair analyticsIcon = IconPair(
+    normal: FontAwesomeIcons.chartPie,
+    rpg: FontAwesomeIcons.eye,
+  );
+  static const IconPair filterIcon = IconPair(
+    normal: FontAwesomeIcons.filter,
+    rpg: FontAwesomeIcons.wandMagicSparkles,
+  );
+  static const IconPair expenseLogIcon = IconPair(
+    normal: FontAwesomeIcons.arrowTrendDown,
+    rpg: FontAwesomeIcons.droplet,
+  );
+  static const IconPair transferLogIcon = IconPair(
+    normal: FontAwesomeIcons.arrowRightArrowLeft,
+    rpg: FontAwesomeIcons.horseHead,
+  );
+  static const IconPair insightIcon = IconPair(
+    normal: FontAwesomeIcons.lightbulb,
+    rpg: FontAwesomeIcons.wandMagicSparkles,
   );
 }
