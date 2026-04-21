@@ -1,0 +1,150 @@
+import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:google_fonts/google_fonts.dart';
+
+import '../../../core/constants/app_colors.dart';
+import '../../../core/utils/currency_formatter.dart';
+
+enum TransactionType { income, expense, transfer }
+
+class TransactionCard extends StatelessWidget {
+  final TransactionType type;
+  final String title;
+  final String subtitle;
+  final double amount;
+  final double? adminFee;
+  final FaIconData icon;
+
+  const TransactionCard({
+    super.key,
+    required this.type,
+    required this.title,
+    required this.subtitle,
+    required this.amount,
+    required this.icon,
+    this.adminFee,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    Color iconColor;
+    Color iconBgColor;
+    Color amountColor;
+    String prefix = '';
+
+    switch (type) {
+      case TransactionType.income:
+        iconColor = AppColors.success;
+        iconBgColor = AppColors.success.withOpacity(0.2);
+        amountColor = AppColors.success;
+        prefix = '+ ';
+        break;
+      case TransactionType.expense:
+        iconColor = AppColors.error;
+        iconBgColor = AppColors.error.withOpacity(0.2);
+        amountColor = AppColors.error;
+        prefix = '- ';
+        break;
+      case TransactionType.transfer:
+        iconColor = Colors.blueAccent;
+        iconBgColor = Colors.blueAccent.withOpacity(0.2);
+        amountColor = AppColors.textPrimary;
+        prefix = '';
+        break;
+    }
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceVariant,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.primary.withOpacity(0.05)),
+      ),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(16),
+        onTap: () {
+          /* TODO: Buka Detail Transaksi */
+        },
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            children: [
+              CircleAvatar(
+                radius: 20,
+                backgroundColor: iconBgColor,
+                child: FaIcon(icon, color: iconColor, size: 18),
+              ),
+              const SizedBox(width: 16),
+
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                        color: AppColors.textPrimary,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      subtitle,
+                      style: const TextStyle(
+                        color: AppColors.textSecondary,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              const SizedBox(width: 12),
+
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text(
+                    '$prefix${CurrencyFormatter.convertToIdr(amount)}',
+                    style: GoogleFonts.poppins(
+                      fontWeight: FontWeight.bold,
+                      color: amountColor,
+                      fontSize: 14,
+                    ),
+                  ),
+
+                  if (type == TransactionType.transfer &&
+                      adminFee != null &&
+                      adminFee! > 0) ...[
+                    const SizedBox(height: 4),
+                    Row(
+                      children: [
+                        const FaIcon(
+                          FontAwesomeIcons.coins,
+                          size: 10,
+                          color: AppColors.error,
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          '- ${CurrencyFormatter.convertToIdr(adminFee!)}',
+                          style: const TextStyle(
+                            color: AppColors.error,
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}

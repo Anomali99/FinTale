@@ -30,7 +30,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
     try {
       final authService = Provider.of<AuthService>(context, listen: false);
       await authService.signOut();
+
+      if (!context.mounted) return;
+
+      Navigator.popUntil(context, (route) => route.isFirst);
     } catch (e) {
+      if (!context.mounted) return;
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Koneksi gagal: $e'),
