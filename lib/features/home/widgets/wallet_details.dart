@@ -2,16 +2,47 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import '../../../core/constants/app_colors.dart';
-import '../../../core/constants/app_dictionary.dart';
+import '../../../core/constants/home_dict.dart';
 import '../../../core/utils/currency_formatter.dart';
+import '../../../models/wallet_model.dart';
 
 class WalletDetails extends StatelessWidget {
   final bool isRpg;
+  final List<WalletModel> wallets;
 
-  const WalletDetails({super.key, required this.isRpg});
+  const WalletDetails({super.key, required this.wallets, required this.isRpg});
 
   @override
   Widget build(BuildContext context) {
+    final WalletModel cash = wallets[0];
+    final List<WalletModel> bank = wallets
+        .where((wallet) => wallet.type == WalletType.bank)
+        .toList();
+    final List<WalletModel> eWallet = wallets
+        .where((wallet) => wallet.type == WalletType.eWallet)
+        .toList();
+    final List<WalletModel> platform = wallets
+        .where((wallet) => wallet.type == WalletType.platform)
+        .toList();
+    final BigInt totalBank = bank.fold(BigInt.zero, (
+      BigInt totalSementara,
+      WalletModel wallet,
+    ) {
+      return totalSementara + wallet.amount;
+    });
+    final BigInt totalEWallet = eWallet.fold(BigInt.zero, (
+      BigInt totalSementara,
+      WalletModel wallet,
+    ) {
+      return totalSementara + wallet.amount;
+    });
+    final BigInt totalPlatform = platform.fold(BigInt.zero, (
+      BigInt totalSementara,
+      WalletModel wallet,
+    ) {
+      return totalSementara + wallet.amount;
+    });
+
     return DraggableScrollableSheet(
       initialChildSize: 0.6,
       minChildSize: 0.4,
@@ -35,8 +66,9 @@ class WalletDetails extends StatelessWidget {
               _buildSimpleWalletItem(
                 icon: FontAwesomeIcons.coins,
                 name: HomeDict.cash.get(isRpg),
-                amount: 1500000,
+                amount: cash.amount,
               ),
+
               const Divider(color: Colors.white10, height: 32),
 
               Theme(
@@ -58,18 +90,61 @@ class WalletDetails extends StatelessWidget {
                     style: const TextStyle(fontSize: 16),
                   ),
                   trailing: Text(
-                    CurrencyFormatter.convertToIdr(10000000),
+                    CurrencyFormatter.convertToIdr(totalBank),
                     style: const TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 16,
                     ),
                   ),
                   children: [
-                    _buildSubWalletItem(name: 'Bank BCA', amount: 8000000),
-                    _buildSubWalletItem(name: 'Bank Mandiri', amount: 2000000),
+                    ...bank.asMap().entries.map((entry) {
+                      return _buildSubWalletItem(
+                        name: entry.value.name,
+                        amount: entry.value.amount,
+                      );
+                    }),
                   ],
                 ),
               ),
+
+              const Divider(color: Colors.white10, height: 16),
+
+              Theme(
+                data: Theme.of(
+                  context,
+                ).copyWith(dividerColor: Colors.transparent),
+                child: ExpansionTile(
+                  tilePadding: EdgeInsets.zero,
+                  leading: CircleAvatar(
+                    backgroundColor: AppColors.surfaceVariant,
+                    child: FaIcon(
+                      FontAwesomeIcons.wallet,
+                      size: 16,
+                      color: AppColors.textPrimary,
+                    ),
+                  ),
+                  title: Text(
+                    HomeDict.eWallet.get(isRpg),
+                    style: const TextStyle(fontSize: 16),
+                  ),
+                  trailing: Text(
+                    CurrencyFormatter.convertToIdr(totalEWallet),
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
+                  ),
+                  children: [
+                    ...eWallet.asMap().entries.map((entry) {
+                      return _buildSubWalletItem(
+                        name: entry.value.name,
+                        amount: entry.value.amount,
+                      );
+                    }),
+                  ],
+                ),
+              ),
+
               const Divider(color: Colors.white10, height: 16),
 
               Theme(
@@ -87,19 +162,23 @@ class WalletDetails extends StatelessWidget {
                     ),
                   ),
                   title: Text(
-                    HomeDict.eWallet.get(isRpg),
+                    HomeDict.platform.get(isRpg),
                     style: const TextStyle(fontSize: 16),
                   ),
                   trailing: Text(
-                    CurrencyFormatter.convertToIdr(500000),
+                    CurrencyFormatter.convertToIdr(totalPlatform),
                     style: const TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 16,
                     ),
                   ),
                   children: [
-                    _buildSubWalletItem(name: 'GoPay', amount: 350000),
-                    _buildSubWalletItem(name: 'OVO', amount: 150000),
+                    ...platform.asMap().entries.map((entry) {
+                      return _buildSubWalletItem(
+                        name: entry.value.name,
+                        amount: entry.value.amount,
+                      );
+                    }),
                   ],
                 ),
               ),
@@ -133,7 +212,7 @@ class WalletDetails extends StatelessWidget {
   Widget _buildSimpleWalletItem({
     required FaIconData icon,
     required String name,
-    required double amount,
+    required BigInt amount,
   }) {
     return Row(
       children: [
@@ -151,7 +230,7 @@ class WalletDetails extends StatelessWidget {
     );
   }
 
-  Widget _buildSubWalletItem({required String name, required double amount}) {
+  Widget _buildSubWalletItem({required String name, required BigInt amount}) {
     return Padding(
       padding: const EdgeInsets.only(
         left: 56.0,

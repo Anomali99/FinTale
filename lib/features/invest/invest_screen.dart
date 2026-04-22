@@ -5,7 +5,9 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/constants/app_colors.dart';
-import '../../core/constants/app_dictionary.dart';
+import '../../core/constants/assets_dict.dart';
+import '../../core/constants/invest_dict.dart';
+import '../../core/constants/menu_dict.dart';
 import '../../core/theme/mode_provider.dart';
 import 'widgets/asset_tab.dart';
 import 'widgets/invest_card.dart';
@@ -103,7 +105,7 @@ class _InvestScreenState extends State<InvestScreen>
                 shrinkWrap: true,
                 children: [
                   Text(
-                    InvestDict.recruit.get(isRpg),
+                    InvestDict.add.get(isRpg),
                     style: const TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
@@ -166,8 +168,8 @@ class _InvestScreenState extends State<InvestScreen>
 
                   CustomButton(
                     color: AppColors.primary,
-                    icon: InvestDict.recruitIcon.get(isRpg),
-                    title: InvestDict.recruit.get(isRpg),
+                    icon: InvestDict.add.icon(isRpg),
+                    title: InvestDict.add.get(isRpg),
                     onTap: () => Navigator.pop(context),
                   ),
 
@@ -207,7 +209,7 @@ class _InvestScreenState extends State<InvestScreen>
         ),
         actions: [
           IconButton(
-            icon: FaIcon(InvestDict.recruitIcon.get(isRpg), size: 20),
+            icon: FaIcon(InvestDict.add.icon(isRpg), size: 20),
             onPressed: () => _showRecruitDialog(isRpg),
           ),
           const SizedBox(width: 8),
@@ -233,16 +235,16 @@ class _InvestScreenState extends State<InvestScreen>
             unselectedLabelColor: AppColors.textSecondary,
             tabs: [
               Tab(
-                icon: FaIcon(ArmoryDict.tankerIcon.get(isRpg), size: 16),
-                text: ArmoryDict.tanker.get(isRpg),
+                icon: FaIcon(AssetsDict.lowRisk.icon(isRpg), size: 16),
+                text: AssetsDict.lowRisk.get(isRpg),
               ),
               Tab(
-                icon: FaIcon(ArmoryDict.fighterIcon.get(isRpg), size: 16),
-                text: ArmoryDict.fighter.get(isRpg),
+                icon: FaIcon(AssetsDict.mediumRisk.icon(isRpg), size: 16),
+                text: AssetsDict.mediumRisk.get(isRpg),
               ),
               Tab(
-                icon: FaIcon(ArmoryDict.assassinIcon.get(isRpg), size: 16),
-                text: ArmoryDict.assassin.get(isRpg),
+                icon: FaIcon(AssetsDict.highRisk.icon(isRpg), size: 16),
+                text: AssetsDict.highRisk.get(isRpg),
               ),
             ],
           ),
@@ -252,20 +254,20 @@ class _InvestScreenState extends State<InvestScreen>
               controller: _tabController,
               children: [
                 AssetTab(
-                  icon: ArmoryDict.tankerIcon.get(isRpg),
-                  category: 'Tanker',
+                  icon: AssetsDict.lowRisk.icon(isRpg),
+                  category: AssetsDict.lowRisk.value,
                   assets: [_assets[0]],
                   isRpg: isRpg,
                 ),
                 AssetTab(
-                  icon: ArmoryDict.fighterIcon.get(isRpg),
-                  category: 'Fighter',
+                  icon: AssetsDict.mediumRisk.icon(isRpg),
+                  category: AssetsDict.mediumRisk.value,
                   assets: [_assets[1]],
                   isRpg: isRpg,
                 ),
                 AssetTab(
-                  icon: ArmoryDict.assassinIcon.get(isRpg),
-                  category: 'Assassin',
+                  icon: AssetsDict.highRisk.icon(isRpg),
+                  category: AssetsDict.highRisk.value,
                   assets: [_assets[2]],
                   isRpg: isRpg,
                 ),

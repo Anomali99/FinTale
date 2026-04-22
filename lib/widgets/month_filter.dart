@@ -4,7 +4,15 @@ import '../core/constants/app_colors.dart';
 
 class MonthFilter extends StatelessWidget {
   final String selected;
-  const MonthFilter({super.key, required this.selected});
+  final VoidCallback? onPrev;
+  final VoidCallback? onNext;
+
+  const MonthFilter({
+    super.key,
+    required this.selected,
+    this.onPrev,
+    this.onNext,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -12,10 +20,13 @@ class MonthFilter extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         IconButton(
-          icon: const Icon(Icons.chevron_left, color: AppColors.textSecondary),
-          onPressed: () {
-            /* Mundur 1 Bulan */
-          },
+          icon: Icon(
+            Icons.chevron_left,
+            color: onPrev == null
+                ? AppColors.textSecondary.withOpacity(0.3)
+                : AppColors.textSecondary,
+          ),
+          onPressed: onPrev,
         ),
         Text(
           selected,
@@ -26,10 +37,13 @@ class MonthFilter extends StatelessWidget {
           ),
         ),
         IconButton(
-          icon: const Icon(Icons.chevron_right, color: AppColors.textSecondary),
-          onPressed: () {
-            /* Maju 1 Bulan */
-          },
+          icon: Icon(
+            Icons.chevron_right,
+            color: onNext == null
+                ? AppColors.textSecondary.withOpacity(0.3)
+                : AppColors.textSecondary,
+          ),
+          onPressed: onNext,
         ),
       ],
     );

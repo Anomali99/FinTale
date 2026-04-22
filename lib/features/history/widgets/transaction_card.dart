@@ -4,15 +4,54 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../../core/constants/app_colors.dart';
 import '../../../core/utils/currency_formatter.dart';
+import '../../../models/transaction_model.dart';
 
-enum TransactionType { income, expense, transfer }
+extension TransactionTypeUI on TransactionType {
+  Color get iconColor {
+    switch (this) {
+      case TransactionType.income:
+        return Colors.green;
+      case TransactionType.expense:
+        return Colors.red;
+      case TransactionType.transfer:
+        return Colors.blueGrey;
+      case TransactionType.debt:
+        return Colors.deepOrange;
+    }
+  }
+
+  Color get iconBgColor => iconColor.withOpacity(0.2);
+
+  Color get amountColor {
+    switch (this) {
+      case TransactionType.income:
+        return Colors.green;
+      case TransactionType.expense:
+      case TransactionType.debt:
+        return Colors.red;
+      case TransactionType.transfer:
+        return Colors.black87;
+    }
+  }
+
+  String get prefix {
+    switch (this) {
+      case TransactionType.income:
+        return '+ ';
+      case TransactionType.expense:
+      case TransactionType.debt:
+        return '- ';
+      case TransactionType.transfer:
+        return '';
+    }
+  }
+}
 
 class TransactionCard extends StatelessWidget {
   final TransactionType type;
   final String title;
   final String subtitle;
-  final double amount;
-  final double? adminFee;
+  final BigInt amount;
   final FaIconData icon;
 
   const TransactionCard({
@@ -22,37 +61,10 @@ class TransactionCard extends StatelessWidget {
     required this.subtitle,
     required this.amount,
     required this.icon,
-    this.adminFee,
   });
 
   @override
   Widget build(BuildContext context) {
-    Color iconColor;
-    Color iconBgColor;
-    Color amountColor;
-    String prefix = '';
-
-    switch (type) {
-      case TransactionType.income:
-        iconColor = AppColors.success;
-        iconBgColor = AppColors.success.withOpacity(0.2);
-        amountColor = AppColors.success;
-        prefix = '+ ';
-        break;
-      case TransactionType.expense:
-        iconColor = AppColors.error;
-        iconBgColor = AppColors.error.withOpacity(0.2);
-        amountColor = AppColors.error;
-        prefix = '- ';
-        break;
-      case TransactionType.transfer:
-        iconColor = Colors.blueAccent;
-        iconBgColor = Colors.blueAccent.withOpacity(0.2);
-        amountColor = AppColors.textPrimary;
-        prefix = '';
-        break;
-    }
-
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
@@ -71,8 +83,8 @@ class TransactionCard extends StatelessWidget {
             children: [
               CircleAvatar(
                 radius: 20,
-                backgroundColor: iconBgColor,
-                child: FaIcon(icon, color: iconColor, size: 18),
+                backgroundColor: type.iconBgColor,
+                child: FaIcon(icon, color: type.iconColor, size: 18),
               ),
               const SizedBox(width: 16),
 
@@ -108,37 +120,13 @@ class TransactionCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Text(
-                    '$prefix${CurrencyFormatter.convertToIdr(amount)}',
+                    '${type.prefix} ${CurrencyFormatter.convertToIdr(amount)}',
                     style: GoogleFonts.poppins(
                       fontWeight: FontWeight.bold,
-                      color: amountColor,
+                      color: type.amountColor,
                       fontSize: 14,
                     ),
                   ),
-
-                  if (type == TransactionType.transfer &&
-                      adminFee != null &&
-                      adminFee! > 0) ...[
-                    const SizedBox(height: 4),
-                    Row(
-                      children: [
-                        const FaIcon(
-                          FontAwesomeIcons.coins,
-                          size: 10,
-                          color: AppColors.error,
-                        ),
-                        const SizedBox(width: 4),
-                        Text(
-                          '- ${CurrencyFormatter.convertToIdr(adminFee!)}',
-                          style: const TextStyle(
-                            color: AppColors.error,
-                            fontSize: 10,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
                 ],
               ),
             ],

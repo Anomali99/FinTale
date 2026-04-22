@@ -3,7 +3,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 
 import '../core/constants/app_colors.dart';
-import '../core/constants/app_dictionary.dart';
+import '../core/constants/menu_dict.dart';
 import '../core/theme/mode_provider.dart';
 import 'bills/bills_screen.dart';
 import 'history/history_screen.dart';
@@ -55,7 +55,7 @@ class _MainLayoutState extends State<MainLayout> {
                 leading: CircleAvatar(
                   backgroundColor: AppColors.error.withOpacity(0.2),
                   child: FaIcon(
-                    MenuDict.payIcon.get(isRpg),
+                    MenuDict.pay.icon(isRpg),
                     color: AppColors.error,
                     size: 18,
                   ),
@@ -64,7 +64,7 @@ class _MainLayoutState extends State<MainLayout> {
                   MenuDict.pay.get(isRpg),
                   style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
-                subtitle: Text(MenuDict.payDec.get(isRpg)),
+                subtitle: Text(MenuDict.pay.decription ?? ''),
                 onTap: () {
                   Navigator.pop(context);
                   /* TODO: Buka form bayar hutang */
@@ -76,7 +76,7 @@ class _MainLayoutState extends State<MainLayout> {
                 leading: CircleAvatar(
                   backgroundColor: Colors.blueAccent.withOpacity(0.2),
                   child: FaIcon(
-                    MenuDict.dailyIcon.get(isRpg),
+                    MenuDict.daily.icon(isRpg),
                     color: Colors.blueAccent,
                     size: 18,
                   ),
@@ -85,7 +85,7 @@ class _MainLayoutState extends State<MainLayout> {
                   MenuDict.daily.get(isRpg),
                   style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
-                subtitle: Text(MenuDict.dailyDec.get(isRpg)),
+                subtitle: Text(MenuDict.daily.decription ?? ''),
                 onTap: () {
                   Navigator.pop(context);
                   /* TODO: Buka form pengeluaran harian */
@@ -112,7 +112,7 @@ class _MainLayoutState extends State<MainLayout> {
         foregroundColor: Colors.white,
         elevation: 4,
         shape: const CircleBorder(),
-        child: FaIcon(MenuDict.payIcon.get(isRpg), size: 24),
+        child: FaIcon(MenuDict.pay.icon(isRpg), size: 24),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
 
@@ -126,24 +126,24 @@ class _MainLayoutState extends State<MainLayout> {
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
               _buildNavItem(
-                icon: MenuDict.homeIcon.get(isRpg),
+                icon: MenuDict.home.icon(isRpg),
                 label: MenuDict.home.get(isRpg),
                 index: 0,
               ),
               _buildNavItem(
-                icon: MenuDict.billsIcon.get(isRpg),
+                icon: MenuDict.bills.icon(isRpg),
                 label: MenuDict.bills.get(isRpg),
                 index: 1,
               ),
 
               const SizedBox(width: 48),
               _buildNavItem(
-                icon: MenuDict.investIcon.get(isRpg),
+                icon: MenuDict.invest.icon(isRpg),
                 label: MenuDict.invest.get(isRpg),
                 index: 2,
               ),
               _buildNavItem(
-                icon: MenuDict.historyIcon.get(isRpg),
+                icon: MenuDict.history.icon(isRpg),
                 label: MenuDict.history.get(isRpg),
                 index: 3,
               ),

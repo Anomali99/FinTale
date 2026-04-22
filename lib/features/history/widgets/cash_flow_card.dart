@@ -3,13 +3,21 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../../core/constants/app_colors.dart';
-import '../../../core/constants/app_dictionary.dart';
+import '../../../core/constants/history_dict.dart';
+import '../../../core/constants/shared_dict.dart';
 import '../../../core/utils/currency_formatter.dart';
 
 class CashFlowCard extends StatelessWidget {
   final bool isRpg;
+  final BigInt totalIncome;
+  final BigInt totalExpense;
 
-  const CashFlowCard({super.key, required this.isRpg});
+  const CashFlowCard({
+    super.key,
+    required this.totalIncome,
+    required this.totalExpense,
+    required this.isRpg,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -41,7 +49,7 @@ class CashFlowCard extends StatelessWidget {
                       radius: 16,
                       backgroundColor: AppColors.success.withOpacity(0.2),
                       child: FaIcon(
-                        HomeDict.incomeIcon.get(isRpg),
+                        SharedDict.income.icon(isRpg),
                         size: 12,
                         color: AppColors.success,
                       ),
@@ -52,14 +60,14 @@ class CashFlowCard extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            HomeDict.income.get(isRpg),
+                            SharedDict.income.get(isRpg),
                             style: const TextStyle(
                               fontSize: 10,
                               color: AppColors.textSecondary,
                             ),
                           ),
                           Text(
-                            CurrencyFormatter.convertToIdr(5500000),
+                            CurrencyFormatter.convertToIdr(totalIncome),
                             style: GoogleFonts.poppins(
                               fontSize: 14,
                               fontWeight: FontWeight.bold,
@@ -83,7 +91,7 @@ class CashFlowCard extends StatelessWidget {
                       radius: 16,
                       backgroundColor: AppColors.error.withOpacity(0.2),
                       child: FaIcon(
-                        HistoryDict.expenseLogIcon.get(isRpg),
+                        SharedDict.expense.icon(isRpg),
                         size: 12,
                         color: AppColors.error,
                       ),
@@ -94,14 +102,14 @@ class CashFlowCard extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            HistoryDict.expense.get(isRpg),
+                            SharedDict.expense.get(isRpg),
                             style: const TextStyle(
                               fontSize: 10,
                               color: AppColors.textSecondary,
                             ),
                           ),
                           Text(
-                            CurrencyFormatter.convertToIdr(2150000),
+                            CurrencyFormatter.convertToIdr(totalExpense),
                             style: GoogleFonts.poppins(
                               fontSize: 14,
                               fontWeight: FontWeight.bold,

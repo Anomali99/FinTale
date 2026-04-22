@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import '../../../core/constants/app_colors.dart';
-import '../../../core/constants/app_dictionary.dart';
+import '../../../core/constants/status_dict.dart';
 import 'bill_card.dart';
 
 class BillsTab extends StatelessWidget {
@@ -16,7 +16,7 @@ class BillsTab extends StatelessWidget {
       padding: const EdgeInsets.all(24.0),
       children: [
         Text(
-          BillsDict.pending.get(isRpg).toUpperCase(),
+          StatusDict.pending.get(isRpg).toUpperCase(),
           style: const TextStyle(
             fontWeight: FontWeight.bold,
             color: AppColors.textSecondary,
@@ -52,7 +52,7 @@ class BillsTab extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: Text(
-                BillsDict.paid.get(isRpg).toUpperCase(),
+                StatusDict.paid.get(isRpg).toUpperCase(),
                 style: const TextStyle(
                   color: AppColors.success,
                   fontWeight: FontWeight.bold,

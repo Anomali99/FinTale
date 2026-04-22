@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import '../../../core/constants/app_colors.dart';
-import '../../../core/constants/app_dictionary.dart';
+import '../../../core/constants/invest_dict.dart';
 import 'invest_card.dart';
 
 class AssetTab extends StatelessWidget {
@@ -29,7 +29,7 @@ class AssetTab extends StatelessWidget {
             FaIcon(icon, size: 48, color: AppColors.surfaceVariant),
             const SizedBox(height: 16),
             Text(
-              InvestDict.emptyAsset.get(isRpg),
+              InvestDict.empty.get(isRpg),
               textAlign: TextAlign.center,
               style: const TextStyle(color: AppColors.textSecondary),
             ),

@@ -3,13 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../../core/constants/app_colors.dart';
-import '../../../core/constants/app_dictionary.dart';
+import '../../../core/constants/shared_dict.dart';
 import '../../../core/utils/currency_formatter.dart';
 import 'detail_card.dart';
 
 class DonutChart extends StatelessWidget {
-  final List<CategoryData> activeData;
-  final double activeTotal;
+  final List<AnalyticCategory> activeData;
+  final BigInt activeTotal;
   final bool showExpense;
   final bool isRpg;
   final int touchedIndex;
@@ -37,7 +37,7 @@ class DonutChart extends StatelessWidget {
 
       return PieChartSectionData(
         color: data.color,
-        value: data.amount,
+        value: data.amount.toDouble(),
         title: '$percentage%',
         radius: radius,
         titleStyle: TextStyle(
@@ -82,8 +82,8 @@ class DonutChart extends StatelessWidget {
             children: [
               Text(
                 showExpense
-                    ? 'Total ${HistoryDict.expense.get(isRpg)}'
-                    : 'Total ${MenuDict.invest.get(isRpg)}',
+                    ? 'Total ${SharedDict.expense.get(isRpg)}'
+                    : 'Total ${SharedDict.invest.get(isRpg)}',
                 style: const TextStyle(
                   fontSize: 10,
                   color: AppColors.textSecondary,

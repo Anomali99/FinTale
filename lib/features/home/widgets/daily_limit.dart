@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../core/constants/app_colors.dart';
-import '../../../core/constants/app_dictionary.dart';
+import '../../../core/constants/home_dict.dart';
 import '../../../core/utils/currency_formatter.dart';
 
 class DailyLimit extends StatelessWidget {

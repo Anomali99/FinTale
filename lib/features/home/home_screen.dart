@@ -4,15 +4,21 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/constants/app_colors.dart';
-import '../../core/constants/app_dictionary.dart';
+import '../../core/constants/home_dict.dart';
+import '../../core/constants/shared_dict.dart';
+import '../../core/constants/title_dict.dart';
+import '../../core/dummy/dummy_data.dart';
 import '../../core/theme/mode_provider.dart';
 import '../../core/utils/currency_formatter.dart';
+import '../../models/user_model.dart';
+import '../../models/wallet_model.dart';
 import '../settings/settings_screen.dart';
 import 'widgets/daily_limit.dart';
 import 'widgets/wallet_details.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
+  final UserModel userData = DummyData.user;
 
   void _showWalletDetails(BuildContext context, bool isRpg) {
     showModalBottomSheet(
@@ -23,7 +29,7 @@ class HomeScreen extends StatelessWidget {
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       builder: (context) {
-        return WalletDetails(isRpg: isRpg);
+        return WalletDetails(wallets: DummyData.wallets, isRpg: isRpg);
       },
     );
   }
@@ -31,6 +37,12 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isRpg = Provider.of<ModeProvider>(context).isRpgMode;
+    final BigInt totalBalance = DummyData.wallets.fold(BigInt.zero, (
+      BigInt total,
+      WalletModel wallet,
+    ) {
+      return total + wallet.amount;
+    });
 
     return Scaffold(
       appBar: AppBar(
@@ -38,7 +50,7 @@ class HomeScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Lv. 5 - Fatiq',
+              'Lv. ${userData.level} - ${userData.name}',
               style: GoogleFonts.poppins(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
@@ -46,7 +58,7 @@ class HomeScreen extends StatelessWidget {
               ),
             ),
             Text(
-              TitleDict.noviceSaver.get(isRpg),
+              TitleDict.getByEnum(userData.title).get(isRpg),
               style: const TextStyle(
                 fontSize: 12,
                 color: AppColors.textSecondary,
@@ -127,7 +139,7 @@ class HomeScreen extends StatelessWidget {
                           ),
                           const SizedBox(height: 8),
                           Text(
-                            CurrencyFormatter.convertToIdr(12000000),
+                            CurrencyFormatter.convertToIdr(totalBalance),
                             style: GoogleFonts.montserrat(
                               fontSize: 32,
                               fontWeight: FontWeight.bold,
@@ -162,13 +174,13 @@ class HomeScreen extends StatelessWidget {
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 FaIcon(
-                                  HomeDict.incomeIcon.get(isRpg),
+                                  SharedDict.income.icon(isRpg),
                                   color: AppColors.success,
                                   size: 16,
                                 ),
                                 const SizedBox(width: 8),
                                 Text(
-                                  HomeDict.income.get(isRpg),
+                                  SharedDict.income.get(isRpg),
                                   style: const TextStyle(
                                     fontWeight: FontWeight.bold,
                                   ),
@@ -190,13 +202,13 @@ class HomeScreen extends StatelessWidget {
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 FaIcon(
-                                  HomeDict.transferIcon.get(isRpg),
+                                  SharedDict.transfer.icon(isRpg),
                                   color: AppColors.warning,
                                   size: 16,
                                 ),
                                 const SizedBox(width: 8),
                                 Text(
-                                  HomeDict.transfer.get(isRpg),
+                                  SharedDict.transfer.get(isRpg),
                                   style: const TextStyle(
                                     fontWeight: FontWeight.bold,
                                   ),

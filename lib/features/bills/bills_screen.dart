@@ -4,7 +4,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/constants/app_colors.dart';
-import '../../core/constants/app_dictionary.dart';
+import '../../core/constants/bills_dict.dart';
+import '../../core/constants/menu_dict.dart';
 import '../../core/theme/mode_provider.dart';
 import 'widgets/bills_tab.dart';
 import 'widgets/debts_tab.dart';
@@ -62,16 +63,16 @@ class _BillsScreenState extends State<BillsScreen>
                 leading: CircleAvatar(
                   backgroundColor: Colors.blueAccent.withOpacity(0.2),
                   child: FaIcon(
-                    BillsDict.addBillIcon.get(isRpg),
+                    BillsDict.addTemplate.icon(isRpg),
                     color: Colors.blueAccent,
                     size: 18,
                   ),
                 ),
                 title: Text(
-                  BillsDict.addRecurringBill.get(isRpg),
+                  BillsDict.addTemplate.get(isRpg),
                   style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
-                subtitle: Text(MenuDict.dailyDec.get(isRpg)),
+                subtitle: Text(BillsDict.addTemplate.decription ?? ''),
                 onTap: () {
                   Navigator.pop(context);
                   /* TODO: Navigasi ke form tambah quest */
@@ -83,7 +84,7 @@ class _BillsScreenState extends State<BillsScreen>
                 leading: CircleAvatar(
                   backgroundColor: AppColors.error.withOpacity(0.2),
                   child: FaIcon(
-                    BillsDict.addDebtIcon.get(isRpg),
+                    BillsDict.addDebt.icon(isRpg),
                     color: AppColors.error,
                     size: 18,
                   ),
@@ -92,7 +93,7 @@ class _BillsScreenState extends State<BillsScreen>
                   BillsDict.addDebt.get(isRpg),
                   style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
-                subtitle: Text(MenuDict.payDec.get(isRpg)),
+                subtitle: Text(BillsDict.addDebt.decription ?? ''),
                 onTap: () {
                   Navigator.pop(context);
                   /* TODO: Navigasi ke form tambah hutang/boss */
@@ -120,7 +121,7 @@ class _BillsScreenState extends State<BillsScreen>
           ),
           actions: [
             IconButton(
-              icon: FaIcon(BillsDict.manageBillsIcon.get(isRpg), size: 20),
+              icon: FaIcon(BillsDict.addIcon.get(isRpg), size: 20),
               onPressed: () => _showActionPopup(context, isRpg),
             ),
             const SizedBox(width: 8),
@@ -131,9 +132,9 @@ class _BillsScreenState extends State<BillsScreen>
             labelColor: AppColors.primary,
             unselectedLabelColor: AppColors.textSecondary,
             tabs: [
-              Tab(text: BillsDict.currentBills.get(isRpg)),
-              Tab(text: BillsDict.manageBills.get(isRpg)),
-              Tab(text: BillsDict.totalDebts.get(isRpg)),
+              Tab(text: BillsDict.bills.get(isRpg)),
+              Tab(text: BillsDict.template.get(isRpg)),
+              Tab(text: BillsDict.debts.get(isRpg)),
             ],
           ),
         ),

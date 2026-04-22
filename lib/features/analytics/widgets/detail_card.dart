@@ -3,27 +3,32 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../../core/constants/app_colors.dart';
+import '../../../core/models/category_model.dart';
 import '../../../core/utils/currency_formatter.dart';
 
-class CategoryData {
-  final String name;
-  final double amount;
-  final Color color;
-  final FaIconData icon;
+class AnalyticCategory {
+  final CategoryModel category;
+  final BigInt amount;
 
-  CategoryData(this.name, this.amount, this.color, this.icon);
+  const AnalyticCategory({required this.category, required this.amount});
+
+  Color get color => category.color ?? Colors.black;
+  FaIconData icon(bool isRpgMode) => category.icon(isRpgMode);
+  String get(bool isRpgMode) => category.get(isRpgMode);
 }
 
 class DetailCard extends StatelessWidget {
-  final CategoryData data;
+  final AnalyticCategory data;
   final double percentage;
   final bool isSelected;
+  final bool isRpg;
 
   const DetailCard({
     super.key,
     required this.data,
     required this.percentage,
     required this.isSelected,
+    required this.isRpg,
   });
 
   @override
@@ -47,12 +52,12 @@ class DetailCard extends StatelessWidget {
               CircleAvatar(
                 radius: 16,
                 backgroundColor: data.color.withOpacity(0.2),
-                child: FaIcon(data.icon, color: data.color, size: 14),
+                child: FaIcon(data.icon(isRpg), color: data.color, size: 14),
               ),
               const SizedBox(width: 16),
               Expanded(
                 child: Text(
-                  data.name,
+                  data.get(isRpg),
                   style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
               ),

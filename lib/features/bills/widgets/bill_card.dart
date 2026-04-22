@@ -3,7 +3,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../../core/constants/app_colors.dart';
-import '../../../core/constants/app_dictionary.dart';
+import '../../../core/constants/bills_dict.dart';
 import '../../../core/utils/currency_formatter.dart';
 
 class BillCard extends StatelessWidget {
@@ -120,12 +120,9 @@ class BillCard extends StatelessWidget {
                         onPressed: () {
                           /* TODO: Logika Pembayaran */
                         },
-                        icon: FaIcon(
-                          BillsDict.payBillIcon.get(isRpg),
-                          size: 12,
-                        ),
+                        icon: FaIcon(BillsDict.pay.icon(isRpg), size: 12),
                         label: Text(
-                          isRpg ? 'Attack' : 'Pay',
+                          BillsDict.pay.get(isRpg),
                           style: const TextStyle(fontSize: 12),
                         ),
                         style: ElevatedButton.styleFrom(
@@ -140,7 +137,7 @@ class BillCard extends StatelessWidget {
                 ),
               ] else ...[
                 FaIcon(
-                  BillsDict.paidIcon.get(isRpg),
+                  BillsDict.pay.icon(isRpg),
                   color: AppColors.success,
                   size: 28,
                 ),

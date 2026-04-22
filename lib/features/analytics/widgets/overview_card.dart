@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 
 import '../../../core/constants/app_colors.dart';
-import '../../../core/constants/app_dictionary.dart';
+import '../../../core/constants/shared_dict.dart';
 import '../../../core/utils/currency_formatter.dart';
 
 class OverviewCard extends StatelessWidget {
   final bool isRpg;
-  final double totalIncome;
-  final double totalExpense;
-  final double totalInvest;
+  final BigInt totalIncome;
+  final BigInt totalExpense;
+  final BigInt totalInvest;
 
   const OverviewCard({
     super.key,
@@ -18,12 +18,12 @@ class OverviewCard extends StatelessWidget {
     required this.isRpg,
   });
 
-  double get unallocated => totalIncome - totalExpense - totalInvest;
+  BigInt get unallocated => totalIncome - totalExpense - totalInvest;
 
   Widget _buildLegendItem({
     required Color color,
     required String label,
-    required double amount,
+    required BigInt amount,
   }) {
     return Column(
       children: [
@@ -68,7 +68,7 @@ class OverviewCard extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                HomeDict.income.get(isRpg),
+                SharedDict.income.get(isRpg),
                 style: const TextStyle(
                   color: AppColors.textSecondary,
                   fontSize: 12,
@@ -114,17 +114,17 @@ class OverviewCard extends StatelessWidget {
             children: [
               _buildLegendItem(
                 color: AppColors.error,
-                label: HistoryDict.expense.get(isRpg),
+                label: SharedDict.expense.get(isRpg),
                 amount: totalExpense,
               ),
               _buildLegendItem(
                 color: AppColors.primary,
-                label: MenuDict.invest.get(isRpg),
+                label: SharedDict.invest.get(isRpg),
                 amount: totalInvest,
               ),
               _buildLegendItem(
                 color: Colors.white24,
-                label: HistoryDict.unallocated.get(isRpg),
+                label: SharedDict.unallocated.get(isRpg),
                 amount: unallocated,
               ),
             ],

@@ -3,7 +3,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../../core/constants/app_colors.dart';
-import '../../../core/constants/app_dictionary.dart';
+import '../../../core/constants/invest_dict.dart';
 import '../../../core/utils/currency_formatter.dart';
 
 class TotalCard extends StatelessWidget {
@@ -43,7 +43,7 @@ class TotalCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            InvestDict.totalPortfolio.get(isRpg),
+            InvestDict.total.get(isRpg),
             style: const TextStyle(
               color: AppColors.textSecondary,
               fontSize: 14,
@@ -66,7 +66,7 @@ class TotalCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    InvestDict.investedCapital.get(isRpg),
+                    InvestDict.invested.get(isRpg),
                     style: const TextStyle(
                       color: AppColors.textSecondary,
                       fontSize: 12,

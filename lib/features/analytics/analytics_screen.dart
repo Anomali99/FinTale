@@ -1,10 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/constants/app_colors.dart';
-import '../../core/constants/app_dictionary.dart';
+import '../../core/constants/category_dict.dart';
+import '../../core/constants/history_dict.dart';
+import '../../core/constants/menu_dict.dart';
+import '../../core/dummy/dummy_data.dart';
 import '../../core/theme/mode_provider.dart';
+import '../../core/utils/time_formatter.dart';
+import '../../models/transaction_detail_model.dart';
+import '../../models/transaction_model.dart';
 import '../../widgets/month_filter.dart';
 import 'widgets/detail_card.dart';
 import 'widgets/donut_chart.dart';
@@ -18,74 +25,78 @@ class AnalyticsScreen extends StatefulWidget {
 }
 
 class _AnalyticsScreenState extends State<AnalyticsScreen> {
-  final String _selectedMonth = "April 2026";
+  final List<TransactionModel> transactions = DummyData.transactions
+      .where((transaction) => transaction.status == StatusType.paid)
+      .toList();
+  DateTime _selectedMonth = DateTime(2026, 4);
   bool _showExpense = true;
   int _touchedIndex = -1;
 
-  final double totalIncome = 10000000;
-  final double totalExpense = 4000000;
-  final double totalInvest = 3000000;
+  late List<AnalyticCategory> expenseCategories;
+  late List<AnalyticCategory> investCategories;
 
-  late List<CategoryData> expenseCategories;
-  late List<CategoryData> investCategories;
+  List<TransactionModel> getGroupedTransactions() {
+    int startOfMonth = TimeFormatter.getStartOfMonth(
+      _selectedMonth.year,
+      _selectedMonth.month,
+    );
+    int endOfMonth = TimeFormatter.getEndOfMonth(
+      _selectedMonth.year,
+      _selectedMonth.month,
+    );
 
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    final isRpg = Provider.of<ModeProvider>(context).isRpgMode;
+    List<TransactionModel> filteredByMonth = transactions.where((trx) {
+      return trx.dateTimestamp != null &&
+          trx.dateTimestamp! >= startOfMonth &&
+          trx.dateTimestamp! <= endOfMonth;
+    }).toList();
 
-    expenseCategories = [
-      CategoryData(
-        CategoryDict.catFood.get(isRpg),
-        1800000,
-        Colors.redAccent,
-        CategoryDict.catFoodIcon.get(isRpg),
-      ),
-      CategoryData(
-        CategoryDict.catBills.get(isRpg),
-        1200000,
-        Colors.orangeAccent,
-        CategoryDict.catBillsIcon.get(isRpg),
-      ),
-      CategoryData(
-        CategoryDict.catTransport.get(isRpg),
-        600000,
-        Colors.purpleAccent,
-        CategoryDict.catTransportIcon.get(isRpg),
-      ),
-      CategoryData(
-        CategoryDict.catEntertainment.get(isRpg),
-        400000,
-        Colors.pinkAccent,
-        CategoryDict.catEntertainmentIcon.get(isRpg),
-      ),
-    ];
-
-    investCategories = [
-      CategoryData(
-        ArmoryDict.fighter.get(isRpg),
-        1500000,
-        Colors.blueAccent,
-        ArmoryDict.fighterIcon.get(isRpg),
-      ),
-      CategoryData(
-        ArmoryDict.tanker.get(isRpg),
-        1000000,
-        Colors.teal,
-        ArmoryDict.tankerIcon.get(isRpg),
-      ),
-      CategoryData(
-        ArmoryDict.assassin.get(isRpg),
-        500000,
-        Colors.deepPurpleAccent,
-        ArmoryDict.assassinIcon.get(isRpg),
-      ),
-    ];
+    return filteredByMonth;
   }
 
   @override
   Widget build(BuildContext context) {
     final isRpg = Provider.of<ModeProvider>(context).isRpgMode;
+    BigInt totalIncome = BigInt.zero;
+    BigInt totalExpense = BigInt.zero;
+    BigInt totalInvest = BigInt.zero;
+
+    Map<TransactionCategory, BigInt> tempExpenseMap = {};
+    Map<TransactionCategory, BigInt> tempInvestMap = {};
+
+    for (TransactionModel transaction in getGroupedTransactions()) {
+      for (TransactionDetailModel detail in transaction.detailTransaction) {
+        if (transaction.type == TransactionType.income &&
+            detail.flow == FlowType.income) {
+          totalIncome += detail.amount;
+        } else if (detail.flow == FlowType.expense) {
+          if (detail.category == TransactionCategory.investment) {
+            totalInvest += detail.amount;
+            tempInvestMap[detail.category] =
+                (tempInvestMap[detail.category] ?? BigInt.zero) + detail.amount;
+          } else {
+            totalExpense += detail.amount;
+            tempExpenseMap[detail.category] =
+                (tempExpenseMap[detail.category] ?? BigInt.zero) +
+                detail.amount;
+          }
+        }
+      }
+    }
+
+    expenseCategories = tempExpenseMap.entries.map((entry) {
+      return AnalyticCategory(
+        category: CategoryDict.getByTransactionCategory(entry.key),
+        amount: entry.value,
+      );
+    }).toList();
+
+    investCategories = tempInvestMap.entries.map((entry) {
+      return AnalyticCategory(
+        category: CategoryDict.getByTransactionCategory(entry.key),
+        amount: entry.value,
+      );
+    }).toList();
 
     final activeData = _showExpense ? expenseCategories : investCategories;
     final activeTotal = _showExpense ? totalExpense : totalInvest;
@@ -101,7 +112,25 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
       body: ListView(
         padding: const EdgeInsets.all(24.0),
         children: [
-          MonthFilter(selected: _selectedMonth),
+          MonthFilter(
+            selected: DateFormat('MMMM yyyy').format(_selectedMonth),
+            onPrev: () {
+              setState(() {
+                _selectedMonth = DateTime(
+                  _selectedMonth.year,
+                  _selectedMonth.month - 1,
+                );
+              });
+            },
+            onNext: () {
+              setState(() {
+                _selectedMonth = DateTime(
+                  _selectedMonth.year,
+                  _selectedMonth.month + 1,
+                );
+              });
+            },
+          ),
 
           const SizedBox(height: 24),
 
@@ -224,13 +253,14 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
           const SizedBox(height: 16),
           ...activeData.asMap().entries.map((entry) {
             int index = entry.key;
-            CategoryData data = entry.value;
+            AnalyticCategory data = entry.value;
             double percentage = data.amount / activeTotal;
 
             return DetailCard(
               data: data,
               percentage: percentage,
               isSelected: _touchedIndex == index,
+              isRpg: isRpg,
             );
           }),
 

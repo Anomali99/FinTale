@@ -4,10 +4,13 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/constants/app_colors.dart';
-import '../../core/constants/app_dictionary.dart';
+import '../../core/constants/settings_dict.dart';
+import '../../core/dummy/dummy_data.dart';
 import '../../core/theme/mode_provider.dart';
+import '../../models/user_model.dart';
 import '../../services/auth_service.dart';
 import '../../widgets/custom_button.dart';
+import 'widgets/profil_card.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -17,14 +20,10 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
-  String _userName = "Fatiq";
+  final UserModel user = DummyData.user;
   bool _isNotificationsEnabled = true;
   String _selectedTheme = 'Dark';
-  final int _currentLevel = 5;
   int _activeStrategyLevel = 5;
-
-  final int _currentXp = 650;
-  final int _targetXp = 1000;
 
   Future<void> _handleSignOut(BuildContext context) async {
     try {
@@ -49,7 +48,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   void _showEditNameDialog() {
     final TextEditingController nameController = TextEditingController(
-      text: _userName,
+      text: user.name,
     );
     showDialog(
       context: context,
@@ -77,7 +76,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ElevatedButton(
             style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary),
             onPressed: () {
-              setState(() => _userName = nameController.text);
+              setState(() => nameController.text);
               Navigator.pop(context);
             },
             child: const Text('Save', style: TextStyle(color: Colors.white)),
@@ -104,9 +103,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 24.0),
                 child: Text(
-                  isRpg
-                      ? 'Select Battle Strategy'
-                      : 'Select Allocation Strategy',
+                  'Select ${SettingsDict.allocationRules.get(isRpg)}',
                   style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
@@ -117,7 +114,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               Expanded(
                 child: ListView.builder(
                   shrinkWrap: true,
-                  itemCount: _currentLevel,
+                  itemCount: user.level,
                   itemBuilder: (context, index) {
                     int levelStr = index + 1;
                     bool isSelected = levelStr == _activeStrategyLevel;
@@ -178,10 +175,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final modeProvider = Provider.of<ModeProvider>(context);
     final isRpg = modeProvider.isRpgMode;
 
-    final double xpPercentage = _targetXp > 0
-        ? (_currentXp / _targetXp).clamp(0.0, 1.0)
-        : 0.0;
-
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -192,98 +185,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
       body: ListView(
         padding: const EdgeInsets.all(24.0),
         children: [
-          Container(
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              color: AppColors.surfaceVariant,
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: AppColors.primary.withOpacity(0.3)),
-            ),
-            child: Column(
-              children: [
-                Row(
-                  children: [
-                    CircleAvatar(
-                      radius: 30,
-                      backgroundColor: AppColors.primary.withOpacity(0.2),
-                      child: const FaIcon(
-                        FontAwesomeIcons.userAstronaut,
-                        color: AppColors.primary,
-                        size: 28,
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              Text(
-                                _userName,
-                                style: GoogleFonts.poppins(
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              IconButton(
-                                icon: const Icon(
-                                  Icons.edit,
-                                  size: 16,
-                                  color: AppColors.textSecondary,
-                                ),
-                                onPressed: _showEditNameDialog,
-                                constraints: const BoxConstraints(),
-                                padding: const EdgeInsets.only(left: 8),
-                              ),
-                            ],
-                          ),
-                          Text(
-                            'Lv. $_currentLevel - ${TitleDict.noviceSaver.get(isRpg)}',
-                            style: const TextStyle(
-                              color: AppColors.textSecondary,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
+          ProfilCard(user: user, isRpg: isRpg, editName: _showEditNameDialog),
 
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'EXP',
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.warning,
-                      ),
-                    ),
-                    Text(
-                      '$_currentXp / $_targetXp',
-                      style: const TextStyle(
-                        fontSize: 12,
-                        color: AppColors.textSecondary,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 6),
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(4),
-                  child: LinearProgressIndicator(
-                    value: xpPercentage,
-                    backgroundColor: AppColors.background,
-                    color: AppColors.warning,
-                    minHeight: 8,
-                  ),
-                ),
-              ],
-            ),
-          ),
           const SizedBox(height: 32),
 
           Text(
