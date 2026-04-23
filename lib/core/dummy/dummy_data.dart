@@ -21,7 +21,7 @@ class DummyData {
   static List<WalletModel> wallets = [
     WalletModel(
       id: 1,
-      name: "Cash (Dompet Kulit)",
+      name: "Cash",
       type: WalletType.cash,
       amount: BigInt.from(150000),
     ),
@@ -39,7 +39,7 @@ class DummyData {
     ),
     WalletModel(
       id: 4,
-      name: "Ajaib (RDN)",
+      name: "Ajaib",
       type: WalletType.platform,
       amount: BigInt.from(50000),
     ),
@@ -69,30 +69,14 @@ class DummyData {
     ),
   ];
 
-  static final BillModel listrikBill = BillModel(
-    id: 1,
-    title: "Token Listrik Markas",
-    amount: BigInt.from(250000),
-    type: TimeType.monthly,
-    day: 20,
-  );
-
-  static final BillModel kprBill = BillModel(
-    id: 2,
-    debtId: 1,
-    title: "Cicilan KPR Kastil",
-    amount: BigInt.from(1500000),
-    type: TimeType.monthly,
-    day: 1,
-  );
-
-  static List<BillModel> bills = [listrikBill, kprBill];
+  static List<BillModel> bills = [listrikBill, kprBill, wifiBill];
 
   static List<DebtModel> debts = [
     DebtModel(
       id: 1,
       title: "KPR Kastil Utama",
       amount: BigInt.from(300000000),
+      type: DebtType.mortgage,
       bill: kprBill,
       paidAmount: BigInt.from(15000000),
     ),
@@ -184,5 +168,84 @@ class DummyData {
         ),
       ],
     ),
+
+    TransactionModel(
+      id: 5,
+      billId: 1,
+      title: "Token Listrik Markas",
+      amount: BigInt.from(250000),
+      status: StatusType.pending,
+      type: TransactionType.expense,
+      dateTimestamp: DateTime.now().millisecondsSinceEpoch,
+      detailTransaction: [
+        TransactionDetailModel(
+          title: "Bill April 2026",
+          amount: BigInt.from(250000),
+          category: TransactionCategory.utilities,
+          flow: FlowType.expense,
+        ),
+      ],
+    ),
+
+    TransactionModel(
+      id: 6,
+      billId: 2,
+      title: "Cicilan KPR Kastil",
+      amount: BigInt.from(1500000),
+      status: StatusType.overdue,
+      type: TransactionType.expense,
+      dateTimestamp: DateTime.now().millisecondsSinceEpoch,
+      detailTransaction: [
+        TransactionDetailModel(
+          title: "Bill April 2026",
+          amount: BigInt.from(1500000),
+          category: TransactionCategory.debtInstallment,
+          flow: FlowType.expense,
+        ),
+      ],
+    ),
+
+    TransactionModel(
+      id: 7,
+      billId: 3,
+      title: "Kuota Wifi",
+      amount: BigInt.from(100000),
+      status: StatusType.paid,
+      type: TransactionType.expense,
+      dateTimestamp: DateTime.now().millisecondsSinceEpoch,
+      detailTransaction: [
+        TransactionDetailModel(
+          title: "Bill April 2026",
+          amount: BigInt.from(100000),
+          category: TransactionCategory.utilities,
+          flow: FlowType.expense,
+        ),
+      ],
+    ),
   ];
+
+  static final BillModel listrikBill = BillModel(
+    id: 1,
+    title: "Token Listrik Markas",
+    amount: BigInt.from(250000),
+    type: TimeType.monthly,
+    day: 20,
+  );
+
+  static final BillModel kprBill = BillModel(
+    id: 2,
+    debtId: 1,
+    title: "Cicilan KPR Kastil",
+    amount: BigInt.from(1500000),
+    type: TimeType.monthly,
+    day: 1,
+  );
+
+  static final BillModel wifiBill = BillModel(
+    id: 3,
+    title: "Kuota Wifi",
+    amount: BigInt.from(100000),
+    type: TimeType.monthly,
+    day: 1,
+  );
 }

@@ -36,7 +36,7 @@ class AssetsDict {
     ),
   );
 
-  CategoryModel getByEnum(RiskType type) {
+  static CategoryModel getByEnum(RiskType type) {
     switch (type) {
       case RiskType.low:
         return lowRisk;

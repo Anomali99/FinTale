@@ -1,51 +1,66 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import '../../../core/constants/app_colors.dart';
-import '../../../core/constants/bills_dict.dart';
-import '../../../core/utils/currency_formatter.dart';
+import '../../../core/constants/category_dict.dart';
+import '../../../core/constants/status_dict.dart';
+import '../../../core/utils/time_formatter.dart';
+import '../../../models/transaction_model.dart';
+
+extension StatusTypeUI on StatusType {
+  Color get cardColor {
+    switch (this) {
+      case StatusType.paid:
+        return AppColors.surfaceVariant.withOpacity(0.5);
+      case StatusType.pending:
+      case StatusType.overdue:
+        return AppColors.surfaceVariant;
+    }
+  }
+
+  Color get textColor {
+    switch (this) {
+      case StatusType.paid:
+        return AppColors.textSecondary;
+      case StatusType.pending:
+      case StatusType.overdue:
+        return AppColors.textPrimary;
+    }
+  }
+
+  Color get accentColor {
+    switch (this) {
+      case StatusType.paid:
+        return AppColors.success;
+      case StatusType.pending:
+        return AppColors.primary;
+      case StatusType.overdue:
+        return AppColors.error;
+    }
+  }
+}
 
 class BillCard extends StatelessWidget {
   final bool isRpg;
-  final String title;
-  final String dueDate;
-  final double amount;
-  final FaIconData icon;
-  final bool isUrgent;
+  final TransactionModel data;
   final bool isCleared;
 
   const BillCard({
     super.key,
-    required this.title,
-    required this.dueDate,
-    required this.amount,
-    required this.icon,
-    required this.isUrgent,
-    required this.isCleared,
+    required this.data,
     required this.isRpg,
+    this.isCleared = false,
   });
-
-  Color get cardColor => isCleared
-      ? AppColors.surfaceVariant.withOpacity(0.5)
-      : AppColors.surfaceVariant;
-
-  Color get textColor =>
-      isCleared ? AppColors.textSecondary : AppColors.textPrimary;
-
-  Color get accentColor => isCleared
-      ? AppColors.success
-      : (isUrgent ? AppColors.error : AppColors.primary);
 
   @override
   Widget build(BuildContext context) {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
-        color: cardColor,
+        color: data.status.cardColor,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: accentColor.withOpacity(isCleared ? 0.2 : 0.5),
+          color: data.status.accentColor.withOpacity(isCleared ? 0.2 : 0.5),
         ),
       ),
       child: InkWell(
@@ -58,8 +73,14 @@ class BillCard extends StatelessWidget {
           child: Row(
             children: [
               CircleAvatar(
-                backgroundColor: accentColor.withOpacity(0.2),
-                child: FaIcon(icon, color: accentColor, size: 20),
+                backgroundColor: data.status.accentColor.withOpacity(0.2),
+                child: FaIcon(
+                  CategoryDict.getByTransactionCategory(
+                    data.detailTransaction[0].category,
+                  ).icon(isRpg),
+                  color: data.status.accentColor,
+                  size: 20,
+                ),
               ),
               const SizedBox(width: 16),
 
@@ -72,10 +93,10 @@ class BillCard extends StatelessWidget {
                       children: [
                         Expanded(
                           child: Text(
-                            title,
+                            data.title,
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
-                              color: textColor,
+                              color: data.status.textColor,
                               decoration: isCleared
                                   ? TextDecoration.lineThrough
                                   : null,
@@ -88,12 +109,12 @@ class BillCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      dueDate,
+                      TimeFormatter.formatShort(data.dateTimestamp),
                       style: TextStyle(
                         fontSize: 12,
                         color: isCleared
                             ? AppColors.textSecondary
-                            : accentColor,
+                            : data.status.accentColor,
                       ),
                     ),
                   ],
@@ -102,42 +123,9 @@ class BillCard extends StatelessWidget {
 
               const SizedBox(width: 12),
 
-              if (!isCleared) ...[
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    Text(
-                      CurrencyFormatter.convertToIdr(amount),
-                      style: GoogleFonts.poppins(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 14,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    SizedBox(
-                      height: 32,
-                      child: ElevatedButton.icon(
-                        onPressed: () {
-                          /* TODO: Logika Pembayaran */
-                        },
-                        icon: FaIcon(BillsDict.pay.icon(isRpg), size: 12),
-                        label: Text(
-                          BillsDict.pay.get(isRpg),
-                          style: const TextStyle(fontSize: 12),
-                        ),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: accentColor.withOpacity(0.2),
-                          foregroundColor: accentColor,
-                          elevation: 0,
-                          padding: const EdgeInsets.symmetric(horizontal: 12),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ] else ...[
+              if (isCleared) ...[
                 FaIcon(
-                  BillsDict.pay.icon(isRpg),
+                  StatusDict.paid.icon(isRpg),
                   color: AppColors.success,
                   size: 28,
                 ),

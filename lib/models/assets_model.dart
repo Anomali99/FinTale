@@ -49,4 +49,15 @@ class AssetsModel {
     value = newValue;
     unit = newUint;
   }
+
+  bool get isProfit => value > invested;
+
+  double get getPercentage {
+    if (invested == BigInt.zero) return 0.0;
+
+    double current = value.toDouble();
+    double capital = invested.toDouble();
+
+    return (((current - capital) / capital) * 100).abs();
+  }
 }

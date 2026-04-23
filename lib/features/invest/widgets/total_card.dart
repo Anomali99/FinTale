@@ -9,8 +9,8 @@ import '../../../core/utils/currency_formatter.dart';
 class TotalCard extends StatelessWidget {
   final bool isRpg;
   final bool isProvit;
-  final double totalCapital;
-  final double totalCurrent;
+  final BigInt totalCapital;
+  final BigInt totalCurrent;
   final double percentage;
 
   const TotalCard({

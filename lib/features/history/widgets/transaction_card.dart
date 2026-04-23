@@ -99,16 +99,8 @@ class TransactionCard extends StatelessWidget {
                         fontSize: 16,
                         color: AppColors.textPrimary,
                       ),
-                      maxLines: 1,
+                      maxLines: 2,
                       overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      subtitle,
-                      style: const TextStyle(
-                        color: AppColors.textSecondary,
-                        fontSize: 12,
-                      ),
                     ),
                   ],
                 ),
@@ -125,6 +117,14 @@ class TransactionCard extends StatelessWidget {
                       fontWeight: FontWeight.bold,
                       color: type.amountColor,
                       fontSize: 14,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    subtitle,
+                    style: const TextStyle(
+                      color: AppColors.textSecondary,
+                      fontSize: 12,
                     ),
                   ),
                 ],

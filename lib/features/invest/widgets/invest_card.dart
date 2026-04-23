@@ -5,45 +5,17 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/invest_dict.dart';
 import '../../../core/utils/currency_formatter.dart';
-
-class AssetModel {
-  final String id;
-  String name;
-  String category;
-  String type;
-  double investedCapital;
-  double currentValue;
-  double unitCount;
-  String unitName;
-
-  AssetModel({
-    required this.id,
-    required this.name,
-    required this.category,
-    required this.type,
-    required this.investedCapital,
-    required this.currentValue,
-    required this.unitCount,
-    required this.unitName,
-  });
-
-  double get profitPercentage {
-    if (investedCapital == 0) return 0;
-    return ((currentValue - investedCapital) / investedCapital);
-  }
-}
+import '../../../models/assets_model.dart';
 
 class InvestCard extends StatelessWidget {
   final bool isRpg;
-  final AssetModel asset;
-  final FaIconData cardIcon;
-  final bool isProfit;
+  final FaIconData icon;
+  final AssetsModel asset;
 
   const InvestCard({
     super.key,
+    required this.icon,
     required this.asset,
-    required this.cardIcon,
-    required this.isProfit,
     required this.isRpg,
   });
 
@@ -65,7 +37,7 @@ class InvestCard extends StatelessWidget {
               CircleAvatar(
                 radius: 18,
                 backgroundColor: AppColors.primary.withOpacity(0.2),
-                child: FaIcon(cardIcon, size: 14, color: AppColors.primary),
+                child: FaIcon(icon, size: 14, color: AppColors.primary),
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -80,7 +52,7 @@ class InvestCard extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      '${asset.unitCount} ${asset.unitName} • ${asset.type}',
+                      '${asset.unit} ${asset.unitName} • ${asset.category.value}',
                       style: const TextStyle(
                         fontSize: 11,
                         color: AppColors.textSecondary,
@@ -99,17 +71,19 @@ class InvestCard extends StatelessWidget {
                       vertical: 4,
                     ),
                     decoration: BoxDecoration(
-                      color: isProfit
+                      color: asset.isProfit
                           ? AppColors.success.withOpacity(0.2)
                           : AppColors.error.withOpacity(0.2),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Text(
-                      '${isProfit ? '+' : ''}${(asset.profitPercentage * 100).toStringAsFixed(2)}%',
+                      '${asset.isProfit ? '+' : '-'} ${asset.getPercentage.toStringAsFixed(2)}%',
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.bold,
-                        color: isProfit ? AppColors.success : AppColors.error,
+                        color: asset.isProfit
+                            ? AppColors.success
+                            : AppColors.error,
                       ),
                     ),
                   ),
@@ -133,7 +107,7 @@ class InvestCard extends StatelessWidget {
                     ),
                   ),
                   Text(
-                    CurrencyFormatter.convertToIdr(asset.investedCapital),
+                    CurrencyFormatter.convertToIdr(asset.invested),
                     style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
                 ],
@@ -142,17 +116,19 @@ class InvestCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Text(
-                    InvestDict.invested.get(isRpg),
+                    InvestDict.value.get(isRpg),
                     style: const TextStyle(
                       fontSize: 12,
                       color: AppColors.textSecondary,
                     ),
                   ),
                   Text(
-                    CurrencyFormatter.convertToIdr(asset.currentValue),
+                    CurrencyFormatter.convertToIdr(asset.value),
                     style: GoogleFonts.poppins(
                       fontWeight: FontWeight.bold,
-                      color: isProfit ? AppColors.success : AppColors.error,
+                      color: asset.isProfit
+                          ? AppColors.success
+                          : AppColors.error,
                     ),
                   ),
                 ],

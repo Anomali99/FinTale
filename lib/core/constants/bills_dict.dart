@@ -12,10 +12,15 @@ class BillsDict {
 
   static const TermModel template = TermModel(
     normal: 'Template Bills',
-    rpg: 'Special Quests',
+    rpg: 'Master Quests',
   );
 
   static const TermModel debts = TermModel(normal: 'Debts', rpg: 'Boss Raids');
+
+  static const TermModel remaining = TermModel(
+    normal: 'Remaining Debt',
+    rpg: 'HP Remaining',
+  );
 
   static const CategoryModel pay = CategoryModel(
     terminology: TermModel(normal: 'Pay', rpg: 'Attack'),
@@ -26,16 +31,16 @@ class BillsDict {
   );
 
   static const IconModel addIcon = IconModel(
-    normal: FontAwesomeIcons.addressBook,
+    normal: FontAwesomeIcons.receipt,
     rpg: FontAwesomeIcons.dragon,
   );
 
   static const CategoryModel addTemplate = CategoryModel(
     terminology: TermModel(
       normal: 'Add Template Bill',
-      rpg: 'Add Special Quest',
+      rpg: 'Add Master Quest',
     ),
-    decription: '',
+    decription: 'Create a new recurring payment template',
     icons: IconModel(
       normal: FontAwesomeIcons.receipt,
       rpg: FontAwesomeIcons.scroll,
@@ -44,7 +49,7 @@ class BillsDict {
 
   static const CategoryModel addDebt = CategoryModel(
     terminology: TermModel(normal: 'Add Debt', rpg: 'Add Boss Raid'),
-    decription: '',
+    decription: 'Record a new loan or major debt',
     icons: IconModel(
       normal: FontAwesomeIcons.buildingColumns,
       rpg: FontAwesomeIcons.dragon,

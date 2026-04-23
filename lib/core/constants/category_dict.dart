@@ -71,7 +71,7 @@ class CategoryDict {
     terminology: TermModel(normal: 'Debt Payment', rpg: 'Boss Raid Strike'),
     icons: IconModel(
       normal: FontAwesomeIcons.handHoldingDollar,
-      rpg: FontAwesomeIcons.khanda,
+      rpg: FontAwesomeIcons.dragon,
     ),
   );
 

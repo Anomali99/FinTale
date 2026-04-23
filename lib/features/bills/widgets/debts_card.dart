@@ -1,30 +1,18 @@
+import 'package:fintale/core/constants/bills_dict.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../../core/constants/app_colors.dart';
+import '../../../core/constants/debts_dict.dart';
 import '../../../core/utils/currency_formatter.dart';
+import '../../../models/debt_model.dart';
 
 class DebtsCard extends StatelessWidget {
   final bool isRpg;
-  final String bossName;
-  final String bossLevel;
-  final double currentHp;
-  final double maxHp;
-  final FaIconData icon;
+  final DebtModel data;
 
-  const DebtsCard({
-    super.key,
-    required this.bossName,
-    required this.bossLevel,
-    required this.currentHp,
-    required this.maxHp,
-    required this.icon,
-    required this.isRpg,
-  });
-
-  double get hpPercentage =>
-      maxHp > 0 ? (currentHp / maxHp).clamp(0.0, 1.0) : 0.0;
+  const DebtsCard({super.key, required this.data, required this.isRpg});
 
   @override
   Widget build(BuildContext context) {
@@ -53,7 +41,11 @@ class DebtsCard extends StatelessWidget {
                   color: AppColors.error.withOpacity(0.2),
                   shape: BoxShape.circle,
                 ),
-                child: FaIcon(icon, color: AppColors.error, size: 28),
+                child: FaIcon(
+                  DebtsDict.getByEnum(data.type).icon(isRpg),
+                  color: AppColors.error,
+                  size: 28,
+                ),
               ),
               const SizedBox(width: 16),
               Expanded(
@@ -61,7 +53,7 @@ class DebtsCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      bossLevel,
+                      'Lv. ${data.level}',
                       style: const TextStyle(
                         color: AppColors.error,
                         fontSize: 12,
@@ -69,11 +61,13 @@ class DebtsCard extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      bossName,
+                      data.title,
                       style: const TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
                       ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ],
                 ),
@@ -86,14 +80,14 @@ class DebtsCard extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                isRpg ? 'HP Remaining' : 'Remaining Debt',
+                BillsDict.remaining.get(isRpg),
                 style: const TextStyle(
                   fontSize: 12,
                   color: AppColors.textSecondary,
                 ),
               ),
               Text(
-                CurrencyFormatter.convertToIdr(currentHp),
+                CurrencyFormatter.convertToIdr(data.currentDebt),
                 style: GoogleFonts.poppins(
                   fontWeight: FontWeight.bold,
                   color: AppColors.error,
@@ -102,25 +96,39 @@ class DebtsCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 8),
+
           ClipRRect(
             borderRadius: BorderRadius.circular(8),
             child: LinearProgressIndicator(
-              value: hpPercentage,
+              value: data.debtPercentage(isRpg),
               backgroundColor: AppColors.background,
               color: AppColors.error,
               minHeight: 12,
             ),
           ),
-          const SizedBox(height: 8),
-          Align(
-            alignment: Alignment.centerRight,
-            child: Text(
-              'Total: ${CurrencyFormatter.convertToIdr(maxHp)}',
-              style: const TextStyle(
-                fontSize: 12,
-                color: AppColors.textSecondary,
+          const SizedBox(height: 12),
+
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Total: ${CurrencyFormatter.convertToIdr(data.amount)}',
+                style: const TextStyle(
+                  fontSize: 12,
+                  color: AppColors.textSecondary,
+                ),
               ),
-            ),
+              Text(
+                isRpg
+                    ? 'DMG: ${CurrencyFormatter.convertToIdr(data.paidAmount)}'
+                    : 'Paid: ${CurrencyFormatter.convertToIdr(data.paidAmount)}',
+                style: const TextStyle(
+                  fontSize: 12,
+                  color: Colors.green,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
           ),
         ],
       ),

@@ -3,18 +3,17 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/invest_dict.dart';
+import '../../../models/assets_model.dart';
 import 'invest_card.dart';
 
 class AssetTab extends StatelessWidget {
-  final FaIconData icon;
-  final String category;
-  final List<AssetModel> assets;
   final bool isRpg;
+  final FaIconData icon;
+  final List<AssetsModel> assets;
 
   const AssetTab({
     super.key,
     required this.icon,
-    required this.category,
     required this.assets,
     required this.isRpg,
   });
@@ -47,15 +46,7 @@ class AssetTab extends StatelessWidget {
       ),
       itemCount: assets.length,
       itemBuilder: (context, index) {
-        final asset = assets[index];
-        final isProfit = asset.profitPercentage >= 0;
-
-        return InvestCard(
-          asset: asset,
-          cardIcon: icon,
-          isProfit: isProfit,
-          isRpg: isRpg,
-        );
+        return InvestCard(asset: assets[index], icon: icon, isRpg: isRpg);
       },
     );
   }

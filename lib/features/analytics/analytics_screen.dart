@@ -46,9 +46,8 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
     );
 
     List<TransactionModel> filteredByMonth = transactions.where((trx) {
-      return trx.dateTimestamp != null &&
-          trx.dateTimestamp! >= startOfMonth &&
-          trx.dateTimestamp! <= endOfMonth;
+      return trx.dateTimestamp >= startOfMonth &&
+          trx.dateTimestamp <= endOfMonth;
     }).toList();
 
     return filteredByMonth;

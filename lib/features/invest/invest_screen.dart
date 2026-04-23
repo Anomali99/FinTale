@@ -8,9 +8,10 @@ import '../../core/constants/app_colors.dart';
 import '../../core/constants/assets_dict.dart';
 import '../../core/constants/invest_dict.dart';
 import '../../core/constants/menu_dict.dart';
+import '../../core/dummy/dummy_data.dart';
 import '../../core/theme/mode_provider.dart';
+import '../../models/assets_model.dart';
 import 'widgets/asset_tab.dart';
-import 'widgets/invest_card.dart';
 import 'widgets/total_card.dart';
 
 class InvestScreen extends StatefulWidget {
@@ -24,38 +25,10 @@ class _InvestScreenState extends State<InvestScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
 
-  final List<AssetModel> _assets = [
-    AssetModel(
-      id: '1',
-      name: 'Reksadana Sucor',
-      category: 'Tanker',
-      type: 'Reksa Dana Pasar Uang',
-      investedCapital: 5000000,
-      currentValue: 5200000,
-      unitCount: 3450.5,
-      unitName: 'Unit',
-    ),
-    AssetModel(
-      id: '2',
-      name: 'BBCA',
-      category: 'Fighter',
-      type: 'Saham Bluechip',
-      investedCapital: 10000000,
-      currentValue: 11500000,
-      unitCount: 50,
-      unitName: 'Lot',
-    ),
-    AssetModel(
-      id: '3',
-      name: 'Ethereum (ETH)',
-      category: 'Assassin',
-      type: 'Crypto Altcoin',
-      investedCapital: 2000000,
-      currentValue: 1800000,
-      unitCount: 0.045,
-      unitName: 'ETH',
-    ),
-  ];
+  final List<AssetsModel> assets = DummyData.assets;
+  late List<AssetsModel> lowRisk = [];
+  late List<AssetsModel> mediumRisk = [];
+  late List<AssetsModel> highRisk = [];
 
   @override
   void initState() {
@@ -186,20 +159,34 @@ class _InvestScreenState extends State<InvestScreen>
   @override
   Widget build(BuildContext context) {
     final isRpg = Provider.of<ModeProvider>(context).isRpgMode;
+    BigInt totalInvested = BigInt.zero;
+    BigInt totalValue = BigInt.zero;
 
-    double totalCapital = _assets.fold(
-      0,
-      (sum, item) => sum + item.investedCapital,
-    );
-    double totalCurrent = _assets.fold(
-      0,
-      (sum, item) => sum + item.currentValue,
-    );
-    double totalProfit = totalCurrent - totalCapital;
-    double overallPercentage = totalCapital > 0
-        ? (totalProfit / totalCapital)
-        : 0;
-    bool isOverallProfit = totalProfit >= 0;
+    for (AssetsModel asset in assets) {
+      totalInvested += asset.invested;
+      totalValue += asset.value;
+
+      switch (asset.type) {
+        case RiskType.low:
+          lowRisk.add(asset);
+          break;
+        case RiskType.medium:
+          mediumRisk.add(asset);
+          break;
+        case RiskType.high:
+          highRisk.add(asset);
+          break;
+      }
+    }
+
+    double overallPercentage() {
+      if (totalInvested == BigInt.zero) return 0.0;
+      double current = totalValue.toDouble();
+      double capital = totalInvested.toDouble();
+      return (((current - capital) / capital) * 100).abs();
+    }
+
+    bool isOverallProfit = totalValue > totalInvested;
 
     return Scaffold(
       appBar: AppBar(
@@ -221,9 +208,9 @@ class _InvestScreenState extends State<InvestScreen>
             padding: const EdgeInsets.all(24.0),
             child: TotalCard(
               isProvit: isOverallProfit,
-              totalCapital: totalCapital,
-              totalCurrent: totalCurrent,
-              percentage: overallPercentage,
+              totalCapital: totalInvested,
+              totalCurrent: totalValue,
+              percentage: overallPercentage(),
               isRpg: isRpg,
             ),
           ),
@@ -255,20 +242,17 @@ class _InvestScreenState extends State<InvestScreen>
               children: [
                 AssetTab(
                   icon: AssetsDict.lowRisk.icon(isRpg),
-                  category: AssetsDict.lowRisk.value,
-                  assets: [_assets[0]],
+                  assets: lowRisk,
                   isRpg: isRpg,
                 ),
                 AssetTab(
                   icon: AssetsDict.mediumRisk.icon(isRpg),
-                  category: AssetsDict.mediumRisk.value,
-                  assets: [_assets[1]],
+                  assets: mediumRisk,
                   isRpg: isRpg,
                 ),
                 AssetTab(
                   icon: AssetsDict.highRisk.icon(isRpg),
-                  category: AssetsDict.highRisk.value,
-                  assets: [_assets[2]],
+                  assets: highRisk,
                   isRpg: isRpg,
                 ),
               ],

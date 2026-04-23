@@ -57,7 +57,6 @@ class BillModel {
       title: title,
       amount: amount,
       status: StatusType.pending,
-      billType: BillType.bill,
       dateTimestamp: transactionDate.millisecondsSinceEpoch,
       detailTransaction: [
         TransactionDetailModel(

@@ -6,7 +6,12 @@ import 'package:provider/provider.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/bills_dict.dart';
 import '../../core/constants/menu_dict.dart';
+import '../../core/dummy/dummy_data.dart';
 import '../../core/theme/mode_provider.dart';
+import '../../models/bill_model.dart';
+import '../../models/debt_model.dart';
+import '../../models/transaction_model.dart';
+import '../../widgets/custom_bottom_sheet.dart';
 import 'widgets/bills_tab.dart';
 import 'widgets/debts_tab.dart';
 import 'widgets/template_tab.dart';
@@ -21,6 +26,11 @@ class BillsScreen extends StatefulWidget {
 class _BillsScreenState extends State<BillsScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
+  final List<DebtModel> debts = DummyData.debts;
+  final List<BillModel> bills = DummyData.bills;
+  final List<TransactionModel> transactions = DummyData.transactions
+      .where((transaction) => transaction.billId != null)
+      .toList();
 
   @override
   void initState() {
@@ -40,68 +50,27 @@ class _BillsScreenState extends State<BillsScreen>
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (context) {
-        return Container(
-          decoration: BoxDecoration(
-            color: AppColors.surface,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const SizedBox(height: 16),
-              Container(
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: Colors.grey[700],
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-              const SizedBox(height: 24),
-
-              ListTile(
-                leading: CircleAvatar(
-                  backgroundColor: Colors.blueAccent.withOpacity(0.2),
-                  child: FaIcon(
-                    BillsDict.addTemplate.icon(isRpg),
-                    color: Colors.blueAccent,
-                    size: 18,
-                  ),
-                ),
-                title: Text(
-                  BillsDict.addTemplate.get(isRpg),
-                  style: const TextStyle(fontWeight: FontWeight.bold),
-                ),
-                subtitle: Text(BillsDict.addTemplate.decription ?? ''),
-                onTap: () {
-                  Navigator.pop(context);
-                  /* TODO: Navigasi ke form tambah quest */
-                },
-              ),
-              const Divider(color: Colors.white10),
-
-              ListTile(
-                leading: CircleAvatar(
-                  backgroundColor: AppColors.error.withOpacity(0.2),
-                  child: FaIcon(
-                    BillsDict.addDebt.icon(isRpg),
-                    color: AppColors.error,
-                    size: 18,
-                  ),
-                ),
-                title: Text(
-                  BillsDict.addDebt.get(isRpg),
-                  style: const TextStyle(fontWeight: FontWeight.bold),
-                ),
-                subtitle: Text(BillsDict.addDebt.decription ?? ''),
-                onTap: () {
-                  Navigator.pop(context);
-                  /* TODO: Navigasi ke form tambah hutang/boss */
-                },
-              ),
-              const SizedBox(height: 16),
-            ],
-          ),
+        return CustomBottomSheet(
+          children: [
+            BottomSheetChild(
+              title: BillsDict.addTemplate.get(isRpg),
+              subtitle: BillsDict.addTemplate.decription ?? "",
+              color: Colors.blueAccent,
+              icon: BillsDict.addTemplate.icon(isRpg),
+              onTap: () {
+                Navigator.pop(context);
+              },
+            ),
+            BottomSheetChild(
+              title: BillsDict.addDebt.get(isRpg),
+              subtitle: BillsDict.addDebt.decription ?? "",
+              color: AppColors.error,
+              icon: BillsDict.addDebt.icon(isRpg),
+              onTap: () {
+                Navigator.pop(context);
+              },
+            ),
+          ],
         );
       },
     );
@@ -141,9 +110,9 @@ class _BillsScreenState extends State<BillsScreen>
         body: TabBarView(
           controller: _tabController,
           children: [
-            BillsTab(isRpg: isRpg),
-            TemplateTab(isRpg: isRpg),
-            DebtsTab(isRpg: isRpg),
+            BillsTab(data: transactions, isRpg: isRpg),
+            TemplateTab(data: bills, isRpg: isRpg),
+            DebtsTab(data: debts, isRpg: isRpg),
           ],
         ),
       ),

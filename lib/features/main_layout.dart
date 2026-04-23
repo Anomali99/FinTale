@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import '../core/constants/app_colors.dart';
 import '../core/constants/menu_dict.dart';
 import '../core/theme/mode_provider.dart';
+import '../widgets/custom_bottom_sheet.dart';
 import 'bills/bills_screen.dart';
 import 'history/history_screen.dart';
 import 'home/home_screen.dart';
@@ -32,68 +33,27 @@ class _MainLayoutState extends State<MainLayout> {
       context: context,
       backgroundColor: Colors.transparent,
       builder: (context) {
-        return Container(
-          decoration: BoxDecoration(
-            color: AppColors.surface,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const SizedBox(height: 16),
-              Container(
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: Colors.grey[700],
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-              const SizedBox(height: 24),
-
-              ListTile(
-                leading: CircleAvatar(
-                  backgroundColor: AppColors.error.withOpacity(0.2),
-                  child: FaIcon(
-                    MenuDict.pay.icon(isRpg),
-                    color: AppColors.error,
-                    size: 18,
-                  ),
-                ),
-                title: Text(
-                  MenuDict.pay.get(isRpg),
-                  style: const TextStyle(fontWeight: FontWeight.bold),
-                ),
-                subtitle: Text(MenuDict.pay.decription ?? ''),
-                onTap: () {
-                  Navigator.pop(context);
-                  /* TODO: Buka form bayar hutang */
-                },
-              ),
-              const Divider(color: Colors.white10),
-
-              ListTile(
-                leading: CircleAvatar(
-                  backgroundColor: Colors.blueAccent.withOpacity(0.2),
-                  child: FaIcon(
-                    MenuDict.daily.icon(isRpg),
-                    color: Colors.blueAccent,
-                    size: 18,
-                  ),
-                ),
-                title: Text(
-                  MenuDict.daily.get(isRpg),
-                  style: const TextStyle(fontWeight: FontWeight.bold),
-                ),
-                subtitle: Text(MenuDict.daily.decription ?? ''),
-                onTap: () {
-                  Navigator.pop(context);
-                  /* TODO: Buka form pengeluaran harian */
-                },
-              ),
-              const SizedBox(height: 16),
-            ],
-          ),
+        return CustomBottomSheet(
+          children: [
+            BottomSheetChild(
+              title: MenuDict.pay.get(isRpg),
+              subtitle: MenuDict.pay.decription ?? "",
+              color: AppColors.error,
+              icon: MenuDict.pay.icon(isRpg),
+              onTap: () {
+                Navigator.pop(context);
+              },
+            ),
+            BottomSheetChild(
+              title: MenuDict.daily.get(isRpg),
+              subtitle: MenuDict.daily.decription ?? "",
+              color: Colors.blueAccent,
+              icon: MenuDict.daily.icon(isRpg),
+              onTap: () {
+                Navigator.pop(context);
+              },
+            ),
+          ],
         );
       },
     );

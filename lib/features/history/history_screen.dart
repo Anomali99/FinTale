@@ -50,13 +50,14 @@ class _HistoryScreenState extends State<HistoryScreen> {
     );
 
     List<TransactionModel> filteredByMonth = transactions.where((trx) {
-      return trx.dateTimestamp != null &&
-          trx.dateTimestamp! >= startOfMonth &&
-          trx.dateTimestamp! <= endOfMonth;
+      return trx.dateTimestamp >= startOfMonth &&
+          trx.dateTimestamp <= endOfMonth;
     }).toList();
 
+    filteredByMonth.sort((a, b) => b.dateTimestamp.compareTo(a.dateTimestamp));
+
     for (TransactionModel trx in filteredByMonth) {
-      String dateKey = TimeFormatter.formatShort(trx.dateTimestamp!);
+      String dateKey = TimeFormatter.formatShort(trx.dateTimestamp);
 
       if (!groupedData.containsKey(dateKey)) {
         groupedData[dateKey] = [];

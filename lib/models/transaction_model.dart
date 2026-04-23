@@ -4,8 +4,6 @@ enum TransactionType { expense, debt, income, transfer }
 
 enum StatusType { pending, overdue, paid }
 
-enum BillType { debt, bill, other }
-
 class TransactionModel {
   final int? id;
   final int? walletId;
@@ -14,10 +12,9 @@ class TransactionModel {
   final int? targetId;
   final String title;
   final BigInt amount;
-  final int? dateTimestamp;
+  final int dateTimestamp;
   final StatusType status;
   final TransactionType type;
-  final BillType billType;
   final List<TransactionDetailModel> detailTransaction;
 
   const TransactionModel({
@@ -26,13 +23,12 @@ class TransactionModel {
     required this.amount,
     required this.status,
     required this.detailTransaction,
+    required this.dateTimestamp,
 
     this.id,
     this.walletId,
-    this.dateTimestamp,
     this.billId,
     this.assetsId,
     this.targetId,
-    this.billType = BillType.other,
   });
 }
