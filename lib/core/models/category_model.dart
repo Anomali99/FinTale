@@ -7,14 +7,14 @@ import 'term_model.dart';
 class CategoryModel {
   final TermModel terminology;
   final IconModel icons;
-  final String? decription;
+  final String? description;
   final String? type;
   final Color? color;
 
   const CategoryModel({
     required this.terminology,
     required this.icons,
-    this.decription,
+    this.description,
     this.type,
     this.color,
   });

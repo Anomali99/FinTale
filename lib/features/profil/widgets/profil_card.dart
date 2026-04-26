@@ -10,7 +10,7 @@ class ProfilCard extends StatelessWidget {
   final bool isRpg;
   final UserModel user;
   final VoidCallback? editName;
-  final int _targetXp = 1000;
+  final int _targetXp = 5000;
 
   const ProfilCard({
     super.key,

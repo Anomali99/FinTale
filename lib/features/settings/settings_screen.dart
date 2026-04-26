@@ -5,12 +5,9 @@ import 'package:provider/provider.dart';
 
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/settings_dict.dart';
-import '../../core/dummy/dummy_data.dart';
 import '../../core/theme/mode_provider.dart';
-import '../../models/user_model.dart';
 import '../../services/auth_service.dart';
 import '../../widgets/custom_button.dart';
-import 'widgets/profil_card.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -20,10 +17,10 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
-  final UserModel user = DummyData.user;
   bool _isNotificationsEnabled = true;
+  bool _isHideBalanceEnabled = false;
+  bool _isAppLockEnabled = false;
   String _selectedTheme = 'Dark';
-  int _activeStrategyLevel = 5;
 
   Future<void> _handleSignOut(BuildContext context) async {
     try {
@@ -31,14 +28,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
       await authService.signOut();
 
       if (!context.mounted) return;
-
       Navigator.popUntil(context, (route) => route.isFirst);
     } catch (e) {
       if (!context.mounted) return;
-
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Koneksi gagal: $e'),
+          content: Text('Connection failed: $e'),
           backgroundColor: AppColors.error,
           behavior: SnackBarBehavior.floating,
         ),
@@ -46,127 +41,59 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
   }
 
-  void _showEditNameDialog() {
-    final TextEditingController nameController = TextEditingController(
-      text: user.name,
-    );
+  void _showResetDataWarning() {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: AppColors.surfaceVariant,
-        title: const Text('Edit Name'),
-        content: TextField(
-          controller: nameController,
-          decoration: const InputDecoration(
-            hintText: 'Enter your name',
-            focusedBorder: UnderlineInputBorder(
-              borderSide: BorderSide(color: AppColors.primary),
+        title: const Row(
+          children: [
+            FaIcon(
+              FontAwesomeIcons.triangleExclamation,
+              color: AppColors.error,
             ),
-          ),
-          style: const TextStyle(color: AppColors.textPrimary),
+            SizedBox(width: 12),
+            Text('Reset Data?', style: TextStyle(color: AppColors.error)),
+          ],
+        ),
+        content: const Text(
+          'Tindakan ini akan menghapus seluruh riwayat transaksi dan mengulang progress Anda dari awal. Anda yakin ingin melakukan reinkarnasi?',
+          style: TextStyle(color: AppColors.textPrimary),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
             child: const Text(
-              'Cancel',
+              'Batal',
               style: TextStyle(color: AppColors.textSecondary),
             ),
           ),
           ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary),
+            style: ElevatedButton.styleFrom(backgroundColor: AppColors.error),
             onPressed: () {
-              setState(() => nameController.text);
               Navigator.pop(context);
             },
-            child: const Text('Save', style: TextStyle(color: Colors.white)),
+            child: const Text(
+              'Ya, Reset',
+              style: TextStyle(color: Colors.white),
+            ),
           ),
         ],
       ),
     );
   }
 
-  void _showStrategySelector(bool isRpg) {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: AppColors.surface,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+  Widget _buildSectionHeader(String title) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12.0, top: 24.0),
+      child: Text(
+        title,
+        style: const TextStyle(
+          fontSize: 14,
+          fontWeight: FontWeight.bold,
+          color: AppColors.primary,
+        ),
       ),
-      builder: (context) {
-        return Padding(
-          padding: const EdgeInsets.symmetric(vertical: 24.0),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                child: Text(
-                  'Select ${SettingsDict.allocationRules.get(isRpg)}',
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 16),
-              Expanded(
-                child: ListView.builder(
-                  shrinkWrap: true,
-                  itemCount: user.level,
-                  itemBuilder: (context, index) {
-                    int levelStr = index + 1;
-                    bool isSelected = levelStr == _activeStrategyLevel;
-                    return ListTile(
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 24.0,
-                      ),
-                      leading: CircleAvatar(
-                        backgroundColor: isSelected
-                            ? AppColors.primary.withOpacity(0.2)
-                            : AppColors.surfaceVariant,
-                        child: Text(
-                          'L$levelStr',
-                          style: TextStyle(
-                            color: isSelected
-                                ? AppColors.primary
-                                : AppColors.textSecondary,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                      title: Text(
-                        'Level $levelStr Strategy',
-                        style: TextStyle(
-                          fontWeight: isSelected
-                              ? FontWeight.bold
-                              : FontWeight.normal,
-                        ),
-                      ),
-                      subtitle: Text(
-                        isRpg
-                            ? 'Change allocation tactic'
-                            : 'Change distribution rule',
-                      ),
-                      trailing: isSelected
-                          ? const Icon(
-                              Icons.check_circle,
-                              color: AppColors.primary,
-                            )
-                          : null,
-                      onTap: () {
-                        setState(() => _activeStrategyLevel = levelStr);
-                        Navigator.pop(context);
-                      },
-                    );
-                  },
-                ),
-              ),
-            ],
-          ),
-        );
-      },
     );
   }
 
@@ -183,62 +110,52 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ),
       ),
       body: ListView(
-        padding: const EdgeInsets.all(24.0),
+        padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 8.0),
         children: [
-          ProfilCard(user: user, isRpg: isRpg, editName: _showEditNameDialog),
-
-          const SizedBox(height: 32),
-
-          Text(
-            SettingsDict.allocationRules.get(isRpg),
-            style: const TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.bold,
-              color: AppColors.primary,
-            ),
-          ),
-          const SizedBox(height: 12),
+          _buildSectionHeader(SettingsDict.security.get(isRpg)),
           Container(
             decoration: BoxDecoration(
               color: AppColors.surfaceVariant,
               borderRadius: BorderRadius.circular(16),
             ),
-            child: ListTile(
-              contentPadding: const EdgeInsets.all(16),
-              leading: Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: AppColors.warning.withOpacity(0.2),
-                  borderRadius: BorderRadius.circular(12),
+            child: Column(
+              children: [
+                ListTile(
+                  leading: const FaIcon(
+                    FontAwesomeIcons.eyeSlash,
+                    color: AppColors.textPrimary,
+                    size: 20,
+                  ),
+                  title: const Text('Hide Balance'),
+                  subtitle: Text(SettingsDict.balanceDec.get(isRpg)),
+                  trailing: Switch(
+                    value: _isHideBalanceEnabled,
+                    activeThumbColor: AppColors.primary,
+                    onChanged: (value) =>
+                        setState(() => _isHideBalanceEnabled = value),
+                  ),
                 ),
-                child: const FaIcon(
-                  FontAwesomeIcons.chessKnight,
-                  color: AppColors.warning,
+                const Divider(color: Colors.white10, height: 1, indent: 56),
+                ListTile(
+                  leading: const FaIcon(
+                    FontAwesomeIcons.lock,
+                    color: AppColors.textPrimary,
+                    size: 20,
+                  ),
+                  title: const Text('App Lock'),
+                  subtitle: const Text('Lock apps with PIN/Biometric'),
+                  trailing: Switch(
+                    value: _isAppLockEnabled,
+                    activeThumbColor: AppColors.primary,
+                    onChanged: (value) =>
+                        setState(() => _isAppLockEnabled = value),
+                  ),
                 ),
-              ),
-              title: Text('Level $_activeStrategyLevel Strategy'),
-              subtitle: Text(
-                'Needs: 50% | Debt: 25% | Assets: 25%',
-                style: const TextStyle(fontSize: 12),
-              ),
-              trailing: const Icon(
-                Icons.chevron_right,
-                color: AppColors.textSecondary,
-              ),
-              onTap: () => _showStrategySelector(isRpg),
+              ],
             ),
           ),
-          const SizedBox(height: 32),
 
-          Text(
-            SettingsDict.appSettings.get(isRpg),
-            style: const TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.bold,
-              color: AppColors.primary,
-            ),
-          ),
-          const SizedBox(height: 12),
+          _buildSectionHeader(SettingsDict.appSettings.get(isRpg)),
           Container(
             decoration: BoxDecoration(
               color: AppColors.surfaceVariant,
@@ -257,13 +174,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   trailing: Switch(
                     value: isRpg,
                     activeThumbColor: AppColors.primary,
-                    onChanged: (value) {
-                      modeProvider.toggleMode();
-                    },
+                    onChanged: (value) => modeProvider.toggleMode(),
                   ),
                 ),
                 const Divider(color: Colors.white10, height: 1, indent: 56),
-
                 ListTile(
                   leading: const FaIcon(
                     FontAwesomeIcons.bell,
@@ -271,17 +185,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     size: 20,
                   ),
                   title: const Text('Push Notifications'),
-                  subtitle: Text(SettingsDict.notifDec.get(isRpg)),
                   trailing: Switch(
                     value: _isNotificationsEnabled,
                     activeThumbColor: AppColors.primary,
-                    onChanged: (value) {
-                      setState(() => _isNotificationsEnabled = value);
-                    },
+                    onChanged: (value) =>
+                        setState(() => _isNotificationsEnabled = value),
                   ),
                 ),
                 const Divider(color: Colors.white10, height: 1, indent: 56),
-
                 ListTile(
                   leading: const FaIcon(
                     FontAwesomeIcons.moon,
@@ -302,11 +213,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       fontSize: 14,
                     ),
                     onChanged: (String? newValue) {
-                      if (newValue != null) {
+                      if (newValue != null)
                         setState(() => _selectedTheme = newValue);
-                      }
                     },
-                    items: <String>['Dark'].map<DropdownMenuItem<String>>((
+                    items: <String>['Dark', 'Light', 'System'].map((
                       String value,
                     ) {
                       return DropdownMenuItem<String>(
@@ -319,19 +229,74 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ],
             ),
           ),
+
+          _buildSectionHeader(SettingsDict.data.get(isRpg)),
+          Container(
+            decoration: BoxDecoration(
+              color: AppColors.surfaceVariant,
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Column(
+              children: [
+                ListTile(
+                  leading: const FaIcon(
+                    FontAwesomeIcons.fileArrowDown,
+                    color: AppColors.textPrimary,
+                    size: 20,
+                  ),
+                  title: const Text('Export Data (Json)'),
+                  trailing: const Icon(
+                    Icons.chevron_right,
+                    color: AppColors.textSecondary,
+                  ),
+                  onTap: () {
+                    /* TODO: Export Data */
+                  },
+                ),
+                const Divider(color: Colors.white10, height: 1, indent: 56),
+                ListTile(
+                  leading: const FaIcon(
+                    FontAwesomeIcons.fileArrowUp,
+                    color: AppColors.textPrimary,
+                    size: 20,
+                  ),
+                  title: const Text('Import Data'),
+                  trailing: const Icon(
+                    Icons.chevron_right,
+                    color: AppColors.textSecondary,
+                  ),
+                  onTap: () {
+                    /* TODO: Import Data */
+                  },
+                ),
+                const Divider(color: Colors.white10, height: 1, indent: 56),
+                ListTile(
+                  leading: const FaIcon(
+                    FontAwesomeIcons.trash,
+                    color: AppColors.error,
+                    size: 20,
+                  ),
+                  title: const Text(
+                    'Reset All Data',
+                    style: TextStyle(color: AppColors.error),
+                  ),
+                  onTap: _showResetDataWarning,
+                ),
+              ],
+            ),
+          ),
+
           const SizedBox(height: 32),
 
           CustomButton(
             icon: FontAwesomeIcons.arrowsRotate,
-            title: 'Sync',
+            title: 'Sync to Cloud',
             color: Colors.blueAccent,
-            onTap: () => {
-              /* TODO: Sync */
+            onTap: () {
+              /* TODO: Sync Data */
             },
           ),
-
           const SizedBox(height: 16),
-
           CustomButton(
             icon: FontAwesomeIcons.arrowRightFromBracket,
             title: 'Sign Out',

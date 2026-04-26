@@ -40,7 +40,7 @@ class BillsDict {
       normal: 'Add Template Bill',
       rpg: 'Add Master Quest',
     ),
-    decription: 'Create a new recurring payment template',
+    description: 'Create a new recurring payment template',
     icons: IconModel(
       normal: FontAwesomeIcons.receipt,
       rpg: FontAwesomeIcons.scroll,
@@ -49,7 +49,7 @@ class BillsDict {
 
   static const CategoryModel addDebt = CategoryModel(
     terminology: TermModel(normal: 'Add Debt', rpg: 'Add Boss Raid'),
-    decription: 'Record a new loan or major debt',
+    description: 'Record a new loan or major debt',
     icons: IconModel(
       normal: FontAwesomeIcons.buildingColumns,
       rpg: FontAwesomeIcons.dragon,

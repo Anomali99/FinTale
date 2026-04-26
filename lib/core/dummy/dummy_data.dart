@@ -9,13 +9,27 @@ import '../../models/user_model.dart';
 import '../../models/wallet_model.dart';
 
 class DummyData {
-  static const UserModel user = UserModel(
+  static UserModel user = UserModel(
     uid: "u-001",
     name: "Nur Fatiq",
     email: "fatiq5127@gmail.com",
     title: TitleType.noviceSaver,
-    level: 15,
+    level: 9,
     xp: 2500,
+    dailyLimit: BigInt.from(50000),
+    emergencyAmount: BigInt.from(20000000),
+    emergencyTotal: BigInt.from(9000000),
+    skillAllocations: {
+      "living": 55.0,
+      "payDebt": 25.0,
+      "emergency": 20.0,
+      "investment": 0.0,
+      "essentials": 55.0,
+      "dreamFund": 0.0,
+      "lowRisk": 20.0,
+      "mediumRisk": 0.0,
+      "highRisk": 0.0,
+    },
   );
 
   static List<WalletModel> wallets = [

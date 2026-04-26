@@ -47,7 +47,7 @@ class MenuDict {
 
   static const CategoryModel pay = CategoryModel(
     terminology: TermModel(normal: 'Pay Debt', rpg: 'Attack Attack Boss'),
-    decription: 'Record a debt installment',
+    description: 'Record a debt installment',
     icons: IconModel(
       normal: FontAwesomeIcons.buildingColumns,
       rpg: FontAwesomeIcons.khanda,
@@ -56,7 +56,7 @@ class MenuDict {
 
   static const CategoryModel daily = CategoryModel(
     terminology: TermModel(normal: 'Daily Expense', rpg: 'Use Mana'),
-    decription: 'Record food, transport, etc.',
+    description: 'Record food, transport, etc.',
     icons: IconModel(
       normal: FontAwesomeIcons.wallet,
       rpg: FontAwesomeIcons.flask,

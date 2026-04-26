@@ -22,7 +22,7 @@ class _MainLayoutState extends State<MainLayout> {
   int _selectedIndex = 0;
 
   final List<Widget> _pages = [
-    const HomeScreen(),
+    HomeScreen(),
     const BillsScreen(),
     const InvestScreen(),
     const HistoryScreen(),
@@ -37,7 +37,7 @@ class _MainLayoutState extends State<MainLayout> {
           children: [
             BottomSheetChild(
               title: MenuDict.pay.get(isRpg),
-              subtitle: MenuDict.pay.decription ?? "",
+              subtitle: MenuDict.pay.description ?? "",
               color: AppColors.error,
               icon: MenuDict.pay.icon(isRpg),
               onTap: () {
@@ -46,7 +46,7 @@ class _MainLayoutState extends State<MainLayout> {
             ),
             BottomSheetChild(
               title: MenuDict.daily.get(isRpg),
-              subtitle: MenuDict.daily.decription ?? "",
+              subtitle: MenuDict.daily.description ?? "",
               color: Colors.blueAccent,
               icon: MenuDict.daily.icon(isRpg),
               onTap: () {

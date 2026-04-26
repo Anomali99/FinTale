@@ -13,6 +13,10 @@ class UserModel {
   final TitleType title;
   final int level;
   final int xp;
+  final BigInt dailyLimit;
+  final BigInt emergencyAmount;
+  final BigInt emergencyTotal;
+  final Map<String, double> skillAllocations;
 
   const UserModel({
     required this.uid,
@@ -21,5 +25,13 @@ class UserModel {
     required this.title,
     required this.level,
     required this.xp,
+    required this.dailyLimit,
+    required this.emergencyAmount,
+    required this.emergencyTotal,
+    required this.skillAllocations,
   });
+
+  double getSkillPercentage(String key) {
+    return skillAllocations[key] ?? 0.0;
+  }
 }

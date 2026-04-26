@@ -44,6 +44,18 @@ class AuthService {
     }
   }
 
+  Future<void> signInAnonymously() async {
+    try {
+      await FirebaseAuth.instance.signInAnonymously();
+    } catch (e) {
+      throw Exception('Failed to sign in anonymously: $e');
+    }
+  }
+
+  bool get isAnonymousUser {
+    return FirebaseAuth.instance.currentUser?.isAnonymous ?? false;
+  }
+
   Future<void> signOut() async {
     await _ensureInitialized();
     await _googleSignIn.signOut();

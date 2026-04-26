@@ -54,7 +54,7 @@ class _BillsScreenState extends State<BillsScreen>
           children: [
             BottomSheetChild(
               title: BillsDict.addTemplate.get(isRpg),
-              subtitle: BillsDict.addTemplate.decription ?? "",
+              subtitle: BillsDict.addTemplate.description ?? "",
               color: Colors.blueAccent,
               icon: BillsDict.addTemplate.icon(isRpg),
               onTap: () {
@@ -63,7 +63,7 @@ class _BillsScreenState extends State<BillsScreen>
             ),
             BottomSheetChild(
               title: BillsDict.addDebt.get(isRpg),
-              subtitle: BillsDict.addDebt.decription ?? "",
+              subtitle: BillsDict.addDebt.description ?? "",
               color: AppColors.error,
               icon: BillsDict.addDebt.icon(isRpg),
               onTap: () {

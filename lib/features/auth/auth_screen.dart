@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 
 import '../../core/constants/app_colors.dart';
 import '../../services/auth_service.dart';
+import '../../widgets/custom_button.dart';
 
 class AuthScreen extends StatefulWidget {
   const AuthScreen({super.key});
@@ -22,16 +23,33 @@ class _AuthScreenState extends State<AuthScreen> {
       final authService = Provider.of<AuthService>(context, listen: false);
       await authService.signInWithGoogle();
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Koneksi gagal: $e'),
-          backgroundColor: AppColors.error,
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
+      _showErrorSnackBar(context, 'Connection failed: $e');
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
+  }
+
+  Future<void> _handleSkip(BuildContext context) async {
+    setState(() => _isLoading = true);
+    try {
+      final authService = Provider.of<AuthService>(context, listen: false);
+
+      await authService.signInAnonymously();
+    } catch (e) {
+      _showErrorSnackBar(context, 'Failed to enter local mode: $e');
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  void _showErrorSnackBar(BuildContext context, String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: AppColors.error,
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
   }
 
   @override
@@ -81,30 +99,36 @@ class _AuthScreenState extends State<AuthScreen> {
               ),
               const SizedBox(height: 12),
               Text(
-                'Ready to defeat the debt monster and build your financial empire? Sign up now to get started.',
+                'Ready to defeat the debt monster and build your financial empire? get started now.',
                 style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                   color: AppColors.textSecondary,
                   height: 1.5,
                 ),
               ),
-              const SizedBox(height: 48),
+              const SizedBox(height: 24),
 
-              _isLoading
-                  ? const Center(
-                      child: CircularProgressIndicator(
-                        color: AppColors.primary,
-                      ),
-                    )
-                  : ElevatedButton.icon(
-                      onPressed: () => _handleGoogleSignIn(context),
-                      icon: const FaIcon(FontAwesomeIcons.google, size: 20),
-                      label: const Text('Masuk dengan Google'),
-                      style: ElevatedButton.styleFrom(
-                        minimumSize: const Size(double.infinity, 56),
-                        elevation: 4,
-                        shadowColor: AppColors.primary.withOpacity(0.3),
-                      ),
-                    ),
+              if (_isLoading)
+                const Center(
+                  child: CircularProgressIndicator(color: AppColors.primary),
+                )
+              else ...[
+                ElevatedButton.icon(
+                  onPressed: () => _handleGoogleSignIn(context),
+                  icon: const FaIcon(FontAwesomeIcons.google, size: 20),
+                  label: const Text('Sign in with Google'),
+                  style: ElevatedButton.styleFrom(
+                    minimumSize: const Size(double.infinity, 56),
+                    elevation: 4,
+                    shadowColor: AppColors.primary.withOpacity(0.3),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                CustomButton(
+                  title: 'Skip it',
+                  color: AppColors.primary,
+                  onTap: () => _handleSkip(context),
+                ),
+              ],
               const SizedBox(height: 16),
             ],
           ),

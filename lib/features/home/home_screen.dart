@@ -12,12 +12,13 @@ import '../../core/theme/mode_provider.dart';
 import '../../core/utils/currency_formatter.dart';
 import '../../models/user_model.dart';
 import '../../models/wallet_model.dart';
+import '../profil/profil_screen.dart';
 import '../settings/settings_screen.dart';
 import 'widgets/daily_limit.dart';
 import 'widgets/wallet_details.dart';
 
 class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key});
+  HomeScreen({super.key});
   final UserModel userData = DummyData.user;
 
   void _showWalletDetails(BuildContext context, bool isRpg) {
@@ -46,25 +47,57 @@ class HomeScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Lv. ${userData.level} - ${userData.name}',
-              style: GoogleFonts.poppins(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: AppColors.primary,
-              ),
+        titleSpacing: 24,
+        title: GestureDetector(
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const ProfileScreen()),
+            );
+          },
+          child: Container(
+            color: Colors.transparent,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'Lv. ${userData.level} - ${userData.name}',
+                  style: GoogleFonts.poppins(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.primary,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                Text(
+                  TitleDict.getByEnum(userData.title).get(isRpg),
+                  style: const TextStyle(
+                    fontSize: 11,
+                    color: AppColors.textSecondary,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+
+                const SizedBox(height: 6),
+
+                SizedBox(
+                  width: 120,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(4),
+                    child: LinearProgressIndicator(
+                      value: userData.xp / 5000,
+                      backgroundColor: AppColors.surfaceVariant,
+                      color: Colors.amber,
+                      minHeight: 4,
+                    ),
+                  ),
+                ),
+              ],
             ),
-            Text(
-              TitleDict.getByEnum(userData.title).get(isRpg),
-              style: const TextStyle(
-                fontSize: 12,
-                color: AppColors.textSecondary,
-              ),
-            ),
-          ],
+          ),
         ),
         actions: [
           IconButton(
