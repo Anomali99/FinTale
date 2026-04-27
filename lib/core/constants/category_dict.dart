@@ -79,7 +79,6 @@ class CategoryDict {
     type: 'income',
     color: Colors.green,
     terminology: TermModel(normal: 'Salary & Wage', rpg: 'Quest Bounty'),
-    description: 'Gaji utama bulanan atau upah tetap.',
     icons: IconModel(
       normal: FontAwesomeIcons.briefcase,
       rpg: FontAwesomeIcons.gem,

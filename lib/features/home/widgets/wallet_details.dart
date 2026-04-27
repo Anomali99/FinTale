@@ -9,39 +9,43 @@ import '../../../models/wallet_model.dart';
 class WalletDetails extends StatelessWidget {
   final bool isRpg;
   final List<WalletModel> wallets;
+  final VoidCallback onAdd;
 
-  const WalletDetails({super.key, required this.wallets, required this.isRpg});
+  const WalletDetails({
+    super.key,
+    required this.wallets,
+    required this.onAdd,
+    required this.isRpg,
+  });
 
   @override
   Widget build(BuildContext context) {
     final WalletModel cash = wallets[0];
-    final List<WalletModel> bank = wallets
-        .where((wallet) => wallet.type == WalletType.bank)
-        .toList();
-    final List<WalletModel> eWallet = wallets
-        .where((wallet) => wallet.type == WalletType.eWallet)
-        .toList();
-    final List<WalletModel> platform = wallets
-        .where((wallet) => wallet.type == WalletType.platform)
-        .toList();
-    final BigInt totalBank = bank.fold(BigInt.zero, (
-      BigInt totalSementara,
-      WalletModel wallet,
-    ) {
-      return totalSementara + wallet.amount;
-    });
-    final BigInt totalEWallet = eWallet.fold(BigInt.zero, (
-      BigInt totalSementara,
-      WalletModel wallet,
-    ) {
-      return totalSementara + wallet.amount;
-    });
-    final BigInt totalPlatform = platform.fold(BigInt.zero, (
-      BigInt totalSementara,
-      WalletModel wallet,
-    ) {
-      return totalSementara + wallet.amount;
-    });
+    List<WalletModel> bank = [];
+    List<WalletModel> eWallet = [];
+    List<WalletModel> platform = [];
+    BigInt totalBank = BigInt.zero;
+    BigInt totalEWallet = BigInt.zero;
+    BigInt totalPlatform = BigInt.zero;
+
+    for (WalletModel wallet in wallets) {
+      switch (wallet.type) {
+        case WalletType.bank:
+          bank.add(wallet);
+          totalBank += wallet.amount;
+          break;
+        case WalletType.eWallet:
+          eWallet.add(wallet);
+          totalEWallet += wallet.amount;
+          break;
+        case WalletType.platform:
+          platform.add(wallet);
+          totalPlatform += wallet.amount;
+          break;
+        case WalletType.cash:
+          continue;
+      }
+    }
 
     return DraggableScrollableSheet(
       initialChildSize: 0.6,
@@ -71,123 +75,47 @@ class WalletDetails extends StatelessWidget {
 
               const Divider(color: Colors.white10, height: 32),
 
-              Theme(
-                data: Theme.of(
-                  context,
-                ).copyWith(dividerColor: Colors.transparent),
-                child: ExpansionTile(
-                  tilePadding: EdgeInsets.zero,
-                  leading: CircleAvatar(
-                    backgroundColor: AppColors.surfaceVariant,
-                    child: FaIcon(
-                      FontAwesomeIcons.buildingColumns,
-                      size: 16,
-                      color: AppColors.textPrimary,
-                    ),
-                  ),
-                  title: Text(
-                    HomeDict.bankAccount.get(isRpg),
-                    style: const TextStyle(fontSize: 16),
-                  ),
-                  trailing: Text(
-                    CurrencyFormatter.convertToIdr(totalBank),
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                    ),
-                  ),
-                  children: [
-                    ...bank.asMap().entries.map((entry) {
-                      return _buildSubWalletItem(
-                        name: entry.value.name,
-                        amount: entry.value.amount,
-                      );
-                    }),
-                  ],
+              if (bank.isNotEmpty) ...[
+                _buildWalletItem(
+                  context: context,
+                  icon: FontAwesomeIcons.buildingColumns,
+                  title: HomeDict.bankAccount.get(isRpg),
+                  totalAmount: totalBank,
+                  wallet: bank,
                 ),
-              ),
 
-              const Divider(color: Colors.white10, height: 16),
+                const Divider(color: Colors.white10, height: 16),
+              ],
 
-              Theme(
-                data: Theme.of(
-                  context,
-                ).copyWith(dividerColor: Colors.transparent),
-                child: ExpansionTile(
-                  tilePadding: EdgeInsets.zero,
-                  leading: CircleAvatar(
-                    backgroundColor: AppColors.surfaceVariant,
-                    child: FaIcon(
-                      FontAwesomeIcons.wallet,
-                      size: 16,
-                      color: AppColors.textPrimary,
-                    ),
-                  ),
-                  title: Text(
-                    HomeDict.eWallet.get(isRpg),
-                    style: const TextStyle(fontSize: 16),
-                  ),
-                  trailing: Text(
-                    CurrencyFormatter.convertToIdr(totalEWallet),
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                    ),
-                  ),
-                  children: [
-                    ...eWallet.asMap().entries.map((entry) {
-                      return _buildSubWalletItem(
-                        name: entry.value.name,
-                        amount: entry.value.amount,
-                      );
-                    }),
-                  ],
+              if (eWallet.isNotEmpty) ...[
+                _buildWalletItem(
+                  context: context,
+                  icon: FontAwesomeIcons.wallet,
+                  title: HomeDict.eWallet.get(isRpg),
+                  totalAmount: totalEWallet,
+                  wallet: eWallet,
                 ),
-              ),
 
-              const Divider(color: Colors.white10, height: 16),
+                const Divider(color: Colors.white10, height: 16),
+              ],
 
-              Theme(
-                data: Theme.of(
-                  context,
-                ).copyWith(dividerColor: Colors.transparent),
-                child: ExpansionTile(
-                  tilePadding: EdgeInsets.zero,
-                  leading: CircleAvatar(
-                    backgroundColor: AppColors.surfaceVariant,
-                    child: FaIcon(
-                      FontAwesomeIcons.mobileScreen,
-                      size: 16,
-                      color: AppColors.textPrimary,
-                    ),
-                  ),
-                  title: Text(
-                    HomeDict.platform.get(isRpg),
-                    style: const TextStyle(fontSize: 16),
-                  ),
-                  trailing: Text(
-                    CurrencyFormatter.convertToIdr(totalPlatform),
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                    ),
-                  ),
-                  children: [
-                    ...platform.asMap().entries.map((entry) {
-                      return _buildSubWalletItem(
-                        name: entry.value.name,
-                        amount: entry.value.amount,
-                      );
-                    }),
-                  ],
+              if (platform.isNotEmpty) ...[
+                _buildWalletItem(
+                  context: context,
+                  icon: FontAwesomeIcons.mobileScreen,
+                  title: HomeDict.platform.get(isRpg),
+                  totalAmount: totalPlatform,
+                  wallet: platform,
                 ),
-              ),
+
+                const Divider(color: Colors.white10, height: 16),
+              ],
 
               const SizedBox(height: 32),
               SizedBox(
                 width: double.infinity,
                 child: OutlinedButton.icon(
-                  onPressed: () => Navigator.pop(context),
+                  onPressed: () => {Navigator.pop(context), onAdd()},
                   icon: const Icon(Icons.add, color: AppColors.primary),
                   label: Text(
                     'Add New ${isRpg ? 'Storage' : 'Wallet'}',
@@ -206,6 +134,38 @@ class WalletDetails extends StatelessWidget {
           ),
         );
       },
+    );
+  }
+
+  Widget _buildWalletItem({
+    required BuildContext context,
+    required FaIconData icon,
+    required String title,
+    required BigInt totalAmount,
+    required List<WalletModel> wallet,
+  }) {
+    return Theme(
+      data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+      child: ExpansionTile(
+        tilePadding: EdgeInsets.zero,
+        leading: CircleAvatar(
+          backgroundColor: AppColors.surfaceVariant,
+          child: FaIcon(icon, size: 16, color: AppColors.textPrimary),
+        ),
+        title: Text(title, style: const TextStyle(fontSize: 16)),
+        trailing: Text(
+          CurrencyFormatter.convertToIdr(totalAmount),
+          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+        ),
+        children: [
+          ...wallet.asMap().entries.map((entry) {
+            return _buildSubWalletItem(
+              name: entry.value.name,
+              amount: entry.value.amount,
+            );
+          }),
+        ],
+      ),
     );
   }
 

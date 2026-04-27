@@ -6,15 +6,18 @@ import 'package:provider/provider.dart';
 import '../../controllers/home_controller.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/home_dict.dart';
-import '../../core/constants/shared_dict.dart';
 import '../../core/constants/title_dict.dart';
 import '../../core/utils/currency_formatter.dart';
+import '../../models/transaction_model.dart';
 import '../../models/user_model.dart';
 import '../../models/wallet_model.dart';
 import '../profile/profile_screen.dart';
 import '../settings/settings_screen.dart';
+import 'widgets/balance_card.dart';
 import 'widgets/daily_limit.dart';
+import 'widgets/income_modal.dart';
 import 'widgets/wallet_details.dart';
+import 'widgets/wallet_modal.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -22,6 +25,7 @@ class HomeScreen extends StatelessWidget {
   void _showWalletDetails(
     BuildContext context,
     List<WalletModel> wallets,
+    VoidCallback onAdd,
     bool isRpg,
   ) {
     showModalBottomSheet(
@@ -32,9 +36,52 @@ class HomeScreen extends StatelessWidget {
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       builder: (context) {
-        return WalletDetails(wallets: wallets, isRpg: isRpg);
+        return WalletDetails(wallets: wallets, onAdd: onAdd, isRpg: isRpg);
       },
     );
+  }
+
+  void _openAddWallet(BuildContext context) async {
+    final WalletModel? result = await showModalBottomSheet<WalletModel>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => const WalletModal(),
+    );
+
+    if (result != null && context.mounted) {
+      context.read<HomeController>().saveWallet(result);
+    }
+  }
+
+  void _openAddIncome(BuildContext context) async {
+    final TransactionModel? result = await showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) =>
+          IncomeModal(wallets: context.read<HomeController>().wallets),
+    );
+
+    if (result != null && context.mounted) {
+      context.read<HomeController>().saveIncome(result);
+    }
+  }
+
+  void _openTransfer(BuildContext context) async {
+    final TransactionModel? result = await showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => IncomeModal(
+        wallets: context.read<HomeController>().wallets,
+        isTransfer: true,
+      ),
+    );
+
+    if (result != null && context.mounted) {
+      context.read<HomeController>().saveIncome(result);
+    }
   }
 
   @override
@@ -126,152 +173,17 @@ class HomeScreen extends StatelessWidget {
       body: ListView(
         padding: const EdgeInsets.all(24.0),
         children: [
-          Container(
-            decoration: BoxDecoration(
-              color: AppColors.surfaceVariant,
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: AppColors.primary.withOpacity(0.3)),
+          BalanceCard(
+            totalBalance: homeController.totalBalance,
+            showWallets: () => _showWalletDetails(
+              context,
+              homeController.wallets,
+              () => _openAddWallet(context),
+              isRpg,
             ),
-            child: Column(
-              children: [
-                GestureDetector(
-                  onTap: () => _showWalletDetails(
-                    context,
-                    homeController.wallets,
-                    isRpg,
-                  ),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: AppColors.primary.withOpacity(0.1),
-                      borderRadius: const BorderRadius.only(
-                        topLeft: Radius.circular(20),
-                        topRight: Radius.circular(20),
-                      ),
-                    ),
-                    child: Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(24),
-                      decoration: BoxDecoration(
-                        gradient: const LinearGradient(
-                          colors: [AppColors.surfaceVariant, AppColors.surface],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        ),
-                        borderRadius: const BorderRadius.only(
-                          topLeft: Radius.circular(20),
-                          topRight: Radius.circular(20),
-                          bottomLeft: Radius.circular(10),
-                          bottomRight: Radius.circular(10),
-                        ),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                HomeDict.totalBalance.get(isRpg),
-                                style: const TextStyle(
-                                  color: AppColors.textSecondary,
-                                  fontSize: 14,
-                                ),
-                              ),
-                              const Icon(
-                                Icons.visibility,
-                                size: 16,
-                                color: AppColors.primary,
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            CurrencyFormatter.convertToIdr(
-                              homeController.totalBalance,
-                            ),
-                            style: GoogleFonts.montserrat(
-                              fontSize: 32,
-                              fontWeight: FontWeight.bold,
-                              color: AppColors.textPrimary,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-
-                Container(
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                  decoration: BoxDecoration(
-                    color: AppColors.primary.withOpacity(0.1),
-                    borderRadius: const BorderRadius.only(
-                      bottomLeft: Radius.circular(20),
-                      bottomRight: Radius.circular(20),
-                    ),
-                  ),
-                  child: IntrinsicHeight(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        Expanded(
-                          child: InkWell(
-                            onTap: () {
-                              /* TODO: Aksi Pemasukan */
-                            },
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                FaIcon(
-                                  SharedDict.income.icon(isRpg),
-                                  color: AppColors.success,
-                                  size: 16,
-                                ),
-                                const SizedBox(width: 8),
-                                Text(
-                                  SharedDict.income.get(isRpg),
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                        const VerticalDivider(
-                          color: Colors.white24,
-                          thickness: 1,
-                        ),
-                        Expanded(
-                          child: InkWell(
-                            onTap: () {
-                              /* TODO: Aksi Transfer */
-                            },
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                FaIcon(
-                                  SharedDict.transfer.icon(isRpg),
-                                  color: AppColors.warning,
-                                  size: 16,
-                                ),
-                                const SizedBox(width: 8),
-                                Text(
-                                  SharedDict.transfer.get(isRpg),
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            ),
+            openAddIncome: () => _openAddIncome(context),
+            openTranfer: () => _openTransfer(context),
+            isRpg: isRpg,
           ),
 
           const SizedBox(height: 32),

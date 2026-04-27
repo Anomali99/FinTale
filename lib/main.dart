@@ -43,7 +43,7 @@ void main() async {
           create: (_) => AuthController(authService, prefService, walletDao),
         ),
         ChangeNotifierProvider(
-          create: (_) => HomeController(prefService, walletDao),
+          create: (_) => HomeController(prefService, walletDao, transactionDao),
         ),
       ],
       child: const FinTaleApp(),

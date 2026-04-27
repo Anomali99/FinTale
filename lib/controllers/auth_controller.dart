@@ -29,7 +29,7 @@ class AuthController with ChangeNotifier {
         );
       }
     } catch (e) {
-      errorMessage = 'Koneksi gagal: $e';
+      errorMessage = 'Connection failed: $e';
     } finally {
       _setLoading(false);
     }
@@ -43,7 +43,7 @@ class AuthController with ChangeNotifier {
         await _setupNewUser(userCredential.user!.uid, null, 'Anonymous');
       }
     } catch (e) {
-      errorMessage = 'Gagal masuk mode lokal: $e';
+      errorMessage = 'Failed to enter local mode: $e';
     } finally {
       _setLoading(false);
     }
@@ -55,7 +55,7 @@ class AuthController with ChangeNotifier {
     if (existingUser == null) {
       UserModel newUser = UserModel(
         uid: uid,
-        name: name.isEmpty ? 'Petualang Anonim' : name,
+        name: name.isEmpty ? 'Petualang' : name,
         email: email,
         title: TitleType.noviceSaver,
         level: 1,
