@@ -16,7 +16,7 @@ class AuthService {
     }
   }
 
-  Future<UserCredential?> signInWithGoogle() async {
+  Future<UserCredential> signInWithGoogle() async {
     try {
       await _ensureInitialized();
 
@@ -38,22 +38,35 @@ class AuthService {
         idToken: googleAuth.idToken,
       );
 
-      return await _auth.signInWithCredential(credential);
-    } on Exception catch (_) {
-      return null;
+      UserCredential userCredential = await _auth.signInWithCredential(
+        credential,
+      );
+
+      if (userCredential.user != null &&
+          userCredential.user!.displayName == null) {
+        final String realName = googleUser.displayName ?? 'Petualang';
+
+        await userCredential.user!.updateDisplayName(realName);
+
+        await userCredential.user!.reload();
+      }
+
+      return userCredential;
+    } catch (e) {
+      throw Exception('Failed to sign in with Google: $e');
     }
   }
 
-  Future<void> signInAnonymously() async {
+  Future<UserCredential> signInAnonymously() async {
     try {
-      await FirebaseAuth.instance.signInAnonymously();
+      return await _auth.signInAnonymously();
     } catch (e) {
       throw Exception('Failed to sign in anonymously: $e');
     }
   }
 
   bool get isAnonymousUser {
-    return FirebaseAuth.instance.currentUser?.isAnonymous ?? false;
+    return _auth.currentUser?.isAnonymous ?? false;
   }
 
   Future<void> signOut() async {

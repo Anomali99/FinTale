@@ -21,4 +21,25 @@ class WalletModel {
   void expense(BigInt expense) {
     amount -= expense;
   }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'name': name,
+      'type': type.name,
+      'amount': amount.toString(),
+    };
+  }
+
+  factory WalletModel.fromMap(Map<String, dynamic> map) {
+    return WalletModel(
+      id: map['id'],
+      name: map['name'],
+      type: WalletType.values.firstWhere(
+        (e) => e.name == map['type'],
+        orElse: () => WalletType.cash,
+      ),
+      amount: BigInt.parse(map['amount'] ?? '0'),
+    );
+  }
 }

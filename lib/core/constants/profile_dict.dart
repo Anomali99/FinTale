@@ -1,6 +1,6 @@
 import '../models/term_model.dart';
 
-class ProfilDict {
+class ProfileDict {
   static const TermModel missions = TermModel(
     normal: 'Daily Missions',
     rpg: 'Guild Tasks',

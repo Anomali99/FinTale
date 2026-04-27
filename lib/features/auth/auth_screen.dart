@@ -3,44 +3,12 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
+import '../../controllers/auth_controller.dart';
 import '../../core/constants/app_colors.dart';
-import '../../services/auth_service.dart';
 import '../../widgets/custom_button.dart';
 
-class AuthScreen extends StatefulWidget {
+class AuthScreen extends StatelessWidget {
   const AuthScreen({super.key});
-
-  @override
-  State<AuthScreen> createState() => _AuthScreenState();
-}
-
-class _AuthScreenState extends State<AuthScreen> {
-  bool _isLoading = false;
-
-  Future<void> _handleGoogleSignIn(BuildContext context) async {
-    setState(() => _isLoading = true);
-    try {
-      final authService = Provider.of<AuthService>(context, listen: false);
-      await authService.signInWithGoogle();
-    } catch (e) {
-      _showErrorSnackBar(context, 'Connection failed: $e');
-    } finally {
-      if (mounted) setState(() => _isLoading = false);
-    }
-  }
-
-  Future<void> _handleSkip(BuildContext context) async {
-    setState(() => _isLoading = true);
-    try {
-      final authService = Provider.of<AuthService>(context, listen: false);
-
-      await authService.signInAnonymously();
-    } catch (e) {
-      _showErrorSnackBar(context, 'Failed to enter local mode: $e');
-    } finally {
-      if (mounted) setState(() => _isLoading = false);
-    }
-  }
 
   void _showErrorSnackBar(BuildContext context, String message) {
     ScaffoldMessenger.of(context).showSnackBar(
@@ -55,6 +23,15 @@ class _AuthScreenState extends State<AuthScreen> {
   @override
   Widget build(BuildContext context) {
     final screenHeight = MediaQuery.of(context).size.height;
+
+    final authController = context.watch<AuthController>();
+
+    if (authController.errorMessage != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _showErrorSnackBar(context, authController.errorMessage!);
+        context.read<AuthController>().clearError();
+      });
+    }
 
     return Scaffold(
       body: SafeArea(
@@ -107,13 +84,14 @@ class _AuthScreenState extends State<AuthScreen> {
               ),
               const SizedBox(height: 24),
 
-              if (_isLoading)
+              if (authController.isLoading)
                 const Center(
                   child: CircularProgressIndicator(color: AppColors.primary),
                 )
               else ...[
                 ElevatedButton.icon(
-                  onPressed: () => _handleGoogleSignIn(context),
+                  onPressed: () =>
+                      context.read<AuthController>().loginWithGoogle(),
                   icon: const FaIcon(FontAwesomeIcons.google, size: 20),
                   label: const Text('Sign in with Google'),
                   style: ElevatedButton.styleFrom(
@@ -126,7 +104,8 @@ class _AuthScreenState extends State<AuthScreen> {
                 CustomButton(
                   title: 'Skip it',
                   color: AppColors.primary,
-                  onTap: () => _handleSkip(context),
+                  onTap: () =>
+                      context.read<AuthController>().loginAnonymously(),
                 ),
               ],
               const SizedBox(height: 16),

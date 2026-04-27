@@ -6,13 +6,13 @@ import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/title_dict.dart';
 import '../../../models/user_model.dart';
 
-class ProfilCard extends StatelessWidget {
+class ProfileCard extends StatelessWidget {
   final bool isRpg;
   final UserModel user;
   final VoidCallback? editName;
   final int _targetXp = 5000;
 
-  const ProfilCard({
+  const ProfileCard({
     super.key,
     required this.user,
     required this.isRpg,
@@ -79,16 +79,18 @@ class ProfilCard extends StatelessWidget {
                       'Lv. ${user.level} - ${TitleDict.getByEnum(user.title).get(isRpg)}',
                       style: const TextStyle(color: AppColors.textSecondary),
                     ),
-                    const SizedBox(height: 2),
-                    Text(
-                      user.email,
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: AppColors.textSecondary.withOpacity(0.8),
+                    if (user.email != null) ...[
+                      const SizedBox(height: 2),
+                      Text(
+                        user.email ?? '',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: AppColors.textSecondary.withOpacity(0.8),
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
+                    ],
                   ],
                 ),
               ),

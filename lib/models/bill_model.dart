@@ -70,4 +70,36 @@ class BillModel {
       ],
     );
   }
+
+  Map<String, dynamic> toMap() {
+    return {
+      "id": id,
+      "debt_id": debtId,
+      "title": title,
+      "amount": amount.toString(),
+      "type": type.name,
+      "day_name": dayName?.name,
+      "day": day,
+      "month": month,
+    };
+  }
+
+  factory BillModel.fromMap(Map<String, dynamic> map) {
+    return BillModel(
+      id: map['id'],
+      debtId: map['debt_id'],
+      title: map['title'],
+      amount: BigInt.parse(map['amount'] ?? '0'),
+      type: TimeType.values.firstWhere(
+        (e) => e.name == map['type'],
+        orElse: () => TimeType.annual,
+      ),
+      dayName: DayName.values.firstWhere(
+        (e) => e.name == map['day_name'],
+        orElse: () => DayName.sunday,
+      ),
+      day: map['day'],
+      month: map['month'],
+    );
+  }
 }

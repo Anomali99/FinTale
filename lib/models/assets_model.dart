@@ -60,4 +60,38 @@ class AssetsModel {
 
     return (((current - capital) / capital) * 100).abs();
   }
+
+  Map<String, dynamic> toMap() {
+    return {
+      "id": id,
+      "name": name,
+      "type": type.name,
+      "category": category.name,
+      "has_dividend": hasDividend ? 1 : 0,
+      "unit_name": unitName,
+      "invested": invested.toString(),
+      "value": value.toString(),
+      "unit": unit.toString(),
+    };
+  }
+
+  factory AssetsModel.fromMap(Map<String, dynamic> map) {
+    return AssetsModel(
+      id: map['id'],
+      name: map['name'],
+      type: RiskType.values.firstWhere(
+        (e) => e.name == map['type'],
+        orElse: () => RiskType.low,
+      ),
+      category: AssetsCategory.values.firstWhere(
+        (e) => e.name == map['category'],
+        orElse: () => AssetsCategory.bonds,
+      ),
+      unitName: map['unit_name'],
+      invested: BigInt.parse(map['invested'] ?? '0'),
+      value: BigInt.parse(map['value'] ?? '0'),
+      unit: Decimal.parse(map['unit'] ?? '0'),
+      hasDividend: map['has_dividend'] == 1,
+    );
+  }
 }

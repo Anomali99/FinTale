@@ -41,4 +41,27 @@ class DebtModel {
   void addPayment(BigInt pay) {
     paidAmount += pay;
   }
+
+  Map<String, dynamic> toMap() {
+    return {
+      "id": id,
+      "title": title,
+      "amount": amount.toString(),
+      "paid_amount": paidAmount.toString(),
+      "type": type.name,
+    };
+  }
+
+  factory DebtModel.fromMap(Map<String, dynamic> map, {BillModel? bill}) {
+    return DebtModel(
+      id: map['id'],
+      title: map['title'],
+      amount: BigInt.parse(map['amount'] ?? '0'),
+      type: DebtType.values.firstWhere(
+        (e) => e.name == map['type'],
+        orElse: () => DebtType.other,
+      ),
+      bill: bill,
+    );
+  }
 }

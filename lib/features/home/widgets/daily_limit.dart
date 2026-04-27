@@ -6,8 +6,8 @@ import '../../../core/utils/currency_formatter.dart';
 
 class DailyLimit extends StatelessWidget {
   final bool isRpg;
-  final double limit;
-  final double spent;
+  final BigInt limit;
+  final BigInt spent;
 
   const DailyLimit({
     super.key,
@@ -20,8 +20,8 @@ class DailyLimit extends StatelessWidget {
   Widget build(BuildContext context) {
     final remaining = limit - spent;
 
-    final double percentage = limit > 0
-        ? (remaining / limit).clamp(0.0, 1.0)
+    final double percentage = limit > BigInt.zero
+        ? (remaining.toDouble() / limit.toDouble()).clamp(0.0, 1.0)
         : 0.0;
 
     final Color barColor = percentage > 0.2

@@ -3,25 +3,27 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
+import '../../controllers/home_controller.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/home_dict.dart';
 import '../../core/constants/shared_dict.dart';
 import '../../core/constants/title_dict.dart';
-import '../../core/dummy/dummy_data.dart';
-import '../../core/theme/mode_provider.dart';
 import '../../core/utils/currency_formatter.dart';
 import '../../models/user_model.dart';
 import '../../models/wallet_model.dart';
-import '../profil/profil_screen.dart';
+import '../profile/profile_screen.dart';
 import '../settings/settings_screen.dart';
 import 'widgets/daily_limit.dart';
 import 'widgets/wallet_details.dart';
 
 class HomeScreen extends StatelessWidget {
-  HomeScreen({super.key});
-  final UserModel userData = DummyData.user;
+  const HomeScreen({super.key});
 
-  void _showWalletDetails(BuildContext context, bool isRpg) {
+  void _showWalletDetails(
+    BuildContext context,
+    List<WalletModel> wallets,
+    bool isRpg,
+  ) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -30,20 +32,26 @@ class HomeScreen extends StatelessWidget {
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       builder: (context) {
-        return WalletDetails(wallets: DummyData.wallets, isRpg: isRpg);
+        return WalletDetails(wallets: wallets, isRpg: isRpg);
       },
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    final isRpg = Provider.of<ModeProvider>(context).isRpgMode;
-    final BigInt totalBalance = DummyData.wallets.fold(BigInt.zero, (
-      BigInt total,
-      WalletModel wallet,
-    ) {
-      return total + wallet.amount;
-    });
+    final homeController = context.watch<HomeController>();
+
+    if (homeController.isLoading) {
+      return const Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(color: AppColors.primary),
+        ),
+      );
+    }
+
+    final isRpg = homeController.isRpg;
+    final maxLimit = homeController.maxDailyLimit;
+    final spentToday = homeController.currentUser?.todayUsage ?? BigInt.zero;
 
     return Scaffold(
       appBar: AppBar(
@@ -62,7 +70,7 @@ class HomeScreen extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  'Lv. ${userData.level} - ${userData.name}',
+                  'Lv. ${homeController.userLevel} - ${homeController.userName}',
                   style: GoogleFonts.poppins(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
@@ -72,7 +80,9 @@ class HomeScreen extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                 ),
                 Text(
-                  TitleDict.getByEnum(userData.title).get(isRpg),
+                  TitleDict.getByEnum(
+                    homeController.currentUser?.title ?? TitleType.noviceSaver,
+                  ).get(isRpg),
                   style: const TextStyle(
                     fontSize: 11,
                     color: AppColors.textSecondary,
@@ -88,7 +98,7 @@ class HomeScreen extends StatelessWidget {
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(4),
                     child: LinearProgressIndicator(
-                      value: userData.xp / 5000,
+                      value: homeController.userXp / 5000,
                       backgroundColor: AppColors.surfaceVariant,
                       color: Colors.amber,
                       minHeight: 4,
@@ -125,7 +135,11 @@ class HomeScreen extends StatelessWidget {
             child: Column(
               children: [
                 GestureDetector(
-                  onTap: () => _showWalletDetails(context, isRpg),
+                  onTap: () => _showWalletDetails(
+                    context,
+                    homeController.wallets,
+                    isRpg,
+                  ),
                   child: Container(
                     decoration: BoxDecoration(
                       color: AppColors.primary.withOpacity(0.1),
@@ -172,7 +186,9 @@ class HomeScreen extends StatelessWidget {
                           ),
                           const SizedBox(height: 8),
                           Text(
-                            CurrencyFormatter.convertToIdr(totalBalance),
+                            CurrencyFormatter.convertToIdr(
+                              homeController.totalBalance,
+                            ),
                             style: GoogleFonts.montserrat(
                               fontSize: 32,
                               fontWeight: FontWeight.bold,
@@ -265,7 +281,7 @@ class HomeScreen extends StatelessWidget {
             style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 12),
-          DailyLimit(limit: 200000, spent: 50000, isRpg: isRpg),
+          DailyLimit(limit: maxLimit, spent: spentToday, isRpg: isRpg),
 
           const SizedBox(height: 32),
 

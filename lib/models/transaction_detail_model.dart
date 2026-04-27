@@ -29,4 +29,31 @@ class TransactionDetailModel {
     required this.flow,
     this.id,
   });
+
+  Map<String, dynamic> toMap(int transactionId) {
+    return {
+      "id": id,
+      "transaction_id": transactionId,
+      "title": title,
+      "amount": amount.toString(),
+      "flow": flow.name,
+      "category": category.name,
+    };
+  }
+
+  factory TransactionDetailModel.fromMap(Map<String, dynamic> map) {
+    return TransactionDetailModel(
+      id: map['id'],
+      title: map['title'],
+      amount: BigInt.parse(map['amount'] ?? '0'),
+      flow: FlowType.values.firstWhere(
+        (e) => e.name == map['flow'],
+        orElse: () => FlowType.expense,
+      ),
+      category: TransactionCategory.values.firstWhere(
+        (e) => e.name == map['category'],
+        orElse: () => TransactionCategory.food,
+      ),
+    );
+  }
 }

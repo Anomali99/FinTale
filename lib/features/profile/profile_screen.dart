@@ -4,13 +4,13 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/constants/app_colors.dart';
-import '../../core/constants/profil_dict.dart';
+import '../../core/constants/profile_dict.dart';
 import '../../core/constants/skill_dict.dart';
 import '../../core/dummy/dummy_data.dart';
 import '../../core/theme/mode_provider.dart';
 import '../../core/utils/currency_formatter.dart';
 import '../../models/user_model.dart';
-import 'widgets/profil_card.dart';
+import 'widgets/profile_card.dart';
 import 'widgets/skill_tree.dart';
 import 'widgets/stat_radar.dart';
 
@@ -48,7 +48,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       body: ListView(
         padding: const EdgeInsets.all(24.0),
         children: [
-          ProfilCard(user: userData, isRpg: isRpg, editName: () {}),
+          ProfileCard(user: userData, isRpg: isRpg, editName: () {}),
           const SizedBox(height: 32),
 
           _buildAllocationStats(context, userData, isRpg),
@@ -57,7 +57,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           _buildSettingCard(
             FontAwesomeIcons.bolt,
             'Daily Spending Limit',
-            '${CurrencyFormatter.convertToIdr(userData.dailyLimit)}/day',
+            '${CurrencyFormatter.convertToIdr(userData.baseDailyLimit)}/day',
           ),
           const SizedBox(height: 24),
           _buildSettingCard(
@@ -67,7 +67,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
           const SizedBox(height: 32),
 
-          _buildSectionHeader(ProfilDict.missions.get(isRpg)),
+          _buildSectionHeader(ProfileDict.missions.get(isRpg)),
           const SizedBox(height: 12),
           _buildTaskItem(
             icon: FontAwesomeIcons.penNib,
@@ -146,7 +146,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  ProfilDict.stats.get(isRpg),
+                  ProfileDict.stats.get(isRpg),
                   style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
                 const Icon(

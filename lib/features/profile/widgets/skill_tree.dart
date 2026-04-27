@@ -4,7 +4,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/constants/app_colors.dart';
-import '../../../core/constants/profil_dict.dart';
+import '../../../core/constants/profile_dict.dart';
 import '../../../core/constants/skill_dict.dart';
 import '../../../core/dummy/dummy_data.dart';
 import '../../../core/models/category_model.dart';
@@ -70,7 +70,7 @@ class _SkillTreeState extends State<SkillTree> {
   Widget build(BuildContext context) {
     final isRpg = Provider.of<ModeProvider>(context).isRpgMode;
     return Scaffold(
-      appBar: AppBar(title: Text(ProfilDict.allocationTree.get(isRpg))),
+      appBar: AppBar(title: Text(ProfileDict.allocationTree.get(isRpg))),
       body: Stack(
         children: [
           SingleChildScrollView(

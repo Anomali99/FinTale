@@ -16,7 +16,10 @@ class DummyData {
     title: TitleType.noviceSaver,
     level: 9,
     xp: 2500,
-    dailyLimit: BigInt.from(50000),
+    baseDailyLimit: BigInt.from(50000),
+    todayUsage: BigInt.from(50000),
+    dailyPenalty: BigInt.from(50000),
+    lastActiveDate: DateTime.now().microsecondsSinceEpoch,
     emergencyAmount: BigInt.from(20000000),
     emergencyTotal: BigInt.from(9000000),
     skillAllocations: {
