@@ -5,6 +5,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'controllers/auth_controller.dart';
 import 'controllers/home_controller.dart';
+import 'controllers/layout_controller.dart';
+import 'core/constants/app_colors.dart';
 import 'core/theme/app_theme.dart';
 import 'core/theme/mode_provider.dart';
 import 'data/local/app_database.dart';
@@ -42,6 +44,7 @@ void main() async {
         ChangeNotifierProvider(
           create: (_) => AuthController(authService, prefService, walletDao),
         ),
+        ChangeNotifierProvider(create: (_) => LayoutController(prefService)),
         ChangeNotifierProvider(
           create: (_) => HomeController(prefService, walletDao, transactionDao),
         ),
@@ -71,6 +74,7 @@ class AuthWrapper extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final authService = Provider.of<AuthService>(context);
+    final authController = context.watch<AuthController>();
 
     return StreamBuilder(
       stream: authService.userStream,
@@ -82,6 +86,27 @@ class AuthWrapper extends StatelessWidget {
         }
 
         if (snapshot.hasData) {
+          if (authController.isLoading) {
+            return Scaffold(
+              backgroundColor: AppColors.surface,
+              body: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const CircularProgressIndicator(color: AppColors.primary),
+                    const SizedBox(height: 16),
+                    Text(
+                      'Setting up your character profile...',
+                      style: TextStyle(
+                        color: AppColors.primary.withOpacity(0.7),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          }
+
           return const MainLayout();
         }
 

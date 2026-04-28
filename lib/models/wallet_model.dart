@@ -5,6 +5,7 @@ class WalletModel {
   final String name;
   final WalletType type;
   BigInt amount;
+  BigInt reservedAmount;
 
   WalletModel({
     required this.name,
@@ -12,7 +13,8 @@ class WalletModel {
     required this.amount,
 
     this.id,
-  });
+    BigInt? reservedAmount,
+  }) : reservedAmount = reservedAmount ?? BigInt.zero;
 
   void income(BigInt income) {
     amount += income;
@@ -22,12 +24,21 @@ class WalletModel {
     amount -= expense;
   }
 
+  void reservedIncome(BigInt income) {
+    reservedAmount += income;
+  }
+
+  void reservedExpense(BigInt expense) {
+    reservedAmount -= expense;
+  }
+
   Map<String, dynamic> toMap() {
     return {
       'id': id,
       'name': name,
       'type': type.name,
       'amount': amount.toString(),
+      'reserved_amount': reservedAmount.toString(),
     };
   }
 
@@ -40,6 +51,7 @@ class WalletModel {
         orElse: () => WalletType.cash,
       ),
       amount: BigInt.parse(map['amount'] ?? '0'),
+      reservedAmount: BigInt.parse(map['reserved_amount'] ?? '0'),
     );
   }
 }

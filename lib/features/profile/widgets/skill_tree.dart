@@ -8,6 +8,7 @@ import '../../../core/constants/profile_dict.dart';
 import '../../../core/constants/skill_dict.dart';
 import '../../../core/dummy/dummy_data.dart';
 import '../../../core/models/category_model.dart';
+import '../../../models/allocation_model.dart';
 import '../../../models/user_model.dart';
 
 class SkillTree extends StatefulWidget {
@@ -99,25 +100,28 @@ class _SkillTreeState extends State<SkillTree> {
                           _buildNode(
                             2,
                             SkillDict.dailyParent,
-                            userData.skillAllocations['living'] ?? 0.0,
+                            userData.skillAllocations[SectorType.living] ?? 0.0,
                             isRpg,
                           ),
                           _buildNode(
                             3,
                             SkillDict.debt,
-                            userData.skillAllocations['payDebt'] ?? 0.0,
+                            userData.skillAllocations[SectorType.payDebt] ??
+                                0.0,
                             isRpg,
                           ),
                           _buildNode(
                             4,
                             SkillDict.emergency,
-                            userData.skillAllocations['emergency'] ?? 0.0,
+                            userData.skillAllocations[SectorType.emergency] ??
+                                0.0,
                             isRpg,
                           ),
                           _buildNode(
                             5,
                             SkillDict.investment,
-                            userData.skillAllocations['investment'] ?? 0.0,
+                            userData.skillAllocations[SectorType.investment] ??
+                                0.0,
                             isRpg,
                             isLocked: true,
                           ),
@@ -132,28 +136,36 @@ class _SkillTreeState extends State<SkillTree> {
                             _buildNode(
                               6,
                               SkillDict.dailyRoutine,
-                              userData.skillAllocations['essentials'] ?? 0.0,
+                              userData.skillAllocations[SubSectorType
+                                      .essentials] ??
+                                  0.0,
                               isRpg,
                               size: 48,
                             ),
                             _buildNode(
                               7,
                               SkillDict.dreamFund,
-                              userData.skillAllocations['dreamFund'] ?? 0.0,
+                              userData.skillAllocations[SubSectorType
+                                      .dreamFund] ??
+                                  0.0,
                               isRpg,
                               size: 48,
                             ),
                             _buildNode(
                               8,
                               SkillDict.lowRisk,
-                              userData.skillAllocations['lowRisk'] ?? 0.0,
+                              userData.skillAllocations[SubSectorType
+                                      .lowRisk] ??
+                                  0.0,
                               isRpg,
                               size: 48,
                             ),
                             _buildNode(
                               9,
                               SkillDict.mediumRisk,
-                              userData.skillAllocations['mediumRisk'] ?? 0.0,
+                              userData.skillAllocations[SubSectorType
+                                      .mediumRisk] ??
+                                  0.0,
                               isRpg,
                               size: 48,
                               isLocked: true,
@@ -161,7 +173,9 @@ class _SkillTreeState extends State<SkillTree> {
                             _buildNode(
                               10,
                               SkillDict.highRisk,
-                              userData.skillAllocations['highRisk'] ?? 0.0,
+                              userData.skillAllocations[SubSectorType
+                                      .highRisk] ??
+                                  0.0,
                               isRpg,
                               size: 48,
                               isLocked: true,

@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 
+import '../controllers/layout_controller.dart';
 import '../core/constants/app_colors.dart';
 import '../core/constants/menu_dict.dart';
-import '../core/theme/mode_provider.dart';
 import '../widgets/custom_bottom_sheet.dart';
 import 'bills/bills_screen.dart';
 import 'history/history_screen.dart';
@@ -61,18 +61,18 @@ class _MainLayoutState extends State<MainLayout> {
 
   @override
   Widget build(BuildContext context) {
-    final isRpg = Provider.of<ModeProvider>(context).isRpgMode;
+    final layoutController = context.watch<LayoutController>();
 
     return Scaffold(
       body: _pages[_selectedIndex],
 
       floatingActionButton: FloatingActionButton(
-        onPressed: () => _showActionPopup(context, isRpg),
+        onPressed: () => _showActionPopup(context, layoutController.isRpg),
         backgroundColor: AppColors.error,
         foregroundColor: Colors.white,
         elevation: 4,
         shape: const CircleBorder(),
-        child: FaIcon(MenuDict.pay.icon(isRpg), size: 24),
+        child: FaIcon(MenuDict.pay.icon(layoutController.isRpg), size: 24),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
 
@@ -86,25 +86,25 @@ class _MainLayoutState extends State<MainLayout> {
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
               _buildNavItem(
-                icon: MenuDict.home.icon(isRpg),
-                label: MenuDict.home.get(isRpg),
+                icon: MenuDict.home.icon(layoutController.isRpg),
+                label: MenuDict.home.get(layoutController.isRpg),
                 index: 0,
               ),
               _buildNavItem(
-                icon: MenuDict.bills.icon(isRpg),
-                label: MenuDict.bills.get(isRpg),
+                icon: MenuDict.bills.icon(layoutController.isRpg),
+                label: MenuDict.bills.get(layoutController.isRpg),
                 index: 1,
               ),
 
               const SizedBox(width: 48),
               _buildNavItem(
-                icon: MenuDict.invest.icon(isRpg),
-                label: MenuDict.invest.get(isRpg),
+                icon: MenuDict.invest.icon(layoutController.isRpg),
+                label: MenuDict.invest.get(layoutController.isRpg),
                 index: 2,
               ),
               _buildNavItem(
-                icon: MenuDict.history.icon(isRpg),
-                label: MenuDict.history.get(isRpg),
+                icon: MenuDict.history.icon(layoutController.isRpg),
+                label: MenuDict.history.get(layoutController.isRpg),
                 index: 3,
               ),
             ],

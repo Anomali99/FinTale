@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../../../core/constants/app_colors.dart';
+import '../../../core/constants/skill_dict.dart';
+import '../../../core/utils/currency_formatter.dart';
 import '../../../models/transaction_detail_model.dart';
 import '../../../models/transaction_model.dart';
 import '../../../models/wallet_model.dart';
@@ -8,9 +11,14 @@ import '../../../widgets/custom_button.dart';
 
 class IncomeModal extends StatefulWidget {
   final List<WalletModel> wallets;
+  final Map<Enum, double>? allocation;
   final bool isTransfer;
-  const IncomeModal({super.key, required this.wallets, bool? isTransfer})
-    : isTransfer = isTransfer ?? false;
+  const IncomeModal({
+    super.key,
+    required this.wallets,
+    this.allocation,
+    bool? isTransfer,
+  }) : isTransfer = isTransfer ?? false;
 
   @override
   State<IncomeModal> createState() => _IncomeModalState();
@@ -27,6 +35,48 @@ class _IncomeModalState extends State<IncomeModal> {
   int? _selectedTarget;
   TransactionCategory? _selectedCategory;
   bool _isFeeActive = false;
+  bool _isAllocationActive = false;
+  bool _isReservedActive = false;
+
+  BigInt get _cleanAmount => BigInt.parse(
+    _amountController.text.replaceAll('.', '').isEmpty
+        ? '0'
+        : _amountController.text.replaceAll('.', ''),
+  );
+
+  BigInt get _cleanFeeAmount => BigInt.parse(
+    _feeController.text.replaceAll('.', '').isEmpty
+        ? '0'
+        : _feeController.text.replaceAll('.', ''),
+  );
+
+  double get _onePercentageAmount {
+    double amount = _cleanAmount.toDouble();
+    if (_isFeeActive) {
+      amount -= _cleanFeeAmount.toDouble();
+    }
+    return amount / 100;
+  }
+
+  BigInt get _reservedAmount {
+    WalletModel? wallet = widget.wallets.firstWhere(
+      (e) => e.id == _selectedWallet,
+    );
+    return wallet.reservedAmount;
+  }
+
+  BigInt? get _maxAmount {
+    if (_isReservedActive) return _reservedAmount;
+
+    if (widget.isTransfer && _selectedWallet != null) {
+      WalletModel? wallet = widget.wallets.firstWhere(
+        (e) => e.id == _selectedWallet,
+      );
+      return wallet.amount;
+    }
+
+    return null;
+  }
 
   @override
   void dispose() {
@@ -38,18 +88,13 @@ class _IncomeModalState extends State<IncomeModal> {
 
   void _submit() {
     if (_formKey.currentState!.validate()) {
-      final String cleanAmount = _amountController.text.replaceAll(
-        RegExp(r'[^0-9]'),
-        '',
-      );
-
-      BigInt amount = BigInt.parse(cleanAmount.isEmpty ? '0' : cleanAmount);
+      BigInt amount = _cleanAmount;
       int now = DateTime.now().microsecondsSinceEpoch;
 
       List<TransactionDetailModel> details = [
         TransactionDetailModel(
           title: 'Nominal ${widget.isTransfer ? "Transfer" : "Income"}',
-          amount: amount,
+          amount: _cleanAmount,
           category: widget.isTransfer
               ? TransactionCategory.transfer
               : (_selectedCategory ?? TransactionCategory.business),
@@ -58,24 +103,18 @@ class _IncomeModalState extends State<IncomeModal> {
       ];
 
       if (_isFeeActive) {
-        final String cleanFee = _feeController.text.replaceAll(
-          RegExp(r'[^0-9]'),
-          '',
-        );
-
-        BigInt fee = BigInt.parse(cleanFee.isEmpty ? '0' : cleanFee);
-        amount -= fee;
+        amount -= _cleanFeeAmount;
         details.add(
           TransactionDetailModel(
             title: 'Fee',
-            amount: fee,
+            amount: _cleanFeeAmount,
             category: TransactionCategory.utilities,
             flow: FlowType.expense,
           ),
         );
       }
 
-      final result = TransactionModel(
+      final transaction = TransactionModel(
         type: widget.isTransfer
             ? TransactionType.transfer
             : TransactionType.income,
@@ -88,7 +127,49 @@ class _IncomeModalState extends State<IncomeModal> {
         detailTransaction: details,
       );
 
-      Navigator.pop(context, result);
+      Navigator.pop(context, {
+        "transaction": transaction,
+        "auto_allocation": _isAllocationActive,
+        "use_reserved": _isReservedActive,
+      });
+    }
+  }
+
+  void _onChanged(
+    TextEditingController controller,
+    String value, {
+    BigInt? max,
+    BigInt? min,
+  }) {
+    String cleanText = value.replaceAll('.', '');
+
+    if (cleanText.isEmpty) {
+      controller.text = '';
+      return;
+    }
+
+    BigInt currentValue = BigInt.tryParse(cleanText) ?? BigInt.zero;
+
+    if (max != null && currentValue > max) {
+      currentValue = max;
+    }
+
+    if (min != null && currentValue < min) {
+      currentValue = min;
+    } else if (currentValue < BigInt.zero) {
+      currentValue = BigInt.zero;
+    }
+
+    String formattedText = currentValue.toString().replaceAllMapped(
+      RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
+      (Match m) => '${m[1]}.',
+    );
+
+    if (controller.text != formattedText) {
+      controller.value = TextEditingValue(
+        text: formattedText,
+        selection: TextSelection.collapsed(offset: formattedText.length),
+      );
     }
   }
 
@@ -115,13 +196,19 @@ class _IncomeModalState extends State<IncomeModal> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                widget.isTransfer ? 'Transfer Balance' : 'Add New Income',
+                widget.isTransfer ? 'New Transfer' : 'Record Income',
                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 24),
 
               TextFormField(
                 controller: _titleController,
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return 'Transaction title is required.';
+                  }
+                  return null;
+                },
                 decoration: const InputDecoration(
                   labelText: 'Title',
                   hintText: 'e.g. Monthly Salary, Freelance Project...',
@@ -133,7 +220,9 @@ class _IncomeModalState extends State<IncomeModal> {
               DropdownButtonFormField<int>(
                 initialValue: _selectedWallet,
                 decoration: InputDecoration(
-                  labelText: '${widget.isTransfer ? "From" : "Target"} Wallet',
+                  labelText: widget.isTransfer
+                      ? 'Transfer From'
+                      : 'Target Wallet',
                   border: OutlineInputBorder(),
                 ),
                 items: widget.wallets.map((wallet) {
@@ -142,7 +231,26 @@ class _IncomeModalState extends State<IncomeModal> {
                     child: Text(wallet.name),
                   );
                 }).toList(),
-                onChanged: (val) => setState(() => _selectedWallet = val),
+                validator: (value) {
+                  if (value == null || value == 0) {
+                    return 'Please select a source wallet.';
+                  }
+                  return null;
+                },
+                onChanged: (val) {
+                  if (_selectedTarget == val) _selectedTarget = null;
+                  setState(() => _selectedWallet = val);
+                  _onChanged(
+                    _amountController,
+                    _amountController.text,
+                    max: _maxAmount,
+                  );
+                  _onChanged(
+                    _feeController,
+                    _feeController.text,
+                    max: _cleanAmount,
+                  );
+                },
               ),
               const SizedBox(height: 16),
 
@@ -150,7 +258,7 @@ class _IncomeModalState extends State<IncomeModal> {
                 DropdownButtonFormField<int>(
                   initialValue: _selectedTarget,
                   decoration: const InputDecoration(
-                    labelText: 'To Wallet',
+                    labelText: 'Transfer To',
                     border: OutlineInputBorder(),
                   ),
                   items: widget.wallets
@@ -162,6 +270,12 @@ class _IncomeModalState extends State<IncomeModal> {
                         );
                       })
                       .toList(),
+                  validator: (value) {
+                    if (widget.isTransfer && (value == null || value == 0)) {
+                      return 'Please select a destination wallet.';
+                    }
+                    return null;
+                  },
                   onChanged: (val) => setState(() => _selectedTarget = val),
                 ),
                 const SizedBox(height: 16),
@@ -170,12 +284,27 @@ class _IncomeModalState extends State<IncomeModal> {
               TextFormField(
                 controller: _amountController,
                 keyboardType: TextInputType.number,
+                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                 decoration: InputDecoration(
                   labelText:
                       '${widget.isTransfer ? "Transfer" : "Income"} Amount',
                   prefixText: 'Rp ',
                   border: OutlineInputBorder(),
                 ),
+                validator: (value) {
+                  if (value == null || value.isEmpty || value == '0') {
+                    return 'Please enter an amount.';
+                  }
+                  return null;
+                },
+                onChanged: (value) {
+                  _onChanged(_amountController, value, max: _maxAmount);
+                  _onChanged(
+                    _feeController,
+                    _feeController.text,
+                    max: _cleanAmount,
+                  );
+                },
               ),
               const SizedBox(height: 16),
 
@@ -196,6 +325,12 @@ class _IncomeModalState extends State<IncomeModal> {
                       child: Text('Salary & Wage'),
                     ),
                   ],
+                  validator: (value) {
+                    if (value == null && !widget.isTransfer) {
+                      return 'Please select a category.';
+                    }
+                    return null;
+                  },
                   onChanged: (val) => setState(() => _selectedCategory = val),
                 ),
                 const SizedBox(height: 16),
@@ -216,32 +351,113 @@ class _IncomeModalState extends State<IncomeModal> {
                 TextFormField(
                   controller: _feeController,
                   keyboardType: TextInputType.number,
+                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                   decoration: const InputDecoration(
                     labelText: 'Fee Amount',
                     prefixText: 'Rp ',
                     border: OutlineInputBorder(),
                   ),
+                  validator: (value) {
+                    if (_isFeeActive &&
+                        (value == null || value.isEmpty || value == '0')) {
+                      return 'Please enter the fee amount.';
+                    }
+                    return null;
+                  },
+                  onChanged: (value) =>
+                      _onChanged(_feeController, value, max: _cleanAmount),
                 ),
                 const SizedBox(height: 12),
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: Colors.blue.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: const Row(
-                    children: [
-                      Icon(Icons.info_outline, size: 18, color: Colors.blue),
-                      SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          'Note: If the fee is active, the income amount will be reduced by the fee before being added to your wallet.',
-                          style: TextStyle(fontSize: 12, color: Colors.blue),
-                        ),
-                      ),
-                    ],
-                  ),
+                _buildNoteContainer(
+                  'If the fee is active, the income amount will be reduced by the fee before being added to your wallet.',
                 ),
+              ],
+
+              const SizedBox(height: 12),
+
+              if (widget.isTransfer) ...[
+                SwitchListTile(
+                  contentPadding: EdgeInsets.zero,
+                  title: const Text('Use Reserved Funds?'),
+                  subtitle: const Text(
+                    'Deduct this amount from your reserved allocations instead of your active balance.',
+                  ),
+                  value: _isReservedActive,
+                  onChanged: (val) => setState(() {
+                    if (_selectedWallet != null) {
+                      _isReservedActive = val;
+                      _onChanged(
+                        _amountController,
+                        _amountController.text,
+                        max: _reservedAmount,
+                      );
+                      _onChanged(
+                        _feeController,
+                        _feeController.text,
+                        max: _cleanAmount,
+                      );
+                    }
+                  }),
+                ),
+
+                if (_isReservedActive) ...[
+                  const SizedBox(height: 12),
+                  _buildNoteContainer(
+                    'This transaction will consume your reserved funds. The current reserved balance in this wallet is ${CurrencyFormatter.convertToIdr(_reservedAmount)}.',
+                  ),
+                ],
+              ] else ...[
+                SwitchListTile(
+                  contentPadding: EdgeInsets.zero,
+                  title: const Text('Auto Allocation?'),
+                  subtitle: const Text(
+                    'Automatically distribute this income to your sectors based on your skill levels.',
+                  ),
+                  value: _isAllocationActive,
+                  onChanged: (val) => setState(() => _isAllocationActive = val),
+                ),
+
+                if (_isAllocationActive) ...[
+                  const SizedBox(height: 12),
+
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: AppColors.surfaceVariant,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: AppColors.primary.withOpacity(0.3),
+                      ),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Allocation Breakdown',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        const Divider(height: 1, color: Colors.white24),
+                        const SizedBox(height: 12),
+
+                        if (widget.allocation != null) ...[
+                          ...widget.allocation!.entries.map(
+                            (entry) => Padding(
+                              padding: const EdgeInsets.only(bottom: 8.0),
+                              child: _buildAllocationRow(
+                                entry.key,
+                                entry.value,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+                ],
               ],
 
               const SizedBox(height: 32),
@@ -255,6 +471,70 @@ class _IncomeModalState extends State<IncomeModal> {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildNoteContainer(String note, {Color color = Colors.blue}) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(Icons.info_outline, size: 18, color: color),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              'Note: $note',
+              style: TextStyle(fontSize: 12, color: color),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAllocationRow(Enum name, double percentage) {
+    double amount = _onePercentageAmount * percentage;
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Expanded(
+          flex: 2,
+          child: Text(
+            SkillDict.getByEnum(name).get(false),
+            style: const TextStyle(
+              fontSize: 13,
+              color: AppColors.textSecondary,
+            ),
+          ),
+        ),
+
+        Expanded(
+          flex: 1,
+          child: Text(
+            "${percentage.toInt().toString()}%",
+            style: const TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.bold,
+              color: AppColors.primary,
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ),
+
+        Expanded(
+          flex: 2,
+          child: Text(
+            CurrencyFormatter.convertToIdr(amount),
+            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
+            textAlign: TextAlign.right,
+          ),
+        ),
+      ],
     );
   }
 }

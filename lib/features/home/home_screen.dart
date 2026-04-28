@@ -7,12 +7,12 @@ import '../../controllers/home_controller.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/home_dict.dart';
 import '../../core/constants/title_dict.dart';
-import '../../core/utils/currency_formatter.dart';
 import '../../models/transaction_model.dart';
 import '../../models/user_model.dart';
 import '../../models/wallet_model.dart';
 import '../profile/profile_screen.dart';
 import '../settings/settings_screen.dart';
+import 'widgets/allocation_card.dart';
 import 'widgets/balance_card.dart';
 import 'widgets/daily_limit.dart';
 import 'widgets/income_modal.dart';
@@ -55,32 +55,41 @@ class HomeScreen extends StatelessWidget {
   }
 
   void _openAddIncome(BuildContext context) async {
-    final TransactionModel? result = await showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) =>
-          IncomeModal(wallets: context.read<HomeController>().wallets),
-    );
-
-    if (result != null && context.mounted) {
-      context.read<HomeController>().saveIncome(result);
-    }
-  }
-
-  void _openTransfer(BuildContext context) async {
-    final TransactionModel? result = await showModalBottomSheet(
+    final homeController = context.read<HomeController>();
+    final Map<String, dynamic>? result = await showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (context) => IncomeModal(
-        wallets: context.read<HomeController>().wallets,
-        isTransfer: true,
+        wallets: homeController.wallets,
+        allocation: homeController.activeAllocations,
       ),
     );
 
     if (result != null && context.mounted) {
-      context.read<HomeController>().saveIncome(result);
+      TransactionModel transaction = result['transaction'];
+      bool autoAllocation = result['auto_allocation'];
+      homeController.saveTransaction(
+        transaction,
+        autoAllocation: autoAllocation,
+      );
+    }
+  }
+
+  void _openTransfer(BuildContext context) async {
+    final homeController = context.read<HomeController>();
+    final Map<String, dynamic>? result = await showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) =>
+          IncomeModal(wallets: homeController.wallets, isTransfer: true),
+    );
+
+    if (result != null && context.mounted) {
+      TransactionModel transaction = result['transaction'];
+      bool useReserved = result['use_reserved'];
+      homeController.saveTransaction(transaction, useReserved: useReserved);
     }
   }
 
@@ -182,7 +191,11 @@ class HomeScreen extends StatelessWidget {
               isRpg,
             ),
             openAddIncome: () => _openAddIncome(context),
-            openTranfer: () => _openTransfer(context),
+            openTransfer: () => _openTransfer(context),
+            onToggleHideBalance: homeController.toggleHideBalance,
+            isHideBalance: homeController.isHideBalance,
+            reservedBalance: homeController.totalReserved,
+            unallocatedBalance: homeController.totalUnallocated,
             isRpg: isRpg,
           ),
 
@@ -195,48 +208,19 @@ class HomeScreen extends StatelessWidget {
           const SizedBox(height: 12),
           DailyLimit(limit: maxLimit, spent: spentToday, isRpg: isRpg),
 
+          if (homeController.pendingAllocations.isNotEmpty) ...[
+            const SizedBox(height: 32),
+            Text(
+              'Pending Allocation',
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 12),
+            ...homeController.pendingAllocations.map((item) {
+              return AllocationCard(allocation: item, isRpg: isRpg);
+            }),
+          ],
+
           const SizedBox(height: 32),
-
-          Text(
-            HomeDict.upcomingBills.get(isRpg),
-            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 12),
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: AppColors.error.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: AppColors.error.withOpacity(0.5)),
-            ),
-            child: Row(
-              children: [
-                const FaIcon(FontAwesomeIcons.bolt, color: AppColors.error),
-                const SizedBox(width: 16),
-                const Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Listrik Bulan Ini',
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      Text(
-                        'Due in 2 Days',
-                        style: TextStyle(color: AppColors.error, fontSize: 12),
-                      ),
-                    ],
-                  ),
-                ),
-                Text(
-                  CurrencyFormatter.convertToIdr(350000),
-                  style: GoogleFonts.poppins(fontWeight: FontWeight.bold),
-                ),
-              ],
-            ),
-          ),
-
-          const SizedBox(height: 100),
         ],
       ),
     );

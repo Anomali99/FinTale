@@ -28,6 +28,7 @@ class AppDatabase {
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT NOT NULL,
         amount TEXT NOT NULL,
+        reserved_amount TEXT NOT NULL,
         type TEXT NOT NULL,
         created_at INTEGER NOT NULL,
         updated_at INTEGER NOT NULL,

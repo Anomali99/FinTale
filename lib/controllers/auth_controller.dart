@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../data/local/app_database.dart';
 import '../data/local/dao/wallet_dao.dart';
 import '../data/local/pref_service.dart';
+import '../models/allocation_model.dart';
 import '../models/user_model.dart';
 import '../models/wallet_model.dart';
 import '../services/auth_service.dart';
@@ -22,10 +23,11 @@ class AuthController with ChangeNotifier {
     try {
       final userCredential = await _authService.signInWithGoogle();
       if (userCredential.user != null) {
+        final user = userCredential.user!;
         await _setupNewUser(
-          userCredential.user!.uid,
-          userCredential.user!.email ?? '',
-          userCredential.user!.displayName ?? 'Petualang',
+          user.uid,
+          user.email ?? '',
+          user.displayName ?? 'Petualang',
         );
       }
     } catch (e) {
@@ -66,7 +68,17 @@ class AuthController with ChangeNotifier {
         lastActiveDate: DateTime.now().microsecondsSinceEpoch,
         emergencyAmount: BigInt.zero,
         emergencyTotal: BigInt.zero,
-        skillAllocations: {},
+        skillAllocations: {
+          SectorType.living: 55.0,
+          SectorType.payDebt: 25.0,
+          SectorType.emergency: 20.0,
+          SectorType.investment: 0.0,
+          SubSectorType.essentials: 55.0,
+          SubSectorType.dreamFund: 0.0,
+          SubSectorType.lowRisk: 20.0,
+          SubSectorType.mediumRisk: 0.0,
+          SubSectorType.highRisk: 0.0,
+        },
       );
       await _prefService.saveUser(newUser);
 

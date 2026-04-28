@@ -1,3 +1,5 @@
+import 'allocation_model.dart';
+
 enum TitleType {
   noviceSaver,
   smartBudgeter,
@@ -19,7 +21,8 @@ class UserModel {
   BigInt dailyPenalty;
   BigInt todayUsage;
   int lastActiveDate;
-  Map<String, double> skillAllocations;
+  Map<Enum, double> skillAllocations;
+  List<AllocationModel> pendingAllocations;
 
   UserModel({
     required this.uid,
@@ -35,9 +38,10 @@ class UserModel {
     required this.dailyPenalty,
     required this.todayUsage,
     required this.lastActiveDate,
-  });
+    List<AllocationModel>? pendingAllocations,
+  }) : pendingAllocations = pendingAllocations ?? [];
 
-  double getSkillPercentage(String key) {
+  double getSkillPercentage(Enum key) {
     return skillAllocations[key] ?? 0.0;
   }
 
@@ -63,8 +67,16 @@ class UserModel {
     emergencyAmount += amount;
   }
 
-  void updateSkillAllocations(Map<String, double> allocations) {
+  void updateSkillAllocations(Map<Enum, double> allocations) {
     skillAllocations = allocations;
+  }
+
+  void addPendingAllocations(AllocationModel value) {
+    pendingAllocations.add(value);
+  }
+
+  void updatePendingAllocations(int index, AllocationModel value) {
+    pendingAllocations[index] = value;
   }
 
   Map<String, dynamic> toJson() => {
@@ -80,7 +92,10 @@ class UserModel {
     "last_active_date": lastActiveDate,
     "emergency_amount": emergencyAmount.toString(),
     "emergency_total": emergencyTotal.toString(),
-    "skill_allocations": skillAllocations,
+    "pending_allocations": pendingAllocations.map((e) => e.toJson()).toList(),
+    "skill_allocations": skillAllocations.map(
+      (key, value) => MapEntry(key.name, value),
+    ),
   };
 
   factory UserModel.fromJson(Map<String, dynamic> json) => UserModel(
@@ -96,9 +111,31 @@ class UserModel {
     baseDailyLimit: BigInt.parse(json['base_daily_limit'] ?? '0'),
     dailyPenalty: BigInt.parse(json['daily_penalty'] ?? '0'),
     todayUsage: BigInt.parse(json['today_usage'] ?? '0'),
-    lastActiveDate: json['last_active_date'] ?? '',
+
+    lastActiveDate: json['last_active_date'] ?? 0,
     emergencyAmount: BigInt.parse(json['emergency_amount'] ?? '0'),
     emergencyTotal: BigInt.parse(json['emergency_total'] ?? '0'),
-    skillAllocations: Map<String, double>.from(json['skill_allocations'] ?? {}),
+
+    pendingAllocations:
+        (json['pending_allocations'] as List?)
+            ?.map((e) => AllocationModel.fromJson(e))
+            .toList() ??
+        [],
+
+    skillAllocations:
+        (json['skill_allocations'] as Map<String, dynamic>?)?.map((key, value) {
+          Enum getEnumFromString(String name) {
+            for (var element in SectorType.values) {
+              if (element.name == name) return element;
+            }
+            for (var element in SubSectorType.values) {
+              if (element.name == name) return element;
+            }
+            return SectorType.living;
+          }
+
+          return MapEntry(getEnumFromString(key), (value as num).toDouble());
+        }) ??
+        {},
   );
 }

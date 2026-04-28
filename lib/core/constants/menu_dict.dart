@@ -6,7 +6,7 @@ import '../models/term_model.dart';
 
 class MenuDict {
   static const CategoryModel home = CategoryModel(
-    terminology: TermModel(normal: 'Home', rpg: 'Guild Hall'),
+    terminology: TermModel(normal: 'Home', rpg: 'Guild'),
     icons: IconModel(
       normal: FontAwesomeIcons.house,
       rpg: FontAwesomeIcons.chessRook,
@@ -14,7 +14,7 @@ class MenuDict {
   );
 
   static const CategoryModel bills = CategoryModel(
-    terminology: TermModel(normal: 'Bills', rpg: 'Quest Board'),
+    terminology: TermModel(normal: 'Bills', rpg: 'Quest'),
     icons: IconModel(
       normal: FontAwesomeIcons.receipt,
       rpg: FontAwesomeIcons.scroll,
@@ -30,7 +30,7 @@ class MenuDict {
   );
 
   static const CategoryModel history = CategoryModel(
-    terminology: TermModel(normal: 'History', rpg: 'Battle Log'),
+    terminology: TermModel(normal: 'History', rpg: 'Logging'),
     icons: IconModel(
       normal: FontAwesomeIcons.clockRotateLeft,
       rpg: FontAwesomeIcons.bookJournalWhills,

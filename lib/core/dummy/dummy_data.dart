@@ -1,5 +1,6 @@
 import 'package:decimal/decimal.dart';
 
+import '../../models/allocation_model.dart';
 import '../../models/assets_model.dart';
 import '../../models/bill_model.dart';
 import '../../models/debt_model.dart';
@@ -23,15 +24,15 @@ class DummyData {
     emergencyAmount: BigInt.from(20000000),
     emergencyTotal: BigInt.from(9000000),
     skillAllocations: {
-      "living": 55.0,
-      "payDebt": 25.0,
-      "emergency": 20.0,
-      "investment": 0.0,
-      "essentials": 55.0,
-      "dreamFund": 0.0,
-      "lowRisk": 20.0,
-      "mediumRisk": 0.0,
-      "highRisk": 0.0,
+      SectorType.living: 55.0,
+      SectorType.payDebt: 25.0,
+      SectorType.emergency: 20.0,
+      SectorType.investment: 0.0,
+      SubSectorType.essentials: 55.0,
+      SubSectorType.dreamFund: 0.0,
+      SubSectorType.lowRisk: 20.0,
+      SubSectorType.mediumRisk: 0.0,
+      SubSectorType.highRisk: 0.0,
     },
   );
 

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
+import '../../models/allocation_model.dart';
 import '../models/category_model.dart';
 import '../models/icon_model.dart';
 import '../models/term_model.dart';
@@ -76,4 +77,29 @@ class SkillDict {
   static const CategoryModel lowRisk = AssetsDict.lowRisk;
   static const CategoryModel mediumRisk = AssetsDict.mediumRisk;
   static const CategoryModel highRisk = AssetsDict.highRisk;
+
+  static CategoryModel getByEnum(Enum item) {
+    switch (item) {
+      case SectorType.living:
+        return dailyParent;
+      case SectorType.payDebt:
+        return debt;
+      case SectorType.emergency:
+        return emergency;
+      case SectorType.investment:
+        return investment;
+      case SubSectorType.essentials:
+        return dailyRoutine;
+      case SubSectorType.dreamFund:
+        return dreamFund;
+      case SubSectorType.lowRisk:
+        return lowRisk;
+      case SubSectorType.highRisk:
+        return highRisk;
+      case SubSectorType.mediumRisk:
+        return mediumRisk;
+      default:
+        return dailyParent;
+    }
+  }
 }
