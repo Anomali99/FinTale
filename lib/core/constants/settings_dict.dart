@@ -18,6 +18,6 @@ class SettingsDict {
 
   static const TermModel balanceDec = TermModel(
     normal: 'By default hide nominal',
-    rpg: 'By default hide mana',
+    rpg: 'By default hide HP',
   );
 }

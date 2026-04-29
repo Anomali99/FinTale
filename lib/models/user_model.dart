@@ -10,11 +10,11 @@ enum TitleType {
 
 class UserModel {
   final String uid;
-  final String name;
   final String? email;
-  final TitleType title;
-  final int level;
-  final int xp;
+  String name;
+  TitleType title;
+  int level;
+  int xp;
   BigInt emergencyAmount;
   BigInt emergencyTotal;
   BigInt baseDailyLimit;
@@ -55,6 +55,30 @@ class UserModel {
     return remaining < BigInt.zero ? BigInt.zero : remaining;
   }
 
+  void updateName(String newName) {
+    name = newName;
+  }
+
+  void updateTitle(TitleType newTitle) {
+    title = newTitle;
+  }
+
+  void updateLevel(int newLevel) {
+    level = newLevel;
+  }
+
+  void addLevel() {
+    level++;
+  }
+
+  void updateXp(int newXp) {
+    xp = newXp;
+  }
+
+  void addXp(int xp) {
+    this.xp += xp;
+  }
+
   void updateBaseDailyLimit(BigInt limit) {
     baseDailyLimit = limit;
   }
@@ -69,6 +93,10 @@ class UserModel {
 
   void updateSkillAllocations(Map<Enum, double> allocations) {
     skillAllocations = allocations;
+  }
+
+  void updateSkillAllocation(Enum key, double value) {
+    skillAllocations[key] = value;
   }
 
   void addPendingAllocations(AllocationModel value) {

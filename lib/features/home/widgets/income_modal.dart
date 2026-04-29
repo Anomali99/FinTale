@@ -211,7 +211,6 @@ class _IncomeModalState extends State<IncomeModal> {
                 },
                 decoration: const InputDecoration(
                   labelText: 'Title',
-                  hintText: 'e.g. Monthly Salary, Freelance Project...',
                   border: OutlineInputBorder(),
                 ),
               ),

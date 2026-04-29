@@ -50,7 +50,7 @@ class BalanceCard extends StatelessWidget {
           GestureDetector(
             onTap: showWallets,
             child: Container(
-              padding: const EdgeInsets.fromLTRB(24, 0, 24, 12),
+              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 24),
               decoration: BoxDecoration(
                 gradient: const LinearGradient(
                   colors: [AppColors.surfaceVariant, AppColors.surface],
@@ -75,17 +75,26 @@ class BalanceCard extends StatelessWidget {
                           fontSize: 13,
                         ),
                       ),
-                      IconButton(
-                        constraints: const BoxConstraints(),
-                        padding: EdgeInsets.zero,
-                        icon: Icon(
-                          isHideBalance
-                              ? Icons.visibility_off
-                              : Icons.visibility,
-                          size: 20,
-                          color: AppColors.primary,
+                      InkWell(
+                        borderRadius: BorderRadius.circular(16),
+                        onTap: onToggleHideBalance,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 2,
+                            vertical: 4,
+                          ),
+                          constraints: const BoxConstraints(
+                            minWidth: 20,
+                            minHeight: 20,
+                          ),
+                          child: Icon(
+                            isHideBalance
+                                ? Icons.visibility_off
+                                : Icons.visibility,
+                            size: 20,
+                            color: AppColors.primary,
+                          ),
                         ),
-                        onPressed: onToggleHideBalance,
                       ),
                     ],
                   ),
@@ -99,9 +108,9 @@ class BalanceCard extends StatelessWidget {
                     ),
                   ),
 
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 5),
                   const Divider(color: Colors.white10),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 6),
 
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,

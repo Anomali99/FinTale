@@ -1,3 +1,7 @@
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+
+import '../models/category_model.dart';
+import '../models/icon_model.dart';
 import '../models/term_model.dart';
 
 class ProfileDict {
@@ -14,5 +18,13 @@ class ProfileDict {
   static const TermModel allocationTree = TermModel(
     normal: 'Allocation Tree',
     rpg: 'Skill Tree',
+  );
+
+  static const CategoryModel baseDaily = CategoryModel(
+    terminology: TermModel(normal: 'Base Daily Limit', rpg: 'Base Daily Mana'),
+    icons: IconModel(
+      normal: FontAwesomeIcons.bolt,
+      rpg: FontAwesomeIcons.flask,
+    ),
   );
 }

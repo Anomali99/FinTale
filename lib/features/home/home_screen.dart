@@ -113,11 +113,12 @@ class HomeScreen extends StatelessWidget {
       appBar: AppBar(
         titleSpacing: 24,
         title: GestureDetector(
-          onTap: () {
-            Navigator.push(
+          onTap: () async {
+            await Navigator.push(
               context,
               MaterialPageRoute(builder: (context) => const ProfileScreen()),
             );
+            if (context.mounted) homeController.loadData();
           },
           child: Container(
             color: Colors.transparent,
@@ -168,11 +169,12 @@ class HomeScreen extends StatelessWidget {
         actions: [
           IconButton(
             icon: const FaIcon(FontAwesomeIcons.gear, size: 20),
-            onPressed: () {
-              Navigator.push(
+            onPressed: () async {
+              await Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => const SettingsScreen()),
               );
+              if (context.mounted) homeController.loadData();
             },
           ),
           const SizedBox(width: 8),
@@ -219,8 +221,6 @@ class HomeScreen extends StatelessWidget {
               return AllocationCard(allocation: item, isRpg: isRpg);
             }),
           ],
-
-          const SizedBox(height: 32),
         ],
       ),
     );

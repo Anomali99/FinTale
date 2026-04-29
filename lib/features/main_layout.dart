@@ -3,6 +3,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 
 import '../controllers/layout_controller.dart';
+import '../controllers/settings_controller.dart';
 import '../core/constants/app_colors.dart';
 import '../core/constants/menu_dict.dart';
 import '../widgets/custom_bottom_sheet.dart';
@@ -11,15 +12,8 @@ import 'history/history_screen.dart';
 import 'home/home_screen.dart';
 import 'invest/invest_screen.dart';
 
-class MainLayout extends StatefulWidget {
-  const MainLayout({super.key});
-
-  @override
-  State<MainLayout> createState() => _MainLayoutState();
-}
-
-class _MainLayoutState extends State<MainLayout> {
-  int _selectedIndex = 0;
+class MainLayout extends StatelessWidget {
+  MainLayout({super.key});
 
   final List<Widget> _pages = [
     HomeScreen(),
@@ -40,18 +34,14 @@ class _MainLayoutState extends State<MainLayout> {
               subtitle: MenuDict.pay.description ?? "",
               color: AppColors.error,
               icon: MenuDict.pay.icon(isRpg),
-              onTap: () {
-                Navigator.pop(context);
-              },
+              onTap: () => Navigator.pop(context),
             ),
             BottomSheetChild(
               title: MenuDict.daily.get(isRpg),
               subtitle: MenuDict.daily.description ?? "",
               color: Colors.blueAccent,
               icon: MenuDict.daily.icon(isRpg),
-              onTap: () {
-                Navigator.pop(context);
-              },
+              onTap: () => Navigator.pop(context),
             ),
           ],
         );
@@ -62,17 +52,22 @@ class _MainLayoutState extends State<MainLayout> {
   @override
   Widget build(BuildContext context) {
     final layoutController = context.watch<LayoutController>();
+    final settingsController = context.watch<SettingsController>();
 
     return Scaffold(
-      body: _pages[_selectedIndex],
+      body: _pages[layoutController.selectedIndex],
 
       floatingActionButton: FloatingActionButton(
-        onPressed: () => _showActionPopup(context, layoutController.isRpg),
+        onPressed: () =>
+            _showActionPopup(context, settingsController.isRpgMode),
         backgroundColor: AppColors.error,
         foregroundColor: Colors.white,
         elevation: 4,
         shape: const CircleBorder(),
-        child: FaIcon(MenuDict.pay.icon(layoutController.isRpg), size: 24),
+        child: FaIcon(
+          MenuDict.pay.icon(settingsController.isRpgMode),
+          size: 24,
+        ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
 
@@ -86,26 +81,33 @@ class _MainLayoutState extends State<MainLayout> {
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
               _buildNavItem(
-                icon: MenuDict.home.icon(layoutController.isRpg),
-                label: MenuDict.home.get(layoutController.isRpg),
+                context: context,
+                icon: MenuDict.home.icon(settingsController.isRpgMode),
+                label: MenuDict.home.get(settingsController.isRpgMode),
                 index: 0,
+                layoutController: layoutController,
               ),
               _buildNavItem(
-                icon: MenuDict.bills.icon(layoutController.isRpg),
-                label: MenuDict.bills.get(layoutController.isRpg),
+                context: context,
+                icon: MenuDict.bills.icon(settingsController.isRpgMode),
+                label: MenuDict.bills.get(settingsController.isRpgMode),
                 index: 1,
+                layoutController: layoutController,
               ),
-
               const SizedBox(width: 48),
               _buildNavItem(
-                icon: MenuDict.invest.icon(layoutController.isRpg),
-                label: MenuDict.invest.get(layoutController.isRpg),
+                context: context,
+                icon: MenuDict.invest.icon(settingsController.isRpgMode),
+                label: MenuDict.invest.get(settingsController.isRpgMode),
                 index: 2,
+                layoutController: layoutController,
               ),
               _buildNavItem(
-                icon: MenuDict.history.icon(layoutController.isRpg),
-                label: MenuDict.history.get(layoutController.isRpg),
+                context: context,
+                icon: MenuDict.history.icon(settingsController.isRpgMode),
+                label: MenuDict.history.get(settingsController.isRpgMode),
                 index: 3,
+                layoutController: layoutController,
               ),
             ],
           ),
@@ -115,15 +117,18 @@ class _MainLayoutState extends State<MainLayout> {
   }
 
   Widget _buildNavItem({
+    required BuildContext context,
     required FaIconData icon,
     required String label,
     required int index,
+    required LayoutController layoutController,
   }) {
-    final isSelected = _selectedIndex == index;
+    final isSelected = layoutController.selectedIndex == index;
+
     return InkWell(
       borderRadius: BorderRadius.circular(16),
-      onTap: () => setState(() => _selectedIndex = index),
 
+      onTap: () => layoutController.changeTab(index),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         constraints: const BoxConstraints(minWidth: 64, minHeight: 64),

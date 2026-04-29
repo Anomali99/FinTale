@@ -1,15 +1,13 @@
-import 'package:fintale/core/theme/mode_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 
+import '../../../controllers/skill_controller.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/profile_dict.dart';
 import '../../../core/constants/skill_dict.dart';
-import '../../../core/dummy/dummy_data.dart';
 import '../../../core/models/category_model.dart';
 import '../../../models/allocation_model.dart';
-import '../../../models/user_model.dart';
 
 class SkillTree extends StatefulWidget {
   const SkillTree({super.key});
@@ -19,19 +17,29 @@ class SkillTree extends StatefulWidget {
 }
 
 class _SkillTreeState extends State<SkillTree> {
-  int _selectedNode = 1;
-  final UserModel userData = DummyData.user;
   final GlobalKey _stackKey = GlobalKey();
-  final Map<int, GlobalKey> _nodeKeys = {};
-  Map<int, Offset> _nodePositions = {};
-  Map<int, double> _nodeRadii = {};
+  final Map<Enum?, GlobalKey> _nodeKeys = {};
+  Map<Enum?, Offset> _nodePositions = {};
+  Map<Enum?, double> _nodeRadii = {};
+  final List<Enum?> _indexKey = [null];
 
   @override
   void initState() {
     super.initState();
-    for (int i = 1; i <= 10; i++) {
-      _nodeKeys[i] = GlobalKey();
+    _nodeKeys[null] = GlobalKey();
+    for (SectorType id in SectorType.values) {
+      _nodeKeys[id] = GlobalKey();
+      _indexKey.add(id);
     }
+    for (SubSectorType id in SubSectorType.values) {
+      _nodeKeys[id] = GlobalKey();
+      _indexKey.add(id);
+    }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        context.read<SkillController>().changeNode(null);
+      }
+    });
     WidgetsBinding.instance.addPostFrameCallback(
       (_) => _calculateNodePositions(),
     );
@@ -43,10 +51,10 @@ class _SkillTreeState extends State<SkillTree> {
         _stackKey.currentContext?.findRenderObject() as RenderBox?;
     if (stackBox == null) return;
 
-    Map<int, Offset> newPositions = {};
-    Map<int, double> newRadii = {};
+    Map<Enum?, Offset> newPositions = {};
+    Map<Enum?, double> newRadii = {};
 
-    for (int i = 1; i <= 10; i++) {
+    for (Enum? i in _indexKey) {
       final key = _nodeKeys[i];
       if (key != null && key.currentContext != null) {
         final RenderBox box =
@@ -67,9 +75,44 @@ class _SkillTreeState extends State<SkillTree> {
     });
   }
 
+  int _getRemainingPoints(Enum? selectedNode, Map<Enum, double> allocs) {
+    if (selectedNode == null ||
+        selectedNode == SectorType.payDebt ||
+        selectedNode == SectorType.emergency) {
+      double used =
+          (allocs[SectorType.living] ?? 0) +
+          (allocs[SectorType.payDebt] ?? 0) +
+          (allocs[SectorType.emergency] ?? 0) +
+          (allocs[SectorType.investment] ?? 0);
+      return 100 - used.toInt();
+    } else if (selectedNode == SectorType.living ||
+        selectedNode == SubSectorType.essentials ||
+        selectedNode == SubSectorType.dreamFund) {
+      double parent = allocs[SectorType.living] ?? 0;
+      double children =
+          (allocs[SubSectorType.essentials] ?? 0) +
+          (allocs[SubSectorType.dreamFund] ?? 0);
+      return (parent - children).toInt();
+    } else if (selectedNode == SectorType.investment ||
+        selectedNode == SubSectorType.lowRisk ||
+        selectedNode == SubSectorType.mediumRisk ||
+        selectedNode == SubSectorType.highRisk) {
+      double parent = allocs[SectorType.investment] ?? 0;
+      double children =
+          (allocs[SubSectorType.lowRisk] ?? 0) +
+          (allocs[SubSectorType.mediumRisk] ?? 0) +
+          (allocs[SubSectorType.highRisk] ?? 0);
+      return (parent - children).toInt();
+    }
+    return 0;
+  }
+
   @override
   Widget build(BuildContext context) {
-    final isRpg = Provider.of<ModeProvider>(context).isRpgMode;
+    final skillController = context.watch<SkillController>();
+    final allocs = skillController.currentUser?.skillAllocations ?? {};
+    final isRpg = skillController.isRpg;
+
     return Scaffold(
       appBar: AppBar(title: Text(ProfileDict.allocationTree.get(isRpg))),
       body: Stack(
@@ -83,47 +126,48 @@ class _SkillTreeState extends State<SkillTree> {
                     painter: DynamicSkillTreePainter(
                       positions: _nodePositions,
                       radii: _nodeRadii,
-                      selectedId: _selectedNode,
+                      selectedId: skillController.selectedNode,
                     ),
                   ),
                 ),
-
                 Center(
                   child: Column(
                     children: [
                       const SizedBox(height: 60),
-                      _buildNode(1, SkillDict.income, 100, isRpg, isRoot: true),
+                      _buildNode(
+                        null,
+                        SkillDict.income,
+                        100,
+                        isRpg,
+                        isRoot: true,
+                      ),
                       const SizedBox(height: 100),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
                           _buildNode(
-                            2,
+                            SectorType.living,
                             SkillDict.dailyParent,
-                            userData.skillAllocations[SectorType.living] ?? 0.0,
+                            allocs[SectorType.living] ?? 0.0,
                             isRpg,
                           ),
                           _buildNode(
-                            3,
+                            SectorType.payDebt,
                             SkillDict.debt,
-                            userData.skillAllocations[SectorType.payDebt] ??
-                                0.0,
+                            allocs[SectorType.payDebt] ?? 0.0,
                             isRpg,
                           ),
                           _buildNode(
-                            4,
+                            SectorType.emergency,
                             SkillDict.emergency,
-                            userData.skillAllocations[SectorType.emergency] ??
-                                0.0,
+                            allocs[SectorType.emergency] ?? 0.0,
                             isRpg,
                           ),
                           _buildNode(
-                            5,
+                            SectorType.investment,
                             SkillDict.investment,
-                            userData.skillAllocations[SectorType.investment] ??
-                                0.0,
+                            allocs[SectorType.investment] ?? 0.0,
                             isRpg,
-                            isLocked: true,
                           ),
                         ],
                       ),
@@ -134,56 +178,44 @@ class _SkillTreeState extends State<SkillTree> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             _buildNode(
-                              6,
+                              SubSectorType.essentials,
                               SkillDict.dailyRoutine,
-                              userData.skillAllocations[SubSectorType
-                                      .essentials] ??
-                                  0.0,
+                              allocs[SubSectorType.essentials] ?? 0.0,
                               isRpg,
                               size: 48,
                             ),
                             _buildNode(
-                              7,
+                              SubSectorType.dreamFund,
                               SkillDict.dreamFund,
-                              userData.skillAllocations[SubSectorType
-                                      .dreamFund] ??
-                                  0.0,
+                              allocs[SubSectorType.dreamFund] ?? 0.0,
                               isRpg,
                               size: 48,
                             ),
                             _buildNode(
-                              8,
+                              SubSectorType.lowRisk,
                               SkillDict.lowRisk,
-                              userData.skillAllocations[SubSectorType
-                                      .lowRisk] ??
-                                  0.0,
+                              allocs[SubSectorType.lowRisk] ?? 0.0,
                               isRpg,
                               size: 48,
                             ),
                             _buildNode(
-                              9,
+                              SubSectorType.mediumRisk,
                               SkillDict.mediumRisk,
-                              userData.skillAllocations[SubSectorType
-                                      .mediumRisk] ??
-                                  0.0,
+                              allocs[SubSectorType.mediumRisk] ?? 0.0,
                               isRpg,
                               size: 48,
-                              isLocked: true,
                             ),
                             _buildNode(
-                              10,
+                              SubSectorType.highRisk,
                               SkillDict.highRisk,
-                              userData.skillAllocations[SubSectorType
-                                      .highRisk] ??
-                                  0.0,
+                              allocs[SubSectorType.highRisk] ?? 0.0,
                               isRpg,
                               size: 48,
-                              isLocked: true,
                             ),
                           ],
                         ),
                       ),
-                      const SizedBox(height: 150),
+                      const SizedBox(height: 220),
                     ],
                   ),
                 ),
@@ -191,25 +223,27 @@ class _SkillTreeState extends State<SkillTree> {
             ),
           ),
 
-          if (_selectedNode != 1) _buildControlPanel(),
+          if (skillController.selectedNode != null)
+            _buildControlPanel(skillController, allocs),
         ],
       ),
     );
   }
 
   Widget _buildNode(
-    int id,
+    Enum? id,
     CategoryModel data,
     double percentage,
     bool isRpg, {
     bool isRoot = false,
-    bool isLocked = false,
     double size = 60,
   }) {
-    bool isSelected = _selectedNode == id;
+    final selectedNode = context.read<SkillController>().selectedNode;
+    bool isSelected = selectedNode == id;
     Color col = data.color ?? Colors.black;
+    bool isLocked = context.read<SkillController>().lockedSkills.contains(id);
     return GestureDetector(
-      onTap: () => setState(() => _selectedNode = id),
+      onTap: () => context.read<SkillController>().changeNode(id),
       child: Column(
         children: [
           AnimatedContainer(
@@ -270,7 +304,20 @@ class _SkillTreeState extends State<SkillTree> {
     );
   }
 
-  Widget _buildControlPanel() {
+  Widget _buildControlPanel(
+    SkillController controller,
+    Map<Enum, double> allocs,
+  ) {
+    final selectedNode = controller.selectedNode;
+    final int currentPercent = controller.currentPercentage.toInt();
+    final int remaining = _getRemainingPoints(selectedNode, allocs);
+
+    final bool isRoot = selectedNode == null;
+    final desc = controller.selectedNode != null
+        ? SkillDict.getByEnum(controller.selectedNode!).description ?? ''
+        : '';
+    bool isLocked = controller.lockedSkills.contains(controller.selectedNode);
+
     return Align(
       alignment: Alignment.bottomCenter,
       child: Container(
@@ -280,39 +327,109 @@ class _SkillTreeState extends State<SkillTree> {
           color: AppColors.surfaceVariant,
           borderRadius: BorderRadius.circular(24),
           border: Border.all(color: AppColors.primary.withOpacity(0.5)),
-          boxShadow: [BoxShadow(color: Colors.black54, blurRadius: 20)],
+          boxShadow: const [BoxShadow(color: Colors.black54, blurRadius: 20)],
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text(
-              'Adjust Stat Points',
-              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-            ),
-            const SizedBox(height: 16),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                IconButton(
-                  icon: const Icon(
-                    Icons.remove_circle,
-                    color: AppColors.primary,
+            if (desc.isNotEmpty) ...[
+              Text(
+                desc,
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 10, color: Colors.grey.shade300),
+              ),
+              const Divider(height: 24, color: Colors.white24),
+            ],
+
+            if (isLocked) ...[
+              Container(
+                padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 4),
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  color: Colors.black12,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: Colors.white10),
+                ),
+                child: ListTile(
+                  leading: const FaIcon(
+                    FontAwesomeIcons.lock,
+                    color: Colors.grey,
+                    size: 20,
                   ),
-                  onPressed: () {},
-                ),
-                const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 20),
-                  child: Text(
-                    '30%',
-                    style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+                  title: const Text(
+                    'Skill Locked',
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.grey,
+                    ),
+                  ),
+                  subtitle: Text(
+                    'This category will unlock automatically as you progress.',
+                    style: TextStyle(fontSize: 10, color: Colors.grey.shade500),
                   ),
                 ),
-                IconButton(
-                  icon: const Icon(Icons.add_circle, color: AppColors.primary),
-                  onPressed: () {},
-                ),
-              ],
-            ),
+              ),
+            ] else ...[
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'Unallocated Points:',
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                  ),
+                  Text(
+                    '$remaining%',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 14,
+                      color: remaining < 0
+                          ? AppColors.error
+                          : AppColors.primary,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 6),
+
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  IconButton(
+                    icon: Icon(
+                      Icons.remove_circle,
+                      color: isRoot ? Colors.grey : AppColors.primary,
+                    ),
+                    onPressed: isRoot
+                        ? null
+                        : () => controller.decreaseAllocation(),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: Text(
+                      isRoot ? '100%' : '$currentPercent%',
+                      style: const TextStyle(
+                        fontSize: 28,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  IconButton(
+                    icon: Icon(
+                      Icons.add_circle,
+
+                      color: isRoot || remaining <= 0
+                          ? Colors.grey
+                          : AppColors.primary,
+                    ),
+                    onPressed: (isRoot || remaining <= 0)
+                        ? null
+                        : () => controller.increaseAllocation(),
+                  ),
+                ],
+              ),
+            ],
           ],
         ),
       ),
@@ -321,9 +438,9 @@ class _SkillTreeState extends State<SkillTree> {
 }
 
 class DynamicSkillTreePainter extends CustomPainter {
-  final Map<int, Offset> positions;
-  final Map<int, double> radii;
-  final int selectedId;
+  final Map<Enum?, Offset> positions;
+  final Map<Enum?, double> radii;
+  final Enum? selectedId;
 
   DynamicSkillTreePainter({
     required this.positions,
@@ -346,7 +463,7 @@ class DynamicSkillTreePainter extends CustomPainter {
       ..style = PaintingStyle.stroke
       ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 3);
 
-    void drawConnection(int parentId, int childId) {
+    void drawConnection(Enum? parentId, Enum childId) {
       if (positions.containsKey(parentId) && positions.containsKey(childId)) {
         Offset parentCenter = positions[parentId]!;
         Offset childCenter = positions[childId]!;
@@ -361,7 +478,8 @@ class DynamicSkillTreePainter extends CustomPainter {
 
         Offset endPoint = Offset(childCenter.dx, childCenter.dy - childRadius);
 
-        bool isHighlighted = (selectedId == parentId);
+        bool isHighlighted =
+            (selectedId == parentId) || (selectedId == childId);
 
         canvas.drawLine(
           startPoint,
@@ -371,20 +489,21 @@ class DynamicSkillTreePainter extends CustomPainter {
       }
     }
 
-    drawConnection(1, 2);
-    drawConnection(1, 3);
-    drawConnection(1, 4);
-    drawConnection(1, 5);
+    drawConnection(null, SectorType.living);
+    drawConnection(null, SectorType.payDebt);
+    drawConnection(null, SectorType.emergency);
+    drawConnection(null, SectorType.investment);
 
-    drawConnection(2, 6);
-    drawConnection(2, 7);
+    drawConnection(SectorType.living, SubSectorType.essentials);
+    drawConnection(SectorType.living, SubSectorType.dreamFund);
 
-    drawConnection(4, 8);
-    drawConnection(5, 8);
-
-    drawConnection(5, 9);
-    drawConnection(5, 10);
+    drawConnection(SectorType.emergency, SubSectorType.lowRisk);
+    drawConnection(SectorType.investment, SubSectorType.lowRisk);
+    drawConnection(SectorType.investment, SubSectorType.mediumRisk);
+    drawConnection(SectorType.investment, SubSectorType.highRisk);
   }
+
+  bool drawConnection = false;
 
   @override
   bool shouldRepaint(covariant DynamicSkillTreePainter oldDelegate) {

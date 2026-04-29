@@ -3,37 +3,26 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
+import '../../controllers/settings_controller.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/settings_dict.dart';
-import '../../core/theme/mode_provider.dart';
-import '../../services/auth_service.dart';
 import '../../widgets/custom_button.dart';
 
-class SettingsScreen extends StatefulWidget {
+class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
 
-  @override
-  State<SettingsScreen> createState() => _SettingsScreenState();
-}
+  void _handleSignOut(BuildContext context) async {
+    final Map<String, dynamic> result = await context
+        .read<SettingsController>()
+        .handleSignOut();
 
-class _SettingsScreenState extends State<SettingsScreen> {
-  bool _isNotificationsEnabled = true;
-  bool _isHideBalanceEnabled = false;
-  bool _isAppLockEnabled = false;
-  String _selectedTheme = 'Dark';
-
-  Future<void> _handleSignOut(BuildContext context) async {
-    try {
-      final authService = Provider.of<AuthService>(context, listen: false);
-      await authService.signOut();
-
-      if (!context.mounted) return;
+    if (!context.mounted) return;
+    if (result['success']) {
       Navigator.popUntil(context, (route) => route.isFirst);
-    } catch (e) {
-      if (!context.mounted) return;
+    } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Connection failed: $e'),
+          content: Text('Connection failed: ${result["error"]}'),
           backgroundColor: AppColors.error,
           behavior: SnackBarBehavior.floating,
         ),
@@ -41,7 +30,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
   }
 
-  void _showResetDataWarning() {
+  void _showResetDataWarning(BuildContext context) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -99,8 +88,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final modeProvider = Provider.of<ModeProvider>(context);
-    final isRpg = modeProvider.isRpgMode;
+    final SettingsController settingsController = context
+        .watch<SettingsController>();
 
     return Scaffold(
       appBar: AppBar(
@@ -112,7 +101,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
       body: ListView(
         padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 8.0),
         children: [
-          _buildSectionHeader(SettingsDict.security.get(isRpg)),
+          _buildSectionHeader(
+            SettingsDict.security.get(settingsController.isRpgMode),
+          ),
           Container(
             decoration: BoxDecoration(
               color: AppColors.surfaceVariant,
@@ -127,12 +118,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     size: 20,
                   ),
                   title: const Text('Hide Balance'),
-                  subtitle: Text(SettingsDict.balanceDec.get(isRpg)),
+                  subtitle: Text(
+                    SettingsDict.balanceDec.get(settingsController.isRpgMode),
+                  ),
                   trailing: Switch(
-                    value: _isHideBalanceEnabled,
+                    value: settingsController.isHideBalance,
                     activeThumbColor: AppColors.primary,
-                    onChanged: (value) =>
-                        setState(() => _isHideBalanceEnabled = value),
+                    onChanged: settingsController.changeHideBalance,
                   ),
                 ),
                 const Divider(color: Colors.white10, height: 1, indent: 56),
@@ -145,17 +137,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   title: const Text('App Lock'),
                   subtitle: const Text('Lock apps with PIN/Biometric'),
                   trailing: Switch(
-                    value: _isAppLockEnabled,
+                    value: settingsController.isAppLock,
                     activeThumbColor: AppColors.primary,
-                    onChanged: (value) =>
-                        setState(() => _isAppLockEnabled = value),
+                    onChanged: settingsController.changeAppLock,
                   ),
                 ),
               ],
             ),
           ),
 
-          _buildSectionHeader(SettingsDict.appSettings.get(isRpg)),
+          _buildSectionHeader(
+            SettingsDict.appSettings.get(settingsController.isRpgMode),
+          ),
           Container(
             decoration: BoxDecoration(
               color: AppColors.surfaceVariant,
@@ -172,9 +165,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   title: const Text('RPG Terminology'),
                   subtitle: const Text('Immersive adventure mode'),
                   trailing: Switch(
-                    value: isRpg,
+                    value: settingsController.isRpgMode,
                     activeThumbColor: AppColors.primary,
-                    onChanged: (value) => modeProvider.toggleMode(),
+                    onChanged: settingsController.changeRpgMode,
                   ),
                 ),
                 const Divider(color: Colors.white10, height: 1, indent: 56),
@@ -186,10 +179,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ),
                   title: const Text('Push Notifications'),
                   trailing: Switch(
-                    value: _isNotificationsEnabled,
+                    value: settingsController.isNotification,
                     activeThumbColor: AppColors.primary,
-                    onChanged: (value) =>
-                        setState(() => _isNotificationsEnabled = value),
+                    onChanged: settingsController.changeNotification,
                   ),
                 ),
                 const Divider(color: Colors.white10, height: 1, indent: 56),
@@ -201,7 +193,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ),
                   title: const Text('Theme'),
                   trailing: DropdownButton<String>(
-                    value: _selectedTheme,
+                    value: settingsController.themeMode,
                     dropdownColor: AppColors.surface,
                     underline: const SizedBox(),
                     icon: const Icon(
@@ -212,15 +204,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       color: AppColors.textPrimary,
                       fontSize: 14,
                     ),
-                    onChanged: (String? newValue) {
-                      if (newValue != null)
-                        setState(() => _selectedTheme = newValue);
-                    },
+                    onChanged: settingsController.changeThemeMode,
                     items: <String>['Dark', 'Light', 'System'].map((
                       String value,
                     ) {
                       return DropdownMenuItem<String>(
-                        value: value,
+                        value: value.toLowerCase(),
                         child: Text(value),
                       );
                     }).toList(),
@@ -230,7 +219,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
           ),
 
-          _buildSectionHeader(SettingsDict.data.get(isRpg)),
+          _buildSectionHeader(
+            SettingsDict.data.get(settingsController.isRpgMode),
+          ),
           Container(
             decoration: BoxDecoration(
               color: AppColors.surfaceVariant,
@@ -280,7 +271,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     'Reset All Data',
                     style: TextStyle(color: AppColors.error),
                   ),
-                  onTap: _showResetDataWarning,
+                  onTap: () => _showResetDataWarning(context),
                 ),
               ],
             ),

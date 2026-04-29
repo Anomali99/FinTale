@@ -27,7 +27,7 @@ class TitleDict {
     rpg: 'Guild Legend',
   );
 
-  static TermModel getByEnum(TitleType title) {
+  static TermModel getByEnum(TitleType? title) {
     switch (title) {
       case TitleType.noviceSaver:
         return noviceSaver;
@@ -39,6 +39,8 @@ class TitleDict {
         return wealthBuilder;
       case TitleType.financialMaster:
         return financialMaster;
+      default:
+        return noviceSaver;
     }
   }
 }

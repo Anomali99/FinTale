@@ -8,7 +8,7 @@ import '../../../models/user_model.dart';
 
 class ProfileCard extends StatelessWidget {
   final bool isRpg;
-  final UserModel user;
+  final UserModel? user;
   final VoidCallback? editName;
   final int _targetXp = 5000;
 
@@ -22,7 +22,7 @@ class ProfileCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final double xpPercentage = _targetXp > 0
-        ? (user.xp / _targetXp).clamp(0.0, 1.0)
+        ? ((user?.xp ?? 0) / _targetXp).clamp(0.0, 1.0)
         : 0.0;
 
     return Container(
@@ -54,7 +54,7 @@ class ProfileCard extends StatelessWidget {
                       children: [
                         Expanded(
                           child: Text(
-                            user.name,
+                            user?.name ?? '',
                             style: GoogleFonts.poppins(
                               fontSize: 20,
                               fontWeight: FontWeight.bold,
@@ -63,26 +63,35 @@ class ProfileCard extends StatelessWidget {
                             overflow: TextOverflow.ellipsis,
                           ),
                         ),
-                        IconButton(
-                          icon: const Icon(
-                            Icons.edit,
-                            size: 16,
-                            color: AppColors.textSecondary,
+                        InkWell(
+                          borderRadius: BorderRadius.circular(16),
+                          onTap: editName,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 2,
+                              vertical: 4,
+                            ),
+                            constraints: const BoxConstraints(
+                              minWidth: 20,
+                              minHeight: 20,
+                            ),
+                            child: Icon(
+                              Icons.edit,
+                              size: 16,
+                              color: AppColors.textSecondary,
+                            ),
                           ),
-                          onPressed: editName,
-                          constraints: const BoxConstraints(),
-                          padding: const EdgeInsets.only(left: 8),
                         ),
                       ],
                     ),
                     Text(
-                      'Lv. ${user.level} - ${TitleDict.getByEnum(user.title).get(isRpg)}',
+                      'Lv. ${user?.level ?? "0"} - ${TitleDict.getByEnum(user?.title).get(isRpg)}',
                       style: const TextStyle(color: AppColors.textSecondary),
                     ),
-                    if (user.email != null) ...[
+                    if (user?.email != null) ...[
                       const SizedBox(height: 2),
                       Text(
-                        user.email ?? '',
+                        user?.email ?? '',
                         style: TextStyle(
                           fontSize: 12,
                           color: AppColors.textSecondary.withOpacity(0.8),
@@ -110,7 +119,7 @@ class ProfileCard extends StatelessWidget {
                 ),
               ),
               Text(
-                '${user.xp} / $_targetXp',
+                '${user?.xp ?? 0} / $_targetXp',
                 style: const TextStyle(
                   fontSize: 12,
                   color: AppColors.textSecondary,

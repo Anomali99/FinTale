@@ -6,6 +6,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'controllers/auth_controller.dart';
 import 'controllers/home_controller.dart';
 import 'controllers/layout_controller.dart';
+import 'controllers/profile_controller.dart';
+import 'controllers/settings_controller.dart';
+import 'controllers/skill_controller.dart';
 import 'core/constants/app_colors.dart';
 import 'core/theme/app_theme.dart';
 import 'core/theme/mode_provider.dart';
@@ -47,6 +50,11 @@ void main() async {
         ChangeNotifierProvider(create: (_) => LayoutController(prefService)),
         ChangeNotifierProvider(
           create: (_) => HomeController(prefService, walletDao, transactionDao),
+        ),
+        ChangeNotifierProvider(create: (_) => ProfileController(prefService)),
+        ChangeNotifierProvider(create: (_) => SkillController(prefService)),
+        ChangeNotifierProvider(
+          create: (_) => SettingsController(authService, prefService),
         ),
       ],
       child: const FinTaleApp(),
@@ -107,7 +115,7 @@ class AuthWrapper extends StatelessWidget {
             );
           }
 
-          return const MainLayout();
+          return MainLayout();
         }
 
         return const AuthScreen();
