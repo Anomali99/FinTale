@@ -23,6 +23,7 @@ class ProfileScreen extends StatelessWidget {
   void _openEditName(BuildContext context, {String? defaultValue}) async {
     final String? result = await showModalBottomSheet(
       context: context,
+      isScrollControlled: true,
       builder: (context) {
         return EditModal(
           title: 'Edit Name',
@@ -43,6 +44,7 @@ class ProfileScreen extends StatelessWidget {
   }) async {
     final String? result = await showModalBottomSheet(
       context: context,
+      isScrollControlled: true,
       builder: (context) {
         return EditModal(
           title: 'Edit $title',
