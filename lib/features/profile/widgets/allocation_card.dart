@@ -4,7 +4,6 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/profile_dict.dart';
 import '../../../core/constants/skill_dict.dart';
-import 'skill_tree.dart';
 import 'stat_radar.dart';
 
 class AllocationCard extends StatelessWidget {
@@ -13,24 +12,24 @@ class AllocationCard extends StatelessWidget {
   final double payDebtPercentage;
   final double emergencyPercentage;
   final double investmentPercentage;
+  final VoidCallback onTap;
   const AllocationCard({
     super.key,
-    required this.livingPercentage,
-    required this.payDebtPercentage,
-    required this.emergencyPercentage,
-    required this.investmentPercentage,
+    required this.onTap,
     required this.isRpg,
-  });
+    double? livingPercentage,
+    double? payDebtPercentage,
+    double? emergencyPercentage,
+    double? investmentPercentage,
+  }) : livingPercentage = livingPercentage ?? 0.0,
+       payDebtPercentage = payDebtPercentage ?? 0.0,
+       emergencyPercentage = emergencyPercentage ?? 0.0,
+       investmentPercentage = investmentPercentage ?? 0.0;
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => const SkillTree()),
-        );
-      },
+      onTap: onTap,
       child: Container(
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(

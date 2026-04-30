@@ -1,4 +1,6 @@
-import 'allocation_model.dart';
+import 'user_allocation_model.dart';
+import 'user_budget_model.dart';
+import 'user_progress_model.dart';
 
 enum TitleType {
   noviceSaver,
@@ -15,14 +17,9 @@ class UserModel {
   TitleType title;
   int level;
   int xp;
-  BigInt emergencyAmount;
-  BigInt emergencyTotal;
-  BigInt baseDailyLimit;
-  BigInt dailyPenalty;
-  BigInt todayUsage;
-  int lastActiveDate;
-  Map<Enum, double> skillAllocations;
-  List<AllocationModel> pendingAllocations;
+  UserBudgetModel budget;
+  UserAllocationModel allocation;
+  UserProgressModel progress;
 
   UserModel({
     required this.uid,
@@ -31,80 +28,13 @@ class UserModel {
     required this.title,
     required this.level,
     required this.xp,
-    required this.emergencyAmount,
-    required this.emergencyTotal,
-    required this.skillAllocations,
-    required this.baseDailyLimit,
-    required this.dailyPenalty,
-    required this.todayUsage,
-    required this.lastActiveDate,
-    List<AllocationModel>? pendingAllocations,
-  }) : pendingAllocations = pendingAllocations ?? [];
+    required this.budget,
+    required this.allocation,
+    required this.progress,
+  });
 
-  double getSkillPercentage(Enum key) {
-    return skillAllocations[key] ?? 0.0;
-  }
-
-  BigInt get currentDailyLimit {
-    BigInt calculatedLimit = baseDailyLimit - dailyPenalty;
-    return calculatedLimit < BigInt.zero ? BigInt.zero : calculatedLimit;
-  }
-
-  BigInt get remainingLimitToday {
-    BigInt remaining = currentDailyLimit - todayUsage;
-    return remaining < BigInt.zero ? BigInt.zero : remaining;
-  }
-
-  void updateName(String newName) {
-    name = newName;
-  }
-
-  void updateTitle(TitleType newTitle) {
-    title = newTitle;
-  }
-
-  void updateLevel(int newLevel) {
-    level = newLevel;
-  }
-
-  void addLevel() {
-    level++;
-  }
-
-  void updateXp(int newXp) {
-    xp = newXp;
-  }
-
-  void addXp(int xp) {
-    this.xp += xp;
-  }
-
-  void updateBaseDailyLimit(BigInt limit) {
-    baseDailyLimit = limit;
-  }
-
-  void updateEmergencyAmount(BigInt amount) {
-    emergencyAmount = amount;
-  }
-
-  void addEmergencyAmount(BigInt amount) {
-    emergencyAmount += amount;
-  }
-
-  void updateSkillAllocations(Map<Enum, double> allocations) {
-    skillAllocations = allocations;
-  }
-
-  void updateSkillAllocation(Enum key, double value) {
-    skillAllocations[key] = value;
-  }
-
-  void addPendingAllocations(AllocationModel value) {
-    pendingAllocations.add(value);
-  }
-
-  void updatePendingAllocations(int index, AllocationModel value) {
-    pendingAllocations[index] = value;
+  void updateName(String name) {
+    this.name = name;
   }
 
   Map<String, dynamic> toJson() => {
@@ -114,16 +44,9 @@ class UserModel {
     "title": title.name,
     "level": level,
     "xp": xp,
-    "base_daily_limit": baseDailyLimit.toString(),
-    "daily_penalty": dailyPenalty.toString(),
-    "today_usage": todayUsage.toString(),
-    "last_active_date": lastActiveDate,
-    "emergency_amount": emergencyAmount.toString(),
-    "emergency_total": emergencyTotal.toString(),
-    "pending_allocations": pendingAllocations.map((e) => e.toJson()).toList(),
-    "skill_allocations": skillAllocations.map(
-      (key, value) => MapEntry(key.name, value),
-    ),
+    "budget": budget.toJson(),
+    "allocation": allocation.toJson(),
+    "progress": progress.toJson(),
   };
 
   factory UserModel.fromJson(Map<String, dynamic> json) => UserModel(
@@ -136,34 +59,8 @@ class UserModel {
     ),
     level: json['level'],
     xp: json['xp'],
-    baseDailyLimit: BigInt.parse(json['base_daily_limit'] ?? '0'),
-    dailyPenalty: BigInt.parse(json['daily_penalty'] ?? '0'),
-    todayUsage: BigInt.parse(json['today_usage'] ?? '0'),
-
-    lastActiveDate: json['last_active_date'] ?? 0,
-    emergencyAmount: BigInt.parse(json['emergency_amount'] ?? '0'),
-    emergencyTotal: BigInt.parse(json['emergency_total'] ?? '0'),
-
-    pendingAllocations:
-        (json['pending_allocations'] as List?)
-            ?.map((e) => AllocationModel.fromJson(e))
-            .toList() ??
-        [],
-
-    skillAllocations:
-        (json['skill_allocations'] as Map<String, dynamic>?)?.map((key, value) {
-          Enum getEnumFromString(String name) {
-            for (var element in SectorType.values) {
-              if (element.name == name) return element;
-            }
-            for (var element in SubSectorType.values) {
-              if (element.name == name) return element;
-            }
-            return SectorType.living;
-          }
-
-          return MapEntry(getEnumFromString(key), (value as num).toDouble());
-        }) ??
-        {},
+    budget: UserBudgetModel.fromJson(json['budget'] ?? {}),
+    allocation: UserAllocationModel.fromJson(json['allocation'] ?? {}),
+    progress: UserProgressModel.fromJson(json['progress'] ?? {}),
   );
 }

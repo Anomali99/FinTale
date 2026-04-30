@@ -1,6 +1,5 @@
 import 'package:decimal/decimal.dart';
 
-import '../../models/allocation_model.dart';
 import '../../models/assets_model.dart';
 import '../../models/bill_model.dart';
 import '../../models/debt_model.dart';
@@ -8,32 +7,12 @@ import '../../models/transaction_detail_model.dart';
 import '../../models/transaction_model.dart';
 import '../../models/user_model.dart';
 import '../../models/wallet_model.dart';
+import '../utils/starter_pack.dart';
 
 class DummyData {
-  static UserModel user = UserModel(
-    uid: "u-001",
-    name: "Nur Fatiq",
-    email: "fatiq5127@gmail.com",
-    title: TitleType.noviceSaver,
-    level: 9,
-    xp: 2500,
-    baseDailyLimit: BigInt.from(50000),
-    todayUsage: BigInt.from(50000),
-    dailyPenalty: BigInt.from(50000),
-    lastActiveDate: DateTime.now().microsecondsSinceEpoch,
-    emergencyAmount: BigInt.from(20000000),
-    emergencyTotal: BigInt.from(9000000),
-    skillAllocations: {
-      SectorType.living: 55.0,
-      SectorType.payDebt: 25.0,
-      SectorType.emergency: 20.0,
-      SectorType.investment: 0.0,
-      SubSectorType.essentials: 55.0,
-      SubSectorType.dreamFund: 0.0,
-      SubSectorType.lowRisk: 20.0,
-      SubSectorType.mediumRisk: 0.0,
-      SubSectorType.highRisk: 0.0,
-    },
+  static UserModel user = StarterPack.generateUser(
+    uid: "12345",
+    name: "Anomali99",
   );
 
   static List<WalletModel> wallets = [

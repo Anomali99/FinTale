@@ -4,13 +4,13 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/title_dict.dart';
+import '../../../core/utils/leveling_extension.dart';
 import '../../../models/user_model.dart';
 
 class ProfileCard extends StatelessWidget {
   final bool isRpg;
   final UserModel? user;
   final VoidCallback? editName;
-  final int _targetXp = 5000;
 
   const ProfileCard({
     super.key,
@@ -21,9 +21,13 @@ class ProfileCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final double xpPercentage = _targetXp > 0
-        ? ((user?.xp ?? 0) / _targetXp).clamp(0.0, 1.0)
-        : 0.0;
+    final String name = user?.name ?? 'Adventurer';
+    final String? email = user?.email;
+    final TitleType title = user?.title ?? TitleType.noviceSaver;
+    final double xpPercentage = user?.progressPercentage ?? 0.0;
+    final int targetXp = user?.requiredXp ?? 0;
+    final int level = user?.level ?? 1;
+    final int xp = user?.xp ?? 0;
 
     return Container(
       padding: const EdgeInsets.all(20),
@@ -54,7 +58,7 @@ class ProfileCard extends StatelessWidget {
                       children: [
                         Expanded(
                           child: Text(
-                            user?.name ?? '',
+                            name,
                             style: GoogleFonts.poppins(
                               fontSize: 20,
                               fontWeight: FontWeight.bold,
@@ -85,13 +89,13 @@ class ProfileCard extends StatelessWidget {
                       ],
                     ),
                     Text(
-                      'Lv. ${user?.level ?? "0"} - ${TitleDict.getByEnum(user?.title).get(isRpg)}',
+                      'Lv. $level - ${TitleDict.getByEnum(title).get(isRpg)}',
                       style: const TextStyle(color: AppColors.textSecondary),
                     ),
                     if (user?.email != null) ...[
                       const SizedBox(height: 2),
                       Text(
-                        user?.email ?? '',
+                        email ?? '',
                         style: TextStyle(
                           fontSize: 12,
                           color: AppColors.textSecondary.withOpacity(0.8),
@@ -119,7 +123,7 @@ class ProfileCard extends StatelessWidget {
                 ),
               ),
               Text(
-                '${user?.xp ?? 0} / $_targetXp',
+                '$xp / $targetXp',
                 style: const TextStyle(
                   fontSize: 12,
                   color: AppColors.textSecondary,

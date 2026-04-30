@@ -2,18 +2,15 @@ import 'package:flutter/material.dart';
 
 import '../data/local/dao/transaction_dao.dart';
 import '../data/local/dao/wallet_dao.dart';
-import '../data/local/pref_service.dart';
 import '../models/allocation_model.dart';
 import '../models/transaction_model.dart';
-import '../models/user_model.dart';
 import '../models/wallet_model.dart';
+import 'user_controller.dart';
 
 class HomeController with ChangeNotifier {
-  final PrefService _prefService;
   final WalletDao _walletDao;
   final TransactionDao _transactionDao;
-
-  UserModel? currentUser;
+  final UserController _userController;
   List<WalletModel> wallets = [];
   BigInt totalBalance = BigInt.zero;
   BigInt totalReserved = BigInt.zero;
@@ -21,34 +18,22 @@ class HomeController with ChangeNotifier {
   bool isHideBalance = false;
   bool isLoading = true;
 
-  HomeController(this._prefService, this._walletDao, this._transactionDao) {
+  HomeController(this._walletDao, this._transactionDao, this._userController) {
     loadData();
   }
 
-  String get userName => currentUser?.name ?? 'Petualang';
-  int get userLevel => currentUser?.level ?? 1;
-  int get userXp => currentUser?.xp ?? 0;
-
-  Map<Enum, double> get userAllocations => currentUser?.skillAllocations ?? {};
-
   Map<Enum, double> get activeAllocations {
-    return Map.fromEntries(
-      userAllocations.entries.where((entry) {
-        return (entry.key is SubSectorType ||
-                entry.key == SectorType.payDebt) &&
-            entry.value > 0.0;
-      }),
-    );
+    return {
+      for (final entry in _userController.userAllocations.entries)
+        if (entry.value != null &&
+            entry.value! > 0.0 &&
+            (entry.key is SubSectorType || entry.key == SectorType.payDebt))
+          entry.key: entry.value!,
+    };
   }
 
-  BigInt get remainingDailyLimit =>
-      currentUser?.remainingLimitToday ?? BigInt.zero;
-  BigInt get maxDailyLimit => currentUser?.currentDailyLimit ?? BigInt.zero;
-
-  bool get isRpg => _prefService.isRpgMode;
-
   List<AllocationModel> get pendingAllocations =>
-      currentUser?.pendingAllocations ?? [];
+      _userController.pendingAllocations;
 
   void toggleHideBalance() {
     bool newValue = !isHideBalance;
@@ -60,8 +45,8 @@ class HomeController with ChangeNotifier {
     isLoading = true;
     Future.microtask(() => notifyListeners());
     try {
-      currentUser = _prefService.getUser();
-      isHideBalance = _prefService.isHideBalance;
+      await _userController.loadData();
+      isHideBalance = _userController.isHideBalance;
 
       wallets = await _walletDao.readAllActiveData();
 
@@ -78,7 +63,7 @@ class HomeController with ChangeNotifier {
         totalUnallocated += all.amount;
       }
     } catch (e) {
-      debugPrint("An error occurred while loading: $e");
+      debugPrint("[HOME] An error occurred while loading: $e");
     } finally {
       isLoading = false;
       notifyListeners();
@@ -89,12 +74,13 @@ class HomeController with ChangeNotifier {
     try {
       if (wallet.id == null) {
         await _walletDao.create(wallet);
+        await _userController.processCreateWallet();
       } else {
         await _walletDao.update(wallet);
       }
       await loadData();
     } catch (e) {
-      debugPrint("Failed to save wallet: $e");
+      debugPrint("[HOME] Failed to save wallet: $e");
     }
   }
 
@@ -111,9 +97,9 @@ class HomeController with ChangeNotifier {
       );
 
       if (transaction.type == TransactionType.income) {
-        if (autoAllocation == true && currentUser != null) {
+        if (autoAllocation == true) {
           double onePercentageAmount = transaction.amount.toDouble() / 100;
-          Map<Enum, double> userAllocations = currentUser!.skillAllocations;
+          Map<Enum, double?> userAllocations = _userController.userAllocations;
 
           double totalLowRisk = userAllocations[SubSectorType.lowRisk] ?? 0.0;
           double emergencyLimit = userAllocations[SectorType.emergency] ?? 0.0;
@@ -157,9 +143,9 @@ class HomeController with ChangeNotifier {
             if (index != -1) {
               AllocationModel all = pendingAllocations[index];
               all.income(allocatedAmount);
-              currentUser?.updatePendingAllocations(index, all);
+              _userController.updatePending(index, all);
             } else {
-              currentUser?.addPendingAllocations(
+              _userController.addPending(
                 AllocationModel(
                   walletId: transaction.walletId ?? 1,
                   sector: sector,
@@ -185,20 +171,18 @@ class HomeController with ChangeNotifier {
             SubSectorType.highRisk,
             userAllocations[SubSectorType.highRisk] ?? 0.0,
           );
-
           processAllocation(
             SectorType.emergency,
             SubSectorType.lowRisk,
             emergencyLowRiskPct,
           );
-
           processAllocation(
             SectorType.investment,
             SubSectorType.lowRisk,
             investLowRiskPct,
           );
+          await _userController.saveUser();
         }
-        _prefService.saveUser(currentUser!);
         wallet.income(transaction.amount);
       } else {
         WalletModel walletTarget = wallets.firstWhere(
@@ -225,10 +209,9 @@ class HomeController with ChangeNotifier {
       }
 
       await _walletDao.update(wallet);
-
       await loadData();
     } catch (e) {
-      debugPrint("Failed to save transaction: $e");
+      debugPrint("[HOME] Failed to save transaction: $e");
     }
   }
 }

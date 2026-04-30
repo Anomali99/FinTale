@@ -1,22 +1,24 @@
 import 'package:flutter/material.dart';
 
-import '../data/local/pref_service.dart';
-import '../models/allocation_model.dart';
-import '../models/user_model.dart';
+import 'user_controller.dart';
 
 class SkillController with ChangeNotifier {
-  final PrefService _prefService;
+  final UserController _userController;
+  Enum? selectedNode;
+  bool isLoading = true;
 
-  SkillController(this._prefService) {
+  SkillController(this._userController) {
     loadData();
   }
 
-  Enum? selectedNode;
-  UserModel? currentUser;
-  bool isLoading = true;
-  List<Enum> lockedSkills = [];
+  bool get isRpg => _userController.isRpgMode;
 
-  bool get isRpg => _prefService.isRpgMode;
+  Map<Enum, double?> get skillAllocations => _userController.userAllocations;
+
+  double? get currentPercentage {
+    if (selectedNode == null) return null;
+    return _userController.getAllocation(selectedNode!);
+  }
 
   void changeNode(Enum? node) {
     if (selectedNode != node) {
@@ -25,23 +27,13 @@ class SkillController with ChangeNotifier {
     }
   }
 
-  double get currentPercentage {
-    if (selectedNode == null || currentUser == null) return 0.0;
-    return currentUser!.skillAllocations[selectedNode!] ?? 0.0;
-  }
-
   Future<void> loadData() async {
     isLoading = true;
     Future.microtask(() => notifyListeners());
     try {
-      currentUser = _prefService.getUser();
-      lockedSkills = [
-        SectorType.investment,
-        SubSectorType.mediumRisk,
-        SubSectorType.highRisk,
-      ];
+      await _userController.loadData();
     } catch (e) {
-      debugPrint("An error occurred while loading profile: $e");
+      debugPrint("[SKILL] An error occurred while loading profile: $e");
     } finally {
       isLoading = false;
       notifyListeners();
@@ -49,24 +41,24 @@ class SkillController with ChangeNotifier {
   }
 
   Future<void> increaseAllocation() async {
-    if (selectedNode == null || currentUser == null) return;
+    if (selectedNode == null) return;
 
-    double current = currentPercentage;
+    double current = currentPercentage ?? 0.0;
     if (current < 100) {
-      currentUser!.updateSkillAllocation(selectedNode!, current + 1);
-      await _prefService.saveUser(currentUser!);
+      _userController.updateSkillByKey(selectedNode!, current + 1);
+      await _userController.saveUser();
       await loadData();
       notifyListeners();
     }
   }
 
   Future<void> decreaseAllocation() async {
-    if (selectedNode == null || currentUser == null) return;
+    if (selectedNode == null) return;
 
-    double current = currentPercentage;
+    double current = currentPercentage ?? 0.0;
     if (current > 0) {
-      currentUser!.updateSkillAllocation(selectedNode!, current - 1);
-      await _prefService.saveUser(currentUser!);
+      _userController.updateSkillByKey(selectedNode!, current - 1);
+      await _userController.saveUser();
       await loadData();
       notifyListeners();
     }

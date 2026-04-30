@@ -27,7 +27,7 @@ class Information extends StatelessWidget {
           const SizedBox(height: 16),
           _buildMissionCard(
             icon: FontAwesomeIcons.penToSquare,
-            title: '[Record Transaction]',
+            title: 'Record Transaction',
             desc: 'Log your daily income and expenses.',
             xp: '+10 XP',
             frequency: 'Daily',
@@ -36,7 +36,7 @@ class Information extends StatelessWidget {
           ),
           _buildMissionCard(
             icon: FontAwesomeIcons.wallet,
-            title: '[Daily Budget Cap]',
+            title: 'Daily Budget Cap',
             desc: 'End the day without exceeding your daily budget limit.',
             xp: '+25 XP',
             frequency: 'Daily',
@@ -45,7 +45,7 @@ class Information extends StatelessWidget {
           ),
           _buildMissionCard(
             icon: FontAwesomeIcons.calendarCheck,
-            title: '[Weekly Check-in]',
+            title: 'Weekly Check-in',
             desc: 'Open the app for at least 5 days within a week.',
             xp: '+100 XP',
             frequency: 'Weekly',
@@ -54,7 +54,7 @@ class Information extends StatelessWidget {
           ),
           _buildMissionCard(
             icon: FontAwesomeIcons.chartLine,
-            title: '[Consistent Budgeting]',
+            title: 'Consistent Budgeting',
             desc: 'Maintain your daily budget cap for 5 days in a week.',
             xp: '+150 XP',
             frequency: 'Weekly',
@@ -63,7 +63,7 @@ class Information extends StatelessWidget {
           ),
           _buildMissionCard(
             icon: FontAwesomeIcons.piggyBank,
-            title: '[Monthly Savings Goal]',
+            title: 'Monthly Savings Goal',
             desc: 'Successfully reach your targeted savings for the month.',
             xp: '+500 XP',
             frequency: 'Monthly',
@@ -72,7 +72,7 @@ class Information extends StatelessWidget {
           ),
           _buildMissionCard(
             icon: FontAwesomeIcons.fileInvoiceDollar,
-            title: '[Debt Payment]',
+            title: 'Debt Payment',
             desc: 'Pay off your monthly [Debt] allocation on time.',
             xp: '+300 XP',
             frequency: 'Monthly',
@@ -81,7 +81,7 @@ class Information extends StatelessWidget {
           ),
           _buildMissionCard(
             icon: FontAwesomeIcons.chartPie,
-            title: '[Monthly Review]',
+            title: 'Monthly Review',
             desc: 'Review your financial summary at the end of the month.',
             xp: '+200 XP',
             frequency: 'Monthly',
@@ -90,7 +90,7 @@ class Information extends StatelessWidget {
           ),
           _buildMissionCard(
             icon: FontAwesomeIcons.flagCheckered,
-            title: '[First Transaction]',
+            title: 'First Transaction',
             desc: 'Record your very first financial transaction.',
             xp: '+100 XP',
             frequency: 'Unique',
@@ -99,7 +99,7 @@ class Information extends StatelessWidget {
           ),
           _buildMissionCard(
             icon: FontAwesomeIcons.buildingColumns,
-            title: '[Create Wallet]',
+            title: 'Create Wallet',
             desc: 'Create a new storage, bank account, or e-wallet.',
             xp: '+50 XP',
             frequency: 'Unique',
@@ -108,7 +108,7 @@ class Information extends StatelessWidget {
           ),
           _buildMissionCard(
             icon: FontAwesomeIcons.sliders,
-            title: '[Set Allocation]',
+            title: 'Set Allocation',
             desc:
                 'Set up your financial allocation percentages for the first time.',
             xp: '+200 XP',

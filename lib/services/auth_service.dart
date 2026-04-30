@@ -44,7 +44,7 @@ class AuthService {
 
       if (userCredential.user != null &&
           userCredential.user!.displayName == null) {
-        final String realName = googleUser.displayName ?? 'Petualang';
+        final String realName = googleUser.displayName ?? 'Adventurer';
 
         await userCredential.user!.updateDisplayName(realName);
 

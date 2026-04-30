@@ -4,11 +4,11 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
 import '../../controllers/home_controller.dart';
+import '../../controllers/user_controller.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/home_dict.dart';
 import '../../core/constants/title_dict.dart';
 import '../../models/transaction_model.dart';
-import '../../models/user_model.dart';
 import '../../models/wallet_model.dart';
 import '../profile/profile_screen.dart';
 import '../settings/settings_screen.dart';
@@ -96,6 +96,7 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final homeController = context.watch<HomeController>();
+    final userController = context.watch<UserController>();
 
     if (homeController.isLoading) {
       return const Scaffold(
@@ -105,21 +106,29 @@ class HomeScreen extends StatelessWidget {
       );
     }
 
-    final isRpg = homeController.isRpg;
-    final maxLimit = homeController.maxDailyLimit;
-    final spentToday = homeController.currentUser?.todayUsage ?? BigInt.zero;
+    final isRpg = userController.isRpgMode;
+    final userName = userController.userName;
+    final userTitle = userController.userTitle;
+    final userLevel = userController.userLevel;
+    final maxLimit = userController.currentDailyLimit;
+    final spentToday = userController.todayUsage;
+    final xpPercentage = userController.xpPercentage;
+
+    final isHideBalance = homeController.isHideBalance;
+    final wallets = homeController.wallets;
+    final pendingAllocations = homeController.pendingAllocations;
+    final totalBalance = homeController.totalBalance;
+    final totalReserved = homeController.totalReserved;
+    final totalUnallocated = homeController.totalUnallocated;
 
     return Scaffold(
       appBar: AppBar(
         titleSpacing: 24,
         title: GestureDetector(
-          onTap: () async {
-            await Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const ProfileScreen()),
-            );
-            if (context.mounted) homeController.loadData();
-          },
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const ProfileScreen()),
+          ),
           child: Container(
             color: Colors.transparent,
             child: Column(
@@ -127,7 +136,7 @@ class HomeScreen extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  'Lv. ${homeController.userLevel} - ${homeController.userName}',
+                  'Lv. $userLevel - $userName',
                   style: GoogleFonts.poppins(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
@@ -137,9 +146,7 @@ class HomeScreen extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                 ),
                 Text(
-                  TitleDict.getByEnum(
-                    homeController.currentUser?.title ?? TitleType.noviceSaver,
-                  ).get(isRpg),
+                  TitleDict.getByEnum(userTitle).get(isRpg),
                   style: const TextStyle(
                     fontSize: 11,
                     color: AppColors.textSecondary,
@@ -155,7 +162,7 @@ class HomeScreen extends StatelessWidget {
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(4),
                     child: LinearProgressIndicator(
-                      value: homeController.userXp / 5000,
+                      value: xpPercentage,
                       backgroundColor: AppColors.surfaceVariant,
                       color: Colors.amber,
                       minHeight: 4,
@@ -185,19 +192,19 @@ class HomeScreen extends StatelessWidget {
         padding: const EdgeInsets.all(24.0),
         children: [
           BalanceCard(
-            totalBalance: homeController.totalBalance,
+            totalBalance: totalBalance,
             showWallets: () => _showWalletDetails(
               context,
-              homeController.wallets,
+              wallets,
               () => _openAddWallet(context),
               isRpg,
             ),
             openAddIncome: () => _openAddIncome(context),
             openTransfer: () => _openTransfer(context),
             onToggleHideBalance: homeController.toggleHideBalance,
-            isHideBalance: homeController.isHideBalance,
-            reservedBalance: homeController.totalReserved,
-            unallocatedBalance: homeController.totalUnallocated,
+            isHideBalance: isHideBalance,
+            reservedBalance: totalReserved,
+            unallocatedBalance: totalUnallocated,
             isRpg: isRpg,
           ),
 
@@ -210,14 +217,14 @@ class HomeScreen extends StatelessWidget {
           const SizedBox(height: 12),
           DailyLimit(limit: maxLimit, spent: spentToday, isRpg: isRpg),
 
-          if (homeController.pendingAllocations.isNotEmpty) ...[
+          if (pendingAllocations.isNotEmpty) ...[
             const SizedBox(height: 32),
             Text(
               'Pending Allocation',
               style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 12),
-            ...homeController.pendingAllocations.map((item) {
+            ...pendingAllocations.map((item) {
               return AllocationCard(allocation: item, isRpg: isRpg);
             }),
           ],

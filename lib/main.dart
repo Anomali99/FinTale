@@ -9,6 +9,7 @@ import 'controllers/layout_controller.dart';
 import 'controllers/profile_controller.dart';
 import 'controllers/settings_controller.dart';
 import 'controllers/skill_controller.dart';
+import 'controllers/user_controller.dart';
 import 'core/constants/app_colors.dart';
 import 'core/theme/app_theme.dart';
 import 'core/theme/mode_provider.dart';
@@ -39,23 +40,30 @@ void main() async {
   final billDao = BillDao(db);
   final transactionDao = TransactionDao(db);
 
+  final userController = UserController(prefService);
+  final authController = AuthController(authService, prefService, walletDao);
+  final layoutController = LayoutController(prefService);
+  final homeController = HomeController(
+    walletDao,
+    transactionDao,
+    userController,
+  );
+  final profileController = ProfileController(userController);
+  final skillController = SkillController(userController);
+  final settingsController = SettingsController(authService, prefService);
+
   runApp(
     MultiProvider(
       providers: [
         Provider<AuthService>.value(value: authService),
         ChangeNotifierProvider<ModeProvider>(create: (_) => ModeProvider()),
-        ChangeNotifierProvider(
-          create: (_) => AuthController(authService, prefService, walletDao),
-        ),
-        ChangeNotifierProvider(create: (_) => LayoutController(prefService)),
-        ChangeNotifierProvider(
-          create: (_) => HomeController(prefService, walletDao, transactionDao),
-        ),
-        ChangeNotifierProvider(create: (_) => ProfileController(prefService)),
-        ChangeNotifierProvider(create: (_) => SkillController(prefService)),
-        ChangeNotifierProvider(
-          create: (_) => SettingsController(authService, prefService),
-        ),
+        ChangeNotifierProvider(create: (_) => userController),
+        ChangeNotifierProvider(create: (_) => authController),
+        ChangeNotifierProvider(create: (_) => layoutController),
+        ChangeNotifierProvider(create: (_) => homeController),
+        ChangeNotifierProvider(create: (_) => profileController),
+        ChangeNotifierProvider(create: (_) => skillController),
+        ChangeNotifierProvider(create: (_) => settingsController),
       ],
       child: const FinTaleApp(),
     ),

@@ -75,7 +75,7 @@ class _SkillTreeState extends State<SkillTree> {
     });
   }
 
-  int _getRemainingPoints(Enum? selectedNode, Map<Enum, double> allocs) {
+  int _getRemainingPoints(Enum? selectedNode, Map<Enum, double?> allocs) {
     if (selectedNode == null ||
         selectedNode == SectorType.payDebt ||
         selectedNode == SectorType.emergency) {
@@ -110,7 +110,7 @@ class _SkillTreeState extends State<SkillTree> {
   @override
   Widget build(BuildContext context) {
     final skillController = context.watch<SkillController>();
-    final allocs = skillController.currentUser?.skillAllocations ?? {};
+    final allocs = skillController.skillAllocations;
     final isRpg = skillController.isRpg;
 
     return Scaffold(
@@ -148,25 +148,25 @@ class _SkillTreeState extends State<SkillTree> {
                           _buildNode(
                             SectorType.living,
                             SkillDict.dailyParent,
-                            allocs[SectorType.living] ?? 0.0,
+                            allocs[SectorType.living],
                             isRpg,
                           ),
                           _buildNode(
                             SectorType.payDebt,
                             SkillDict.debt,
-                            allocs[SectorType.payDebt] ?? 0.0,
+                            allocs[SectorType.payDebt],
                             isRpg,
                           ),
                           _buildNode(
                             SectorType.emergency,
                             SkillDict.emergency,
-                            allocs[SectorType.emergency] ?? 0.0,
+                            allocs[SectorType.emergency],
                             isRpg,
                           ),
                           _buildNode(
                             SectorType.investment,
                             SkillDict.investment,
-                            allocs[SectorType.investment] ?? 0.0,
+                            allocs[SectorType.investment],
                             isRpg,
                           ),
                         ],
@@ -180,35 +180,35 @@ class _SkillTreeState extends State<SkillTree> {
                             _buildNode(
                               SubSectorType.essentials,
                               SkillDict.dailyRoutine,
-                              allocs[SubSectorType.essentials] ?? 0.0,
+                              allocs[SubSectorType.essentials],
                               isRpg,
                               size: 48,
                             ),
                             _buildNode(
                               SubSectorType.dreamFund,
                               SkillDict.dreamFund,
-                              allocs[SubSectorType.dreamFund] ?? 0.0,
+                              allocs[SubSectorType.dreamFund],
                               isRpg,
                               size: 48,
                             ),
                             _buildNode(
                               SubSectorType.lowRisk,
                               SkillDict.lowRisk,
-                              allocs[SubSectorType.lowRisk] ?? 0.0,
+                              allocs[SubSectorType.lowRisk],
                               isRpg,
                               size: 48,
                             ),
                             _buildNode(
                               SubSectorType.mediumRisk,
                               SkillDict.mediumRisk,
-                              allocs[SubSectorType.mediumRisk] ?? 0.0,
+                              allocs[SubSectorType.mediumRisk],
                               isRpg,
                               size: 48,
                             ),
                             _buildNode(
                               SubSectorType.highRisk,
                               SkillDict.highRisk,
-                              allocs[SubSectorType.highRisk] ?? 0.0,
+                              allocs[SubSectorType.highRisk],
                               isRpg,
                               size: 48,
                             ),
@@ -233,7 +233,7 @@ class _SkillTreeState extends State<SkillTree> {
   Widget _buildNode(
     Enum? id,
     CategoryModel data,
-    double percentage,
+    double? percentage,
     bool isRpg, {
     bool isRoot = false,
     double size = 60,
@@ -241,7 +241,7 @@ class _SkillTreeState extends State<SkillTree> {
     final selectedNode = context.read<SkillController>().selectedNode;
     bool isSelected = selectedNode == id;
     Color col = data.color ?? Colors.black;
-    bool isLocked = context.read<SkillController>().lockedSkills.contains(id);
+    bool isLocked = percentage == null;
     return GestureDetector(
       onTap: () => context.read<SkillController>().changeNode(id),
       child: Column(
@@ -292,7 +292,7 @@ class _SkillTreeState extends State<SkillTree> {
             ),
           ),
           Text(
-            '${percentage.toInt().toString()}%',
+            '${percentage?.toInt().toString()}%',
             style: TextStyle(
               fontSize: 8,
               color: isSelected ? Colors.white : Colors.grey,
@@ -306,17 +306,17 @@ class _SkillTreeState extends State<SkillTree> {
 
   Widget _buildControlPanel(
     SkillController controller,
-    Map<Enum, double> allocs,
+    Map<Enum, double?> allocs,
   ) {
     final selectedNode = controller.selectedNode;
-    final int currentPercent = controller.currentPercentage.toInt();
+    final int? currentPercent = controller.currentPercentage?.toInt();
     final int remaining = _getRemainingPoints(selectedNode, allocs);
 
     final bool isRoot = selectedNode == null;
     final desc = controller.selectedNode != null
         ? SkillDict.getByEnum(controller.selectedNode!).description ?? ''
         : '';
-    bool isLocked = controller.lockedSkills.contains(controller.selectedNode);
+    bool isLocked = currentPercent == null;
 
     return Align(
       alignment: Alignment.bottomCenter,
