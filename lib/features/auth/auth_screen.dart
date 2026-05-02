@@ -29,7 +29,7 @@ class AuthScreen extends StatelessWidget {
     if (authController.errorMessage != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         _showErrorSnackBar(context, authController.errorMessage!);
-        context.read<AuthController>().clearError();
+        authController.clearError();
       });
     }
 
@@ -90,8 +90,7 @@ class AuthScreen extends StatelessWidget {
                 )
               else ...[
                 ElevatedButton.icon(
-                  onPressed: () =>
-                      context.read<AuthController>().loginWithGoogle(),
+                  onPressed: () => authController.loginWithGoogle(),
                   icon: const FaIcon(FontAwesomeIcons.google, size: 20),
                   label: const Text('Sign in with Google'),
                   style: ElevatedButton.styleFrom(
@@ -104,8 +103,7 @@ class AuthScreen extends StatelessWidget {
                 CustomButton(
                   title: 'Skip it',
                   color: AppColors.primary,
-                  onTap: () =>
-                      context.read<AuthController>().loginAnonymously(),
+                  onTap: () => authController.loginAnonymously(),
                 ),
               ],
               const SizedBox(height: 16),

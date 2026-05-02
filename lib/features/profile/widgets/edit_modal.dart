@@ -40,6 +40,19 @@ class _EditModalState extends State<EditModal> {
   }
 
   @override
+  void initState() {
+    super.initState();
+
+    if (widget.defaultValue != null) {
+      if (widget.isCurrency) {
+        _onChanged(widget.defaultValue!);
+      } else {
+        _controller.text = widget.defaultValue!;
+      }
+    }
+  }
+
+  @override
   void dispose() {
     _controller.dispose();
     super.dispose();
@@ -75,19 +88,6 @@ class _EditModalState extends State<EditModal> {
         text: formattedText,
         selection: TextSelection.collapsed(offset: formattedText.length),
       );
-    }
-  }
-
-  @override
-  void initState() {
-    super.initState();
-
-    if (widget.defaultValue != null) {
-      if (widget.isCurrency) {
-        _onChanged(widget.defaultValue!);
-      } else {
-        _controller.text = widget.defaultValue!;
-      }
     }
   }
 

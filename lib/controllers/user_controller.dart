@@ -29,6 +29,8 @@ class UserController with ChangeNotifier {
   BigInt get todayUsage => budget.todayUsage;
   BigInt get emergencyAmount => budget.emergencyAmount;
   BigInt get emergencyTotal => budget.emergencyTotal;
+  bool get isEmergencyMax => budget.isEmergencyMax;
+  bool get isFreeDebt => budget.isFreeDebt;
 
   UserAllocationModel get allocation =>
       currentUser?.allocation ?? UserAllocationModel(skills: {});
@@ -52,11 +54,14 @@ class UserController with ChangeNotifier {
   double? getAllocation(Enum type) => allocation.getSkillPercentage(type);
   void updateSkillByKey(Enum key, double skills) =>
       allocation.updateSkillByKey(key, skills);
+  void updateSkill(Map<Enum, double?> map) => allocation.updateSkill(map);
 
   void updatePending(int index, AllocationModel value) =>
       allocation.updatePending(index, value);
 
   void addPending(AllocationModel value) => allocation.addPending(value);
+
+  Future<void> clearAll() => _prefService.clearAll();
 
   Future<void> processCreateWallet() async {
     MissionResult? result = progress.processCreateWallet();
@@ -76,11 +81,10 @@ class UserController with ChangeNotifier {
     }
   }
 
-  Future<void> saveUser() async {
-    // HAPUS Future.microtask
+  Future<void> saveUser({UserModel? newUser}) async {
     try {
-      if (currentUser != null) {
-        await _prefService.saveUser(currentUser!);
+      if (currentUser != null || newUser != null) {
+        await _prefService.saveUser(newUser ?? currentUser!);
         notifyListeners();
       }
     } catch (e) {

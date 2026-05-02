@@ -1,4 +1,3 @@
-import 'package:fintale/widgets/custom_button.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -11,6 +10,7 @@ import '../../core/constants/menu_dict.dart';
 import '../../core/dummy/dummy_data.dart';
 import '../../core/theme/mode_provider.dart';
 import '../../models/assets_model.dart';
+import '../../widgets/custom_button.dart';
 import 'widgets/asset_tab.dart';
 import 'widgets/total_card.dart';
 

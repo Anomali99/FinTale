@@ -4,9 +4,11 @@ class UserBudgetModel {
   BigInt todayUsage;
   BigInt emergencyAmount;
   BigInt emergencyTotal;
+  bool isFreeDebt;
   int lastActiveDate;
 
   UserBudgetModel({
+    this.isFreeDebt = true,
     this.lastActiveDate = 0,
     BigInt? baseDailyLimit,
     BigInt? dailyPenalty,
@@ -29,6 +31,9 @@ class UserBudgetModel {
     return remaining < BigInt.zero ? BigInt.zero : remaining;
   }
 
+  bool get isEmergencyMax =>
+      BigInt.zero > emergencyAmount && emergencyTotal >= emergencyAmount;
+
   void updateBaseDailyLimit(BigInt limit) {
     baseDailyLimit = limit;
   }
@@ -41,6 +46,10 @@ class UserBudgetModel {
     emergencyAmount += amount;
   }
 
+  void updateFreeDebt(bool value) {
+    isFreeDebt = value;
+  }
+
   Map<String, dynamic> toJson() => {
     "base_daily_limit": baseDailyLimit.toString(),
     "daily_penalty": dailyPenalty.toString(),
@@ -48,6 +57,7 @@ class UserBudgetModel {
     "emergency_amount": emergencyAmount.toString(),
     "emergency_total": emergencyTotal.toString(),
     "last_active_date": lastActiveDate,
+    "is_free_debt": isFreeDebt,
   };
 
   factory UserBudgetModel.fromJson(Map<String, dynamic> json) =>
@@ -58,5 +68,6 @@ class UserBudgetModel {
         emergencyAmount: BigInt.parse(json['emergency_amount'] ?? '0'),
         emergencyTotal: BigInt.parse(json['emergency_total'] ?? '0'),
         lastActiveDate: json['last_active_date'] ?? 0,
+        isFreeDebt: json['is_free_debt'] ?? false,
       );
 }

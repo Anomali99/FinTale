@@ -9,10 +9,13 @@ import 'controllers/layout_controller.dart';
 import 'controllers/profile_controller.dart';
 import 'controllers/settings_controller.dart';
 import 'controllers/skill_controller.dart';
+import 'controllers/transaction_controller.dart';
 import 'controllers/user_controller.dart';
+import 'controllers/wallet_controller.dart';
 import 'core/constants/app_colors.dart';
 import 'core/theme/app_theme.dart';
 import 'core/theme/mode_provider.dart';
+import 'core/utils/global_messenger.dart';
 import 'data/local/app_database.dart';
 import 'data/local/dao/asset_dao.dart';
 import 'data/local/dao/bill_dao.dart';
@@ -41,16 +44,22 @@ void main() async {
   final transactionDao = TransactionDao(db);
 
   final userController = UserController(prefService);
-  final authController = AuthController(authService, prefService, walletDao);
+  final walletController = WalletController(walletDao);
+  final transactionController = TransactionController(transactionDao);
+  final authController = AuthController(
+    authService,
+    userController,
+    walletController,
+  );
   final layoutController = LayoutController(prefService);
   final homeController = HomeController(
-    walletDao,
-    transactionDao,
     userController,
+    walletController,
+    transactionController,
   );
   final profileController = ProfileController(userController);
   final skillController = SkillController(userController);
-  final settingsController = SettingsController(authService, prefService);
+  final settingsController = SettingsController(prefService, authController);
 
   runApp(
     MultiProvider(
@@ -58,6 +67,7 @@ void main() async {
         Provider<AuthService>.value(value: authService),
         ChangeNotifierProvider<ModeProvider>(create: (_) => ModeProvider()),
         ChangeNotifierProvider(create: (_) => userController),
+        ChangeNotifierProvider(create: (_) => walletController),
         ChangeNotifierProvider(create: (_) => authController),
         ChangeNotifierProvider(create: (_) => layoutController),
         ChangeNotifierProvider(create: (_) => homeController),
@@ -79,6 +89,7 @@ class FinTaleApp extends StatelessWidget {
       title: 'FinTale',
       theme: AppTheme.darkTheme,
       debugShowCheckedModeBanner: false,
+      scaffoldMessengerKey: GlobalMessenger.globalMessengerKey,
       home: const AuthWrapper(),
     );
   }

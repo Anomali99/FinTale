@@ -9,12 +9,12 @@ import '../../../models/wallet_model.dart';
 class WalletDetails extends StatelessWidget {
   final bool isRpg;
   final List<WalletModel> wallets;
-  final VoidCallback onAdd;
+  final ValueChanged<WalletModel?> onTap;
 
   const WalletDetails({
     super.key,
     required this.wallets,
-    required this.onAdd,
+    required this.onTap,
     required this.isRpg,
   });
 
@@ -115,7 +115,7 @@ class WalletDetails extends StatelessWidget {
               SizedBox(
                 width: double.infinity,
                 child: OutlinedButton.icon(
-                  onPressed: () => {Navigator.pop(context), onAdd()},
+                  onPressed: () => {Navigator.pop(context), onTap(null)},
                   icon: const Icon(Icons.add, color: AppColors.primary),
                   label: Text(
                     'Add New ${isRpg ? 'Storage' : 'Wallet'}',
@@ -158,12 +158,8 @@ class WalletDetails extends StatelessWidget {
           style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
         ),
         children: [
-          ...wallet.asMap().entries.map((entry) {
-            return _buildSubWalletItem(
-              name: entry.value.name,
-              amount: entry.value.amount,
-            );
-          }),
+          for (WalletModel entry in wallet)
+            _buildSubWalletItem(context: context, wallet: entry),
         ],
       ),
     );
@@ -190,23 +186,29 @@ class WalletDetails extends StatelessWidget {
     );
   }
 
-  Widget _buildSubWalletItem({required String name, required BigInt amount}) {
-    return Padding(
-      padding: const EdgeInsets.only(
-        left: 56.0,
-        top: 8.0,
-        bottom: 8.0,
-        right: 8.0,
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(name, style: TextStyle(color: AppColors.textSecondary)),
-          Text(
-            CurrencyFormatter.convertToIdr(amount),
-            style: TextStyle(color: AppColors.textSecondary),
-          ),
-        ],
+  Widget _buildSubWalletItem({
+    required BuildContext context,
+    required WalletModel wallet,
+  }) {
+    return GestureDetector(
+      onTap: () => {Navigator.pop(context), onTap(wallet)},
+      child: Padding(
+        padding: const EdgeInsets.only(
+          left: 56.0,
+          top: 8.0,
+          bottom: 8.0,
+          right: 8.0,
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(wallet.name, style: TextStyle(color: AppColors.textSecondary)),
+            Text(
+              CurrencyFormatter.convertToIdr(wallet.amount),
+              style: TextStyle(color: AppColors.textSecondary),
+            ),
+          ],
+        ),
       ),
     );
   }

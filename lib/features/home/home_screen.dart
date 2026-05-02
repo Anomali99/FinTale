@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 
 import '../../controllers/home_controller.dart';
 import '../../controllers/user_controller.dart';
+import '../../controllers/wallet_controller.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/home_dict.dart';
 import '../../core/constants/title_dict.dart';
@@ -22,12 +23,8 @@ import 'widgets/wallet_modal.dart';
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
-  void _showWalletDetails(
-    BuildContext context,
-    List<WalletModel> wallets,
-    VoidCallback onAdd,
-    bool isRpg,
-  ) {
+  void _showWalletDetails(BuildContext context, bool isRpg) {
+    final walletController = context.read<WalletController>();
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -35,18 +32,25 @@ class HomeScreen extends StatelessWidget {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
-      builder: (context) {
-        return WalletDetails(wallets: wallets, onAdd: onAdd, isRpg: isRpg);
+      builder: (_) {
+        return WalletDetails(
+          wallets: walletController.wallets,
+          onTap: (value) => _openUpdateOrAddWallet(context, wallet: value),
+          isRpg: isRpg,
+        );
       },
     );
   }
 
-  void _openAddWallet(BuildContext context) async {
+  void _openUpdateOrAddWallet(
+    BuildContext context, {
+    WalletModel? wallet,
+  }) async {
     final WalletModel? result = await showModalBottomSheet<WalletModel>(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) => const WalletModal(),
+      builder: (context) => WalletModal(wallet: wallet),
     );
 
     if (result != null && context.mounted) {
@@ -56,12 +60,13 @@ class HomeScreen extends StatelessWidget {
 
   void _openAddIncome(BuildContext context) async {
     final homeController = context.read<HomeController>();
+    final walletController = context.read<WalletController>();
     final Map<String, dynamic>? result = await showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (context) => IncomeModal(
-        wallets: homeController.wallets,
+        wallets: walletController.wallets,
         allocation: homeController.activeAllocations,
       ),
     );
@@ -78,12 +83,13 @@ class HomeScreen extends StatelessWidget {
 
   void _openTransfer(BuildContext context) async {
     final homeController = context.read<HomeController>();
+    final walletController = context.read<WalletController>();
     final Map<String, dynamic>? result = await showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (context) =>
-          IncomeModal(wallets: homeController.wallets, isTransfer: true),
+          IncomeModal(wallets: walletController.wallets, isTransfer: true),
     );
 
     if (result != null && context.mounted) {
@@ -95,8 +101,9 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final homeController = context.watch<HomeController>();
     final userController = context.watch<UserController>();
+    final walletController = context.watch<WalletController>();
+    final homeController = context.watch<HomeController>();
 
     if (homeController.isLoading) {
       return const Scaffold(
@@ -114,11 +121,10 @@ class HomeScreen extends StatelessWidget {
     final spentToday = userController.todayUsage;
     final xpPercentage = userController.xpPercentage;
 
+    final totalBalance = walletController.totalBalance;
+    final totalReserved = walletController.totalReserved;
     final isHideBalance = homeController.isHideBalance;
-    final wallets = homeController.wallets;
     final pendingAllocations = homeController.pendingAllocations;
-    final totalBalance = homeController.totalBalance;
-    final totalReserved = homeController.totalReserved;
     final totalUnallocated = homeController.totalUnallocated;
 
     return Scaffold(
@@ -193,12 +199,7 @@ class HomeScreen extends StatelessWidget {
         children: [
           BalanceCard(
             totalBalance: totalBalance,
-            showWallets: () => _showWalletDetails(
-              context,
-              wallets,
-              () => _openAddWallet(context),
-              isRpg,
-            ),
+            showWallets: () => _showWalletDetails(context, isRpg),
             openAddIncome: () => _openAddIncome(context),
             openTransfer: () => _openTransfer(context),
             onToggleHideBalance: homeController.toggleHideBalance,

@@ -75,38 +75,6 @@ class _SkillTreeState extends State<SkillTree> {
     });
   }
 
-  int _getRemainingPoints(Enum? selectedNode, Map<Enum, double?> allocs) {
-    if (selectedNode == null ||
-        selectedNode == SectorType.payDebt ||
-        selectedNode == SectorType.emergency) {
-      double used =
-          (allocs[SectorType.living] ?? 0) +
-          (allocs[SectorType.payDebt] ?? 0) +
-          (allocs[SectorType.emergency] ?? 0) +
-          (allocs[SectorType.investment] ?? 0);
-      return 100 - used.toInt();
-    } else if (selectedNode == SectorType.living ||
-        selectedNode == SubSectorType.essentials ||
-        selectedNode == SubSectorType.dreamFund) {
-      double parent = allocs[SectorType.living] ?? 0;
-      double children =
-          (allocs[SubSectorType.essentials] ?? 0) +
-          (allocs[SubSectorType.dreamFund] ?? 0);
-      return (parent - children).toInt();
-    } else if (selectedNode == SectorType.investment ||
-        selectedNode == SubSectorType.lowRisk ||
-        selectedNode == SubSectorType.mediumRisk ||
-        selectedNode == SubSectorType.highRisk) {
-      double parent = allocs[SectorType.investment] ?? 0;
-      double children =
-          (allocs[SubSectorType.lowRisk] ?? 0) +
-          (allocs[SubSectorType.mediumRisk] ?? 0) +
-          (allocs[SubSectorType.highRisk] ?? 0);
-      return (parent - children).toInt();
-    }
-    return 0;
-  }
-
   @override
   Widget build(BuildContext context) {
     final skillController = context.watch<SkillController>();
@@ -114,7 +82,21 @@ class _SkillTreeState extends State<SkillTree> {
     final isRpg = skillController.isRpg;
 
     return Scaffold(
-      appBar: AppBar(title: Text(ProfileDict.allocationTree.get(isRpg))),
+      appBar: AppBar(
+        title: Text(ProfileDict.allocationTree.get(isRpg)),
+        actions: [
+          IconButton(
+            onPressed: () => skillController.resetAllocation(),
+            icon: const FaIcon(
+              FontAwesomeIcons.arrowRotateRight,
+              size: 20,
+              color: Colors.orangeAccent,
+            ),
+            tooltip: 'Reset to Default',
+          ),
+          SizedBox(width: 10),
+        ],
+      ),
       body: Stack(
         children: [
           SingleChildScrollView(
@@ -215,7 +197,14 @@ class _SkillTreeState extends State<SkillTree> {
                           ],
                         ),
                       ),
-                      const SizedBox(height: 220),
+                      AnimatedContainer(
+                        duration: const Duration(milliseconds: 300),
+                        curve: Curves.easeInOut,
+
+                        height: skillController.selectedNode != null
+                            ? 250
+                            : 150,
+                      ),
                     ],
                   ),
                 ),
@@ -223,8 +212,9 @@ class _SkillTreeState extends State<SkillTree> {
             ),
           ),
 
-          if (skillController.selectedNode != null)
+          if (skillController.selectedNode != null) ...[
             _buildControlPanel(skillController, allocs),
+          ],
         ],
       ),
     );
@@ -292,7 +282,9 @@ class _SkillTreeState extends State<SkillTree> {
             ),
           ),
           Text(
-            '${percentage?.toInt().toString()}%',
+            percentage != null
+                ? '${percentage.toInt().toString()}%'
+                : '[LOCKED]',
             style: TextStyle(
               fontSize: 8,
               color: isSelected ? Colors.white : Colors.grey,
@@ -310,13 +302,71 @@ class _SkillTreeState extends State<SkillTree> {
   ) {
     final selectedNode = controller.selectedNode;
     final int? currentPercent = controller.currentPercentage?.toInt();
-    final int remaining = _getRemainingPoints(selectedNode, allocs);
 
     final bool isRoot = selectedNode == null;
     final desc = controller.selectedNode != null
         ? SkillDict.getByEnum(controller.selectedNode!).description ?? ''
         : '';
     bool isLocked = currentPercent == null;
+
+    double minAllowed = 0.0;
+    double maxAllowed = 100.0;
+    bool canIncrease = false;
+    bool canDecrease = false;
+    int parentRemaining = 0;
+
+    if (!isRoot && !isLocked) {
+      double basePoint = controller.baseAllocation[selectedNode] ?? 0.0;
+      double limitPoint = controller.baseLimitAllocation[selectedNode] ?? 0.0;
+      double current = currentPercent.toDouble();
+
+      minAllowed = (limitPoint == 0.0) ? 0.0 : basePoint - limitPoint;
+      maxAllowed = (limitPoint == 0.0) ? 100.0 : basePoint + limitPoint;
+
+      canDecrease = current > minAllowed && current > 0.0;
+
+      bool belowMax = current < maxAllowed && current < 100.0;
+
+      if (selectedNode is SectorType) {
+        canIncrease =
+            (belowMax && controller.freeAllocation > 0) ||
+            controller.extraFreeAllocation > 0;
+      } else if (selectedNode is SubSectorType) {
+        if (selectedNode == SubSectorType.lowRisk) {
+          double emCake =
+              controller.extraFreeAllocationLv1[SectorType.emergency] ?? 0.0;
+          double invCake =
+              controller.extraFreeAllocationLv1[SectorType.investment] ?? 0.0;
+          parentRemaining = (emCake + invCake).toInt();
+        } else if (selectedNode == SubSectorType.essentials ||
+            selectedNode == SubSectorType.dreamFund) {
+          parentRemaining =
+              (controller.extraFreeAllocationLv1[SectorType.living] ?? 0.0)
+                  .toInt();
+        } else {
+          parentRemaining =
+              (controller.extraFreeAllocationLv1[SectorType.investment] ?? 0.0)
+                  .toInt();
+        }
+
+        SectorType? p =
+            controller.selectedNode == SubSectorType.mediumRisk ||
+                controller.selectedNode == SubSectorType.highRisk
+            ? SectorType.investment
+            : null;
+        bool parentHasExtra = false;
+        if (p != null) {
+          double pLimit = controller.baseLimitAllocation[p] ?? 0.0;
+          double pMax = (pLimit == 0.0)
+              ? 100.0
+              : (controller.baseAllocation[p] ?? 0.0) + pLimit;
+          if ((controller.skillAllocations[p] ?? 0.0) > pMax)
+            parentHasExtra = true;
+        }
+
+        canIncrease = (belowMax || parentHasExtra) && parentRemaining > 0;
+      }
+    }
 
     return Align(
       alignment: Alignment.bottomCenter,
@@ -372,26 +422,74 @@ class _SkillTreeState extends State<SkillTree> {
                 ),
               ),
             ] else ...[
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text(
-                    'Unallocated Points:',
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
-                  ),
-                  Text(
-                    '$remaining%',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 14,
-                      color: remaining < 0
-                          ? AppColors.error
-                          : AppColors.primary,
+              if (selectedNode is SectorType || selectedNode == null) ...[
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      'Regular Free Pts:',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 13,
+                      ),
                     ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 6),
+                    Text(
+                      '${controller.freeAllocation.toInt()}%',
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14,
+                        color: Colors.greenAccent,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 4),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      'Extra Free Pts:',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 13,
+                      ),
+                    ),
+                    Text(
+                      '${controller.extraFreeAllocation.toInt()}%',
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14,
+                        color: Colors.amber,
+                      ),
+                    ),
+                  ],
+                ),
+              ] else ...[
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      'Parent Unallocated Pts:',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 13,
+                      ),
+                    ),
+                    Text(
+                      '$parentRemaining%',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14,
+                        color: parentRemaining <= 0
+                            ? AppColors.error
+                            : AppColors.primary,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+
+              const SizedBox(height: 16),
 
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -399,18 +497,22 @@ class _SkillTreeState extends State<SkillTree> {
                   IconButton(
                     icon: Icon(
                       Icons.remove_circle,
-                      color: isRoot ? Colors.grey : AppColors.primary,
+
+                      color: canDecrease
+                          ? AppColors.primary
+                          : Colors.grey.shade700,
+                      size: 32,
                     ),
-                    onPressed: isRoot
-                        ? null
-                        : () => controller.decreaseAllocation(),
+                    onPressed: canDecrease
+                        ? () => controller.decreaseAllocation()
+                        : null,
                   ),
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    padding: const EdgeInsets.symmetric(horizontal: 24),
                     child: Text(
                       isRoot ? '100%' : '$currentPercent%',
                       style: const TextStyle(
-                        fontSize: 28,
+                        fontSize: 32,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -419,13 +521,14 @@ class _SkillTreeState extends State<SkillTree> {
                     icon: Icon(
                       Icons.add_circle,
 
-                      color: isRoot || remaining <= 0
-                          ? Colors.grey
-                          : AppColors.primary,
+                      color: canIncrease
+                          ? AppColors.primary
+                          : Colors.grey.shade700,
+                      size: 32,
                     ),
-                    onPressed: (isRoot || remaining <= 0)
-                        ? null
-                        : () => controller.increaseAllocation(),
+                    onPressed: canIncrease
+                        ? () => controller.increaseAllocation()
+                        : null,
                   ),
                 ],
               ),

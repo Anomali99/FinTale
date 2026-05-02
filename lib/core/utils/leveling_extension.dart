@@ -1,5 +1,13 @@
 import '../../models/allocation_model.dart';
 import '../../models/user_model.dart';
+import 'global_messenger.dart';
+
+class LevelUpResult {
+  final int level;
+  final String? desc;
+
+  LevelUpResult({required this.level, this.desc});
+}
 
 extension LevelingExtension on UserModel {
   static const int maxCoreLevel = 50;
@@ -13,6 +21,8 @@ extension LevelingExtension on UserModel {
   }
 
   void addXp(int xp) {
+    GlobalMessenger.showSleekXpNotification(xp);
+
     int totalXp = this.xp + xp;
     int initialLevel = level;
 
@@ -24,15 +34,29 @@ extension LevelingExtension on UserModel {
     this.xp = totalXp;
 
     if (level > initialLevel) {
-      title = getTitleForLevel(level);
+      String? desc;
+      if ([11, 21, 31, 50].contains(level)) {
+        title = getTitleForLevel(level);
+        desc = "New Title";
+        if (level == 50) {
+          desc += ", Open Full Customize Allocation";
+        }
+      }
+
       if ([11, 21, 31, 41].contains(level)) {
         allocation.updateSkill(
           AllocationMap.getAllocationByLevel(
             level,
-            maxEmergency: budget.emergencyTotal >= budget.emergencyAmount,
+            maxEmergency: budget.isEmergencyMax,
+            noDebt: budget.isFreeDebt,
           ),
         );
+        desc != null
+            ? desc += ", New Allocation Map"
+            : desc = "New Allocation Map";
       }
+
+      GlobalMessenger.showLevelUpNotification(level, description: desc);
     }
   }
 
@@ -129,7 +153,7 @@ class AllocationMap {
         SectorType.payDebt: 3.0,
         SectorType.emergency: 3.0,
         SectorType.investment: null,
-        SubSectorType.essentials: 5.0,
+        SubSectorType.essentials: 0.0,
         SubSectorType.dreamFund: 0.0,
         SubSectorType.lowRisk: 3.0,
         SubSectorType.mediumRisk: null,
@@ -142,7 +166,7 @@ class AllocationMap {
         SectorType.payDebt: 3.0,
         SectorType.emergency: 4.0,
         SectorType.investment: 2.0,
-        SubSectorType.essentials: 5.0,
+        SubSectorType.essentials: 0.0,
         SubSectorType.dreamFund: 0.0,
         SubSectorType.lowRisk: 4.0,
         SubSectorType.mediumRisk: 2.0,
@@ -155,7 +179,7 @@ class AllocationMap {
         SectorType.payDebt: 5.0,
         SectorType.emergency: 4.0,
         SectorType.investment: 7.0,
-        SubSectorType.essentials: 7.0,
+        SubSectorType.essentials: 0.0,
         SubSectorType.dreamFund: 0.0,
         SubSectorType.lowRisk: 4.0,
         SubSectorType.mediumRisk: 5.0,
@@ -168,7 +192,7 @@ class AllocationMap {
         SectorType.payDebt: 5.0,
         SectorType.emergency: 5.0,
         SectorType.investment: 10.0,
-        SubSectorType.essentials: 7.0,
+        SubSectorType.essentials: 0.0,
         SubSectorType.dreamFund: 0.0,
         SubSectorType.lowRisk: 5.0,
         SubSectorType.mediumRisk: 5.0,
@@ -181,7 +205,7 @@ class AllocationMap {
         SectorType.payDebt: 5.0,
         SectorType.emergency: 10.0,
         SectorType.investment: 10.0,
-        SubSectorType.essentials: 10.0,
+        SubSectorType.essentials: 0.0,
         SubSectorType.dreamFund: 0.0,
         SubSectorType.lowRisk: 10.0,
         SubSectorType.mediumRisk: 5.0,
@@ -189,15 +213,15 @@ class AllocationMap {
       };
     }
     return {
-      SectorType.living: null,
-      SectorType.payDebt: null,
-      SectorType.emergency: null,
-      SectorType.investment: null,
-      SubSectorType.essentials: null,
-      SubSectorType.dreamFund: null,
-      SubSectorType.lowRisk: null,
-      SubSectorType.mediumRisk: null,
-      SubSectorType.highRisk: null,
+      SectorType.living: 0.0,
+      SectorType.payDebt: 0.0,
+      SectorType.emergency: 0.0,
+      SectorType.investment: 0.0,
+      SubSectorType.essentials: 0.0,
+      SubSectorType.dreamFund: 0.0,
+      SubSectorType.lowRisk: 0.0,
+      SubSectorType.mediumRisk: 0.0,
+      SubSectorType.highRisk: 0.0,
     };
   }
 }

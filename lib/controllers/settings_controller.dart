@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
 import '../data/local/pref_service.dart';
-import '../services/auth_service.dart';
+import 'auth_controller.dart';
 
 class SettingsController with ChangeNotifier {
-  final AuthService _authService;
   final PrefService _prefService;
+  final AuthController _authController;
 
-  SettingsController(this._authService, this._prefService);
+  SettingsController(this._prefService, this._authController);
 
   bool get isHideBalance => _prefService.isHideBalance;
   bool get isAppLock => _prefService.isAppLock;
@@ -44,7 +44,7 @@ class SettingsController with ChangeNotifier {
 
   Future<Map<String, dynamic>> handleSignOut() async {
     try {
-      await _authService.signOut();
+      await _authController.logoutAndClearData();
       return {"success": true};
     } catch (e) {
       return {"success": false, "error": e};

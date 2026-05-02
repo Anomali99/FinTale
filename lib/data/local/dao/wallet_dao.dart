@@ -22,7 +22,16 @@ class WalletDao {
     final result = await db.query(
       'wallets',
       where: 'deleted_at IS NULL',
-      orderBy: 'created_at ASC',
+      orderBy: '''
+      CASE type
+        WHEN 'cash' THEN 1
+        WHEN 'bank' THEN 2
+        WHEN 'eWallet' THEN 3
+        WHEN 'platform' THEN 4
+        ELSE 5 
+      END ASC, 
+      created_at DESC
+      ''',
     );
 
     return result.map((json) => WalletModel.fromMap(json)).toList();

@@ -1,4 +1,3 @@
-import 'package:fintale/features/analytics/analytics_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -14,6 +13,7 @@ import '../../core/utils/time_formatter.dart';
 import '../../models/transaction_detail_model.dart';
 import '../../models/transaction_model.dart';
 import '../../widgets/month_filter.dart';
+import '../analytics/analytics_screen.dart';
 import 'widgets/cash_flow_card.dart';
 import 'widgets/section_history.dart';
 

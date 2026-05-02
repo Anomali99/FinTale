@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../../../core/constants/app_colors.dart';
 import '../../../models/wallet_model.dart';
@@ -14,18 +15,16 @@ class WalletModal extends StatefulWidget {
 
 class _WalletModalState extends State<WalletModal> {
   final _formKey = GlobalKey<FormState>();
-  late TextEditingController _nameController;
-  late TextEditingController _amountController;
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _amountController = TextEditingController();
   late WalletType _selectedType;
 
   @override
   void initState() {
     super.initState();
-    _nameController = TextEditingController(text: widget.wallet?.name ?? '');
-    _amountController = TextEditingController(
-      text: widget.wallet?.amount.toString() ?? '0',
-    );
+    _nameController.text = widget.wallet?.name ?? '';
     _selectedType = widget.wallet?.type ?? WalletType.bank;
+    _onChanged(widget.wallet?.amount.toString() ?? '0');
   }
 
   @override
@@ -37,19 +36,41 @@ class _WalletModalState extends State<WalletModal> {
 
   void _submit() {
     if (_formKey.currentState!.validate()) {
-      final String cleanAmount = _amountController.text.replaceAll(
-        RegExp(r'[^0-9]'),
-        '',
-      );
+      final String cleanAmount = _amountController.text.replaceAll('.', '');
 
       final result = WalletModel(
         id: widget.wallet?.id,
         name: _nameController.text.trim(),
         type: _selectedType,
-        amount: BigInt.parse(cleanAmount.isEmpty ? '0' : cleanAmount),
+        amount:
+            widget.wallet?.amount ??
+            BigInt.parse(cleanAmount.isEmpty ? '0' : cleanAmount),
       );
 
       Navigator.pop(context, result);
+    }
+  }
+
+  void _onChanged(String value) {
+    String cleanText = value.replaceAll('.', '');
+
+    if (cleanText.isEmpty) {
+      _amountController.text = '';
+      return;
+    }
+
+    BigInt currentValue = BigInt.tryParse(cleanText) ?? BigInt.zero;
+
+    String formattedText = currentValue.toString().replaceAllMapped(
+      RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
+      (Match m) => '${m[1]}.',
+    );
+
+    if (_amountController.text != formattedText) {
+      _amountController.value = TextEditingValue(
+        text: formattedText,
+        selection: TextSelection.collapsed(offset: formattedText.length),
+      );
     }
   }
 
@@ -85,8 +106,9 @@ class _WalletModalState extends State<WalletModal> {
                 labelText: 'Wallet Name',
                 border: OutlineInputBorder(),
               ),
-              validator: (value) =>
-                  value == null || value.isEmpty ? 'Wajib diisi' : null,
+              validator: (value) => value == null || value.isEmpty
+                  ? 'Required wallet name'
+                  : null,
             ),
             const SizedBox(height: 16),
             DropdownButtonFormField<WalletType>(
@@ -108,16 +130,20 @@ class _WalletModalState extends State<WalletModal> {
               ],
               onChanged: (val) => setState(() => _selectedType = val!),
             ),
-            const SizedBox(height: 16),
-            TextFormField(
-              controller: _amountController,
-              keyboardType: TextInputType.number,
-              decoration: const InputDecoration(
-                labelText: 'Amount',
-                prefixText: 'Rp ',
-                border: OutlineInputBorder(),
+            if (widget.wallet == null) ...[
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: _amountController,
+                keyboardType: TextInputType.number,
+                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                decoration: const InputDecoration(
+                  labelText: 'Amount',
+                  prefixText: 'Rp ',
+                  border: OutlineInputBorder(),
+                ),
+                onChanged: _onChanged,
               ),
-            ),
+            ],
             const SizedBox(height: 24),
             CustomButton(
               title: widget.wallet == null ? 'Add' : 'Save',

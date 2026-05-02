@@ -1,24 +1,25 @@
 import 'package:flutter/material.dart';
 
-import '../data/local/dao/transaction_dao.dart';
-import '../data/local/dao/wallet_dao.dart';
 import '../models/allocation_model.dart';
 import '../models/transaction_model.dart';
 import '../models/wallet_model.dart';
+import 'transaction_controller.dart';
 import 'user_controller.dart';
+import 'wallet_controller.dart';
 
 class HomeController with ChangeNotifier {
-  final WalletDao _walletDao;
-  final TransactionDao _transactionDao;
   final UserController _userController;
-  List<WalletModel> wallets = [];
-  BigInt totalBalance = BigInt.zero;
-  BigInt totalReserved = BigInt.zero;
+  final WalletController _walletController;
+  final TransactionController _transactionController;
   BigInt totalUnallocated = BigInt.zero;
   bool isHideBalance = false;
   bool isLoading = true;
 
-  HomeController(this._walletDao, this._transactionDao, this._userController) {
+  HomeController(
+    this._userController,
+    this._walletController,
+    this._transactionController,
+  ) {
     loadData();
   }
 
@@ -46,18 +47,10 @@ class HomeController with ChangeNotifier {
     Future.microtask(() => notifyListeners());
     try {
       await _userController.loadData();
+      await _walletController.loadData();
       isHideBalance = _userController.isHideBalance;
 
-      wallets = await _walletDao.readAllActiveData();
-
-      totalBalance = BigInt.zero;
-      totalReserved = BigInt.zero;
       totalUnallocated = BigInt.zero;
-
-      for (WalletModel wallet in wallets) {
-        totalBalance += wallet.amount;
-        totalReserved += wallet.reservedAmount;
-      }
 
       for (AllocationModel all in pendingAllocations) {
         totalUnallocated += all.amount;
@@ -73,12 +66,12 @@ class HomeController with ChangeNotifier {
   Future<void> saveWallet(WalletModel wallet) async {
     try {
       if (wallet.id == null) {
-        await _walletDao.create(wallet);
+        await _walletController.createWallet(wallet);
         await _userController.processCreateWallet();
       } else {
-        await _walletDao.update(wallet);
+        await _walletController.updateWallet(wallet);
       }
-      await loadData();
+      await _walletController.loadData();
     } catch (e) {
       debugPrint("[HOME] Failed to save wallet: $e");
     }
@@ -90,10 +83,10 @@ class HomeController with ChangeNotifier {
     bool? useReserved,
   }) async {
     try {
-      await _transactionDao.create(transaction);
+      await _transactionController.createTransaction(transaction);
 
-      WalletModel wallet = wallets.firstWhere(
-        (e) => e.id == transaction.walletId,
+      WalletModel wallet = _walletController.getWalletById(
+        transaction.walletId,
       );
 
       if (transaction.type == TransactionType.income) {
@@ -185,8 +178,8 @@ class HomeController with ChangeNotifier {
         }
         wallet.income(transaction.amount);
       } else {
-        WalletModel walletTarget = wallets.firstWhere(
-          (e) => e.id == transaction.targetId,
+        WalletModel walletTarget = _walletController.getWalletById(
+          transaction.targetId,
         );
 
         BigInt expenseAmount = transaction.detailTransaction.isNotEmpty
@@ -205,10 +198,10 @@ class HomeController with ChangeNotifier {
         wallet.expense(expenseAmount);
         walletTarget.income(transaction.amount);
 
-        await _walletDao.update(walletTarget);
+        await _walletController.updateWallet(walletTarget);
       }
 
-      await _walletDao.update(wallet);
+      await _walletController.updateWallet(wallet);
       await loadData();
     } catch (e) {
       debugPrint("[HOME] Failed to save transaction: $e");

@@ -135,7 +135,7 @@ class Information extends StatelessWidget {
               SectorType.living: {
                 "value": "55% ± 5%",
                 "sub": {
-                  SubSectorType.essentials: "55% ± 5%",
+                  SubSectorType.essentials: "DEFAULT",
                   SubSectorType.dreamFund: "OPTIONAL",
                 },
               },
@@ -162,7 +162,7 @@ class Information extends StatelessWidget {
               SectorType.living: {
                 "value": "50% ± 5%",
                 "sub": {
-                  SubSectorType.essentials: "50% ± 5%",
+                  SubSectorType.essentials: "DEFAULT",
                   SubSectorType.dreamFund: "OPTIONAL",
                 },
               },
@@ -189,7 +189,7 @@ class Information extends StatelessWidget {
               SectorType.living: {
                 "value": "45% ± 7%",
                 "sub": {
-                  SubSectorType.essentials: "45% ± 7%",
+                  SubSectorType.essentials: "DEFAULT",
                   SubSectorType.dreamFund: "OPTIONAL",
                 },
               },
@@ -216,7 +216,7 @@ class Information extends StatelessWidget {
               SectorType.living: {
                 "value": "40% ± 7%",
                 "sub": {
-                  SubSectorType.essentials: "40% ± 7%",
+                  SubSectorType.essentials: "DEFAULT",
                   SubSectorType.dreamFund: "OPTIONAL",
                 },
               },
@@ -243,7 +243,7 @@ class Information extends StatelessWidget {
               SectorType.living: {
                 "value": "35% ± 10%",
                 "sub": {
-                  SubSectorType.essentials: "35% ± 10%",
+                  SubSectorType.essentials: "DEFAULT",
                   SubSectorType.dreamFund: "OPTIONAL",
                 },
               },
