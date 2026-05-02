@@ -135,9 +135,9 @@ class AppDatabase {
 
     if (_database != null) {
       await _database!.close();
-      _database = null;
     }
-
     await deleteDatabase(path);
+
+    _database = null;
   }
 }

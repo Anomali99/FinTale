@@ -2,13 +2,13 @@ import 'package:sqflite/sqflite.dart';
 
 import '../../../models/transaction_detail_model.dart';
 import '../../../models/transaction_model.dart';
+import '../app_database.dart';
 
 class TransactionDao {
-  final Database db;
-
-  TransactionDao(this.db);
+  Future<Database> get _database async => await AppDatabase.instance.database;
 
   Future<int> create(TransactionModel transaction) async {
+    final database = await _database;
     int now = DateTime.now().millisecondsSinceEpoch;
 
     Map<String, dynamic> parentData = transaction.toMap();
@@ -16,7 +16,7 @@ class TransactionDao {
     parentData['updated_at'] = now;
     parentData['deleted_at'] = null;
 
-    int id = await db.insert('transactions', parentData);
+    int id = await database.insert('transactions', parentData);
 
     for (TransactionDetailModel detail in transaction.detailTransaction) {
       Map<String, dynamic> childData = detail.toMap(id);
@@ -24,14 +24,15 @@ class TransactionDao {
       childData['updated_at'] = now;
       childData['deleted_at'] = null;
 
-      await db.insert('transaction_details', childData);
+      await database.insert('transaction_details', childData);
     }
 
     return id;
   }
 
   Future<List<TransactionModel>> readAllActiveData() async {
-    final result = await db.rawQuery('''
+    final database = await _database;
+    final result = await database.rawQuery('''
     SELECT
       t.*,
       (SELECT category FROM transaction_details d WHERE d.transaction_id = t.id ORDER BY day ASC LIMIT 1) AS icon
@@ -44,7 +45,8 @@ class TransactionDao {
   }
 
   Future<TransactionModel?> readData(int id) async {
-    final maps = await db.query(
+    final database = await _database;
+    final maps = await database.query(
       'transactions',
       where: 'id = ? AND deleted_at IS NULL',
       whereArgs: [id],
@@ -57,7 +59,8 @@ class TransactionDao {
   }
 
   Future<TransactionModel?> readDataWithChild(int id) async {
-    final parentMaps = await db.query(
+    final database = await _database;
+    final parentMaps = await database.query(
       'transactions',
       where: 'id = ? AND deleted_at IS NULL',
       whereArgs: [id],
@@ -65,7 +68,7 @@ class TransactionDao {
 
     if (parentMaps.isEmpty) return null;
 
-    final childMaps = await db.query(
+    final childMaps = await database.query(
       'transaction_details',
       where: 'transaction_id = ?',
       whereArgs: [id],
@@ -85,6 +88,7 @@ class TransactionDao {
     List<StatusType>? status,
     List<TransactionType>? type,
   }) async {
+    final database = await _database;
     String whereClause = 't.deleted_at IS NULL';
     List<dynamic> whereArgs = [];
 
@@ -123,12 +127,13 @@ class TransactionDao {
       ORDER BY t.date_timestamp DESC
     ''';
 
-    final result = await db.rawQuery(sql, whereArgs);
+    final result = await database.rawQuery(sql, whereArgs);
 
     return result.map((json) => TransactionModel.fromMap(json)).toList();
   }
 
   Future<int> update(TransactionModel transaction) async {
+    final database = await _database;
     int now = DateTime.now().millisecondsSinceEpoch;
 
     Map<String, dynamic> parentData = transaction.toMap();
@@ -141,12 +146,12 @@ class TransactionDao {
         childData['updated_at'] = now;
         childData['deleted_at'] = null;
 
-        await db.insert('transaction_details', childData);
+        await database.insert('transaction_details', childData);
       } else {
         Map<String, dynamic> childData = detail.toMap(transaction.id ?? 0);
         childData['updated_at'] = now;
 
-        await db.update(
+        await database.update(
           'transaction_details',
           parentData,
           where: 'id = ?',
@@ -155,7 +160,7 @@ class TransactionDao {
       }
     }
 
-    return await db.update(
+    return await database.update(
       'transactions',
       parentData,
       where: 'id = ?',
@@ -164,9 +169,10 @@ class TransactionDao {
   }
 
   Future<int> softDelete(int id) async {
+    final database = await _database;
     int now = DateTime.now().millisecondsSinceEpoch;
 
-    return await db.update(
+    return await database.update(
       'transactions',
       {'deleted_at': now},
       where: 'id = ?',

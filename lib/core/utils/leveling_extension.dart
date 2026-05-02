@@ -60,6 +60,16 @@ extension LevelingExtension on UserModel {
     }
   }
 
+  void resetSkillAlocaton() {
+    allocation.updateSkill(
+      AllocationMap.getAllocationByLevel(
+        level,
+        maxEmergency: budget.isEmergencyMax,
+        noDebt: budget.isFreeDebt,
+      ),
+    );
+  }
+
   TitleType getTitleForLevel(int level) {
     if (level <= 10) return TitleType.noviceSaver;
     if (level <= 20) return TitleType.smartBudgeter;
@@ -142,11 +152,7 @@ class AllocationMap {
     };
   }
 
-  static Map<Enum, double?> getAllocationLimitByLevel(
-    int level, {
-    bool noDebt = false,
-    bool maxEmergency = false,
-  }) {
+  static Map<Enum, double?> getAllocationLimitByLevel(int level) {
     if (level <= 10) {
       return {
         SectorType.living: 5.0,

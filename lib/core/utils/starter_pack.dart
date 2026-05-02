@@ -19,9 +19,10 @@ class StarterPack {
     xp: 0,
     budget: UserBudgetModel(
       lastActiveDate: DateTime.now().microsecondsSinceEpoch,
+      isFreeDebt: true,
     ),
     allocation: UserAllocationModel(
-      skills: AllocationMap.getAllocationByLevel(1, noDebt: false),
+      skills: AllocationMap.getAllocationByLevel(1, noDebt: true),
     ),
     progress: UserProgressModel(),
   );

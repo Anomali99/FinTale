@@ -1,13 +1,13 @@
 import 'package:sqflite/sqflite.dart';
 
 import '../../../models/bill_model.dart';
+import '../app_database.dart';
 
 class BillDao {
-  final Database db;
-
-  BillDao(this.db);
+  Future<Database> get _database async => await AppDatabase.instance.database;
 
   Future<int> create(BillModel bill) async {
+    final database = await _database;
     int now = DateTime.now().millisecondsSinceEpoch;
 
     Map<String, dynamic> data = bill.toMap();
@@ -15,11 +15,12 @@ class BillDao {
     data['updated_at'] = now;
     data['deleted_at'] = null;
 
-    return await db.insert('wallets', data);
+    return await database.insert('wallets', data);
   }
 
   Future<List<BillModel>> readAllActiveData() async {
-    final result = await db.query(
+    final database = await _database;
+    final result = await database.query(
       'bills',
       where: 'deleted_at IS NULL',
       orderBy: 'created_at ASC',
@@ -29,7 +30,8 @@ class BillDao {
   }
 
   Future<BillModel?> readData(int id) async {
-    final maps = await db.query(
+    final database = await _database;
+    final maps = await database.query(
       'bills',
       where: 'id = ? AND deleted_at IS NULL',
       whereArgs: [id],
@@ -42,7 +44,8 @@ class BillDao {
   }
 
   Future<BillModel?> readDataByDebt(int id) async {
-    final maps = await db.query(
+    final database = await _database;
+    final maps = await database.query(
       'bills',
       where: 'debt_id = ? AND deleted_at IS NULL',
       whereArgs: [id],
@@ -55,12 +58,13 @@ class BillDao {
   }
 
   Future<int> update(BillModel bill) async {
+    final database = await _database;
     int now = DateTime.now().millisecondsSinceEpoch;
 
     Map<String, dynamic> data = bill.toMap();
     data['updated_at'] = now;
 
-    return await db.update(
+    return await database.update(
       'bills',
       data,
       where: 'id = ?',
@@ -69,9 +73,10 @@ class BillDao {
   }
 
   Future<int> softDelete(int id) async {
+    final database = await _database;
     int now = DateTime.now().millisecondsSinceEpoch;
 
-    return await db.update(
+    return await database.update(
       'bills',
       {'deleted_at': now},
       where: 'id = ?',

@@ -8,10 +8,10 @@ import '../models/term_model.dart';
 
 class AssetsDict {
   static const CategoryModel lowRisk = CategoryModel(
-    terminology: TermModel(normal: 'Low Risk', rpg: 'Tanker'),
+    terminology: TermModel(normal: 'Risiko Rendah', rpg: 'Tanker'),
     color: Color(0xFF81C784),
     description:
-        'Stable and secure assets designed to protect your capital. While the returns are modest, these investments act as the ultimate shield against market volatility, ensuring steady, long-term growth.',
+        'Aset yang stabil dan aman untuk melindungi modalmu. Meski serangannya (return) kecil, aset ini adalah perisai terkuat menahan volatilitas pasar, memastikan pertumbuhan jangka panjang yang pasti.',
     icons: IconModel(
       normal: FontAwesomeIcons.vault,
       rpg: FontAwesomeIcons.shieldHalved,
@@ -19,10 +19,10 @@ class AssetsDict {
   );
 
   static const CategoryModel mediumRisk = CategoryModel(
-    terminology: TermModel(normal: 'Medium Risk', rpg: 'Fighter'),
+    terminology: TermModel(normal: 'Risiko Menengah', rpg: 'Fighter'),
     color: Color(0xFFFFB74D),
     description:
-        'The vanguard of your portfolio. These assets offer a balanced mix of risk and reward, aiming for substantial capital appreciation and potential dividends to consistently build your wealth.',
+        'Pasukan garis depan portofoliomu. Menawarkan keseimbangan antara risiko dan hadiah, bertujuan untuk meningkatkan modal dan dividen untuk membangun kekayaan secara konsisten.',
     icons: IconModel(
       normal: FontAwesomeIcons.chartLine,
       rpg: FontAwesomeIcons.handFist,
@@ -30,10 +30,10 @@ class AssetsDict {
   );
 
   static const CategoryModel highRisk = CategoryModel(
-    terminology: TermModel(normal: 'High Risk', rpg: 'Assassin'),
+    terminology: TermModel(normal: 'Risiko Tinggi', rpg: 'Assassin'),
     color: Color(0xFFF06292),
     description:
-        'Highly volatile assets capable of delivering massive, rapid gains—or severe losses. Perfect for aggressive growth strategies, but requires precise timing and a high tolerance for danger.',
+        'Aset liar yang mampu memberikan keuntungan (damage) masif secara cepat—atau kerugian fatal. Cocok untuk strategi pertumbuhan agresif, tapi butuh timing presisi dan nyali yang kuat.',
     icons: IconModel(
       normal: FontAwesomeIcons.rocket,
       rpg: FontAwesomeIcons.userNinja,

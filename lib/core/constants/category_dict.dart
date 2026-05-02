@@ -11,7 +11,7 @@ class CategoryDict {
   static const CategoryModel food = CategoryModel(
     type: 'expense',
     color: Colors.redAccent,
-    terminology: TermModel(normal: 'Food & Drinks', rpg: 'Potions & Rations'),
+    terminology: TermModel(normal: 'Makan & Minum', rpg: 'Ramuan & Ransum'),
     icons: IconModel(
       normal: FontAwesomeIcons.utensils,
       rpg: FontAwesomeIcons.flask,
@@ -21,7 +21,7 @@ class CategoryDict {
   static const CategoryModel groceries = CategoryModel(
     type: 'expense',
     color: Colors.orange,
-    terminology: TermModel(normal: 'Daily Supplies', rpg: 'Guild Supplies'),
+    terminology: TermModel(normal: 'Kebutuhan Harian', rpg: 'Suplai Guild'),
     icons: IconModel(
       normal: FontAwesomeIcons.basketShopping,
       rpg: FontAwesomeIcons.sackXmark,
@@ -31,14 +31,14 @@ class CategoryDict {
   static const CategoryModel transport = CategoryModel(
     type: 'expense',
     color: Colors.purpleAccent,
-    terminology: TermModel(normal: 'Transportation', rpg: 'Mounts & Travel'),
+    terminology: TermModel(normal: 'Transportasi', rpg: 'Tunggangan (Mounts)'),
     icons: IconModel(normal: FontAwesomeIcons.car, rpg: FontAwesomeIcons.horse),
   );
 
   static const CategoryModel entertainment = CategoryModel(
     type: 'expense',
     color: Colors.pinkAccent,
-    terminology: TermModel(normal: 'Entertainment', rpg: 'Tavern & Bards'),
+    terminology: TermModel(normal: 'Hiburan', rpg: 'Tavern & Pesta'),
     icons: IconModel(
       normal: FontAwesomeIcons.gamepad,
       rpg: FontAwesomeIcons.music,
@@ -48,7 +48,7 @@ class CategoryDict {
   static const CategoryModel health = CategoryModel(
     type: 'expense',
     color: Colors.teal,
-    terminology: TermModel(normal: 'Health & Medical', rpg: 'Healers & Cures'),
+    terminology: TermModel(normal: 'Kesehatan & Medis', rpg: 'Healer & Obat'),
     icons: IconModel(
       normal: FontAwesomeIcons.staffSnake,
       rpg: FontAwesomeIcons.heartPulse,
@@ -58,7 +58,7 @@ class CategoryDict {
   static const CategoryModel utilities = CategoryModel(
     type: 'expense',
     color: Colors.blueAccent,
-    terminology: TermModel(normal: 'Bills & Utilities', rpg: 'Guild Taxes'),
+    terminology: TermModel(normal: 'Tagihan & Utilitas', rpg: 'Pajak Guild'),
     icons: IconModel(
       normal: FontAwesomeIcons.fileInvoiceDollar,
       rpg: FontAwesomeIcons.scroll,
@@ -68,7 +68,7 @@ class CategoryDict {
   static const CategoryModel debtInstallment = CategoryModel(
     type: 'debt',
     color: Colors.deepOrange,
-    terminology: TermModel(normal: 'Debt Payment', rpg: 'Boss Raid Strike'),
+    terminology: TermModel(normal: 'Cicilan Hutang', rpg: 'Serangan ke Boss'),
     icons: IconModel(
       normal: FontAwesomeIcons.handHoldingDollar,
       rpg: FontAwesomeIcons.dragon,
@@ -78,7 +78,7 @@ class CategoryDict {
   static const CategoryModel salary = CategoryModel(
     type: 'income',
     color: Colors.green,
-    terminology: TermModel(normal: 'Salary & Wage', rpg: 'Quest Bounty'),
+    terminology: TermModel(normal: 'Gaji & Upah', rpg: 'Hadiah Misi (Bounty)'),
     icons: IconModel(
       normal: FontAwesomeIcons.briefcase,
       rpg: FontAwesomeIcons.gem,
@@ -88,7 +88,10 @@ class CategoryDict {
   static const CategoryModel business = CategoryModel(
     type: 'income',
     color: Colors.lightGreen,
-    terminology: TermModel(normal: 'Business & Bonus', rpg: 'Merchant Profits'),
+    terminology: TermModel(
+      normal: 'Bisnis & Bonus',
+      rpg: 'Keuntungan Merchant',
+    ),
     icons: IconModel(
       normal: FontAwesomeIcons.shop,
       rpg: FontAwesomeIcons.scaleBalanced,
@@ -98,7 +101,7 @@ class CategoryDict {
   static const CategoryModel dividend = CategoryModel(
     type: 'income',
     color: Colors.amber,
-    terminology: TermModel(normal: 'Dividend & Interest', rpg: 'Passive Loot'),
+    terminology: TermModel(normal: 'Dividen & Bunga', rpg: 'Loot Pasif'),
     icons: IconModel(
       normal: FontAwesomeIcons.coins,
       rpg: FontAwesomeIcons.sackDollar,
@@ -108,7 +111,7 @@ class CategoryDict {
   static const CategoryModel transfer = CategoryModel(
     type: 'transfer',
     color: Colors.blueGrey,
-    terminology: TermModel(normal: 'Wallet Transfer', rpg: 'Supply Caravan'),
+    terminology: TermModel(normal: 'Transfer Dompet', rpg: 'Karavan Suplai'),
     icons: IconModel(
       normal: FontAwesomeIcons.arrowRightArrowLeft,
       rpg: FontAwesomeIcons.dolly,
@@ -118,7 +121,7 @@ class CategoryDict {
   static const CategoryModel investment = CategoryModel(
     type: 'transfer',
     color: Colors.indigo,
-    terminology: TermModel(normal: 'Investment', rpg: 'Deploy Troops'),
+    terminology: TermModel(normal: 'Investasi', rpg: 'Kirim Pasukan'),
     icons: IconModel(
       normal: FontAwesomeIcons.chartLine,
       rpg: FontAwesomeIcons.shieldHalved,

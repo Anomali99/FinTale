@@ -6,27 +6,27 @@ import '../models/term_model.dart';
 
 class InvestDict {
   static const TermModel total = TermModel(
-    normal: 'Total Portfolio',
-    rpg: 'Total Troop Strength',
+    normal: 'Total Portofolio',
+    rpg: 'Total Kekuatan Pasukan',
   );
 
   static const TermModel invested = TermModel(
-    normal: 'Invested Capital',
-    rpg: 'Deployed Gold',
+    normal: 'Modal Diinvestasikan',
+    rpg: 'Gold Dikerahkan',
   );
 
   static const TermModel value = TermModel(
-    normal: 'Current Value',
-    rpg: 'Current Power',
+    normal: 'Nilai Saat Ini',
+    rpg: 'Power Saat Ini',
   );
 
   static const TermModel empty = TermModel(
-    normal: 'No assets here yet.\nAdd one now!',
-    rpg: 'No troops in this division.\nRecruit now!',
+    normal: 'Belum ada aset di sini.\nTambah sekarang!',
+    rpg: 'Belum ada pasukan di divisi ini.\nRekrut sekarang!',
   );
 
   static const CategoryModel add = CategoryModel(
-    terminology: TermModel(normal: 'Add Asset', rpg: 'Recruit Troops'),
+    terminology: TermModel(normal: 'Tambah Aset', rpg: 'Rekrut Pasukan'),
     icons: IconModel(
       normal: FontAwesomeIcons.folderPlus,
       rpg: FontAwesomeIcons.flag,

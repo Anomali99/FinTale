@@ -51,8 +51,6 @@ class SkillController with ChangeNotifier {
     try {
       baseAllocation = AllocationMap.getAllocationByLevel(
         _userController.userLevel,
-        maxEmergency: _userController.isEmergencyMax,
-        noDebt: _userController.isFreeDebt,
       );
       baseLimitAllocation = AllocationMap.getAllocationLimitByLevel(
         _userController.userLevel,
@@ -106,7 +104,6 @@ class SkillController with ChangeNotifier {
       freeAllocation += (basePoint - allocated);
     } else if (allocated > basePoint) {
       double diff = allocated - basePoint;
-
       double maxRegularLimit = (limitPoint == 0.0) ? diff : limitPoint;
 
       if (diff <= maxRegularLimit) {
@@ -117,64 +114,91 @@ class SkillController with ChangeNotifier {
       }
     }
 
-    extraFreeAllocationLv1[sector] = allocated;
+    double maxRegularCake = (limitPoint == 0.0)
+        ? allocated
+        : (basePoint + limitPoint);
+    if (allocated <= maxRegularCake) {
+      freeAllocationLv1[sector] = allocated;
+      extraFreeAllocationLv1[sector] = 0.0;
+    } else {
+      freeAllocationLv1[sector] = maxRegularCake;
+      extraFreeAllocationLv1[sector] = allocated - maxRegularCake;
+    }
   }
 
   void _setupChildCake(SectorType parent, List<SubSectorType> children) {
-    double parentTotal = extraFreeAllocationLv1[parent] ?? 0.0;
+    double regCake = freeAllocationLv1[parent] ?? 0.0;
+    double extCake = extraFreeAllocationLv1[parent] ?? 0.0;
     double usedByChildren = 0.0;
 
     for (var child in children) {
       usedByChildren += skillAllocations[child] ?? 0.0;
     }
 
-    extraFreeAllocationLv1[parent] = parentTotal - usedByChildren;
+    if (usedByChildren <= regCake) {
+      freeAllocationLv1[parent] = regCake - usedByChildren;
+      extraFreeAllocationLv1[parent] = extCake;
+    } else {
+      freeAllocationLv1[parent] = 0.0;
+      extraFreeAllocationLv1[parent] = extCake - (usedByChildren - regCake);
+    }
   }
 
   void _setupLowRiskCake() {
     double lowRiskAllocated = skillAllocations[SubSectorType.lowRisk] ?? 0.0;
-    double emergencyCake = extraFreeAllocationLv1[SectorType.emergency] ?? 0.0;
-    double investmentCake =
-        extraFreeAllocationLv1[SectorType.investment] ?? 0.0;
 
-    if (lowRiskAllocated <= emergencyCake) {
-      extraFreeAllocationLv1[SectorType.emergency] =
-          emergencyCake - lowRiskAllocated;
-    } else {
-      double remainingNeed = lowRiskAllocated - emergencyCake;
-      extraFreeAllocationLv1[SectorType.emergency] = 0.0;
-      extraFreeAllocationLv1[SectorType.investment] =
-          investmentCake - remainingNeed;
+    double eat(SectorType parent, double amount) {
+      if (amount <= 0) return 0;
+
+      double reg = freeAllocationLv1[parent] ?? 0.0;
+      if (amount <= reg) {
+        freeAllocationLv1[parent] = reg - amount;
+        return 0;
+      }
+      amount -= reg;
+      freeAllocationLv1[parent] = 0.0;
+
+      double ext = extraFreeAllocationLv1[parent] ?? 0.0;
+      if (amount <= ext) {
+        extraFreeAllocationLv1[parent] = ext - amount;
+        return 0;
+      }
+      amount -= ext;
+      extraFreeAllocationLv1[parent] = 0.0;
+      return amount;
     }
+
+    double remaining = eat(SectorType.emergency, lowRiskAllocated);
+    eat(SectorType.investment, remaining);
   }
 
   void _squeezeChildren(SectorType sector) {
-    double leftoverCake = extraFreeAllocationLv1[sector] ?? 0.0;
+    double leftoverCake =
+        (freeAllocationLv1[sector] ?? 0.0) +
+        (extraFreeAllocationLv1[sector] ?? 0.0);
     if (leftoverCake > 0) return;
 
     if (sector == SectorType.living) {
       double dream = skillAllocations[SubSectorType.dreamFund] ?? 0.0;
       double ess = skillAllocations[SubSectorType.essentials] ?? 0.0;
-
       if (dream > 0) {
         _userController.updateSkillByKey(SubSectorType.dreamFund, dream - 1);
       } else if (ess > 0) {
         _userController.updateSkillByKey(SubSectorType.essentials, ess - 1);
       }
     } else if (sector == SectorType.emergency) {
-      double invCake = extraFreeAllocationLv1[SectorType.investment] ?? 0.0;
-
+      double invCake =
+          (freeAllocationLv1[SectorType.investment] ?? 0.0) +
+          (extraFreeAllocationLv1[SectorType.investment] ?? 0.0);
       if (invCake <= 0) {
         double low = skillAllocations[SubSectorType.lowRisk] ?? 0.0;
-        if (low > 0) {
+        if (low > 0)
           _userController.updateSkillByKey(SubSectorType.lowRisk, low - 1);
-        }
       }
     } else if (sector == SectorType.investment) {
       double high = skillAllocations[SubSectorType.highRisk] ?? 0.0;
       double med = skillAllocations[SubSectorType.mediumRisk] ?? 0.0;
       double low = skillAllocations[SubSectorType.lowRisk] ?? 0.0;
-
       if (high > 0) {
         _userController.updateSkillByKey(SubSectorType.highRisk, high - 1);
       } else if (med > 0) {
@@ -195,7 +219,6 @@ class SkillController with ChangeNotifier {
       SectorType sector = selectedNode as SectorType;
       double basePoint = baseAllocation[sector] ?? 0.0;
       double limitPoint = baseLimitAllocation[sector] ?? 0.0;
-
       double maxRegularAllowed = (limitPoint == 0.0)
           ? 100.0
           : basePoint + limitPoint;
@@ -214,40 +237,50 @@ class SkillController with ChangeNotifier {
       double maxRegularAllowed = (limitPoint == 0.0)
           ? 100.0
           : basePoint + limitPoint;
-
       SectorType? parent = _getParent(subSector);
-      bool parentUsingExtra = false;
-      if (parent != null) {
-        double pBase = baseAllocation[parent] ?? 0.0;
-        double pLimit = baseLimitAllocation[parent] ?? 0.0;
-        double pMax = (pLimit == 0.0) ? 100.0 : pBase + pLimit;
-        double pAllocated = skillAllocations[parent] ?? 0.0;
-        if (pAllocated > pMax) parentUsingExtra = true;
-      }
 
-      if (current >= maxRegularAllowed &&
-          !parentUsingExtra &&
-          limitPoint != 0.0) {
-        return;
-      }
-
-      if (parent != null) {
+      if (current < maxRegularAllowed) {
         if (subSector == SubSectorType.lowRisk) {
-          if ((extraFreeAllocationLv1[SectorType.emergency] ?? 0) > 0) {
+          if ((freeAllocationLv1[SectorType.emergency] ?? 0) > 0) {
+            freeAllocationLv1[SectorType.emergency] =
+                freeAllocationLv1[SectorType.emergency]! - 1;
+          } else if ((freeAllocationLv1[SectorType.investment] ?? 0) > 0) {
+            freeAllocationLv1[SectorType.investment] =
+                freeAllocationLv1[SectorType.investment]! - 1;
+          } else if ((extraFreeAllocationLv1[SectorType.emergency] ?? 0) > 0) {
             extraFreeAllocationLv1[SectorType.emergency] =
-                (extraFreeAllocationLv1[SectorType.emergency]!) - 1;
+                extraFreeAllocationLv1[SectorType.emergency]! - 1;
           } else if ((extraFreeAllocationLv1[SectorType.investment] ?? 0) > 0) {
             extraFreeAllocationLv1[SectorType.investment] =
-                (extraFreeAllocationLv1[SectorType.investment]!) - 1;
+                extraFreeAllocationLv1[SectorType.investment]! - 1;
           } else {
             return;
           }
-        } else {
+        } else if (parent != null) {
+          if ((freeAllocationLv1[parent] ?? 0) > 0) {
+            freeAllocationLv1[parent] = freeAllocationLv1[parent]! - 1;
+          } else if ((extraFreeAllocationLv1[parent] ?? 0) > 0) {
+            extraFreeAllocationLv1[parent] =
+                extraFreeAllocationLv1[parent]! - 1;
+          } else {
+            return;
+          }
+        }
+      } else {
+        if (subSector == SubSectorType.lowRisk) {
+          if ((extraFreeAllocationLv1[SectorType.emergency] ?? 0) > 0) {
+            extraFreeAllocationLv1[SectorType.emergency] =
+                extraFreeAllocationLv1[SectorType.emergency]! - 1;
+          } else if ((extraFreeAllocationLv1[SectorType.investment] ?? 0) > 0) {
+            extraFreeAllocationLv1[SectorType.investment] =
+                extraFreeAllocationLv1[SectorType.investment]! - 1;
+          } else {
+            return;
+          }
+        } else if (parent != null) {
           if ((extraFreeAllocationLv1[parent] ?? 0) > 0) {
             extraFreeAllocationLv1[parent] =
-                (extraFreeAllocationLv1[parent]!) - 1;
-          } else if ((freeAllocationLv1[parent] ?? 0) > 0) {
-            freeAllocationLv1[parent] = (freeAllocationLv1[parent]!) - 1;
+                extraFreeAllocationLv1[parent]! - 1;
           } else {
             return;
           }
@@ -258,6 +291,7 @@ class SkillController with ChangeNotifier {
     if (current < 100) {
       _userController.updateSkillByKey(selectedNode!, current + 1);
       await _userController.saveUser();
+      await _userController.processSetAllocation();
       await loadData();
       notifyListeners();
     }
@@ -297,17 +331,19 @@ class SkillController with ChangeNotifier {
   }
 
   Future<void> resetAllocation() async {
-    _userController.updateSkill(baseAllocation);
+    _userController.resetSkillAlocaton();
     await _userController.saveUser();
     await loadData();
     notifyListeners();
   }
 
   SectorType? _getParent(SubSectorType child) {
-    if (child == SubSectorType.essentials || child == SubSectorType.dreamFund)
+    if (child == SubSectorType.essentials || child == SubSectorType.dreamFund) {
       return SectorType.living;
-    if (child == SubSectorType.mediumRisk || child == SubSectorType.highRisk)
+    }
+    if (child == SubSectorType.mediumRisk || child == SubSectorType.highRisk) {
       return SectorType.investment;
+    }
     return null;
   }
 }

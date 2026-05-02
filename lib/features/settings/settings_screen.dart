@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 
 import '../../controllers/settings_controller.dart';
 import '../../core/constants/app_colors.dart';
+import '../../core/constants/menu_dict.dart';
 import '../../core/constants/settings_dict.dart';
 import '../../widgets/custom_button.dart';
 
@@ -94,7 +95,7 @@ class SettingsScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'Settings',
+          MenuDict.settings,
           style: GoogleFonts.poppins(fontWeight: FontWeight.bold),
         ),
       ),

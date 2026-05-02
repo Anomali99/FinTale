@@ -1,25 +1,25 @@
 import 'package:sqflite/sqflite.dart';
 
 import '../../../models/wallet_model.dart';
+import '../app_database.dart';
 
 class WalletDao {
-  final Database db;
-
-  WalletDao(this.db);
+  Future<Database> get _database async => await AppDatabase.instance.database;
 
   Future<int> create(WalletModel wallet) async {
+    final database = await _database;
     int now = DateTime.now().millisecondsSinceEpoch;
 
     Map<String, dynamic> data = wallet.toMap();
     data['created_at'] = now;
     data['updated_at'] = now;
     data['deleted_at'] = null;
-
-    return await db.insert('wallets', data);
+    return await database.insert('wallets', data);
   }
 
   Future<List<WalletModel>> readAllActiveData() async {
-    final result = await db.query(
+    final database = await _database;
+    final result = await database.query(
       'wallets',
       where: 'deleted_at IS NULL',
       orderBy: '''
@@ -38,7 +38,8 @@ class WalletDao {
   }
 
   Future<WalletModel?> readData(int id) async {
-    final maps = await db.query(
+    final database = await _database;
+    final maps = await database.query(
       'wallets',
       where: 'id = ? AND deleted_at IS NULL',
       whereArgs: [id],
@@ -51,12 +52,13 @@ class WalletDao {
   }
 
   Future<int> update(WalletModel wallet) async {
+    final database = await _database;
     int now = DateTime.now().millisecondsSinceEpoch;
 
     Map<String, dynamic> data = wallet.toMap();
     data['updated_at'] = now;
 
-    return await db.update(
+    return await database.update(
       'wallets',
       data,
       where: 'id = ?',
@@ -65,9 +67,10 @@ class WalletDao {
   }
 
   Future<int> softDelete(int id) async {
+    final database = await _database;
     int now = DateTime.now().millisecondsSinceEpoch;
 
-    return await db.update(
+    return await database.update(
       'wallets',
       {'deleted_at': now},
       where: 'id = ?',

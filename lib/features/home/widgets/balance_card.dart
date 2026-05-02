@@ -120,7 +120,7 @@ class BalanceCard extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              isRpg ? "Unassigned Loot" : "Belum Dialokasi",
+                              HomeDict.pending.get(isRpg),
                               style: const TextStyle(
                                 color: AppColors.textSecondary,
                                 fontSize: 11,
@@ -146,7 +146,7 @@ class BalanceCard extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
                             Text(
-                              isRpg ? "Reserved / Savings" : "Total Tabungan",
+                              HomeDict.savings.get(isRpg),
                               style: const TextStyle(
                                 color: AppColors.textSecondary,
                                 fontSize: 11,

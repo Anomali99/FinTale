@@ -7,7 +7,7 @@ import '../models/term_model.dart';
 
 class SharedDict {
   static const CategoryModel income = CategoryModel(
-    terminology: TermModel(normal: 'Income', rpg: 'Loot'),
+    terminology: TermModel(normal: 'Pemasukan', rpg: 'Loot (Drop)'),
     color: Color(0xFFFFD700),
     icons: IconModel(
       normal: FontAwesomeIcons.arrowTurnDown,
@@ -16,7 +16,7 @@ class SharedDict {
   );
 
   static const CategoryModel expense = CategoryModel(
-    terminology: TermModel(normal: 'Expense', rpg: 'Damage Taken'),
+    terminology: TermModel(normal: 'Pengeluaran', rpg: 'Damage Diterima'),
     icons: IconModel(
       normal: FontAwesomeIcons.arrowTrendDown,
       rpg: FontAwesomeIcons.heartCrack,
@@ -24,7 +24,7 @@ class SharedDict {
   );
 
   static const CategoryModel transfer = CategoryModel(
-    terminology: TermModel(normal: 'Transfer', rpg: 'Distribute'),
+    terminology: TermModel(normal: 'Transfer', rpg: 'Distribusi'),
     icons: IconModel(
       normal: FontAwesomeIcons.moneyBillTransfer,
       rpg: FontAwesomeIcons.dolly,
@@ -32,17 +32,17 @@ class SharedDict {
   );
 
   static const CategoryModel filter = CategoryModel(
-    terminology: TermModel(normal: 'Filter', rpg: 'Sort Magic'),
+    terminology: TermModel(normal: 'Filter', rpg: 'Sortir Sihir'),
     icons: IconModel(
       normal: FontAwesomeIcons.filter,
       rpg: FontAwesomeIcons.wandMagicSparkles,
     ),
   );
 
-  static const TermModel invest = TermModel(normal: 'Invest', rpg: 'Armory');
+  static const TermModel invest = TermModel(normal: 'Investasi', rpg: 'Armory');
 
   static const TermModel unallocated = TermModel(
-    normal: 'Unallocated (Idle)',
-    rpg: 'Idle Mana',
+    normal: 'Belum Dialokasikan',
+    rpg: 'Mana Menganggur',
   );
 }

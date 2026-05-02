@@ -62,7 +62,7 @@ class AuthController with ChangeNotifier {
         name: name,
         email: email,
       );
-      _userController.saveUser(newUser: newUser);
+      await _userController.saveUser(newUser: newUser);
 
       if (wallet.isEmpty) {
         WalletModel defaultWallet = StarterPack.defaultWallet;

@@ -46,6 +46,12 @@ class UserController with ChangeNotifier {
     }
   }
 
+  void resetSkillAlocaton() {
+    if (currentUser != null) {
+      currentUser!.resetSkillAlocaton();
+    }
+  }
+
   void updateEmergencyAmount(BigInt amount) =>
       budget.updateEmergencyAmount(amount);
   void updateBaseDailyLimit(BigInt amount) =>
@@ -54,7 +60,6 @@ class UserController with ChangeNotifier {
   double? getAllocation(Enum type) => allocation.getSkillPercentage(type);
   void updateSkillByKey(Enum key, double skills) =>
       allocation.updateSkillByKey(key, skills);
-  void updateSkill(Map<Enum, double?> map) => allocation.updateSkill(map);
 
   void updatePending(int index, AllocationModel value) =>
       allocation.updatePending(index, value);
@@ -65,6 +70,14 @@ class UserController with ChangeNotifier {
 
   Future<void> processCreateWallet() async {
     MissionResult? result = progress.processCreateWallet();
+    if (result.xpGranted) {
+      currentUser?.addXp(result.xpReward);
+      await saveUser();
+    }
+  }
+
+  Future<void> processSetAllocation() async {
+    MissionResult? result = progress.processSetAllocation();
     if (result.xpGranted) {
       currentUser?.addXp(result.xpReward);
       await saveUser();

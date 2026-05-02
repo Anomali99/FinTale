@@ -6,24 +6,24 @@ import '../models/term_model.dart';
 
 class BillsDict {
   static const TermModel bills = TermModel(
-    normal: 'Current Bills',
-    rpg: 'Active Quests',
+    normal: 'Tagihan Saat Ini',
+    rpg: 'Misi Aktif',
   );
 
   static const TermModel template = TermModel(
-    normal: 'Template Bills',
-    rpg: 'Master Quests',
+    normal: 'Template Tagihan',
+    rpg: 'Master Quest',
   );
 
-  static const TermModel debts = TermModel(normal: 'Debts', rpg: 'Boss Raids');
+  static const TermModel debts = TermModel(normal: 'Hutang', rpg: 'Boss Raid');
 
   static const TermModel remaining = TermModel(
-    normal: 'Remaining Debt',
-    rpg: 'HP Remaining',
+    normal: 'Sisa Hutang',
+    rpg: 'Sisa HP Boss',
   );
 
   static const CategoryModel pay = CategoryModel(
-    terminology: TermModel(normal: 'Pay', rpg: 'Attack'),
+    terminology: TermModel(normal: 'Bayar', rpg: 'Serang'),
     icons: IconModel(
       normal: FontAwesomeIcons.check,
       rpg: FontAwesomeIcons.wandMagicSparkles,
@@ -37,10 +37,10 @@ class BillsDict {
 
   static const CategoryModel addTemplate = CategoryModel(
     terminology: TermModel(
-      normal: 'Add Template Bill',
-      rpg: 'Add Master Quest',
+      normal: 'Tambah Template Tagihan',
+      rpg: 'Tambah Master Quest',
     ),
-    description: 'Create a new recurring payment template',
+    description: 'Buat template pembayaran rutin baru',
     icons: IconModel(
       normal: FontAwesomeIcons.receipt,
       rpg: FontAwesomeIcons.scroll,
@@ -48,8 +48,8 @@ class BillsDict {
   );
 
   static const CategoryModel addDebt = CategoryModel(
-    terminology: TermModel(normal: 'Add Debt', rpg: 'Add Boss Raid'),
-    description: 'Record a new loan or major debt',
+    terminology: TermModel(normal: 'Tambah Hutang', rpg: 'Tambah Boss Raid'),
+    description: 'Catat pinjaman atau hutang besar baru',
     icons: IconModel(
       normal: FontAwesomeIcons.buildingColumns,
       rpg: FontAwesomeIcons.dragon,

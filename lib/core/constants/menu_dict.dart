@@ -5,8 +5,11 @@ import '../models/icon_model.dart';
 import '../models/term_model.dart';
 
 class MenuDict {
+  static const String settings = 'Pengaturan';
+  static const String profile = 'Profil';
+  static const String information = 'Panduan & Informasi';
   static const CategoryModel home = CategoryModel(
-    terminology: TermModel(normal: 'Home', rpg: 'Guild'),
+    terminology: TermModel(normal: 'Beranda', rpg: 'Markas'),
     icons: IconModel(
       normal: FontAwesomeIcons.house,
       rpg: FontAwesomeIcons.chessRook,
@@ -14,7 +17,7 @@ class MenuDict {
   );
 
   static const CategoryModel bills = CategoryModel(
-    terminology: TermModel(normal: 'Bills', rpg: 'Quest'),
+    terminology: TermModel(normal: 'Tagihan', rpg: 'Papan Misi'),
     icons: IconModel(
       normal: FontAwesomeIcons.receipt,
       rpg: FontAwesomeIcons.scroll,
@@ -22,7 +25,7 @@ class MenuDict {
   );
 
   static const CategoryModel invest = CategoryModel(
-    terminology: TermModel(normal: 'Invest', rpg: 'Armory'),
+    terminology: TermModel(normal: 'Investasi', rpg: 'Armory'),
     icons: IconModel(
       normal: FontAwesomeIcons.chartLine,
       rpg: FontAwesomeIcons.shieldHalved,
@@ -30,7 +33,7 @@ class MenuDict {
   );
 
   static const CategoryModel history = CategoryModel(
-    terminology: TermModel(normal: 'History', rpg: 'Logging'),
+    terminology: TermModel(normal: 'Riwayat', rpg: 'Catatan'),
     icons: IconModel(
       normal: FontAwesomeIcons.clockRotateLeft,
       rpg: FontAwesomeIcons.bookJournalWhills,
@@ -38,7 +41,7 @@ class MenuDict {
   );
 
   static const CategoryModel analytics = CategoryModel(
-    terminology: TermModel(normal: 'Analytics', rpg: 'Guild Report'),
+    terminology: TermModel(normal: 'Analitik', rpg: 'Laporan'),
     icons: IconModel(
       normal: FontAwesomeIcons.chartPie,
       rpg: FontAwesomeIcons.eye,
@@ -46,8 +49,8 @@ class MenuDict {
   );
 
   static const CategoryModel pay = CategoryModel(
-    terminology: TermModel(normal: 'Pay Debt', rpg: 'Attack Attack Boss'),
-    description: 'Record a debt installment',
+    terminology: TermModel(normal: 'Bayar Hutang', rpg: 'Serang Boss'),
+    description: 'Catat cicilan hutang',
     icons: IconModel(
       normal: FontAwesomeIcons.buildingColumns,
       rpg: FontAwesomeIcons.khanda,
@@ -55,8 +58,8 @@ class MenuDict {
   );
 
   static const CategoryModel daily = CategoryModel(
-    terminology: TermModel(normal: 'Daily Expense', rpg: 'Use Mana'),
-    description: 'Record food, transport, etc.',
+    terminology: TermModel(normal: 'Pengeluaran Harian', rpg: 'Gunakan Mana'),
+    description: 'Catat makanan, transportasi, dll.',
     icons: IconModel(
       normal: FontAwesomeIcons.wallet,
       rpg: FontAwesomeIcons.flask,

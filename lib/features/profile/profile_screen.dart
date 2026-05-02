@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import '../../controllers/profile_controller.dart';
 import '../../controllers/user_controller.dart';
 import '../../core/constants/app_colors.dart';
+import '../../core/constants/menu_dict.dart';
 import '../../core/constants/profile_dict.dart';
 import '../../core/constants/skill_dict.dart';
 import '../../core/utils/currency_formatter.dart';
@@ -79,7 +80,7 @@ class ProfileScreen extends StatelessWidget {
       appBar: AppBar(
         titleSpacing: 24,
         title: Text(
-          'Profile',
+          MenuDict.profile,
           style: GoogleFonts.poppins(fontWeight: FontWeight.bold),
         ),
         actions: [
@@ -149,11 +150,7 @@ class ProfileScreen extends StatelessWidget {
             },
           ),
           const SizedBox(height: 32),
-          ...[
-            _buildSectionHeader(ProfileDict.missions.get(isRpg)),
-            const SizedBox(height: 12),
-            DailyMissions(progress: progress),
-          ],
+          DailyMissions(progress: progress, isRpg: isRpg),
         ],
       ),
     );
@@ -222,13 +219,4 @@ class ProfileScreen extends StatelessWidget {
       ),
     );
   }
-
-  Widget _buildSectionHeader(String title) => Text(
-    title,
-    style: const TextStyle(
-      fontSize: 14,
-      fontWeight: FontWeight.bold,
-      color: AppColors.primary,
-    ),
-  );
 }

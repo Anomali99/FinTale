@@ -16,7 +16,6 @@ import 'core/constants/app_colors.dart';
 import 'core/theme/app_theme.dart';
 import 'core/theme/mode_provider.dart';
 import 'core/utils/global_messenger.dart';
-import 'data/local/app_database.dart';
 import 'data/local/dao/asset_dao.dart';
 import 'data/local/dao/bill_dao.dart';
 import 'data/local/dao/debt_dao.dart';
@@ -36,12 +35,11 @@ void main() async {
   final prefService = PrefService(prefs);
   final authService = AuthService();
 
-  final db = await AppDatabase.instance.database;
-  final walletDao = WalletDao(db);
-  final assetDao = AssetDao(db);
-  final debtDao = DebtDao(db);
-  final billDao = BillDao(db);
-  final transactionDao = TransactionDao(db);
+  final walletDao = WalletDao();
+  final assetDao = AssetDao();
+  final debtDao = DebtDao();
+  final billDao = BillDao();
+  final transactionDao = TransactionDao();
 
   final userController = UserController(prefService);
   final walletController = WalletController(walletDao);

@@ -7,7 +7,7 @@ import '../models/term_model.dart';
 
 class DebtsDict {
   static const CategoryModel creditCard = CategoryModel(
-    terminology: TermModel(normal: 'Credit Card', rpg: 'Poison Debuff'),
+    terminology: TermModel(normal: 'Kartu Kredit', rpg: 'Debuff Racun'),
     icons: IconModel(
       normal: FontAwesomeIcons.creditCard,
       rpg: FontAwesomeIcons.skullCrossbones,
@@ -15,7 +15,7 @@ class DebtsDict {
   );
 
   static const CategoryModel mortgage = CategoryModel(
-    terminology: TermModel(normal: 'Mortgage (KPR)', rpg: 'Castle Siege'),
+    terminology: TermModel(normal: 'KPR (Rumah)', rpg: 'Pertahanan Kastil'),
     icons: IconModel(
       normal: FontAwesomeIcons.house,
       rpg: FontAwesomeIcons.chessRook,
@@ -23,12 +23,12 @@ class DebtsDict {
   );
 
   static const CategoryModel vehicle = CategoryModel(
-    terminology: TermModel(normal: 'Vehicle Loan', rpg: 'Mount Upgrade'),
+    terminology: TermModel(normal: 'Kredit Kendaraan', rpg: 'Cicilan Mount'),
     icons: IconModel(normal: FontAwesomeIcons.car, rpg: FontAwesomeIcons.horse),
   );
 
   static const CategoryModel personal = CategoryModel(
-    terminology: TermModel(normal: 'Personal Loan', rpg: 'Tavern Debt'),
+    terminology: TermModel(normal: 'Pinjaman Pribadi', rpg: 'Hutang Tavern'),
     icons: IconModel(
       normal: FontAwesomeIcons.handshake,
       rpg: FontAwesomeIcons.beerMugEmpty,
@@ -36,7 +36,7 @@ class DebtsDict {
   );
 
   static const CategoryModel business = CategoryModel(
-    terminology: TermModel(normal: 'Business Loan', rpg: 'Merchant Guild'),
+    terminology: TermModel(normal: 'Pinjaman Modal', rpg: 'Hutang Merchant'),
     icons: IconModel(
       normal: FontAwesomeIcons.store,
       rpg: FontAwesomeIcons.scaleBalanced,
@@ -44,7 +44,7 @@ class DebtsDict {
   );
 
   static const CategoryModel other = CategoryModel(
-    terminology: TermModel(normal: 'Other Debt', rpg: 'Unknown Curse'),
+    terminology: TermModel(normal: 'Hutang Lainnya', rpg: 'Kutukan Misterius'),
     icons: IconModel(
       normal: FontAwesomeIcons.fileInvoiceDollar,
       rpg: FontAwesomeIcons.ghost,

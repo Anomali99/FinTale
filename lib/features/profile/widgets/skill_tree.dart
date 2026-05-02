@@ -273,12 +273,18 @@ class _SkillTreeState extends State<SkillTree> {
             ),
           ),
           const SizedBox(height: 6),
-          Text(
-            data.get(isRpg),
-            style: TextStyle(
-              fontSize: 10,
-              color: isSelected ? Colors.white : Colors.grey,
-              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+          SizedBox(
+            width: size + 4,
+            child: Text(
+              data.get(isRpg),
+              maxLines: 2,
+              textAlign: TextAlign.center,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                fontSize: 10,
+                color: isSelected ? Colors.white : Colors.grey,
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+              ),
             ),
           ),
           Text(
@@ -289,6 +295,7 @@ class _SkillTreeState extends State<SkillTree> {
               fontSize: 8,
               color: isSelected ? Colors.white : Colors.grey,
               fontWeight: FontWeight.normal,
+              overflow: TextOverflow.ellipsis,
             ),
           ),
         ],
@@ -313,7 +320,9 @@ class _SkillTreeState extends State<SkillTree> {
     double maxAllowed = 100.0;
     bool canIncrease = false;
     bool canDecrease = false;
-    int parentRemaining = 0;
+
+    int parentRegular = 0;
+    int parentExtra = 0;
 
     if (!isRoot && !isLocked) {
       double basePoint = controller.baseAllocation[selectedNode] ?? 0.0;
@@ -324,7 +333,6 @@ class _SkillTreeState extends State<SkillTree> {
       maxAllowed = (limitPoint == 0.0) ? 100.0 : basePoint + limitPoint;
 
       canDecrease = current > minAllowed && current > 0.0;
-
       bool belowMax = current < maxAllowed && current < 100.0;
 
       if (selectedNode is SectorType) {
@@ -333,38 +341,37 @@ class _SkillTreeState extends State<SkillTree> {
             controller.extraFreeAllocation > 0;
       } else if (selectedNode is SubSectorType) {
         if (selectedNode == SubSectorType.lowRisk) {
-          double emCake =
-              controller.extraFreeAllocationLv1[SectorType.emergency] ?? 0.0;
-          double invCake =
-              controller.extraFreeAllocationLv1[SectorType.investment] ?? 0.0;
-          parentRemaining = (emCake + invCake).toInt();
+          parentRegular =
+              ((controller.freeAllocationLv1[SectorType.emergency] ?? 0.0) +
+                      (controller.freeAllocationLv1[SectorType.investment] ??
+                          0.0))
+                  .toInt();
+          parentExtra =
+              ((controller.extraFreeAllocationLv1[SectorType.emergency] ??
+                          0.0) +
+                      (controller.extraFreeAllocationLv1[SectorType
+                              .investment] ??
+                          0.0))
+                  .toInt();
         } else if (selectedNode == SubSectorType.essentials ||
             selectedNode == SubSectorType.dreamFund) {
-          parentRemaining =
+          parentRegular =
+              (controller.freeAllocationLv1[SectorType.living] ?? 0.0).toInt();
+          parentExtra =
               (controller.extraFreeAllocationLv1[SectorType.living] ?? 0.0)
                   .toInt();
         } else {
-          parentRemaining =
+          parentRegular =
+              (controller.freeAllocationLv1[SectorType.investment] ?? 0.0)
+                  .toInt();
+          parentExtra =
               (controller.extraFreeAllocationLv1[SectorType.investment] ?? 0.0)
                   .toInt();
         }
 
-        SectorType? p =
-            controller.selectedNode == SubSectorType.mediumRisk ||
-                controller.selectedNode == SubSectorType.highRisk
-            ? SectorType.investment
-            : null;
-        bool parentHasExtra = false;
-        if (p != null) {
-          double pLimit = controller.baseLimitAllocation[p] ?? 0.0;
-          double pMax = (pLimit == 0.0)
-              ? 100.0
-              : (controller.baseAllocation[p] ?? 0.0) + pLimit;
-          if ((controller.skillAllocations[p] ?? 0.0) > pMax)
-            parentHasExtra = true;
-        }
-
-        canIncrease = (belowMax || parentHasExtra) && parentRemaining > 0;
+        canIncrease =
+            (belowMax && (parentRegular > 0 || parentExtra > 0)) ||
+            (!belowMax && parentExtra > 0);
       }
     }
 
@@ -468,21 +475,44 @@ class _SkillTreeState extends State<SkillTree> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text(
-                      'Parent Unallocated Pts:',
-                      style: TextStyle(
+                    Text(
+                      (selectedNode is SectorType)
+                          ? 'Regular Free Pts:'
+                          : 'Regular Parent Pts:',
+                      style: const TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 13,
                       ),
                     ),
                     Text(
-                      '$parentRemaining%',
-                      style: TextStyle(
+                      '${(selectedNode is SectorType) ? controller.freeAllocation.toInt() : parentRegular}%',
+                      style: const TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 14,
-                        color: parentRemaining <= 0
-                            ? AppColors.error
-                            : AppColors.primary,
+                        color: Colors.greenAccent,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 4),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      (selectedNode is SectorType)
+                          ? 'Extra Free Pts:'
+                          : 'Extra Parent Pts:',
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 13,
+                      ),
+                    ),
+                    Text(
+                      '${(selectedNode is SectorType) ? controller.extraFreeAllocation.toInt() : parentExtra}%',
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14,
+                        color: Colors.amber,
                       ),
                     ),
                   ],
