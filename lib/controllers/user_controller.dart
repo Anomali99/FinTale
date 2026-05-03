@@ -84,16 +84,6 @@ class UserController with ChangeNotifier {
     }
   }
 
-  Future<void> loadData() async {
-    try {
-      currentUser = _prefService.getUser();
-    } catch (e) {
-      debugPrint("[USER] An error occurred while loading profile: $e");
-    } finally {
-      notifyListeners();
-    }
-  }
-
   Future<void> saveUser({UserModel? newUser}) async {
     try {
       if (currentUser != null || newUser != null) {
@@ -102,6 +92,16 @@ class UserController with ChangeNotifier {
       }
     } catch (e) {
       debugPrint("[USER] An error occurred while saving profile: $e");
+    }
+  }
+
+  Future<void> loadData() async {
+    try {
+      currentUser = _prefService.getUser();
+    } catch (e) {
+      debugPrint("[USER] An error occurred while loading profile: $e");
+    } finally {
+      notifyListeners();
     }
   }
 }

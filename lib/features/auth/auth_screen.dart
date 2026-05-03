@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 
 import '../../controllers/auth_controller.dart';
 import '../../core/constants/app_colors.dart';
+import '../../core/constants/auth_dict.dart';
 import '../../widgets/custom_button.dart';
 
 class AuthScreen extends StatelessWidget {
@@ -51,7 +52,7 @@ class AuthScreen extends StatelessWidget {
               ),
               const SizedBox(height: 4),
               Text(
-                'Your Journey to Financial Freedom',
+                AuthDict.journey,
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                   color: AppColors.textSecondary,
                 ),
@@ -68,7 +69,7 @@ class AuthScreen extends StatelessWidget {
 
               const Spacer(flex: 3),
               Text(
-                'Welcome Adventurers!',
+                AuthDict.welcome,
                 style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                   fontWeight: FontWeight.bold,
                   color: AppColors.textPrimary,
@@ -76,7 +77,7 @@ class AuthScreen extends StatelessWidget {
               ),
               const SizedBox(height: 12),
               Text(
-                'Ready to defeat the debt monster and build your financial empire? get started now.',
+                AuthDict.desc,
                 style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                   color: AppColors.textSecondary,
                   height: 1.5,
@@ -92,7 +93,7 @@ class AuthScreen extends StatelessWidget {
                 ElevatedButton.icon(
                   onPressed: () => authController.loginWithGoogle(),
                   icon: const FaIcon(FontAwesomeIcons.google, size: 20),
-                  label: const Text('Sign in with Google'),
+                  label: Text(AuthDict.signIn),
                   style: ElevatedButton.styleFrom(
                     minimumSize: const Size(double.infinity, 56),
                     elevation: 4,
@@ -101,7 +102,7 @@ class AuthScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 16),
                 CustomButton(
-                  title: 'Skip it',
+                  title: AuthDict.skip,
                   color: AppColors.primary,
                   onTap: () => authController.loginAnonymously(),
                 ),

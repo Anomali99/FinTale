@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../../../core/constants/app_colors.dart';
+import '../../../core/constants/category_dict.dart';
+import '../../../core/constants/home_dict.dart';
+import '../../../core/constants/shared_dict.dart';
 import '../../../core/constants/skill_dict.dart';
 import '../../../core/utils/currency_formatter.dart';
 import '../../../models/transaction_detail_model.dart';
@@ -65,6 +68,13 @@ class _IncomeModalState extends State<IncomeModal> {
     return wallet.reservedAmount;
   }
 
+  String get _reservedName {
+    WalletModel? wallet = widget.wallets.firstWhere(
+      (e) => e.id == _selectedWallet,
+    );
+    return wallet.name;
+  }
+
   BigInt? get _maxAmount {
     if (_isReservedActive) return _reservedAmount;
 
@@ -89,7 +99,7 @@ class _IncomeModalState extends State<IncomeModal> {
   void _submit() {
     if (_formKey.currentState!.validate()) {
       BigInt amount = _cleanAmount;
-      int now = DateTime.now().microsecondsSinceEpoch;
+      int now = DateTime.now().millisecondsSinceEpoch;
 
       List<TransactionDetailModel> details = [
         TransactionDetailModel(
@@ -196,23 +206,25 @@ class _IncomeModalState extends State<IncomeModal> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                widget.isTransfer ? 'New Transfer' : 'Record Income',
+                widget.isTransfer
+                    ? HomeDict.newTransfer
+                    : HomeDict.recordIncome,
                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 24),
 
               TextFormField(
                 controller: _titleController,
+                decoration: const InputDecoration(
+                  labelText: SharedDict.title,
+                  border: OutlineInputBorder(),
+                ),
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
-                    return 'Transaction title is required.';
+                    return SharedDict.requiredTitle;
                   }
                   return null;
                 },
-                decoration: const InputDecoration(
-                  labelText: 'Title',
-                  border: OutlineInputBorder(),
-                ),
               ),
               const SizedBox(height: 16),
 
@@ -220,8 +232,8 @@ class _IncomeModalState extends State<IncomeModal> {
                 initialValue: _selectedWallet,
                 decoration: InputDecoration(
                   labelText: widget.isTransfer
-                      ? 'Transfer From'
-                      : 'Target Wallet',
+                      ? HomeDict.transferFrom
+                      : HomeDict.targetWallet,
                   border: OutlineInputBorder(),
                 ),
                 items: widget.wallets.map((wallet) {
@@ -232,7 +244,7 @@ class _IncomeModalState extends State<IncomeModal> {
                 }).toList(),
                 validator: (value) {
                   if (value == null || value == 0) {
-                    return 'Please select a source wallet.';
+                    return SharedDict.requiredWallet;
                   }
                   return null;
                 },
@@ -256,8 +268,8 @@ class _IncomeModalState extends State<IncomeModal> {
               if (widget.isTransfer) ...[
                 DropdownButtonFormField<int>(
                   initialValue: _selectedTarget,
-                  decoration: const InputDecoration(
-                    labelText: 'Transfer To',
+                  decoration: InputDecoration(
+                    labelText: HomeDict.transferTo,
                     border: OutlineInputBorder(),
                   ),
                   items: widget.wallets
@@ -271,7 +283,7 @@ class _IncomeModalState extends State<IncomeModal> {
                       .toList(),
                   validator: (value) {
                     if (widget.isTransfer && (value == null || value == 0)) {
-                      return 'Please select a destination wallet.';
+                      return SharedDict.requiredWalletDest;
                     }
                     return null;
                   },
@@ -286,13 +298,13 @@ class _IncomeModalState extends State<IncomeModal> {
                 inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                 decoration: InputDecoration(
                   labelText:
-                      '${widget.isTransfer ? "Transfer" : "Income"} Amount',
+                      '${SharedDict.amount} ${widget.isTransfer ? SharedDict.transfer.get(false) : SharedDict.income.get(false)}',
                   prefixText: 'Rp ',
                   border: OutlineInputBorder(),
                 ),
                 validator: (value) {
                   if (value == null || value.isEmpty || value == '0') {
-                    return 'Please enter an amount.';
+                    return SharedDict.requiredAmount;
                   }
                   return null;
                 },
@@ -310,23 +322,23 @@ class _IncomeModalState extends State<IncomeModal> {
               if (!widget.isTransfer) ...[
                 DropdownButtonFormField<TransactionCategory>(
                   initialValue: _selectedCategory,
-                  decoration: const InputDecoration(
-                    labelText: 'Category',
+                  decoration: InputDecoration(
+                    labelText: SharedDict.category,
                     border: OutlineInputBorder(),
                   ),
                   items: [
                     DropdownMenuItem(
                       value: TransactionCategory.business,
-                      child: Text('Business & Bonus'),
+                      child: Text(CategoryDict.business.get(false)),
                     ),
                     DropdownMenuItem(
                       value: TransactionCategory.salary,
-                      child: Text('Salary & Wage'),
+                      child: Text(CategoryDict.salary.get(false)),
                     ),
                   ],
                   validator: (value) {
                     if (value == null && !widget.isTransfer) {
-                      return 'Please select a category.';
+                      return SharedDict.requiredCategory;
                     }
                     return null;
                   },
@@ -337,10 +349,8 @@ class _IncomeModalState extends State<IncomeModal> {
 
               SwitchListTile(
                 contentPadding: EdgeInsets.zero,
-                title: const Text('Has Admin Fee?'),
-                subtitle: const Text(
-                  'Check this if the income has a deduction fee',
-                ),
+                title: const Text(HomeDict.feeCheck),
+                subtitle: const Text(HomeDict.feeCheckDesc),
                 value: _isFeeActive,
                 onChanged: (val) => setState(() => _isFeeActive = val),
               ),
@@ -351,15 +361,15 @@ class _IncomeModalState extends State<IncomeModal> {
                   controller: _feeController,
                   keyboardType: TextInputType.number,
                   inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                  decoration: const InputDecoration(
-                    labelText: 'Fee Amount',
+                  decoration: InputDecoration(
+                    labelText: HomeDict.feeAmount,
                     prefixText: 'Rp ',
                     border: OutlineInputBorder(),
                   ),
                   validator: (value) {
                     if (_isFeeActive &&
                         (value == null || value.isEmpty || value == '0')) {
-                      return 'Please enter the fee amount.';
+                      return HomeDict.requiredFee;
                     }
                     return null;
                   },
@@ -367,9 +377,7 @@ class _IncomeModalState extends State<IncomeModal> {
                       _onChanged(_feeController, value, max: _cleanAmount),
                 ),
                 const SizedBox(height: 12),
-                _buildNoteContainer(
-                  'If the fee is active, the income amount will be reduced by the fee before being added to your wallet.',
-                ),
+                _buildNoteContainer(HomeDict.feeDesc),
               ],
 
               const SizedBox(height: 12),
@@ -377,10 +385,8 @@ class _IncomeModalState extends State<IncomeModal> {
               if (widget.isTransfer) ...[
                 SwitchListTile(
                   contentPadding: EdgeInsets.zero,
-                  title: const Text('Use Reserved Funds?'),
-                  subtitle: const Text(
-                    'Deduct this amount from your reserved allocations instead of your active balance.',
-                  ),
+                  title: Text(HomeDict.reservedCheck),
+                  subtitle: Text(HomeDict.reservedCheckDesc),
                   value: _isReservedActive,
                   onChanged: (val) => setState(() {
                     if (_selectedWallet != null) {
@@ -402,16 +408,14 @@ class _IncomeModalState extends State<IncomeModal> {
                 if (_isReservedActive) ...[
                   const SizedBox(height: 12),
                   _buildNoteContainer(
-                    'This transaction will consume your reserved funds. The current reserved balance in this wallet is ${CurrencyFormatter.convertToIdr(_reservedAmount)}.',
+                    '${HomeDict.reservedDesc} $_reservedName: ${CurrencyFormatter.convertToIdr(_reservedAmount)}.',
                   ),
                 ],
               ] else ...[
                 SwitchListTile(
                   contentPadding: EdgeInsets.zero,
-                  title: const Text('Auto Allocation?'),
-                  subtitle: const Text(
-                    'Automatically distribute this income to your sectors based on your skill levels.',
-                  ),
+                  title: Text(HomeDict.autoCheck),
+                  subtitle: Text(HomeDict.autoCheckDesc),
                   value: _isAllocationActive,
                   onChanged: (val) => setState(() => _isAllocationActive = val),
                 ),
@@ -431,8 +435,8 @@ class _IncomeModalState extends State<IncomeModal> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
-                          'Allocation Breakdown',
+                        Text(
+                          HomeDict.breakdown,
                           style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.bold,
@@ -462,7 +466,9 @@ class _IncomeModalState extends State<IncomeModal> {
               const SizedBox(height: 32),
 
               CustomButton(
-                title: widget.isTransfer ? 'Transfer' : 'Add Income',
+                title: widget.isTransfer
+                    ? SharedDict.transfer.get(false)
+                    : HomeDict.addIncome,
                 color: AppColors.primary,
                 onTap: _submit,
               ),

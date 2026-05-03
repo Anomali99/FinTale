@@ -8,6 +8,7 @@ import '../../controllers/user_controller.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/menu_dict.dart';
 import '../../core/constants/profile_dict.dart';
+import '../../core/constants/shared_dict.dart';
 import '../../core/constants/skill_dict.dart';
 import '../../core/utils/currency_formatter.dart';
 import '../../models/allocation_model.dart';
@@ -25,13 +26,11 @@ class ProfileScreen extends StatelessWidget {
     final String? result = await showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      builder: (context) {
-        return EditModal(
-          title: 'Edit Name',
-          fieldTitle: 'Name',
-          defaultValue: defaultValue,
-        );
-      },
+      builder: (context) => EditModal(
+        title: 'Edit ${SharedDict.name}',
+        fieldTitle: SharedDict.name,
+        defaultValue: defaultValue,
+      ),
     );
     if (result != null && context.mounted) {
       context.read<ProfileController>().saveName(result);
@@ -46,14 +45,12 @@ class ProfileScreen extends StatelessWidget {
     final String? result = await showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      builder: (context) {
-        return EditModal(
-          title: 'Edit $title',
-          fieldTitle: 'Amount',
-          defaultValue: defaultValue,
-          isCurrency: true,
-        );
-      },
+      builder: (context) => EditModal(
+        title: 'Edit $title',
+        fieldTitle: SharedDict.amount,
+        defaultValue: defaultValue,
+        isCurrency: true,
+      ),
     );
 
     if (result != null && context.mounted) {

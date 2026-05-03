@@ -2,15 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../../../core/constants/app_colors.dart';
+import '../../../core/constants/shared_dict.dart';
 import '../../../widgets/custom_button.dart';
-
-extension StringCapitalize on String {
-  String capitalize() {
-    if (isEmpty) return this;
-
-    return this[0].toUpperCase() + substring(1).toLowerCase();
-  }
-}
 
 class EditModal extends StatefulWidget {
   final String title;
@@ -131,12 +124,13 @@ class _EditModalState extends State<EditModal> {
                   border: OutlineInputBorder(),
                 ),
                 validator: (value) {
-                  if (value == null ||
-                      value.trim().isEmpty ||
-                      (widget.isCurrency &&
-                          value.trim().replaceAll('.', '').isEmpty)) {
-                    return '${widget.fieldTitle ?? widget.title} is required.'
-                        .capitalize();
+                  if (value == null || value.trim().isEmpty) {
+                    if (widget.isCurrency &&
+                        value!.trim().replaceAll('.', '').isEmpty) {
+                      return SharedDict.requiredAmount;
+                    } else {
+                      return SharedDict.requiredName;
+                    }
                   }
                   return null;
                 },
@@ -146,7 +140,7 @@ class _EditModalState extends State<EditModal> {
               const SizedBox(height: 32),
 
               CustomButton(
-                title: 'Save Changes',
+                title: SharedDict.saveChanges,
                 color: AppColors.primary,
                 onTap: _submit,
               ),

@@ -1,7 +1,7 @@
-import 'package:fintale/models/allocation_model.dart';
 import 'package:flutter/material.dart';
 
 import '../core/utils/leveling_extension.dart';
+import '../models/allocation_model.dart';
 import 'user_controller.dart';
 
 class SkillController with ChangeNotifier {

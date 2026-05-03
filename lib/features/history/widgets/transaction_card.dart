@@ -4,48 +4,8 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../../core/constants/app_colors.dart';
 import '../../../core/utils/currency_formatter.dart';
+import '../../../core/utils/type_extension.dart';
 import '../../../models/transaction_model.dart';
-
-extension TransactionTypeUI on TransactionType {
-  Color get iconColor {
-    switch (this) {
-      case TransactionType.income:
-        return Colors.green;
-      case TransactionType.expense:
-        return Colors.red;
-      case TransactionType.transfer:
-        return Colors.blueGrey;
-      case TransactionType.debt:
-        return Colors.deepOrange;
-    }
-  }
-
-  Color get iconBgColor => iconColor.withOpacity(0.2);
-
-  Color get amountColor {
-    switch (this) {
-      case TransactionType.income:
-        return Colors.green;
-      case TransactionType.expense:
-      case TransactionType.debt:
-        return Colors.red;
-      case TransactionType.transfer:
-        return Colors.black87;
-    }
-  }
-
-  String get prefix {
-    switch (this) {
-      case TransactionType.income:
-        return '+ ';
-      case TransactionType.expense:
-      case TransactionType.debt:
-        return '- ';
-      case TransactionType.transfer:
-        return '';
-    }
-  }
-}
 
 class TransactionCard extends StatelessWidget {
   final TransactionType type;
@@ -53,6 +13,7 @@ class TransactionCard extends StatelessWidget {
   final String subtitle;
   final BigInt amount;
   final FaIconData icon;
+  final VoidCallback onTap;
 
   const TransactionCard({
     super.key,
@@ -61,6 +22,7 @@ class TransactionCard extends StatelessWidget {
     required this.subtitle,
     required this.amount,
     required this.icon,
+    required this.onTap,
   });
 
   @override
@@ -74,9 +36,7 @@ class TransactionCard extends StatelessWidget {
       ),
       child: InkWell(
         borderRadius: BorderRadius.circular(16),
-        onTap: () {
-          /* TODO: Buka Detail Transaksi */
-        },
+        onTap: onTap,
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Row(

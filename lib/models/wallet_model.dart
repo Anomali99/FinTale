@@ -1,3 +1,5 @@
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+
 enum WalletType { cash, bank, eWallet, platform }
 
 class WalletModel {
@@ -53,5 +55,20 @@ class WalletModel {
       amount: BigInt.parse(map['amount'] ?? '0'),
       reservedAmount: BigInt.parse(map['reserved_amount'] ?? '0'),
     );
+  }
+}
+
+extension WalletExten on WalletModel {
+  FaIconData get icon {
+    switch (type) {
+      case WalletType.cash:
+        return FontAwesomeIcons.coins;
+      case WalletType.bank:
+        return FontAwesomeIcons.buildingColumns;
+      case WalletType.eWallet:
+        return FontAwesomeIcons.wallet;
+      case WalletType.platform:
+        return FontAwesomeIcons.mobileScreen;
+    }
   }
 }

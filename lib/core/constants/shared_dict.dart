@@ -6,6 +6,19 @@ import '../models/icon_model.dart';
 import '../models/term_model.dart';
 
 class SharedDict {
+  static const String name = 'Nama';
+  static const String amount = 'Jumlah';
+  static const String title = 'Judul';
+  static const String category = 'Kategori';
+  static const String requiredTitle = 'Judul tidak boleh kosong.';
+  static const String requiredName = 'Nama tidak boleh kosong.';
+  static const String requiredAmount = 'Jumlah tidak boleh kosong.';
+  static const String requiredWallet = 'Silakan pilih sumber dana.';
+  static const String requiredWalletDest = 'Silakan pilih dompet tujuan.';
+  static const String requiredCategory = 'Silakan pilih kategori.';
+  static const String addNew = 'Tambah Baru';
+  static const String saveChanges = 'Simpan Perubahan';
+
   static const CategoryModel income = CategoryModel(
     terminology: TermModel(normal: 'Pemasukan', rpg: 'Loot (Drop)'),
     color: Color(0xFFFFD700),

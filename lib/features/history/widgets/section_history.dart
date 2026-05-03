@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:provider/provider.dart';
 
+import '../../../controllers/wallet_controller.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/category_dict.dart';
 import '../../../core/dummy/dummy_data.dart';
@@ -11,25 +13,28 @@ import 'transaction_card.dart';
 class SectionHistory extends StatelessWidget {
   final bool isRpg;
   final String title;
+  final ValueChanged<int?> onTap;
   final List<TransactionModel> transactions;
 
   const SectionHistory({
     super.key,
     required this.title,
     required this.transactions,
+    required this.onTap,
     required this.isRpg,
   });
 
-  String _generateSubtitle(TransactionModel data) {
+  String _generateSubtitle(BuildContext context, TransactionModel data) {
+    final walletController = context.read<WalletController>();
     if (data.type == TransactionType.transfer) {
-      String from = DummyData.wallets[(data.walletId ?? 1) - 1].name;
-      String to = DummyData.wallets[(data.targetId ?? 1) - 1].name;
+      String from = walletController.getWalletById(data.walletId ?? 1).name;
+      String to = walletController.getWalletById(data.targetId ?? 1).name;
       return '$from ➔ $to';
     }
 
     if (data.type == TransactionType.expense ||
         data.type == TransactionType.debt) {
-      String from = DummyData.wallets[(data.walletId ?? 1) - 1].name;
+      String from = walletController.getWalletById(data.walletId ?? 1).name;
       return 'From: $from';
     }
 
@@ -38,7 +43,7 @@ class SectionHistory extends StatelessWidget {
         String fromAsset = DummyData.assets[(data.assetsId ?? 1) - 1].name;
         return 'From: $fromAsset';
       }
-      String toWallet = DummyData.wallets[(data.walletId ?? 1) - 1].name;
+      String toWallet = walletController.getWalletById(data.walletId ?? 1).name;
       return 'To: $toWallet';
     }
 
@@ -78,23 +83,17 @@ class SectionHistory extends StatelessWidget {
               for (TransactionModel data in transactions)
                 Builder(
                   builder: (context) {
-                    TransactionCategory category = data.detailTransaction
-                        .reduce(
-                          (curr, next) =>
-                              curr.amount > next.amount ? curr : next,
-                        )
-                        .category;
-
                     FaIconData icon = CategoryDict.getByTransactionCategory(
-                      category,
+                      data.icon ?? TransactionCategory.utilities,
                     ).icon(isRpg);
 
                     return TransactionCard(
                       type: data.type,
                       title: data.title,
-                      subtitle: _generateSubtitle(data),
+                      subtitle: _generateSubtitle(context, data),
                       amount: data.amount,
                       icon: icon,
+                      onTap: () => onTap(data.id),
                     );
                   },
                 ),

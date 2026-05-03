@@ -18,7 +18,7 @@ class StarterPack {
     level: 1,
     xp: 0,
     budget: UserBudgetModel(
-      lastActiveDate: DateTime.now().microsecondsSinceEpoch,
+      lastActiveDate: DateTime.now().millisecondsSinceEpoch,
       isFreeDebt: true,
     ),
     allocation: UserAllocationModel(

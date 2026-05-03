@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../../../core/constants/app_colors.dart';
+import '../../../core/constants/home_dict.dart';
+import '../../../core/constants/shared_dict.dart';
 import '../../../models/wallet_model.dart';
 import '../../../widgets/custom_button.dart';
 
@@ -96,25 +98,27 @@ class _WalletModalState extends State<WalletModal> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              widget.wallet == null ? 'Add New Wallet' : 'Update Wallet',
+              widget.wallet == null
+                  ? HomeDict.addWallet
+                  : HomeDict.updateWallet,
               style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 24),
             TextFormField(
               controller: _nameController,
-              decoration: const InputDecoration(
-                labelText: 'Wallet Name',
+              decoration: InputDecoration(
+                labelText: HomeDict.walletName,
                 border: OutlineInputBorder(),
               ),
               validator: (value) => value == null || value.isEmpty
-                  ? 'Required wallet name'
+                  ? SharedDict.requiredName
                   : null,
             ),
             const SizedBox(height: 16),
             DropdownButtonFormField<WalletType>(
               initialValue: _selectedType,
-              decoration: const InputDecoration(
-                labelText: 'Type',
+              decoration: InputDecoration(
+                labelText: HomeDict.walletType,
                 border: OutlineInputBorder(),
               ),
               items: [
@@ -136,8 +140,8 @@ class _WalletModalState extends State<WalletModal> {
                 controller: _amountController,
                 keyboardType: TextInputType.number,
                 inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                decoration: const InputDecoration(
-                  labelText: 'Amount',
+                decoration: InputDecoration(
+                  labelText: HomeDict.initialAmount,
                   prefixText: 'Rp ',
                   border: OutlineInputBorder(),
                 ),
@@ -146,7 +150,9 @@ class _WalletModalState extends State<WalletModal> {
             ],
             const SizedBox(height: 24),
             CustomButton(
-              title: widget.wallet == null ? 'Add' : 'Save',
+              title: widget.wallet == null
+                  ? SharedDict.addNew
+                  : SharedDict.saveChanges,
               color: AppColors.primary,
               onTap: _submit,
             ),

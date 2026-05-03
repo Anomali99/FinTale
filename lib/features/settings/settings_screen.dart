@@ -118,9 +118,9 @@ class SettingsScreen extends StatelessWidget {
                     color: AppColors.textPrimary,
                     size: 20,
                   ),
-                  title: const Text('Hide Balance'),
+                  title: Text('Hide Balance'),
                   subtitle: Text(
-                    SettingsDict.balanceDec.get(settingsController.isRpgMode),
+                    SettingsDict.balanceDesc.get(settingsController.isRpgMode),
                   ),
                   trailing: Switch(
                     value: settingsController.isHideBalance,
@@ -136,7 +136,7 @@ class SettingsScreen extends StatelessWidget {
                     size: 20,
                   ),
                   title: const Text('App Lock'),
-                  subtitle: const Text('Lock apps with PIN/Biometric'),
+                  subtitle: const Text(SettingsDict.appLocDesc),
                   trailing: Switch(
                     value: settingsController.isAppLock,
                     activeThumbColor: AppColors.primary,
@@ -163,8 +163,8 @@ class SettingsScreen extends StatelessWidget {
                     color: AppColors.textPrimary,
                     size: 20,
                   ),
-                  title: const Text('RPG Terminology'),
-                  subtitle: const Text('Immersive adventure mode'),
+                  title: const Text('Gamification Mode'),
+                  subtitle: const Text(SettingsDict.rpgDesc),
                   trailing: Switch(
                     value: settingsController.isRpgMode,
                     activeThumbColor: AppColors.primary,
@@ -178,7 +178,7 @@ class SettingsScreen extends StatelessWidget {
                     color: AppColors.textPrimary,
                     size: 20,
                   ),
-                  title: const Text('Push Notifications'),
+                  title: Text(SettingsDict.notifications),
                   trailing: Switch(
                     value: settingsController.isNotification,
                     activeThumbColor: AppColors.primary,
@@ -192,7 +192,7 @@ class SettingsScreen extends StatelessWidget {
                     color: AppColors.textPrimary,
                     size: 20,
                   ),
-                  title: const Text('Theme'),
+                  title: Text(SettingsDict.theme),
                   trailing: DropdownButton<String>(
                     value: settingsController.themeMode,
                     dropdownColor: AppColors.surface,
@@ -269,7 +269,7 @@ class SettingsScreen extends StatelessWidget {
                     size: 20,
                   ),
                   title: const Text(
-                    'Reset All Data',
+                    'Reset Data',
                     style: TextStyle(color: AppColors.error),
                   ),
                   onTap: () => _showResetDataWarning(context),
@@ -282,7 +282,7 @@ class SettingsScreen extends StatelessWidget {
 
           CustomButton(
             icon: FontAwesomeIcons.arrowsRotate,
-            title: 'Sync to Cloud',
+            title: SettingsDict.sync,
             color: Colors.blueAccent,
             onTap: () {
               /* TODO: Sync Data */
@@ -291,7 +291,7 @@ class SettingsScreen extends StatelessWidget {
           const SizedBox(height: 16),
           CustomButton(
             icon: FontAwesomeIcons.arrowRightFromBracket,
-            title: 'Sign Out',
+            title: SettingsDict.signOut,
             color: AppColors.error,
             onTap: () => _handleSignOut(context),
           ),

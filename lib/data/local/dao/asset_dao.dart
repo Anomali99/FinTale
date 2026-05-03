@@ -8,7 +8,7 @@ class AssetDao {
 
   Future<int> create(AssetsModel asset) async {
     final database = await _database;
-    int now = DateTime.now().microsecondsSinceEpoch;
+    int now = DateTime.now().millisecondsSinceEpoch;
 
     Map<String, dynamic> data = asset.toMap();
     data['created_at'] = now;

@@ -1,6 +1,34 @@
 import '../models/term_model.dart';
 
 class HomeDict {
+  static const String addWallet = 'Tembah Dompet';
+  static const String updateWallet = 'Perbarui Dompet';
+  static const String walletName = 'Nama Dompet';
+  static const String walletType = 'Jenis Dompet';
+  static const String initialAmount = 'Jumlah Awal';
+  static const String newTransfer = 'Transfer Uang';
+  static const String recordIncome = 'Catat Pemasukan';
+  static const String addIncome = 'Tambah Pemasukan';
+  static const String targetWallet = 'Target Dompet';
+  static const String transferFrom = 'Transfer dari';
+  static const String transferTo = 'Transfer ke';
+  static const String feeAmount = 'Biaya Admin';
+  static const String feeCheck = 'Apakah ada biaya administrasi?';
+  static const String requiredFee = 'Biaya admin tidak boleh kosong.';
+  static const String feeCheckDesc =
+      'Centang ini jika penghasilan tersebut dikenakan biaya potongan.';
+  static const String feeDesc =
+      'Jika biaya tersebut aktif, jumlah pendapatan akan dikurangi biaya tersebut sebelum ditambahkan ke dompet Anda.';
+  static const String reservedCheck = 'Menggunakan Dana Cadangan?';
+  static const String reservedCheckDesc =
+      'Kurangi jumlah ini dari alokasi cadangan Anda, bukan dari saldo aktif Anda.';
+  static const String reservedDesc =
+      'Transaksi ini akan menggunakan dana cadangan Anda. Saldo cadangan saat ini di ';
+  static const String autoCheck = 'Alokasi Otomatis?';
+  static const String autoCheckDesc =
+      'Secara otomatis, distribusikan pendapatan ini ke sektor Anda berdasarkan skill Anda.';
+  static const String breakdown = 'Rincian Alokasi';
+
   static const TermModel totalBalance = TermModel(
     normal: 'Total Saldo',
     rpg: 'Total HP',

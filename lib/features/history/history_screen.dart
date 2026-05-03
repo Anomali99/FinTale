@@ -4,86 +4,77 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
+import '../../controllers/history_controller.dart';
+import '../../controllers/transaction_controller.dart';
+import '../../controllers/user_controller.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/menu_dict.dart';
 import '../../core/constants/shared_dict.dart';
-import '../../core/dummy/dummy_data.dart';
-import '../../core/theme/mode_provider.dart';
-import '../../core/utils/time_formatter.dart';
-import '../../models/transaction_detail_model.dart';
-import '../../models/transaction_model.dart';
+import '../../features/history/widgets/transaction_detail_modal.dart';
+import '../../widgets/filter_bottom_sheet.dart';
 import '../../widgets/month_filter.dart';
 import '../analytics/analytics_screen.dart';
 import 'widgets/cash_flow_card.dart';
 import 'widgets/section_history.dart';
 
-class HistoryScreen extends StatefulWidget {
+class HistoryScreen extends StatelessWidget {
   const HistoryScreen({super.key});
 
-  @override
-  State<HistoryScreen> createState() => _HistoryScreenState();
-}
-
-class _HistoryScreenState extends State<HistoryScreen> {
-  final List<TransactionModel> transactions = DummyData.transactions
-      .where((transaction) => transaction.status == StatusType.paid)
-      .toList();
-  DateTime _selectedMonth = DateTime(2026, 4);
-
-  void _navigateToAnalytics(BuildContext context) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => const AnalyticsScreen()),
+  void _openFilter(BuildContext context) async {
+    final historyController = context.read<HistoryController>();
+    final result = await showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => FractionallySizedBox(
+        heightFactor: 0.85,
+        child: FilterBottomSheet(
+          startDate: historyController.customStartDate,
+          endDate: historyController.customEndDate,
+          selectedTypes: historyController.selectedTypes,
+          selectedWallets: historyController.selectedWallets,
+        ),
+      ),
     );
+
+    if (result != null && context.mounted) {
+      historyController.updateFilter(
+        result['startDate'],
+        result['endDate'],
+        result['selectedTypes'],
+        result['selectedWallets'],
+      );
+    }
   }
 
-  Map<String, List<TransactionModel>> getGroupedTransactions() {
-    Map<String, List<TransactionModel>> groupedData = {};
-
-    int startOfMonth = TimeFormatter.getStartOfMonth(
-      _selectedMonth.year,
-      _selectedMonth.month,
-    );
-    int endOfMonth = TimeFormatter.getEndOfMonth(
-      _selectedMonth.year,
-      _selectedMonth.month,
-    );
-
-    List<TransactionModel> filteredByMonth = transactions.where((trx) {
-      return trx.dateTimestamp >= startOfMonth &&
-          trx.dateTimestamp <= endOfMonth;
-    }).toList();
-
-    filteredByMonth.sort((a, b) => b.dateTimestamp.compareTo(a.dateTimestamp));
-
-    for (TransactionModel trx in filteredByMonth) {
-      String dateKey = TimeFormatter.formatShort(trx.dateTimestamp);
-
-      if (!groupedData.containsKey(dateKey)) {
-        groupedData[dateKey] = [];
-      }
-
-      groupedData[dateKey]!.add(trx);
+  void _openDetail(BuildContext context, int? id, bool isRpg) async {
+    if (id == null) return;
+    final transactionController = context.read<TransactionController>();
+    final transaction = await transactionController.getById(id);
+    if (transaction != null && context.mounted) {
+      showModalBottomSheet(
+        context: context,
+        isScrollControlled: true,
+        backgroundColor: Colors.transparent,
+        builder: (context) =>
+            TransactionDetailModal(transaction: transaction, isRpg: isRpg),
+      );
     }
-
-    return groupedData;
   }
 
   @override
   Widget build(BuildContext context) {
-    final isRpg = Provider.of<ModeProvider>(context).isRpgMode;
-    BigInt totalIncome = BigInt.zero;
-    BigInt totalExpense = BigInt.zero;
-    for (TransactionModel transaction in transactions) {
-      for (TransactionDetailModel detail in transaction.detailTransaction) {
-        if (transaction.type == TransactionType.income &&
-            detail.flow == FlowType.income) {
-          totalIncome += detail.amount;
-        } else if (detail.flow == FlowType.expense) {
-          totalExpense += detail.amount;
-        }
-      }
-    }
+    final userController = context.watch<UserController>();
+    final transactionController = context.watch<TransactionController>();
+    final historyController = context.watch<HistoryController>();
+
+    final isRpg = userController.isRpgMode;
+
+    final income = transactionController.income;
+    final expense = transactionController.expense;
+
+    final selectedMonth = historyController.selectedMonth;
+    final groupedTransactions = historyController.groupedTransactions;
 
     return Scaffold(
       appBar: AppBar(
@@ -94,9 +85,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
         actions: [
           IconButton(
             icon: FaIcon(SharedDict.filter.icon(isRpg), size: 18),
-            onPressed: () => {
-              /* TODO: Buka filter */
-            },
+            onPressed: () => _openFilter(context),
             tooltip: SharedDict.filter.get(isRpg),
           ),
           IconButton(
@@ -105,7 +94,14 @@ class _HistoryScreenState extends State<HistoryScreen> {
               size: 20,
               color: AppColors.primary,
             ),
-            onPressed: () => _navigateToAnalytics(context),
+            onPressed: () => {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const AnalyticsScreen(),
+                ),
+              ),
+            },
             tooltip: MenuDict.analytics.get(isRpg),
           ),
           const SizedBox(width: 8),
@@ -119,30 +115,16 @@ class _HistoryScreenState extends State<HistoryScreen> {
               child: Column(
                 children: [
                   MonthFilter(
-                    selected: DateFormat('MMMM yyyy').format(_selectedMonth),
-                    onPrev: () {
-                      setState(() {
-                        _selectedMonth = DateTime(
-                          _selectedMonth.year,
-                          _selectedMonth.month - 1,
-                        );
-                      });
-                    },
-                    onNext: () {
-                      setState(() {
-                        _selectedMonth = DateTime(
-                          _selectedMonth.year,
-                          _selectedMonth.month + 1,
-                        );
-                      });
-                    },
+                    selected: DateFormat('MMMM yyyy').format(selectedMonth),
+                    onPrev: historyController.onPrev,
+                    onNext: historyController.onNext,
                   ),
 
                   const SizedBox(height: 16),
 
                   CashFlowCard(
-                    totalIncome: totalIncome,
-                    totalExpense: totalExpense,
+                    totalIncome: income,
+                    totalExpense: expense,
                     isRpg: isRpg,
                   ),
                 ],
@@ -150,11 +132,12 @@ class _HistoryScreenState extends State<HistoryScreen> {
             ),
           ),
 
-          for (var entry in getGroupedTransactions().entries)
+          for (var entry in groupedTransactions.entries)
             SliverToBoxAdapter(
               child: SectionHistory(
                 title: entry.key,
                 transactions: entry.value,
+                onTap: (value) => _openDetail(context, value, isRpg),
                 isRpg: isRpg,
               ),
             ),

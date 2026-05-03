@@ -3,6 +3,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
+import '../../controllers/history_controller.dart';
 import '../../controllers/home_controller.dart';
 import '../../controllers/user_controller.dart';
 import '../../controllers/wallet_controller.dart';
@@ -32,13 +33,11 @@ class HomeScreen extends StatelessWidget {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
-      builder: (_) {
-        return WalletDetails(
-          wallets: walletController.wallets,
-          onTap: (value) => _openUpdateOrAddWallet(context, wallet: value),
-          isRpg: isRpg,
-        );
-      },
+      builder: (_) => WalletDetails(
+        wallets: walletController.wallets,
+        onTap: (value) => _openUpdateOrAddWallet(context, wallet: value),
+        isRpg: isRpg,
+      ),
     );
   }
 
@@ -61,6 +60,7 @@ class HomeScreen extends StatelessWidget {
   void _openAddIncome(BuildContext context) async {
     final homeController = context.read<HomeController>();
     final walletController = context.read<WalletController>();
+    final historyController = context.read<HistoryController>();
     final Map<String, dynamic>? result = await showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -74,16 +74,18 @@ class HomeScreen extends StatelessWidget {
     if (result != null && context.mounted) {
       TransactionModel transaction = result['transaction'];
       bool autoAllocation = result['auto_allocation'];
-      homeController.saveTransaction(
+      await homeController.saveTransaction(
         transaction,
         autoAllocation: autoAllocation,
       );
+      historyController.applyFilter();
     }
   }
 
   void _openTransfer(BuildContext context) async {
     final homeController = context.read<HomeController>();
     final walletController = context.read<WalletController>();
+    final historyController = context.read<HistoryController>();
     final Map<String, dynamic>? result = await showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -95,7 +97,11 @@ class HomeScreen extends StatelessWidget {
     if (result != null && context.mounted) {
       TransactionModel transaction = result['transaction'];
       bool useReserved = result['use_reserved'];
-      homeController.saveTransaction(transaction, useReserved: useReserved);
+      await homeController.saveTransaction(
+        transaction,
+        useReserved: useReserved,
+      );
+      historyController.applyFilter();
     }
   }
 

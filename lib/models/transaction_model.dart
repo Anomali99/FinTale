@@ -70,7 +70,9 @@ class TransactionModel {
         (e) => e.name == map['type'],
         orElse: () => TransactionType.expense,
       ),
-      icon: TransactionCategory.values.firstWhere((e) => e.name == map['icon']),
+      icon: map['icon'] != null
+          ? TransactionCategory.values.firstWhere((e) => e.name == map['icon'])
+          : null,
       detailTransaction: details ?? [],
     );
   }
