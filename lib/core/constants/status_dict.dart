@@ -4,10 +4,12 @@ import '../../models/transaction_model.dart';
 import '../models/category_model.dart';
 import '../models/icon_model.dart';
 import '../models/term_model.dart';
+import 'app_colors.dart';
 
 class StatusDict {
   static const CategoryModel pending = CategoryModel(
-    terminology: TermModel(normal: 'Pending', rpg: 'Active'),
+    terminology: TermModel(normal: 'Tertunda', rpg: 'Berjalan'),
+    color: AppColors.warning,
     icons: IconModel(
       normal: FontAwesomeIcons.hourglassHalf,
       rpg: FontAwesomeIcons.fireFlameCurved,
@@ -15,7 +17,8 @@ class StatusDict {
   );
 
   static const CategoryModel overdue = CategoryModel(
-    terminology: TermModel(normal: 'Overdue', rpg: 'Critical'),
+    terminology: TermModel(normal: 'Terlambat', rpg: 'Kritis'),
+    color: AppColors.error,
     icons: IconModel(
       normal: FontAwesomeIcons.circleExclamation,
       rpg: FontAwesomeIcons.skull,
@@ -23,7 +26,8 @@ class StatusDict {
   );
 
   static const CategoryModel paid = CategoryModel(
-    terminology: TermModel(normal: 'Paid', rpg: 'Cleared'),
+    terminology: TermModel(normal: 'Lunas', rpg: 'Tuntas'),
+    color: AppColors.success,
     icons: IconModel(
       normal: FontAwesomeIcons.circleCheck,
       rpg: FontAwesomeIcons.medal,

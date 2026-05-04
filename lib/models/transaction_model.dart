@@ -16,7 +16,6 @@ class TransactionModel {
   final StatusType status;
   final TransactionType type;
   final List<TransactionDetailModel> detailTransaction;
-  TransactionCategory? icon;
 
   TransactionModel({
     required this.type,
@@ -31,7 +30,6 @@ class TransactionModel {
     this.billId,
     this.assetsId,
     this.targetId,
-    this.icon,
   });
 
   Map<String, dynamic> toMap() {
@@ -70,9 +68,6 @@ class TransactionModel {
         (e) => e.name == map['type'],
         orElse: () => TransactionType.expense,
       ),
-      icon: map['icon'] != null
-          ? TransactionCategory.values.firstWhere((e) => e.name == map['icon'])
-          : null,
       detailTransaction: details ?? [],
     );
   }

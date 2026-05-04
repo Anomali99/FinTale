@@ -8,9 +8,11 @@ import '../../controllers/history_controller.dart';
 import '../../controllers/transaction_controller.dart';
 import '../../controllers/user_controller.dart';
 import '../../core/constants/app_colors.dart';
+import '../../core/constants/history_dict.dart';
 import '../../core/constants/menu_dict.dart';
 import '../../core/constants/shared_dict.dart';
 import '../../features/history/widgets/transaction_detail_modal.dart';
+import '../../models/transaction_model.dart';
 import '../../widgets/filter_bottom_sheet.dart';
 import '../../widgets/month_filter.dart';
 import '../analytics/analytics_screen.dart';
@@ -47,10 +49,11 @@ class HistoryScreen extends StatelessWidget {
     }
   }
 
-  void _openDetail(BuildContext context, int? id, bool isRpg) async {
-    if (id == null) return;
-    final transactionController = context.read<TransactionController>();
-    final transaction = await transactionController.getById(id);
+  void _openDetail(
+    BuildContext context,
+    TransactionModel? transaction,
+    bool isRpg,
+  ) async {
     if (transaction != null && context.mounted) {
       showModalBottomSheet(
         context: context,
@@ -97,9 +100,7 @@ class HistoryScreen extends StatelessWidget {
             onPressed: () => {
               Navigator.push(
                 context,
-                MaterialPageRoute(
-                  builder: (context) => const AnalyticsScreen(),
-                ),
+                MaterialPageRoute(builder: (context) => AnalyticsScreen()),
               ),
             },
             tooltip: MenuDict.analytics.get(isRpg),
@@ -132,16 +133,39 @@ class HistoryScreen extends StatelessWidget {
             ),
           ),
 
-          for (var entry in groupedTransactions.entries)
-            SliverToBoxAdapter(
-              child: SectionHistory(
-                title: entry.key,
-                transactions: entry.value,
-                onTap: (value) => _openDetail(context, value, isRpg),
-                isRpg: isRpg,
+          if (groupedTransactions.isNotEmpty) ...[
+            for (var entry in groupedTransactions.entries)
+              SliverToBoxAdapter(
+                child: SectionHistory(
+                  title: entry.key,
+                  transactions: entry.value,
+                  onTap: (value) => _openDetail(context, value, isRpg),
+                  isRpg: isRpg,
+                ),
+              ),
+          ] else ...[
+            SliverFillRemaining(
+              hasScrollBody: false,
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    FaIcon(
+                      MenuDict.history.icon(isRpg),
+                      size: 48,
+                      color: AppColors.surfaceVariant,
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      HistoryDict.empty.get(isRpg),
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(color: AppColors.textSecondary),
+                    ),
+                  ],
+                ),
               ),
             ),
-
+          ],
           const SliverToBoxAdapter(child: SizedBox(height: 100)),
         ],
       ),

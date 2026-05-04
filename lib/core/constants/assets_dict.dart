@@ -9,6 +9,7 @@ import '../models/term_model.dart';
 class AssetsDict {
   static const CategoryModel lowRisk = CategoryModel(
     terminology: TermModel(normal: 'Risiko Rendah', rpg: 'Tanker'),
+    type: 'Investasi',
     color: Color(0xFF81C784),
     description:
         'Aset yang stabil dan aman untuk melindungi modalmu. Meski serangannya (return) kecil, aset ini adalah perisai terkuat menahan volatilitas pasar, memastikan pertumbuhan jangka panjang yang pasti.',
@@ -20,6 +21,7 @@ class AssetsDict {
 
   static const CategoryModel mediumRisk = CategoryModel(
     terminology: TermModel(normal: 'Risiko Menengah', rpg: 'Fighter'),
+    type: 'Investasi',
     color: Color(0xFFFFB74D),
     description:
         'Pasukan garis depan portofoliomu. Menawarkan keseimbangan antara risiko dan hadiah, bertujuan untuk meningkatkan modal dan dividen untuk membangun kekayaan secara konsisten.',
@@ -31,6 +33,7 @@ class AssetsDict {
 
   static const CategoryModel highRisk = CategoryModel(
     terminology: TermModel(normal: 'Risiko Tinggi', rpg: 'Assassin'),
+    type: 'Investasi',
     color: Color(0xFFF06292),
     description:
         'Aset liar yang mampu memberikan keuntungan (damage) masif secara cepat—atau kerugian fatal. Cocok untuk strategi pertumbuhan agresif, tapi butuh timing presisi dan nyali yang kuat.',

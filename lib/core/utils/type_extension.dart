@@ -1,34 +1,24 @@
 import 'package:flutter/material.dart';
 
+import '../../../models/transaction_detail_model.dart';
 import '../../../models/transaction_model.dart';
+import '../constants/app_colors.dart';
 
 extension TypeExtension on TransactionType {
-  Color get iconColor {
+  Color get color {
     switch (this) {
       case TransactionType.income:
-        return Colors.green;
+        return AppColors.success;
       case TransactionType.expense:
-        return Colors.red;
+        return AppColors.error;
       case TransactionType.transfer:
         return Colors.blueGrey;
       case TransactionType.debt:
-        return Colors.deepOrange;
+        return AppColors.warning;
     }
   }
 
-  Color get iconBgColor => iconColor.withOpacity(0.2);
-
-  Color get amountColor {
-    switch (this) {
-      case TransactionType.income:
-        return Colors.green;
-      case TransactionType.expense:
-      case TransactionType.debt:
-        return Colors.red;
-      case TransactionType.transfer:
-        return Colors.grey;
-    }
-  }
+  Color get bgColor => color.withOpacity(0.2);
 
   String get prefix {
     switch (this) {
@@ -38,6 +28,32 @@ extension TypeExtension on TransactionType {
       case TransactionType.debt:
         return '- ';
       case TransactionType.transfer:
+        return '';
+    }
+  }
+}
+
+extension FlowExtension on FlowType {
+  Color get ggColor => color.withOpacity(0.2);
+
+  Color get color {
+    switch (this) {
+      case FlowType.income:
+        return AppColors.success;
+      case FlowType.expense:
+        return AppColors.error;
+      case FlowType.transfer:
+        return Colors.blueGrey;
+    }
+  }
+
+  String get prefix {
+    switch (this) {
+      case FlowType.income:
+        return '+ ';
+      case FlowType.expense:
+        return '- ';
+      case FlowType.transfer:
         return '';
     }
   }

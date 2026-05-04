@@ -43,8 +43,8 @@ class TransactionCard extends StatelessWidget {
             children: [
               CircleAvatar(
                 radius: 20,
-                backgroundColor: type.iconBgColor,
-                child: FaIcon(icon, color: type.iconColor, size: 18),
+                backgroundColor: type.bgColor,
+                child: FaIcon(icon, color: type.color, size: 18),
               ),
               const SizedBox(width: 16),
 
@@ -75,7 +75,7 @@ class TransactionCard extends StatelessWidget {
                     '${type.prefix} ${CurrencyFormatter.convertToIdr(amount)}',
                     style: GoogleFonts.poppins(
                       fontWeight: FontWeight.bold,
-                      color: type.amountColor,
+                      color: type.color,
                       fontSize: 14,
                     ),
                   ),

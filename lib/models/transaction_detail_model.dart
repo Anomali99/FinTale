@@ -10,7 +10,9 @@ enum TransactionCategory {
   business,
   dividend,
   transfer,
-  investment,
+  lowRisk,
+  mediumRisk,
+  highRisk,
 }
 
 enum FlowType { expense, income, transfer }

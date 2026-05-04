@@ -6,10 +6,10 @@ import '../models/icon_model.dart';
 import '../models/term_model.dart';
 
 class ProfileDict {
-  static const String dailyMission = 'Misi Harian';
-  static const String weeklyMission = 'Misi Mingguan';
-  static const String monthlyMission = 'Misi Bulanan';
-  static const String specialMission = 'Misi Spesial';
+  static const String dailyMission = 'Tugas Harian';
+  static const String weeklyMission = 'Tugas Mingguan';
+  static const String monthlyMission = 'Tugas Bulanan';
+  static const String specialMission = 'Tugas Spesial';
   static const String titleSystem = 'Sistem Gelar';
   static const String allocationGuide = 'Panduan Alokasi';
   static const String allocationRules = 'Aturan Alokasi';

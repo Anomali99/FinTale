@@ -84,6 +84,18 @@ class UserController with ChangeNotifier {
     }
   }
 
+  Future<void> processRecordTransaction() async {
+    MissionResult? firstResult = progress.processFirstTransaction();
+    MissionResult? result = progress.processRecordTransaction();
+    if (result.xpGranted) {
+      currentUser?.addXp(result.xpReward);
+      if (firstResult.xpGranted) {
+        currentUser?.addXp(firstResult.xpReward);
+      }
+      await saveUser();
+    }
+  }
+
   Future<void> saveUser({UserModel? newUser}) async {
     try {
       if (currentUser != null || newUser != null) {

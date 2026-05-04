@@ -92,15 +92,33 @@ class OverviewCard extends StatelessWidget {
               child: Row(
                 children: [
                   Expanded(
-                    flex: (totalExpense / totalIncome * 100).toInt(),
+                    flex:
+                        (totalIncome > BigInt.zero
+                                ? (totalExpense.toDouble() /
+                                      totalIncome.toDouble() *
+                                      100)
+                                : 0.0)
+                            .toInt(),
                     child: Container(color: AppColors.error),
                   ),
                   Expanded(
-                    flex: (totalInvest / totalIncome * 100).toInt(),
+                    flex:
+                        (totalIncome > BigInt.zero
+                                ? (totalInvest.toDouble() /
+                                      totalIncome.toDouble() *
+                                      100)
+                                : 0.0)
+                            .toInt(),
                     child: Container(color: AppColors.primary),
                   ),
                   Expanded(
-                    flex: (unallocated / totalIncome * 100).toInt(),
+                    flex:
+                        (totalIncome > BigInt.zero
+                                ? (unallocated.toDouble() /
+                                      totalIncome.toDouble() *
+                                      100)
+                                : 100.0)
+                            .toInt(),
                     child: Container(color: Colors.white24),
                   ),
                 ],

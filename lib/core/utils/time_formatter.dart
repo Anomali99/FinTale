@@ -13,6 +13,10 @@ class TimeFormatter {
     return DateFormat('dd MMM yyyy').format(toDate(timestamp));
   }
 
+  static String formatShortWithHour(int timestamp) {
+    return DateFormat('dd MMM yyyy 󠁯•󠁏󠁏 h:mm a').format(toDate(timestamp));
+  }
+
   static String formatMonthYear(int timestamp) {
     return DateFormat('MMMM yyyy').format(toDate(timestamp));
   }

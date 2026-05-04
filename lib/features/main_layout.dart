@@ -2,11 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 
+import '../controllers/analytics_controller.dart';
+import '../controllers/history_controller.dart';
 import '../controllers/layout_controller.dart';
-import '../controllers/settings_controller.dart';
 import '../core/constants/app_colors.dart';
 import '../core/constants/menu_dict.dart';
+import '../models/transaction_model.dart';
 import '../widgets/custom_bottom_sheet.dart';
+import '../widgets/daily_expense.dart';
 import 'bills/bills_screen.dart';
 import 'history/history_screen.dart';
 import 'home/home_screen.dart';
@@ -22,11 +25,28 @@ class MainLayout extends StatelessWidget {
     const HistoryScreen(),
   ];
 
+  void _submitTransactionHandle(BuildContext context) async {
+    final layoutController = context.read<LayoutController>();
+    final historyController = context.read<HistoryController>();
+    final analyticsController = context.read<AnalyticsController>();
+    final result = await Navigator.push<TransactionModel>(
+      context,
+      MaterialPageRoute(
+        builder: (context) => DailyExpense(isRpg: layoutController.isRpg),
+      ),
+    );
+    if (result != null) {
+      await layoutController.saveTransaction(result);
+      historyController.applyFilter();
+      analyticsController.applyFilter();
+    }
+  }
+
   void _showActionPopup(BuildContext context, bool isRpg) {
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
-      builder: (context) {
+      builder: (con) {
         return CustomBottomSheet(
           children: [
             BottomSheetChild(
@@ -34,14 +54,17 @@ class MainLayout extends StatelessWidget {
               subtitle: MenuDict.pay.description ?? "",
               color: AppColors.error,
               icon: MenuDict.pay.icon(isRpg),
-              onTap: () => Navigator.pop(context),
+              onTap: () => Navigator.pop(con),
             ),
             BottomSheetChild(
               title: MenuDict.daily.get(isRpg),
               subtitle: MenuDict.daily.description ?? "",
               color: Colors.blueAccent,
               icon: MenuDict.daily.icon(isRpg),
-              onTap: () => Navigator.pop(context),
+              onTap: () {
+                Navigator.pop(con);
+                _submitTransactionHandle(context);
+              },
             ),
           ],
         );
@@ -52,22 +75,19 @@ class MainLayout extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final layoutController = context.watch<LayoutController>();
-    final settingsController = context.watch<SettingsController>();
+
+    final isRpg = layoutController.isRpg;
 
     return Scaffold(
       body: _pages[layoutController.selectedIndex],
 
       floatingActionButton: FloatingActionButton(
-        onPressed: () =>
-            _showActionPopup(context, settingsController.isRpgMode),
+        onPressed: () => _showActionPopup(context, isRpg),
         backgroundColor: AppColors.error,
         foregroundColor: Colors.white,
         elevation: 4,
         shape: const CircleBorder(),
-        child: FaIcon(
-          MenuDict.pay.icon(settingsController.isRpgMode),
-          size: 24,
-        ),
+        child: FaIcon(MenuDict.pay.icon(isRpg), size: 24),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
 
@@ -82,30 +102,30 @@ class MainLayout extends StatelessWidget {
             children: [
               _buildNavItem(
                 context: context,
-                icon: MenuDict.home.icon(settingsController.isRpgMode),
-                label: MenuDict.home.get(settingsController.isRpgMode),
+                icon: MenuDict.home.icon(isRpg),
+                label: MenuDict.home.get(isRpg),
                 index: 0,
                 layoutController: layoutController,
               ),
               _buildNavItem(
                 context: context,
-                icon: MenuDict.bills.icon(settingsController.isRpgMode),
-                label: MenuDict.bills.get(settingsController.isRpgMode),
+                icon: MenuDict.bills.icon(isRpg),
+                label: MenuDict.bills.get(isRpg),
                 index: 1,
                 layoutController: layoutController,
               ),
               const SizedBox(width: 48),
               _buildNavItem(
                 context: context,
-                icon: MenuDict.invest.icon(settingsController.isRpgMode),
-                label: MenuDict.invest.get(settingsController.isRpgMode),
+                icon: MenuDict.invest.icon(isRpg),
+                label: MenuDict.invest.get(isRpg),
                 index: 2,
                 layoutController: layoutController,
               ),
               _buildNavItem(
                 context: context,
-                icon: MenuDict.history.icon(settingsController.isRpgMode),
-                label: MenuDict.history.get(settingsController.isRpgMode),
+                icon: MenuDict.history.icon(isRpg),
+                label: MenuDict.history.get(isRpg),
                 index: 3,
                 layoutController: layoutController,
               ),

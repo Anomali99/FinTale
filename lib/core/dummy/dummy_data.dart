@@ -160,7 +160,7 @@ class DummyData {
         TransactionDetailModel(
           title: "Tambah Pasukan Kripto",
           amount: BigInt.from(200000),
-          category: TransactionCategory.investment,
+          category: TransactionCategory.lowRisk,
           flow: FlowType.expense,
         ),
       ],

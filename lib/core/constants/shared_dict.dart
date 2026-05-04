@@ -20,7 +20,7 @@ class SharedDict {
   static const String saveChanges = 'Simpan Perubahan';
 
   static const CategoryModel income = CategoryModel(
-    terminology: TermModel(normal: 'Pemasukan', rpg: 'Loot (Drop)'),
+    terminology: TermModel(normal: 'Pemasukan', rpg: 'Loot'),
     color: Color(0xFFFFD700),
     icons: IconModel(
       normal: FontAwesomeIcons.arrowTurnDown,

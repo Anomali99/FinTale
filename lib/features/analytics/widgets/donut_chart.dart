@@ -4,11 +4,11 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/shared_dict.dart';
+import '../../../core/models/analytic_model.dart';
 import '../../../core/utils/currency_formatter.dart';
-import 'detail_card.dart';
 
 class DonutChart extends StatelessWidget {
-  final List<AnalyticCategory> activeData;
+  final Map<int, AnalyticModel> activeData;
   final BigInt activeTotal;
   final bool showExpense;
   final bool isRpg;
@@ -28,11 +28,15 @@ class DonutChart extends StatelessWidget {
   });
 
   List<PieChartSectionData> _buildPieChartSections() {
-    return List.generate(activeData.length, (i) {
+    final dataList = activeData.values.toList();
+
+    return List.generate(dataList.length, (i) {
       final isTouched = i == touchedIndex;
       final fontSize = isTouched ? 16.0 : 0.0;
       final radius = isTouched ? 60.0 : 50.0;
-      final data = activeData[i];
+
+      final data = dataList[i];
+
       final percentage = (data.amount / activeTotal * 100).toStringAsFixed(0);
 
       return PieChartSectionData(

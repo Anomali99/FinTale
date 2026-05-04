@@ -202,6 +202,7 @@ class HomeController with ChangeNotifier {
       }
 
       await _walletController.updateWallet(wallet);
+      await _userController.processRecordTransaction();
       await loadData();
     } catch (e) {
       debugPrint("[HOME] Failed to save transaction: $e");

@@ -1,15 +1,12 @@
 import '../models/term_model.dart';
 
 class HistoryDict {
-  static const TermModel cashFlow = TermModel(
-    normal: 'Arus Kas',
-    rpg: 'Aliran Mana',
-  );
-
-  static const TermModel macroOverview = TermModel(
-    normal: 'Ringkasan Arus Kas',
-    rpg: 'Trinitas Mana',
-  );
+  static const String status = 'Status';
+  static const String detailBreakdown = 'Rincian Item';
+  static const String emptyAnalytics = 'Belum Ada Data';
+  static const String saveTo = 'Disimpan ke';
+  static const String originWallet = 'Origin Wallet';
+  static const String destinationWallet = 'Dompet Tujuan';
 
   static const TermModel breakdownExpense = TermModel(
     normal: 'Rincian Pengeluaran',
@@ -21,8 +18,13 @@ class HistoryDict {
     rpg: 'Analisis Armory',
   );
 
-  static const TermModel topExpenses = TermModel(
-    normal: 'Pengeluaran Terbesar',
-    rpg: 'Ancaman Utama',
+  static const TermModel empty = TermModel(
+    normal: 'Belum Ada Transaksi',
+    rpg: 'Belum Ada Catatan',
+  );
+
+  static const TermModel adventureTime = TermModel(
+    normal: 'Waktu Transaksi',
+    rpg: 'Waktu Petualangan',
   );
 }

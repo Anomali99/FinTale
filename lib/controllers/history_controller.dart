@@ -14,9 +14,7 @@ class HistoryController with ChangeNotifier {
   List<TransactionType> selectedTypes = [];
   List<int> selectedWallets = [];
 
-  HistoryController(this._transactionController) {
-    applyFilter();
-  }
+  HistoryController(this._transactionController);
 
   void onPrev() {
     selectedMonth = DateTime(selectedMonth.year, selectedMonth.month - 1);
@@ -72,7 +70,7 @@ class HistoryController with ChangeNotifier {
       );
     }
 
-    _transactionController.loadData(
+    _transactionController.loadTransaction(
       startDate: start,
       endDate: end,
       types: selectedTypes.isNotEmpty ? selectedTypes : null,

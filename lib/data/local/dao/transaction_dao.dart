@@ -119,10 +119,7 @@ class TransactionDao {
 
     final sql =
         '''
-      SELECT 
-        t.*,
-        (SELECT category FROM transaction_details d WHERE d.transaction_id = t.id ORDER BY d.id ASC LIMIT 1) AS icon
-      FROM transactions t
+      SELECT * FROM transactions t
       WHERE $whereClause
       ORDER BY t.date_timestamp DESC
     ''';
@@ -130,6 +127,75 @@ class TransactionDao {
     final result = await database.rawQuery(sql, whereArgs);
 
     return result.map((json) => TransactionModel.fromMap(json)).toList();
+  }
+
+  Future<List<TransactionModel>> getFilteredDataWithChild({
+    DateTime? startDate,
+    DateTime? endDate,
+    List<int>? walletId,
+    List<StatusType>? status,
+    List<TransactionType>? type,
+  }) async {
+    final database = await _database;
+    String whereClause = 'deleted_at IS NULL';
+    List<dynamic> whereArgs = [];
+
+    if (startDate != null && endDate != null) {
+      whereClause += ' AND date_timestamp BETWEEN ? AND ?';
+      whereArgs.add(startDate.millisecondsSinceEpoch);
+      whereArgs.add(endDate.millisecondsSinceEpoch);
+    }
+
+    if (walletId != null && walletId.isNotEmpty) {
+      final placeholders = List.filled(walletId.length, '?').join(',');
+      whereClause += ' AND wallet_id IN ($placeholders)';
+      whereArgs.addAll(walletId);
+    }
+
+    if (status != null && status.isNotEmpty) {
+      final placeholders = List.filled(status.length, '?').join(',');
+      whereClause += ' AND status IN ($placeholders)';
+
+      whereArgs.addAll(status.map((s) => s.name));
+    }
+
+    if (type != null && type.isNotEmpty) {
+      final placeholders = List.filled(type.length, '?').join(',');
+      whereClause += ' AND type IN ($placeholders)';
+      whereArgs.addAll(type.map((t) => t.name));
+    }
+
+    final sql =
+        '''
+      SELECT * FROM transactions t
+      WHERE $whereClause
+      ORDER BY t.date_timestamp DESC
+    ''';
+
+    final result = await database.rawQuery(sql, whereArgs);
+    if (result.isEmpty) return [];
+
+    List<int> transactionIds = result.map((json) => json['id'] as int).toList();
+    final idPlaceholders = List.filled(transactionIds.length, '?').join(',');
+    final detailsSql =
+        '''
+      SELECT * FROM transaction_details 
+      WHERE transaction_id IN ($idPlaceholders)
+    ''';
+    final detailsResult = await database.rawQuery(detailsSql, transactionIds);
+
+    Map<int, List<TransactionDetailModel>> detailsMap = {};
+    for (var row in detailsResult) {
+      int trId = row['transaction_id'] as int;
+      detailsMap
+          .putIfAbsent(trId, () => [])
+          .add(TransactionDetailModel.fromMap(row));
+    }
+
+    return result.map((json) {
+      int id = json['id'] as int;
+      return TransactionModel.fromMap(json, details: detailsMap[id] ?? []);
+    }).toList();
   }
 
   Future<int> update(TransactionModel transaction) async {

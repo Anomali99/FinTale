@@ -6,6 +6,8 @@ import 'package:provider/provider.dart';
 import '../../../controllers/wallet_controller.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/category_dict.dart';
+import '../../../core/constants/history_dict.dart';
+import '../../../core/constants/status_dict.dart';
 import '../../../core/utils/currency_formatter.dart';
 import '../../../core/utils/time_formatter.dart';
 import '../../../core/utils/type_extension.dart';
@@ -27,6 +29,7 @@ class TransactionDetailModal extends StatelessWidget {
   Widget build(BuildContext context) {
     final walletController = context.read<WalletController>();
     final wallet = walletController.getWalletById(transaction.walletId!);
+    final status = StatusDict.getbyEnum(transaction.status);
     WalletModel? walletTarget;
 
     if (transaction.targetId != null) {
@@ -57,12 +60,12 @@ class TransactionDetailModal extends StatelessWidget {
 
             CircleAvatar(
               radius: 28,
-              backgroundColor: transaction.type.iconBgColor,
+              backgroundColor: transaction.type.bgColor,
               child: FaIcon(
                 CategoryDict.getByTransactionCategory(
                   transaction.detailTransaction[0].category,
                 ).icon(isRpg),
-                color: transaction.type.iconColor,
+                color: transaction.type.color,
                 size: 24,
               ),
             ),
@@ -84,7 +87,7 @@ class TransactionDetailModal extends StatelessWidget {
               style: GoogleFonts.poppins(
                 fontSize: 28,
                 fontWeight: FontWeight.bold,
-                color: transaction.type.iconColor,
+                color: transaction.type.color,
               ),
             ),
 
@@ -105,8 +108,8 @@ class TransactionDetailModal extends StatelessWidget {
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
-                            'Waktu Petualangan',
+                          Text(
+                            HistoryDict.adventureTime.get(isRpg),
                             style: TextStyle(
                               fontSize: 12,
                               color: AppColors.textSecondary,
@@ -114,7 +117,7 @@ class TransactionDetailModal extends StatelessWidget {
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            TimeFormatter.formatShort(
+                            TimeFormatter.formatShortWithHour(
                               transaction.dateTimestamp,
                             ),
                             style: const TextStyle(
@@ -127,8 +130,8 @@ class TransactionDetailModal extends StatelessWidget {
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
-                          const Text(
-                            'Status',
+                          Text(
+                            HistoryDict.status,
                             style: TextStyle(
                               fontSize: 12,
                               color: AppColors.textSecondary,
@@ -141,19 +144,15 @@ class TransactionDetailModal extends StatelessWidget {
                               vertical: 4,
                             ),
                             decoration: BoxDecoration(
-                              color: transaction.status == StatusType.paid
-                                  ? AppColors.success.withOpacity(0.2)
-                                  : Colors.orange.withOpacity(0.2),
+                              color: status.color?.withOpacity(0.2),
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: Text(
-                              transaction.status.name.toUpperCase(),
+                              status.get(isRpg).toUpperCase(),
                               style: TextStyle(
                                 fontSize: 10,
                                 fontWeight: FontWeight.bold,
-                                color: transaction.status == StatusType.paid
-                                    ? AppColors.success
-                                    : Colors.orange,
+                                color: status.color,
                               ),
                             ),
                           ),
@@ -169,8 +168,8 @@ class TransactionDetailModal extends StatelessWidget {
 
                   _buildWalletRow(
                     label: transaction.type == TransactionType.income
-                        ? 'Disimpan ke'
-                        : 'Dompet Asal',
+                        ? HistoryDict.saveTo
+                        : HistoryDict.originWallet,
                     value: wallet.name,
                     icon: wallet.icon,
                   ),
@@ -178,7 +177,7 @@ class TransactionDetailModal extends StatelessWidget {
                   if (transaction.type == TransactionType.transfer) ...[
                     const SizedBox(height: 12),
                     _buildWalletRow(
-                      label: 'Dompet Tujuan',
+                      label: HistoryDict.destinationWallet,
                       value: walletTarget?.name ?? '',
                       icon:
                           walletTarget?.icon ??
@@ -191,10 +190,10 @@ class TransactionDetailModal extends StatelessWidget {
 
             const SizedBox(height: 24),
 
-            const Align(
+            Align(
               alignment: Alignment.centerLeft,
               child: Text(
-                'Rincian Item (Breakdown)',
+                HistoryDict.detailBreakdown,
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.bold,
@@ -248,11 +247,6 @@ class TransactionDetailModal extends StatelessWidget {
   }
 
   Widget _buildDetailItem(TransactionDetailModel detail) {
-    Color flowColor = detail.flow == FlowType.income
-        ? AppColors.success
-        : AppColors.error;
-    String flowPrefix = detail.flow == FlowType.income ? '+ ' : '- ';
-
     return Padding(
       padding: const EdgeInsets.only(bottom: 12.0),
       child: Row(
@@ -278,11 +272,11 @@ class TransactionDetailModal extends StatelessWidget {
             ],
           ),
           Text(
-            '$flowPrefix${CurrencyFormatter.convertToIdr(detail.amount)}',
+            '${detail.flow.prefix} ${CurrencyFormatter.convertToIdr(detail.amount)}',
             style: GoogleFonts.poppins(
               fontWeight: FontWeight.bold,
               fontSize: 14,
-              color: flowColor,
+              color: detail.flow.color,
             ),
           ),
         ],

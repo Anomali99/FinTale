@@ -3,6 +3,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
+import '../../controllers/analytics_controller.dart';
 import '../../controllers/history_controller.dart';
 import '../../controllers/home_controller.dart';
 import '../../controllers/user_controller.dart';
@@ -61,7 +62,8 @@ class HomeScreen extends StatelessWidget {
     final homeController = context.read<HomeController>();
     final walletController = context.read<WalletController>();
     final historyController = context.read<HistoryController>();
-    final Map<String, dynamic>? result = await showModalBottomSheet(
+    final analyticsController = context.read<AnalyticsController>();
+    final result = await showModalBottomSheet<Map<String, dynamic>?>(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
@@ -79,6 +81,7 @@ class HomeScreen extends StatelessWidget {
         autoAllocation: autoAllocation,
       );
       historyController.applyFilter();
+      analyticsController.applyFilter();
     }
   }
 
@@ -86,7 +89,8 @@ class HomeScreen extends StatelessWidget {
     final homeController = context.read<HomeController>();
     final walletController = context.read<WalletController>();
     final historyController = context.read<HistoryController>();
-    final Map<String, dynamic>? result = await showModalBottomSheet(
+    final analyticsController = context.read<AnalyticsController>();
+    final result = await showModalBottomSheet<Map<String, dynamic>?>(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
@@ -102,6 +106,7 @@ class HomeScreen extends StatelessWidget {
         useReserved: useReserved,
       );
       historyController.applyFilter();
+      analyticsController.applyFilter();
     }
   }
 

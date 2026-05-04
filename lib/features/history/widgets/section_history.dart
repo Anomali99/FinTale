@@ -6,14 +6,13 @@ import '../../../controllers/wallet_controller.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/category_dict.dart';
 import '../../../core/dummy/dummy_data.dart';
-import '../../../models/transaction_detail_model.dart';
 import '../../../models/transaction_model.dart';
 import 'transaction_card.dart';
 
 class SectionHistory extends StatelessWidget {
   final bool isRpg;
   final String title;
-  final ValueChanged<int?> onTap;
+  final ValueChanged<TransactionModel?> onTap;
   final List<TransactionModel> transactions;
 
   const SectionHistory({
@@ -84,7 +83,7 @@ class SectionHistory extends StatelessWidget {
                 Builder(
                   builder: (context) {
                     FaIconData icon = CategoryDict.getByTransactionCategory(
-                      data.icon ?? TransactionCategory.utilities,
+                      data.detailTransaction[0].category,
                     ).icon(isRpg);
 
                     return TransactionCard(
@@ -93,7 +92,7 @@ class SectionHistory extends StatelessWidget {
                       subtitle: _generateSubtitle(context, data),
                       amount: data.amount,
                       icon: icon,
-                      onTap: () => onTap(data.id),
+                      onTap: () => onTap(data),
                     );
                   },
                 ),

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'controllers/analytics_controller.dart';
 import 'controllers/auth_controller.dart';
 import 'controllers/history_controller.dart';
 import 'controllers/home_controller.dart';
@@ -50,7 +51,11 @@ void main() async {
     userController,
     walletController,
   );
-  final layoutController = LayoutController(prefService);
+  final layoutController = LayoutController(
+    userController,
+    walletController,
+    transactionController,
+  );
   final homeController = HomeController(
     userController,
     walletController,
@@ -59,6 +64,7 @@ void main() async {
   final profileController = ProfileController(userController);
   final skillController = SkillController(userController);
   final historyController = HistoryController(transactionController);
+  final analyticsController = AnalyticsController(transactionController);
   final settingsController = SettingsController(prefService, authController);
 
   runApp(
@@ -75,6 +81,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => profileController),
         ChangeNotifierProvider(create: (_) => skillController),
         ChangeNotifierProvider(create: (_) => historyController),
+        ChangeNotifierProvider(create: (_) => analyticsController),
         ChangeNotifierProvider(create: (_) => settingsController),
       ],
       child: const FinTaleApp(),

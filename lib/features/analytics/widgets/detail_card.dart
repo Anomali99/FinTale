@@ -3,22 +3,11 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../../core/constants/app_colors.dart';
-import '../../../core/models/category_model.dart';
+import '../../../core/models/analytic_model.dart';
 import '../../../core/utils/currency_formatter.dart';
 
-class AnalyticCategory {
-  final CategoryModel category;
-  final BigInt amount;
-
-  const AnalyticCategory({required this.category, required this.amount});
-
-  Color get color => category.color ?? Colors.black;
-  FaIconData icon(bool isRpgMode) => category.icon(isRpgMode);
-  String get(bool isRpgMode) => category.get(isRpgMode);
-}
-
 class DetailCard extends StatelessWidget {
-  final AnalyticCategory data;
+  final AnalyticModel data;
   final double percentage;
   final bool isSelected;
   final bool isRpg;

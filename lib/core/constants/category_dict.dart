@@ -6,6 +6,7 @@ import '../../models/transaction_model.dart';
 import '../models/category_model.dart';
 import '../models/icon_model.dart';
 import '../models/term_model.dart';
+import 'assets_dict.dart';
 
 class CategoryDict {
   static const CategoryModel food = CategoryModel(
@@ -118,15 +119,9 @@ class CategoryDict {
     ),
   );
 
-  static const CategoryModel investment = CategoryModel(
-    type: 'transfer',
-    color: Colors.indigo,
-    terminology: TermModel(normal: 'Investasi', rpg: 'Kirim Pasukan'),
-    icons: IconModel(
-      normal: FontAwesomeIcons.chartLine,
-      rpg: FontAwesomeIcons.shieldHalved,
-    ),
-  );
+  static const CategoryModel lowRisk = AssetsDict.lowRisk;
+  static const CategoryModel mediumRisk = AssetsDict.mediumRisk;
+  static const CategoryModel highRisk = AssetsDict.highRisk;
 
   static List<CategoryModel> get all => [
     food,
@@ -140,7 +135,9 @@ class CategoryDict {
     business,
     dividend,
     transfer,
-    investment,
+    lowRisk,
+    mediumRisk,
+    highRisk,
   ];
 
   static List<CategoryModel> getByCategoryType(TransactionType type) {
@@ -150,7 +147,7 @@ class CategoryDict {
       case TransactionType.income:
         return [salary, business, dividend];
       case TransactionType.transfer:
-        return [transfer, investment];
+        return [transfer, lowRisk, mediumRisk, highRisk];
       case TransactionType.debt:
         return [debtInstallment];
     }
@@ -180,8 +177,12 @@ class CategoryDict {
         return dividend;
       case TransactionCategory.transfer:
         return transfer;
-      case TransactionCategory.investment:
-        return investment;
+      case TransactionCategory.lowRisk:
+        return lowRisk;
+      case TransactionCategory.mediumRisk:
+        return mediumRisk;
+      case TransactionCategory.highRisk:
+        return highRisk;
     }
   }
 }
