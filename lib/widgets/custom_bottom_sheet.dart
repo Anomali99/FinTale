@@ -5,24 +5,31 @@ import '../core/constants/app_colors.dart';
 
 class BottomSheetChild {
   final String title;
-  final String subtitle;
+  final String? subtitle;
   final Color color;
   final FaIconData icon;
   final GestureTapCallback onTap;
 
   const BottomSheetChild({
     required this.title,
-    required this.subtitle,
     required this.color,
     required this.icon,
     required this.onTap,
+    this.subtitle,
   });
 }
 
 class CustomBottomSheet extends StatelessWidget {
   final List<BottomSheetChild> children;
+  final String? title;
+  final bool hideDriver;
 
-  const CustomBottomSheet({super.key, required this.children});
+  const CustomBottomSheet({
+    super.key,
+    this.title,
+    this.hideDriver = false,
+    required this.children,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -43,10 +50,18 @@ class CustomBottomSheet extends StatelessWidget {
               borderRadius: BorderRadius.circular(2),
             ),
           ),
-          const SizedBox(height: 24),
-          const Divider(color: Colors.white10),
+          if (title != null) ...[
+            const SizedBox(height: 16),
+            Text(
+              title ?? '',
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+          ] else
+            const SizedBox(height: 24),
 
           for (BottomSheetChild data in children) ...[
+            if (!hideDriver) const Divider(color: Colors.white10),
+
             ListTile(
               leading: CircleAvatar(
                 backgroundColor: data.color.withOpacity(0.2),
@@ -56,12 +71,14 @@ class CustomBottomSheet extends StatelessWidget {
                 data.title,
                 style: const TextStyle(fontWeight: FontWeight.bold),
               ),
-              subtitle: Text(data.subtitle),
+              subtitle: data.subtitle != null
+                  ? Text(data.subtitle ?? '')
+                  : null,
               onTap: data.onTap,
             ),
-
-            const Divider(color: Colors.white10),
           ],
+
+          const SizedBox(height: 12),
         ],
       ),
     );

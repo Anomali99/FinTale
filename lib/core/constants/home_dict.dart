@@ -9,9 +9,6 @@ class HomeDict {
   static const String newTransfer = 'Transfer Uang';
   static const String recordIncome = 'Catat Pemasukan';
   static const String addIncome = 'Tambah Pemasukan';
-  static const String targetWallet = 'Target Dompet';
-  static const String transferFrom = 'Transfer dari';
-  static const String transferTo = 'Transfer ke';
   static const String feeAmount = 'Biaya Admin';
   static const String feeCheck = 'Apakah ada biaya administrasi?';
   static const String requiredFee = 'Biaya admin tidak boleh kosong.';
@@ -22,8 +19,6 @@ class HomeDict {
   static const String reservedCheck = 'Menggunakan Dana Cadangan?';
   static const String reservedCheckDesc =
       'Kurangi jumlah ini dari alokasi cadangan Anda, bukan dari saldo aktif Anda.';
-  static const String reservedDesc =
-      'Transaksi ini akan menggunakan dana cadangan Anda. Saldo cadangan saat ini di ';
   static const String autoCheck = 'Alokasi Otomatis?';
   static const String autoCheckDesc =
       'Secara otomatis, distribusikan pendapatan ini ke sektor Anda berdasarkan skill Anda.';
@@ -75,4 +70,7 @@ class HomeDict {
     normal: 'Alokasi Tertunda',
     rpg: 'Loot Belum Dibagi',
   );
+
+  static String generateNote(String name, String amount) =>
+      'Transaksi ini akan menggunakan dana cadangan **$name**. Saldo cadangan saat ini: **$amount**';
 }

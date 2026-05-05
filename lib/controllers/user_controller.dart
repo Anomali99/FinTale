@@ -15,7 +15,6 @@ class UserController with ChangeNotifier {
 
   UserController(this._prefService);
 
-  bool get isRpgMode => _prefService.isRpgMode;
   bool get isHideBalance => _prefService.isHideBalance;
 
   String get userName => currentUser?.name ?? 'Adventurer';
@@ -94,6 +93,64 @@ class UserController with ChangeNotifier {
       }
       await saveUser();
     }
+  }
+
+  Future<void> evaluateAndResetDaily() async {
+    if (currentUser == null) return;
+
+    DateTime now = DateTime.now();
+    int todayInt = now.year * 10000 + now.month * 100 + now.day;
+
+    bool isNewDay =
+        (budget.lastActiveDate != 0) && (todayInt > budget.lastActiveDate);
+
+    if (isNewDay) {
+      bool wasBudgetSafe = budget.todayUsage <= budget.currentDailyLimit;
+
+      if (wasBudgetSafe) {
+        MissionResult dailyResult = progress.processDailyBudgetCap(true);
+        if (dailyResult.xpGranted) {
+          currentUser!.addXp(dailyResult.xpReward);
+        }
+
+        MissionResult weeklyResult = progress.processConsistentBudgeting();
+        if (weeklyResult.progressUpdated && weeklyResult.xpGranted) {
+          currentUser!.addXp(weeklyResult.xpReward);
+        }
+      } else {
+        progress.updatWeeklyBudget(0, false);
+      }
+    }
+
+    bool isResetProgress = progress.checkAndReset();
+    bool isResetBudget = budget.checkAndResetDaily();
+
+    if (isResetProgress || isResetBudget) {
+      await processDailyCheckIn();
+      await saveUser();
+    }
+  }
+
+  Future<void> processDailyCheckIn() async {
+    MissionResult result = progress.processWeeklyCheckIn();
+
+    if (result.progressUpdated) {
+      if (result.xpGranted) {
+        currentUser?.addXp(result.xpReward);
+      }
+    }
+  }
+
+  Future<bool> claimDailyBudgetMission() async {
+    bool isBudgetSafe = budget.todayUsage <= budget.currentDailyLimit;
+    MissionResult result = progress.processDailyBudgetCap(isBudgetSafe);
+
+    if (result.xpGranted) {
+      currentUser?.addXp(result.xpReward);
+      await saveUser();
+      return true;
+    }
+    return false;
   }
 
   Future<void> saveUser({UserModel? newUser}) async {

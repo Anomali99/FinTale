@@ -50,6 +50,35 @@ class UserBudgetModel {
     isFreeDebt = value;
   }
 
+  void useDaily(BigInt amount) {
+    BigInt remaining = remainingLimitToday;
+    if (amount <= remaining) {
+      todayUsage += amount;
+    } else {
+      todayUsage += remaining;
+      BigInt excess = amount - remaining;
+      dailyPenalty += excess;
+    }
+  }
+
+  bool checkAndResetDaily() {
+    DateTime now = DateTime.now();
+    int todayInt = now.year * 10000 + now.month * 100 + now.day;
+
+    if (lastActiveDate == 0) {
+      lastActiveDate = todayInt;
+      return true;
+    }
+
+    if (todayInt > lastActiveDate) {
+      todayUsage = BigInt.zero;
+      lastActiveDate = todayInt;
+      return true;
+    }
+
+    return false;
+  }
+
   Map<String, dynamic> toJson() => {
     "base_daily_limit": baseDailyLimit.toString(),
     "daily_penalty": dailyPenalty.toString(),

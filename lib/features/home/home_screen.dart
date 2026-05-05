@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import '../../controllers/analytics_controller.dart';
 import '../../controllers/history_controller.dart';
 import '../../controllers/home_controller.dart';
+import '../../controllers/settings_controller.dart';
 import '../../controllers/user_controller.dart';
 import '../../controllers/wallet_controller.dart';
 import '../../core/constants/app_colors.dart';
@@ -112,6 +113,7 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final settingsController = context.watch<SettingsController>();
     final userController = context.watch<UserController>();
     final walletController = context.watch<WalletController>();
     final homeController = context.watch<HomeController>();
@@ -124,7 +126,7 @@ class HomeScreen extends StatelessWidget {
       );
     }
 
-    final isRpg = userController.isRpgMode;
+    final isRpg = settingsController.isRpgMode;
     final userName = userController.userName;
     final userTitle = userController.userTitle;
     final userLevel = userController.userLevel;

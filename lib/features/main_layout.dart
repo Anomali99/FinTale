@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import '../controllers/analytics_controller.dart';
 import '../controllers/history_controller.dart';
 import '../controllers/layout_controller.dart';
+import '../controllers/settings_controller.dart';
 import '../core/constants/app_colors.dart';
 import '../core/constants/menu_dict.dart';
 import '../models/transaction_model.dart';
@@ -26,13 +27,14 @@ class MainLayout extends StatelessWidget {
   ];
 
   void _submitTransactionHandle(BuildContext context) async {
+    final settingsController = context.read<SettingsController>();
     final layoutController = context.read<LayoutController>();
     final historyController = context.read<HistoryController>();
     final analyticsController = context.read<AnalyticsController>();
     final result = await Navigator.push<TransactionModel>(
       context,
       MaterialPageRoute(
-        builder: (context) => DailyExpense(isRpg: layoutController.isRpg),
+        builder: (context) => DailyExpense(isRpg: settingsController.isRpgMode),
       ),
     );
     if (result != null) {
@@ -74,9 +76,10 @@ class MainLayout extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final settingsController = context.watch<SettingsController>();
     final layoutController = context.watch<LayoutController>();
 
-    final isRpg = layoutController.isRpg;
+    final isRpg = settingsController.isRpgMode;
 
     return Scaffold(
       body: _pages[layoutController.selectedIndex],

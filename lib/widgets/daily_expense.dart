@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -7,10 +8,13 @@ import 'package:provider/provider.dart';
 import '../controllers/wallet_controller.dart';
 import '../core/constants/app_colors.dart';
 import '../core/constants/category_dict.dart';
+import '../core/constants/history_dict.dart';
 import '../core/constants/shared_dict.dart';
 import '../core/utils/currency_formatter.dart';
 import '../models/transaction_detail_model.dart';
 import '../models/transaction_model.dart';
+import '../models/wallet_model.dart';
+import '../widgets/note_container.dart';
 import 'custom_button.dart';
 
 class ExpenseItemForm {
@@ -39,7 +43,7 @@ class _DailyExpenseState extends State<DailyExpense> {
 
   final _mainTitleController = TextEditingController();
   DateTime _selectedDate = DateTime.now();
-  int? _selectedWalletId;
+  WalletModel? _selectedWallet;
 
   final List<ExpenseItemForm> _items = [];
 
@@ -126,24 +130,6 @@ class _DailyExpenseState extends State<DailyExpense> {
 
   void _submitForm() {
     if (_formKey.currentState!.validate()) {
-      if (_selectedWalletId == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Sumber Dana (Dompet) harus dipilih!')),
-        );
-        return;
-      }
-
-      for (var i = 0; i < _items.length; i++) {
-        if (_items[i].category == null) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Kategori pada Item #${i + 1} belum dipilih!'),
-            ),
-          );
-          return;
-        }
-      }
-
       List<TransactionDetailModel> details = [];
 
       for (var item in _items) {
@@ -166,7 +152,7 @@ class _DailyExpenseState extends State<DailyExpense> {
         type: TransactionType.expense,
         status: StatusType.paid,
         dateTimestamp: _selectedDate.millisecondsSinceEpoch,
-        walletId: _selectedWalletId,
+        walletId: _selectedWallet?.id,
         detailTransaction: details,
       );
 
@@ -175,15 +161,48 @@ class _DailyExpenseState extends State<DailyExpense> {
   }
 
   Future<void> _pickDate() async {
-    final picked = await showDatePicker(
+    final pickedDate = await showDatePicker(
       context: context,
       initialDate: _selectedDate,
       firstDate: DateTime(2000),
       lastDate: DateTime(2100),
     );
-    if (picked != null) {
-      setState(() => _selectedDate = picked);
+
+    if (pickedDate != null) {
+      if (!context.mounted) return;
+      final pickedTime = await showTimePicker(
+        context: context,
+        initialTime: TimeOfDay.fromDateTime(_selectedDate),
+      );
+
+      if (pickedTime != null) {
+        setState(() {
+          _selectedDate = DateTime(
+            pickedDate.year,
+            pickedDate.month,
+            pickedDate.day,
+            pickedTime.hour,
+            pickedTime.minute,
+          );
+        });
+      } else {
+        setState(() {
+          _selectedDate = DateTime(
+            pickedDate.year,
+            pickedDate.month,
+            pickedDate.day,
+            _selectedDate.hour,
+            _selectedDate.minute,
+          );
+        });
+      }
     }
+  }
+
+  void _resetToCurrentTime() {
+    setState(() {
+      _selectedDate = DateTime.now();
+    });
   }
 
   @override
@@ -197,12 +216,11 @@ class _DailyExpenseState extends State<DailyExpense> {
         backgroundColor: AppColors.surface,
         elevation: 0,
         title: Text(
-          widget.isRpg ? 'Catat Petualangan' : 'Catat Pengeluaran',
+          HistoryDict.recordExpense.get(widget.isRpg),
           style: GoogleFonts.poppins(fontWeight: FontWeight.bold, fontSize: 18),
         ),
         centerTitle: true,
       ),
-
       bottomNavigationBar: _buildBottomBar(),
       body: Form(
         key: _formKey,
@@ -210,8 +228,8 @@ class _DailyExpenseState extends State<DailyExpense> {
           padding: const EdgeInsets.all(24.0),
           children: [
             Text(
-              'Informasi Dasar',
-              style: TextStyle(
+              HistoryDict.information,
+              style: const TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
                 color: AppColors.primary,
@@ -222,7 +240,7 @@ class _DailyExpenseState extends State<DailyExpense> {
             TextFormField(
               controller: _mainTitleController,
               decoration: const InputDecoration(
-                labelText: 'Judul Utama (Contoh: Belanja Bulanan)',
+                labelText: SharedDict.title,
                 border: OutlineInputBorder(),
               ),
               validator: (val) => val == null || val.trim().isEmpty
@@ -231,36 +249,57 @@ class _DailyExpenseState extends State<DailyExpense> {
             ),
             const SizedBox(height: 20),
 
-            DropdownButtonFormField<int>(
-              initialValue: _selectedWalletId,
+            DropdownButtonFormField<WalletModel>(
+              initialValue: _selectedWallet,
               decoration: const InputDecoration(
-                labelText: 'Sumber Dana (Gunakan Dompet)',
+                labelText: HistoryDict.sourceFunds,
                 border: OutlineInputBorder(),
               ),
               items: wallets.map((entry) {
-                return DropdownMenuItem(
-                  value: entry.id,
-                  child: Text(entry.name),
-                );
+                return DropdownMenuItem(value: entry, child: Text(entry.name));
               }).toList(),
-              onChanged: (val) => setState(() => _selectedWalletId = val),
+              onChanged: (val) => setState(() => _selectedWallet = val),
               validator: (val) =>
                   val == null ? SharedDict.requiredWallet : null,
             ),
             const SizedBox(height: 20),
 
-            InkWell(
-              onTap: _pickDate,
-              child: InputDecorator(
-                decoration: const InputDecoration(
-                  labelText: 'Tanggal Petualangan',
-                  border: OutlineInputBorder(),
+            Row(
+              children: [
+                Expanded(
+                  child: InkWell(
+                    onTap: _pickDate,
+                    child: InputDecorator(
+                      decoration: InputDecoration(
+                        labelText: HistoryDict.adventureTime.get(widget.isRpg),
+                        border: const OutlineInputBorder(),
+                      ),
+                      child: Text(
+                        DateFormat(
+                          'dd MMMM yyyy •󠁏󠁏 HH:mm',
+                        ).format(_selectedDate),
+                        style: const TextStyle(color: AppColors.textPrimary),
+                      ),
+                    ),
+                  ),
                 ),
-                child: Text(
-                  DateFormat('dd MMMM yyyy').format(_selectedDate),
-                  style: const TextStyle(color: AppColors.textPrimary),
+                const SizedBox(width: 12),
+                Container(
+                  height: 51,
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.white38),
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: IconButton(
+                    onPressed: _resetToCurrentTime,
+                    icon: const FaIcon(
+                      FontAwesomeIcons.arrowRotateLeft,
+                      color: AppColors.primary,
+                    ),
+                    tooltip: HistoryDict.resetTime,
+                  ),
                 ),
-              ),
+              ],
             ),
 
             const SizedBox(height: 32),
@@ -268,8 +307,8 @@ class _DailyExpenseState extends State<DailyExpense> {
             const SizedBox(height: 32),
 
             Text(
-              'Rincian Barang',
-              style: TextStyle(
+              HistoryDict.detailBreakdown,
+              style: const TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
                 color: AppColors.primary,
@@ -287,7 +326,7 @@ class _DailyExpenseState extends State<DailyExpense> {
                 margin: const EdgeInsets.only(bottom: 24),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16),
-                  side: BorderSide(color: Colors.white10),
+                  side: const BorderSide(color: Colors.white10),
                 ),
                 child: Padding(
                   padding: const EdgeInsets.all(20.0),
@@ -322,7 +361,7 @@ class _DailyExpenseState extends State<DailyExpense> {
                                 color: AppColors.error,
                               ),
                               onPressed: () => _removeItem(index),
-                              tooltip: 'Hapus Item',
+                              tooltip: HistoryDict.deleteItem,
                             ),
                         ],
                       ),
@@ -331,12 +370,11 @@ class _DailyExpenseState extends State<DailyExpense> {
                       TextFormField(
                         controller: item.titleController,
                         decoration: const InputDecoration(
-                          labelText: 'Nama Barang',
-                          hintText: 'Contoh: Nasi Goreng',
+                          labelText: SharedDict.name,
                           border: OutlineInputBorder(),
                         ),
                         validator: (val) => val == null || val.trim().isEmpty
-                            ? 'Nama tidak boleh kosong'
+                            ? SharedDict.requiredName
                             : null,
                       ),
                       const SizedBox(height: 16),
@@ -348,15 +386,16 @@ class _DailyExpenseState extends State<DailyExpense> {
                           FilteringTextInputFormatter.digitsOnly,
                         ],
                         decoration: const InputDecoration(
-                          labelText: 'Nominal Harga',
+                          labelText: HistoryDict.price,
                           prefixText: 'Rp ',
                           border: OutlineInputBorder(),
                         ),
                         onChanged: (val) =>
                             _onAmountChanged(item.amountController, val),
                         validator: (val) {
-                          if (val == null || val.isEmpty || val == '0')
+                          if (val == null || val.isEmpty || val == '0') {
                             return SharedDict.requiredAmount;
+                          }
                           return null;
                         },
                       ),
@@ -365,7 +404,7 @@ class _DailyExpenseState extends State<DailyExpense> {
                       DropdownButtonFormField<TransactionCategory>(
                         initialValue: item.category,
                         decoration: const InputDecoration(
-                          labelText: 'Kategori',
+                          labelText: SharedDict.category,
                           border: OutlineInputBorder(),
                         ),
                         items: _expenseCategories.map((cat) {
@@ -379,6 +418,8 @@ class _DailyExpenseState extends State<DailyExpense> {
                           );
                         }).toList(),
                         onChanged: (val) => setState(() => item.category = val),
+                        validator: (val) =>
+                            val == null ? SharedDict.requiredCategory : null,
                       ),
                     ],
                   ),
@@ -402,7 +443,7 @@ class _DailyExpenseState extends State<DailyExpense> {
                 ),
                 icon: const Icon(Icons.add, color: AppColors.primary),
                 label: const Text(
-                  'Tambah Barang Lagi',
+                  HistoryDict.addItem,
                   style: TextStyle(
                     color: AppColors.primary,
                     fontWeight: FontWeight.bold,
@@ -437,11 +478,21 @@ class _DailyExpenseState extends State<DailyExpense> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
+          if (_selectedWallet != null) ...[
+            NoteContainer(
+              text: HistoryDict.generateNote(
+                _selectedWallet?.name ?? '',
+                CurrencyFormatter.convertToIdr(_selectedWallet?.amount),
+              ),
+              color: Colors.grey,
+            ),
+            const SizedBox(height: 8),
+          ],
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               const Text(
-                'Total Pembayaran',
+                HistoryDict.expenseAmount,
                 style: TextStyle(fontSize: 14, color: AppColors.textSecondary),
               ),
               Text(
@@ -456,7 +507,7 @@ class _DailyExpenseState extends State<DailyExpense> {
           ),
           const SizedBox(height: 16),
           CustomButton(
-            title: widget.isRpg ? 'Bayar Gold' : 'Simpan Pengeluaran',
+            title: HistoryDict.saveExpense.get(widget.isRpg),
             color: AppColors.error,
             onTap: _submitForm,
           ),

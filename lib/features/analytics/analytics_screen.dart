@@ -5,8 +5,8 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import '../../controllers/analytics_controller.dart';
+import '../../controllers/settings_controller.dart';
 import '../../controllers/transaction_controller.dart';
-import '../../controllers/user_controller.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/history_dict.dart';
 import '../../core/constants/menu_dict.dart';
@@ -21,11 +21,11 @@ class AnalyticsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final userController = context.watch<UserController>();
+    final settingsController = context.watch<SettingsController>();
     final transactionController = context.watch<TransactionController>();
     final analyticsController = context.watch<AnalyticsController>();
 
-    final isRpg = userController.isRpgMode;
+    final isRpg = settingsController.isRpgMode;
 
     final totalIncome = transactionController.totalIncome;
     final totalExpense = transactionController.totalExpense;

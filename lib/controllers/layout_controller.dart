@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import '../controllers/transaction_controller.dart';
 import '../controllers/user_controller.dart';
 import '../controllers/wallet_controller.dart';
-import '../core/utils/mission_extension.dart';
 import '../models/transaction_model.dart';
 
 class LayoutController extends ChangeNotifier with WidgetsBindingObserver {
@@ -21,8 +20,6 @@ class LayoutController extends ChangeNotifier with WidgetsBindingObserver {
 
     _loadUserData();
   }
-
-  bool get isRpg => _userController.isRpgMode;
 
   void changeTab(int index) {
     selectedIndex = index;
@@ -42,15 +39,10 @@ class LayoutController extends ChangeNotifier with WidgetsBindingObserver {
     }
   }
 
-  void _performTimeCheck() {
+  Future<void> _performTimeCheck() async {
     if (_userController.currentUser == null) return;
-
-    bool isReset = _userController.currentUser!.progress.checkAndReset();
-
-    if (isReset && _userController.currentUser != null) {
-      _userController.saveUser();
-      notifyListeners();
-    }
+    await _userController.evaluateAndResetDaily();
+    notifyListeners();
   }
 
   @override
@@ -62,8 +54,14 @@ class LayoutController extends ChangeNotifier with WidgetsBindingObserver {
   Future<void> saveTransaction(TransactionModel transaction) async {
     final wallet = _walletController.getWalletById(transaction.walletId ?? 1);
     await _transactionController.createTransaction(transaction);
+
     wallet.expense(transaction.amount);
     await _walletController.updateWallet(wallet);
+    await _walletController.loadData();
+
+    _userController.budget.useDaily(transaction.amount);
     await _userController.processRecordTransaction();
+    await _userController.saveUser();
+    await _userController.loadData();
   }
 }

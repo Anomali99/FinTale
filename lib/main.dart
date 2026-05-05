@@ -7,6 +7,7 @@ import 'controllers/analytics_controller.dart';
 import 'controllers/auth_controller.dart';
 import 'controllers/history_controller.dart';
 import 'controllers/home_controller.dart';
+import 'controllers/invest_controller.dart';
 import 'controllers/layout_controller.dart';
 import 'controllers/profile_controller.dart';
 import 'controllers/settings_controller.dart';
@@ -63,6 +64,12 @@ void main() async {
   );
   final profileController = ProfileController(userController);
   final skillController = SkillController(userController);
+  final investController = InvestController(
+    assetDao,
+    userController,
+    walletController,
+    transactionController,
+  );
   final historyController = HistoryController(transactionController);
   final analyticsController = AnalyticsController(transactionController);
   final settingsController = SettingsController(prefService, authController);
@@ -80,6 +87,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => homeController),
         ChangeNotifierProvider(create: (_) => profileController),
         ChangeNotifierProvider(create: (_) => skillController),
+        ChangeNotifierProvider(create: (_) => investController),
         ChangeNotifierProvider(create: (_) => historyController),
         ChangeNotifierProvider(create: (_) => analyticsController),
         ChangeNotifierProvider(create: (_) => settingsController),

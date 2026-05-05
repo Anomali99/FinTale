@@ -14,7 +14,7 @@ class TimeFormatter {
   }
 
   static String formatShortWithHour(int timestamp) {
-    return DateFormat('dd MMM yyyy 󠁯•󠁏󠁏 h:mm a').format(toDate(timestamp));
+    return DateFormat('dd MMM yyyy •󠁏󠁏 HH:mm').format(toDate(timestamp));
   }
 
   static String formatMonthYear(int timestamp) {

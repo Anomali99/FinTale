@@ -64,7 +64,11 @@ class TransactionController extends ChangeNotifier {
           if (detail.flow == FlowType.income) {
             totalIncome += detail.amount;
           } else if (detail.flow == FlowType.expense) {
-            if ([TransactionCategory.lowRisk].contains(detail.category)) {
+            if ([
+              TransactionCategory.lowRisk,
+              TransactionCategory.mediumRisk,
+              TransactionCategory.highRisk,
+            ].contains(detail.category)) {
               totalInvest += detail.amount;
               investTemp.update(
                 detail.category,

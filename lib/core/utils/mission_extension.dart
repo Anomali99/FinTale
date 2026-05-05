@@ -13,6 +13,11 @@ class MissionResult {
 }
 
 extension MissionExtension on UserProgressModel {
+  void updatWeeklyBudget(int days, bool claimed) {
+    weeklyBudgetDays = days;
+    isWeeklyBudgetClaimed = claimed;
+  }
+
   bool checkAndReset() {
     DateTime now = DateTime.now();
     bool isChanged = false;

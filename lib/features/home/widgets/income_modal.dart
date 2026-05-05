@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/category_dict.dart';
+import '../../../core/constants/history_dict.dart';
 import '../../../core/constants/home_dict.dart';
 import '../../../core/constants/shared_dict.dart';
 import '../../../core/constants/skill_dict.dart';
@@ -11,6 +12,7 @@ import '../../../models/transaction_detail_model.dart';
 import '../../../models/transaction_model.dart';
 import '../../../models/wallet_model.dart';
 import '../../../widgets/custom_button.dart';
+import '../../../widgets/note_container.dart';
 
 class IncomeModal extends StatefulWidget {
   final List<WalletModel> wallets;
@@ -232,8 +234,8 @@ class _IncomeModalState extends State<IncomeModal> {
                 initialValue: _selectedWallet,
                 decoration: InputDecoration(
                   labelText: widget.isTransfer
-                      ? HomeDict.transferFrom
-                      : HomeDict.targetWallet,
+                      ? HistoryDict.originWallet
+                      : HistoryDict.saveTo,
                   border: OutlineInputBorder(),
                 ),
                 items: widget.wallets.map((wallet) {
@@ -269,7 +271,7 @@ class _IncomeModalState extends State<IncomeModal> {
                 DropdownButtonFormField<int>(
                   initialValue: _selectedTarget,
                   decoration: InputDecoration(
-                    labelText: HomeDict.transferTo,
+                    labelText: HistoryDict.destinationWallet,
                     border: OutlineInputBorder(),
                   ),
                   items: widget.wallets
@@ -377,7 +379,7 @@ class _IncomeModalState extends State<IncomeModal> {
                       _onChanged(_feeController, value, max: _cleanAmount),
                 ),
                 const SizedBox(height: 12),
-                _buildNoteContainer(HomeDict.feeDesc),
+                NoteContainer(text: "Note: ${HomeDict.feeDesc}"),
               ],
 
               const SizedBox(height: 12),
@@ -407,8 +409,9 @@ class _IncomeModalState extends State<IncomeModal> {
 
                 if (_isReservedActive) ...[
                   const SizedBox(height: 12),
-                  _buildNoteContainer(
-                    '${HomeDict.reservedDesc} $_reservedName: ${CurrencyFormatter.convertToIdr(_reservedAmount)}.',
+                  NoteContainer(
+                    text:
+                        "Note: ${HomeDict.generateNote(_reservedName, CurrencyFormatter.convertToIdr(_reservedAmount))}",
                   ),
                 ],
               ] else ...[
@@ -475,29 +478,6 @@ class _IncomeModalState extends State<IncomeModal> {
             ],
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _buildNoteContainer(String note, {Color color = Colors.blue}) {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Icon(Icons.info_outline, size: 18, color: color),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Text(
-              'Note: $note',
-              style: TextStyle(fontSize: 12, color: color),
-            ),
-          ),
-        ],
       ),
     );
   }

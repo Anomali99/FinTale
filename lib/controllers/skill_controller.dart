@@ -29,8 +29,6 @@ class SkillController with ChangeNotifier {
     loadData();
   }
 
-  bool get isRpg => _userController.isRpgMode;
-
   Map<Enum, double?> get skillAllocations => _userController.userAllocations;
 
   double? get currentPercentage {

@@ -3,16 +3,16 @@ import 'package:decimal/decimal.dart';
 enum RiskType { low, medium, high }
 
 enum AssetsCategory {
-  gold('Gold / Precious Metals'),
-  deposit('Bank Deposit'),
-  mutualFundMoneyMarket('Money Market Mutual Fund'),
-  mutualFundFixedIncome('Fixed Income Mutual Fund'),
-  bonds('Bonds / Securities'),
-  property('Real Estate / Property'),
-  mutualFundStock('Equity Mutual Fund'),
-  stocks('Stocks / Equities'),
-  crypto('Cryptocurrency'),
-  p2pLending('P2P Lending / Crowdfunding');
+  gold('Emas / Logam Mulia'),
+  deposit('Deposito Bank'),
+  mutualFundMoneyMarket('Reksa Dana Pasar Uang'),
+  mutualFundFixedIncome('Reksa Dana Pendapatan Tetap'),
+  bonds('Obligasi / Surat Berharga'),
+  property('Properti / Real Estat'),
+  mutualFundStock('Reksa Dana Saham'),
+  stocks('Saham / Ekuitas'),
+  crypto('Mata Uang Kripto'),
+  p2pLending('P2P Lending / Urun Dana');
 
   final String value;
 

@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
 import '../../controllers/profile_controller.dart';
+import '../../controllers/settings_controller.dart';
 import '../../controllers/user_controller.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/menu_dict.dart';
@@ -62,10 +63,11 @@ class ProfileScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final settingsController = context.watch<SettingsController>();
     final profileController = context.watch<ProfileController>();
     final userController = context.watch<UserController>();
 
-    final isRpg = userController.isRpgMode;
+    final isRpg = settingsController.isRpgMode;
     final currentUser = userController.currentUser;
     final userName = userController.userName;
     final baseDailyLimit = userController.baseDailyLimit;

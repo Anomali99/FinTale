@@ -7,8 +7,8 @@ enum StatusType { pending, overdue, paid }
 class TransactionModel {
   final int? id;
   final int? walletId;
-  final int? billId;
-  final int? assetsId;
+  int? billId;
+  int? assetsId;
   final int? targetId;
   final String title;
   final BigInt amount;
@@ -31,6 +31,14 @@ class TransactionModel {
     this.assetsId,
     this.targetId,
   });
+
+  void setAssetId(int id) {
+    assetsId = id;
+  }
+
+  void setBillId(int id) {
+    billId = id;
+  }
 
   Map<String, dynamic> toMap() {
     return {

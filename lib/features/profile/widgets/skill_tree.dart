@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 
+import '../../../controllers/settings_controller.dart';
 import '../../../controllers/skill_controller.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/profile_dict.dart';
@@ -77,9 +78,10 @@ class _SkillTreeState extends State<SkillTree> {
 
   @override
   Widget build(BuildContext context) {
+    final settingsController = context.watch<SettingsController>();
     final skillController = context.watch<SkillController>();
     final allocs = skillController.skillAllocations;
-    final isRpg = skillController.isRpg;
+    final isRpg = settingsController.isRpgMode;
 
     return Scaffold(
       appBar: AppBar(
