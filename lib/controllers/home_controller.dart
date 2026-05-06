@@ -13,15 +13,12 @@ class HomeController with ChangeNotifier {
   final TransactionController _transactionController;
   BigInt totalUnallocated = BigInt.zero;
   bool isHideBalance = false;
-  bool isLoading = true;
 
   HomeController(
     this._userController,
     this._walletController,
     this._transactionController,
-  ) {
-    loadData();
-  }
+  );
 
   Map<Enum, double> get activeAllocations {
     return {
@@ -43,7 +40,6 @@ class HomeController with ChangeNotifier {
   }
 
   Future<void> loadData() async {
-    isLoading = true;
     Future.microtask(() => notifyListeners());
     try {
       await _userController.loadData();
@@ -58,8 +54,26 @@ class HomeController with ChangeNotifier {
     } catch (e) {
       debugPrint("[HOME] An error occurred while loading: $e");
     } finally {
-      isLoading = false;
       notifyListeners();
+    }
+  }
+
+  Future<void> updatePending(AllocationModel all) async {
+    int index = pendingAllocations.indexWhere(
+      (a) =>
+          a.walletId == all.walletId &&
+          a.sector == all.sector &&
+          a.subSector == all.subSector,
+    );
+
+    if (index != -1) {
+      if (all.amount <= BigInt.zero) {
+        _userController.removePending(index);
+      } else {
+        _userController.updatePending(index, all);
+      }
+      await _userController.saveUser();
+      await _userController.loadData();
     }
   }
 

@@ -12,19 +12,25 @@ class InvestCard extends StatelessWidget {
   final bool isRpg;
   final FaIconData icon;
   final AssetsModel asset;
+  final VoidCallback updateAsset;
+  final VoidCallback addInvest;
+  final VoidCallback claimDeviden;
 
   const InvestCard({
     super.key,
     required this.icon,
     required this.asset,
     required this.isRpg,
+    required this.updateAsset,
+    required this.addInvest,
+    required this.claimDeviden,
   });
 
   void _showAssetOptions(BuildContext context) {
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
-      builder: (con) {
+      builder: (context) {
         return CustomBottomSheet(
           title: asset.name,
           hideDriver: true,
@@ -34,7 +40,8 @@ class InvestCard extends StatelessWidget {
               color: AppColors.primary,
               icon: FontAwesomeIcons.plus,
               onTap: () {
-                Navigator.pop(con);
+                Navigator.pop(context);
+                addInvest();
               },
             ),
             BottomSheetChild(
@@ -42,17 +49,20 @@ class InvestCard extends StatelessWidget {
               color: Colors.blueAccent,
               icon: FontAwesomeIcons.arrowsRotate,
               onTap: () {
-                Navigator.pop(con);
+                Navigator.pop(context);
+                updateAsset();
               },
             ),
-            BottomSheetChild(
-              title: 'Klaim Dividen / Bunga',
-              color: AppColors.success,
-              icon: FontAwesomeIcons.moneyCheck,
-              onTap: () {
-                Navigator.pop(con);
-              },
-            ),
+            if (asset.hasDividend)
+              BottomSheetChild(
+                title: 'Klaim Dividen / Bunga',
+                color: AppColors.success,
+                icon: FontAwesomeIcons.moneyCheck,
+                onTap: () {
+                  Navigator.pop(context);
+                  claimDeviden();
+                },
+              ),
           ],
         );
       },

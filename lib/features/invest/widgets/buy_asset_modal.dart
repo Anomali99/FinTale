@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/history_dict.dart';
+import '../../../core/constants/home_dict.dart';
 import '../../../core/constants/shared_dict.dart';
 import '../../../core/utils/currency_formatter.dart';
 import '../../../models/assets_model.dart';
@@ -19,6 +20,7 @@ class BuyAssetModal extends StatefulWidget {
   final AssetsModel? initialAsset;
   final RiskType? initialRisk;
   final List<AssetsModel> assets;
+  final BigInt? pendingAllocation;
   final bool isRpg;
 
   const BuyAssetModal({
@@ -27,6 +29,7 @@ class BuyAssetModal extends StatefulWidget {
     required this.assets,
     this.initialAsset,
     this.initialRisk,
+    this.pendingAllocation,
     this.isRpg = false,
   });
 
@@ -43,12 +46,14 @@ class _BuyAssetModalState extends State<BuyAssetModal>
   final _unitNameController = TextEditingController(text: 'Unit');
   final _unitAmountController = TextEditingController();
   final _priceController = TextEditingController();
-  final _totalController = TextEditingController(text: '0');
 
   AssetsModel? _selectedAsset;
   WalletModel? _selectedWallet;
   AssetsCategory? _selectedCategory;
   RiskType? _selectedRisk;
+  BigInt _amount = BigInt.zero;
+  bool _isReservedActive = false;
+  bool _isDevidenActive = false;
 
   bool _isNewAssetTab = true;
   bool _isHideTab = false;
@@ -59,7 +64,12 @@ class _BuyAssetModalState extends State<BuyAssetModal>
   void initState() {
     super.initState();
 
-    int initialIndex = widget.initialAsset != null ? 1 : 0;
+    int initialIndex = 0;
+    if (widget.initialAsset != null) {
+      initialIndex = 1;
+      _selectedAsset = widget.initialAsset;
+      _unitAmountController.text = _selectedAsset!.unitName;
+    }
     _isNewAssetTab = initialIndex == 0;
 
     _tabController = TabController(
@@ -90,10 +100,6 @@ class _BuyAssetModalState extends State<BuyAssetModal>
         });
       }
     });
-
-    if (widget.initialAsset != null) {
-      _selectedAsset = widget.initialAsset;
-    }
   }
 
   @override
@@ -103,18 +109,18 @@ class _BuyAssetModalState extends State<BuyAssetModal>
     _unitNameController.dispose();
     _unitAmountController.dispose();
     _priceController.dispose();
-    _totalController.dispose();
     super.dispose();
   }
 
   void _resetForm() {
-    _nameController.clear();
     _unitAmountController.clear();
     _priceController.clear();
-    _totalController.text = '0';
-    _selectedAsset = widget.initialAsset;
-    _selectedCategory = null;
-    _selectedRisk = null;
+    _amount = BigInt.zero;
+    if (_isNewAssetTab) {
+      _unitNameController.text = 'Unit';
+    } else {
+      _unitNameController.text = _selectedAsset?.unitName ?? 'Unit';
+    }
   }
 
   void _onNumberChanged(
@@ -155,7 +161,7 @@ class _BuyAssetModalState extends State<BuyAssetModal>
       String cleanPrice = _priceController.text.replaceAll('.', '');
 
       if (cleanUnit.isEmpty || cleanPrice.isEmpty) {
-        _totalController.text = '0';
+        _amount = BigInt.zero;
         return;
       }
 
@@ -164,24 +170,16 @@ class _BuyAssetModalState extends State<BuyAssetModal>
 
       BigInt total = BigInt.from((unit.toDouble() * price.toDouble()).round());
 
-      String formattedTotal = total.toString().replaceAllMapped(
-        RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
-        (Match m) => '${m[1]}.',
-      );
-
       setState(() {
-        _totalController.text = formattedTotal;
+        _amount = total;
       });
     } catch (e) {
-      _totalController.text = '0';
+      _amount = BigInt.zero;
     }
   }
 
   void _submit() {
     if (_formKey.currentState!.validate()) {
-      BigInt totalAmount = BigInt.parse(
-        _totalController.text.replaceAll('.', ''),
-      );
       Decimal unitInput = _unitAmountController.text.isNotEmpty
           ? Decimal.parse(_unitAmountController.text.replaceAll(',', '.'))
           : Decimal.zero;
@@ -196,8 +194,9 @@ class _BuyAssetModalState extends State<BuyAssetModal>
           type: _selectedRisk!,
           category: _selectedCategory!,
           unitName: _unitNameController.text,
-          invested: totalAmount,
-          value: totalAmount,
+          hasDividend: _isDevidenActive,
+          invested: _amount,
+          value: _amount,
           unit: unitInput,
         );
 
@@ -222,7 +221,8 @@ class _BuyAssetModalState extends State<BuyAssetModal>
           type: _selectedAsset!.type,
           category: _selectedAsset!.category,
           unitName: _selectedAsset!.unitName,
-          invested: _selectedAsset!.invested + totalAmount,
+          invested: _selectedAsset!.invested + _amount,
+          hasDividend: _selectedAsset!.hasDividend,
           value: newTotalValue,
           unit: newTotalUnit,
         );
@@ -238,14 +238,14 @@ class _BuyAssetModalState extends State<BuyAssetModal>
       TransactionModel transaction = TransactionModel(
         type: TransactionType.expense,
         title: transactionTitle,
-        amount: totalAmount,
+        amount: _amount,
         status: StatusType.paid,
         walletId: _selectedWallet?.id,
         assetsId: assetToReturn.id,
         detailTransaction: [
           TransactionDetailModel(
             title: '${assetToReturn.name} $unitInput ${assetToReturn.unitName}',
-            amount: totalAmount,
+            amount: _amount,
             category: tCategory,
             flow: FlowType.expense,
           ),
@@ -256,6 +256,7 @@ class _BuyAssetModalState extends State<BuyAssetModal>
       Navigator.pop(context, {
         "asset": assetToReturn,
         "transaction": transaction,
+        'use_reserved': _isReservedActive,
       });
     }
   }
@@ -378,8 +379,9 @@ class _BuyAssetModalState extends State<BuyAssetModal>
                         ),
                       )
                       .toList(),
-                  onChanged: (val) =>
-                      !_isLockRisk ? setState(() => _selectedRisk = val) : null,
+                  onChanged: !_isLockRisk
+                      ? (val) => setState(() => _selectedRisk = val)
+                      : null,
                   validator: (val) => val == null ? 'Pilih risiko' : null,
                 ),
                 const SizedBox(height: 16),
@@ -395,13 +397,12 @@ class _BuyAssetModalState extends State<BuyAssetModal>
                         (a) => DropdownMenuItem(value: a, child: Text(a.name)),
                       )
                       .toList(),
-                  onChanged: (val) {
-                    if (widget.initialAsset != null) return;
-                    setState(() {
-                      _selectedAsset = val;
-                      _unitNameController.text = val?.unitName ?? 'Unit';
-                    });
-                  },
+                  onChanged: widget.initialAsset == null
+                      ? (val) => setState(() {
+                          _selectedAsset = val;
+                          _unitNameController.text = val?.unitName ?? 'Unit';
+                        })
+                      : null,
                   validator: (val) => val == null && !_isNewAssetTab
                       ? 'Pilih aset terlebih dahulu'
                       : null,
@@ -484,13 +485,42 @@ class _BuyAssetModalState extends State<BuyAssetModal>
                       ),
                     )
                     .toList(),
-                onChanged: (val) => !_isLockWallet
-                    ? setState(() => _selectedWallet = val)
+                onChanged: !_isLockWallet
+                    ? (val) => setState(() => _selectedWallet = val)
                     : null,
                 validator: (val) =>
                     val == null ? SharedDict.requiredWallet : null,
               ),
-              const SizedBox(height: 32),
+              const SizedBox(height: 16),
+              if (_isNewAssetTab)
+                SwitchListTile(
+                  contentPadding: EdgeInsets.zero,
+                  title: const Text(
+                    'Aset Menghasilkan Dividen/Bunga?',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  subtitle: const Text(
+                    'Aktifkan jika instrumen ini memberikan imbal hasil rutin (seperti dividen saham atau kupon obligasi) yang nantinya dapat Anda klaim ke dompet.',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
+                  value: _isDevidenActive,
+                  onChanged: (val) => setState(() => _isDevidenActive = val),
+                ),
+              if (widget.pendingAllocation == null)
+                SwitchListTile(
+                  contentPadding: EdgeInsets.zero,
+                  title: Text(HomeDict.reservedCheck),
+                  subtitle: Text(HomeDict.reservedCheckDesc),
+                  value: _isReservedActive,
+                  onChanged: (val) => setState(() {
+                    if (_selectedWallet != null) {
+                      _isReservedActive = val;
+                    }
+                  }),
+                ),
               Container(
                 decoration: BoxDecoration(
                   color: AppColors.surface,
@@ -507,12 +537,21 @@ class _BuyAssetModalState extends State<BuyAssetModal>
                   children: [
                     if (_selectedWallet != null) ...[
                       NoteContainer(
-                        text: HistoryDict.generateNote(
-                          _selectedWallet?.name ?? '',
-                          CurrencyFormatter.convertToIdr(
-                            _selectedWallet?.amount,
-                          ),
-                        ),
+                        text: widget.pendingAllocation != null
+                            ? 'Sisa saldo **${_selectedWallet?.name}** yang belum dialokasikan adalah **${CurrencyFormatter.convertToIdr(widget.pendingAllocation)}**. Pembelian investasi ini akan memotong saldo tersebut.'
+                            : _isReservedActive
+                            ? HomeDict.generateNote(
+                                _selectedWallet?.name ?? '',
+                                CurrencyFormatter.convertToIdr(
+                                  _selectedWallet?.reservedAmount,
+                                ),
+                              )
+                            : HistoryDict.generateNote(
+                                _selectedWallet?.name ?? '',
+                                CurrencyFormatter.convertToIdr(
+                                  _selectedWallet?.amount,
+                                ),
+                              ),
                         color: Colors.grey,
                       ),
                       const SizedBox(height: 8),
@@ -528,7 +567,7 @@ class _BuyAssetModalState extends State<BuyAssetModal>
                           ),
                         ),
                         Text(
-                          'Rp ${_totalController.text}',
+                          CurrencyFormatter.convertToIdr(_amount),
                           style: GoogleFonts.poppins(
                             fontWeight: FontWeight.bold,
                             fontSize: 22,

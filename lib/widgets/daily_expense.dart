@@ -9,6 +9,7 @@ import '../controllers/wallet_controller.dart';
 import '../core/constants/app_colors.dart';
 import '../core/constants/category_dict.dart';
 import '../core/constants/history_dict.dart';
+import '../core/constants/home_dict.dart';
 import '../core/constants/shared_dict.dart';
 import '../core/utils/currency_formatter.dart';
 import '../models/transaction_detail_model.dart';
@@ -44,6 +45,7 @@ class _DailyExpenseState extends State<DailyExpense> {
   final _mainTitleController = TextEditingController();
   DateTime _selectedDate = DateTime.now();
   WalletModel? _selectedWallet;
+  bool _isReservedActive = false;
 
   final List<ExpenseItemForm> _items = [];
 
@@ -156,7 +158,10 @@ class _DailyExpenseState extends State<DailyExpense> {
         detailTransaction: details,
       );
 
-      Navigator.pop(context, transaction);
+      Navigator.pop(context, {
+        "transaction": transaction,
+        'use_reserved': _isReservedActive,
+      });
     }
   }
 
@@ -303,6 +308,17 @@ class _DailyExpenseState extends State<DailyExpense> {
             ),
 
             const SizedBox(height: 32),
+            SwitchListTile(
+              contentPadding: EdgeInsets.zero,
+              title: Text(HomeDict.reservedCheck),
+              subtitle: Text(HomeDict.reservedCheckDesc),
+              value: _isReservedActive,
+              onChanged: (val) => setState(() {
+                if (_selectedWallet != null) {
+                  _isReservedActive = val;
+                }
+              }),
+            ),
             const Divider(height: 1, color: Colors.white24),
             const SizedBox(height: 32),
 

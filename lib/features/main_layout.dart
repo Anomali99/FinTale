@@ -31,14 +31,19 @@ class MainLayout extends StatelessWidget {
     final layoutController = context.read<LayoutController>();
     final historyController = context.read<HistoryController>();
     final analyticsController = context.read<AnalyticsController>();
-    final result = await Navigator.push<TransactionModel>(
+    final result = await Navigator.push<Map<String, dynamic>>(
       context,
       MaterialPageRoute(
         builder: (context) => DailyExpense(isRpg: settingsController.isRpgMode),
       ),
     );
     if (result != null) {
-      await layoutController.saveTransaction(result);
+      TransactionModel transaction = result['transaction'];
+      bool useReserved = result['use_reserved'];
+      await layoutController.saveTransaction(
+        transaction,
+        useReserved: useReserved,
+      );
       historyController.applyFilter();
       analyticsController.applyFilter();
     }

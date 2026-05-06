@@ -13,7 +13,9 @@ class UserController with ChangeNotifier {
   final PrefService _prefService;
   UserModel? currentUser;
 
-  UserController(this._prefService);
+  UserController(this._prefService) {
+    evaluateAndResetDaily();
+  }
 
   bool get isHideBalance => _prefService.isHideBalance;
 
@@ -63,6 +65,8 @@ class UserController with ChangeNotifier {
   void updatePending(int index, AllocationModel value) =>
       allocation.updatePending(index, value);
 
+  void removePending(int index) => allocation.removePending(index);
+
   void addPending(AllocationModel value) => allocation.addPending(value);
 
   Future<void> clearAll() => _prefService.clearAll();
@@ -96,6 +100,7 @@ class UserController with ChangeNotifier {
   }
 
   Future<void> evaluateAndResetDaily() async {
+    await loadData();
     if (currentUser == null) return;
 
     DateTime now = DateTime.now();
@@ -129,6 +134,7 @@ class UserController with ChangeNotifier {
       await processDailyCheckIn();
       await saveUser();
     }
+    notifyListeners();
   }
 
   Future<void> processDailyCheckIn() async {

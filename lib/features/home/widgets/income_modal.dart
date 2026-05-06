@@ -36,8 +36,8 @@ class _IncomeModalState extends State<IncomeModal> {
   final _amountController = TextEditingController(text: '0');
   final _feeController = TextEditingController(text: '0');
 
-  int? _selectedWallet;
-  int? _selectedTarget;
+  WalletModel? _selectedWallet;
+  WalletModel? _selectedTarget;
   TransactionCategory? _selectedCategory;
   bool _isFeeActive = false;
   bool _isAllocationActive = false;
@@ -63,28 +63,11 @@ class _IncomeModalState extends State<IncomeModal> {
     return amount / 100;
   }
 
-  BigInt get _reservedAmount {
-    WalletModel? wallet = widget.wallets.firstWhere(
-      (e) => e.id == _selectedWallet,
-    );
-    return wallet.reservedAmount;
-  }
-
-  String get _reservedName {
-    WalletModel? wallet = widget.wallets.firstWhere(
-      (e) => e.id == _selectedWallet,
-    );
-    return wallet.name;
-  }
-
   BigInt? get _maxAmount {
-    if (_isReservedActive) return _reservedAmount;
+    if (_isReservedActive) return _selectedWallet?.reservedAmount;
 
     if (widget.isTransfer && _selectedWallet != null) {
-      WalletModel? wallet = widget.wallets.firstWhere(
-        (e) => e.id == _selectedWallet,
-      );
-      return wallet.amount;
+      return _selectedWallet?.amount;
     }
 
     return null;
@@ -133,8 +116,8 @@ class _IncomeModalState extends State<IncomeModal> {
         title: _titleController.text.trim(),
         amount: amount,
         status: StatusType.paid,
-        walletId: _selectedWallet,
-        targetId: _selectedTarget,
+        walletId: _selectedWallet?.id ?? 0,
+        targetId: _selectedTarget?.id,
         dateTimestamp: now,
         detailTransaction: details,
       );
@@ -230,7 +213,7 @@ class _IncomeModalState extends State<IncomeModal> {
               ),
               const SizedBox(height: 16),
 
-              DropdownButtonFormField<int>(
+              DropdownButtonFormField<WalletModel>(
                 initialValue: _selectedWallet,
                 decoration: InputDecoration(
                   labelText: widget.isTransfer
@@ -240,7 +223,7 @@ class _IncomeModalState extends State<IncomeModal> {
                 ),
                 items: widget.wallets.map((wallet) {
                   return DropdownMenuItem(
-                    value: wallet.id,
+                    value: wallet,
                     child: Text(wallet.name),
                   );
                 }).toList(),
@@ -268,7 +251,7 @@ class _IncomeModalState extends State<IncomeModal> {
               const SizedBox(height: 16),
 
               if (widget.isTransfer) ...[
-                DropdownButtonFormField<int>(
+                DropdownButtonFormField<WalletModel>(
                   initialValue: _selectedTarget,
                   decoration: InputDecoration(
                     labelText: HistoryDict.destinationWallet,
@@ -278,7 +261,7 @@ class _IncomeModalState extends State<IncomeModal> {
                       .where((e) => e.id != _selectedWallet)
                       .map((wallet) {
                         return DropdownMenuItem(
-                          value: wallet.id,
+                          value: wallet,
                           child: Text(wallet.name),
                         );
                       })
@@ -379,7 +362,10 @@ class _IncomeModalState extends State<IncomeModal> {
                       _onChanged(_feeController, value, max: _cleanAmount),
                 ),
                 const SizedBox(height: 12),
-                NoteContainer(text: "Note: ${HomeDict.feeDesc}"),
+                NoteContainer(
+                  text: "Note: ${HomeDict.feeDesc}",
+                  color: Colors.grey,
+                ),
               ],
 
               const SizedBox(height: 12),
@@ -396,7 +382,7 @@ class _IncomeModalState extends State<IncomeModal> {
                       _onChanged(
                         _amountController,
                         _amountController.text,
-                        max: _reservedAmount,
+                        max: _selectedWallet?.reservedAmount,
                       );
                       _onChanged(
                         _feeController,
@@ -406,14 +392,6 @@ class _IncomeModalState extends State<IncomeModal> {
                     }
                   }),
                 ),
-
-                if (_isReservedActive) ...[
-                  const SizedBox(height: 12),
-                  NoteContainer(
-                    text:
-                        "Note: ${HomeDict.generateNote(_reservedName, CurrencyFormatter.convertToIdr(_reservedAmount))}",
-                  ),
-                ],
               ] else ...[
                 SwitchListTile(
                   contentPadding: EdgeInsets.zero,
@@ -466,7 +444,26 @@ class _IncomeModalState extends State<IncomeModal> {
                 ],
               ],
 
-              const SizedBox(height: 32),
+              const SizedBox(height: 16),
+              if (_selectedWallet != null) ...[
+                NoteContainer(
+                  text: _isReservedActive
+                      ? HomeDict.generateNote(
+                          _selectedWallet?.name ?? '',
+                          CurrencyFormatter.convertToIdr(
+                            _selectedWallet?.reservedAmount,
+                          ),
+                        )
+                      : HistoryDict.generateNote(
+                          _selectedWallet?.name ?? '',
+                          CurrencyFormatter.convertToIdr(
+                            _selectedWallet?.amount,
+                          ),
+                        ),
+                  color: Colors.grey,
+                ),
+                const SizedBox(height: 16),
+              ],
 
               CustomButton(
                 title: widget.isTransfer

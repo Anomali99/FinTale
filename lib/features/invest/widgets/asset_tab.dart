@@ -10,12 +10,18 @@ class AssetTab extends StatelessWidget {
   final bool isRpg;
   final FaIconData icon;
   final List<AssetsModel> assets;
+  final ValueChanged<AssetsModel> updateAsset;
+  final ValueChanged<AssetsModel> addInvest;
+  final ValueChanged<AssetsModel> claimDeviden;
 
   const AssetTab({
     super.key,
     required this.icon,
     required this.assets,
     required this.isRpg,
+    required this.updateAsset,
+    required this.addInvest,
+    required this.claimDeviden,
   });
 
   @override
@@ -46,7 +52,14 @@ class AssetTab extends StatelessWidget {
       ),
       itemCount: assets.length,
       itemBuilder: (context, index) {
-        return InvestCard(asset: assets[index], icon: icon, isRpg: isRpg);
+        return InvestCard(
+          asset: assets[index],
+          updateAsset: () => updateAsset(assets[index]),
+          addInvest: () => addInvest(assets[index]),
+          claimDeviden: () => claimDeviden(assets[index]),
+          icon: icon,
+          isRpg: isRpg,
+        );
       },
     );
   }

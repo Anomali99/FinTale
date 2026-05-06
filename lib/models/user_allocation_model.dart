@@ -25,6 +25,10 @@ class UserAllocationModel {
     pending[index] = value;
   }
 
+  void removePending(int index) {
+    pending.removeAt(index);
+  }
+
   Map<String, dynamic> toJson() => {
     "skills": skills.map((key, value) => MapEntry(key.name, value)),
     "pending": pending.map((e) => e.toJson()).toList(),

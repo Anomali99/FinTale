@@ -17,31 +17,10 @@ class LayoutController extends ChangeNotifier with WidgetsBindingObserver {
     this._transactionController,
   ) {
     WidgetsBinding.instance.addObserver(this);
-
-    _loadUserData();
   }
 
   void changeTab(int index) {
     selectedIndex = index;
-    notifyListeners();
-  }
-
-  void _loadUserData() async {
-    _performTimeCheck();
-  }
-
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    super.didChangeAppLifecycleState(state);
-
-    if (state == AppLifecycleState.resumed) {
-      _performTimeCheck();
-    }
-  }
-
-  Future<void> _performTimeCheck() async {
-    if (_userController.currentUser == null) return;
-    await _userController.evaluateAndResetDaily();
     notifyListeners();
   }
 
@@ -51,10 +30,25 @@ class LayoutController extends ChangeNotifier with WidgetsBindingObserver {
     super.dispose();
   }
 
-  Future<void> saveTransaction(TransactionModel transaction) async {
+  Future<void> saveTransaction(
+    TransactionModel transaction, {
+    bool? useReserved,
+  }) async {
     final wallet = _walletController.getWalletById(transaction.walletId ?? 1);
     await _transactionController.createTransaction(transaction);
 
+    BigInt expenseAmount = transaction.detailTransaction.isNotEmpty
+        ? transaction.detailTransaction[0].amount
+        : transaction.amount;
+
+    BigInt availableAmount = wallet.amount - wallet.reservedAmount;
+
+    if (useReserved == true) {
+      wallet.reservedExpense(expenseAmount);
+    } else if (expenseAmount > availableAmount) {
+      BigInt overflowAmount = expenseAmount - availableAmount;
+      wallet.reservedExpense(overflowAmount);
+    }
     wallet.expense(transaction.amount);
     await _walletController.updateWallet(wallet);
     await _walletController.loadData();

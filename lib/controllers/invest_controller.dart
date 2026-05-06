@@ -38,10 +38,26 @@ class InvestController with ChangeNotifier {
     return (((current - capital) / capital) * 100).abs();
   }
 
+  Future<void> updateAsset(AssetsModel asset) async {
+    if (asset.id != null) {
+      await _assetDao.update(asset);
+      await loadData();
+    }
+  }
+
+  Future<void> claimDeviden(TransactionModel transaction) async {
+    await _transactionController.createTransaction(transaction);
+    final wallet = _walletController.getWalletById(transaction.walletId);
+    wallet.income(transaction.amount);
+    await _walletController.updateWallet(wallet);
+    await _walletController.loadData();
+  }
+
   Future<void> saveTransaction(
     TransactionModel transaction,
-    AssetsModel asset,
-  ) async {
+    AssetsModel asset, {
+    bool? useReserved,
+  }) async {
     try {
       if (asset.id == null) {
         int assetId = await _assetDao.create(asset);
@@ -51,8 +67,23 @@ class InvestController with ChangeNotifier {
       }
 
       final wallet = _walletController.getWalletById(transaction.walletId);
+
+      BigInt expenseAmount = transaction.detailTransaction.isNotEmpty
+          ? transaction.detailTransaction[0].amount
+          : transaction.amount;
+
+      BigInt availableAmount = wallet.amount - wallet.reservedAmount;
+
+      if (useReserved == true) {
+        wallet.reservedExpense(expenseAmount);
+      } else if (expenseAmount > availableAmount) {
+        BigInt overflowAmount = expenseAmount - availableAmount;
+        wallet.reservedExpense(overflowAmount);
+      }
       wallet.expense(transaction.amount);
       await _walletController.updateWallet(wallet);
+      await _walletController.loadData();
+
       await _transactionController.createTransaction(transaction);
       await _userController.processRecordTransaction();
       await loadData();

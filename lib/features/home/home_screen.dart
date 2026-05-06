@@ -6,12 +6,16 @@ import 'package:provider/provider.dart';
 import '../../controllers/analytics_controller.dart';
 import '../../controllers/history_controller.dart';
 import '../../controllers/home_controller.dart';
+import '../../controllers/invest_controller.dart';
 import '../../controllers/settings_controller.dart';
 import '../../controllers/user_controller.dart';
 import '../../controllers/wallet_controller.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/home_dict.dart';
 import '../../core/constants/title_dict.dart';
+import '../../features/invest/widgets/buy_asset_modal.dart';
+import '../../models/allocation_model.dart';
+import '../../models/assets_model.dart';
 import '../../models/transaction_model.dart';
 import '../../models/wallet_model.dart';
 import '../profile/profile_screen.dart';
@@ -41,6 +45,80 @@ class HomeScreen extends StatelessWidget {
         isRpg: isRpg,
       ),
     );
+  }
+
+  Future<BigInt?> _openAddAsset(
+    BuildContext context,
+    AllocationModel allocation,
+    WalletModel wallet,
+    bool isRpg,
+  ) async {
+    final investController = context.read<InvestController>();
+    final risk = allocation.subSector == SubSectorType.highRisk
+        ? RiskType.high
+        : allocation.subSector == SubSectorType.mediumRisk
+        ? RiskType.medium
+        : RiskType.low;
+    final assets = risk == RiskType.high
+        ? investController.highRisk
+        : risk == RiskType.medium
+        ? investController.mediumRisk
+        : investController.lowRisk;
+    final result = await showModalBottomSheet<Map<String, dynamic>?>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => BuyAssetModal(
+        wallets: [wallet],
+        assets: assets,
+        initialRisk: risk,
+        pendingAllocation: allocation.amount,
+        isRpg: isRpg,
+      ),
+    );
+
+    if (result != null && context.mounted) {
+      TransactionModel transaction = result['transaction'];
+      AssetsModel asset = result['asset'];
+      await investController.saveTransaction(transaction, asset);
+      return transaction.amount;
+    }
+    return null;
+  }
+
+  void _onTapAllocation(
+    BuildContext context,
+    AllocationModel allocation,
+    bool isRpg,
+  ) async {
+    final walletController = context.read<WalletController>();
+    final homeController = context.read<HomeController>();
+    final historyController = context.read<HistoryController>();
+    final analyticsController = context.read<AnalyticsController>();
+    final wallet = walletController.getWalletById(allocation.walletId);
+    BigInt? allocationUse;
+    switch (allocation.sector) {
+      case SectorType.living:
+        break;
+      case SectorType.payDebt:
+        break;
+      case SectorType.emergency:
+      case SectorType.investment:
+        allocationUse = await _openAddAsset(context, allocation, wallet, isRpg);
+        break;
+    }
+    if (allocationUse != null) {
+      await homeController.updatePending(
+        AllocationModel(
+          amount: allocation.amount - allocationUse,
+          walletId: allocation.walletId,
+          sector: allocation.sector,
+          subSector: allocation.subSector,
+        ),
+      );
+      historyController.applyFilter();
+      analyticsController.applyFilter();
+    }
   }
 
   void _openUpdateOrAddWallet(
@@ -117,14 +195,6 @@ class HomeScreen extends StatelessWidget {
     final userController = context.watch<UserController>();
     final walletController = context.watch<WalletController>();
     final homeController = context.watch<HomeController>();
-
-    if (homeController.isLoading) {
-      return const Scaffold(
-        body: Center(
-          child: CircularProgressIndicator(color: AppColors.primary),
-        ),
-      );
-    }
 
     final isRpg = settingsController.isRpgMode;
     final userName = userController.userName;
@@ -234,12 +304,16 @@ class HomeScreen extends StatelessWidget {
           if (pendingAllocations.isNotEmpty) ...[
             const SizedBox(height: 32),
             Text(
-              'Pending Allocation',
+              HomeDict.pending.get(isRpg),
               style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 12),
             ...pendingAllocations.map((item) {
-              return AllocationCard(allocation: item, isRpg: isRpg);
+              return AllocationCard(
+                allocation: item,
+                isRpg: isRpg,
+                onTap: () => _onTapAllocation(context, item, isRpg),
+              );
             }),
           ],
         ],

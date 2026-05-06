@@ -9,7 +9,9 @@ class WalletController extends ChangeNotifier with WidgetsBindingObserver {
   BigInt totalBalance = BigInt.zero;
   BigInt totalReserved = BigInt.zero;
 
-  WalletController(this._walletDao);
+  WalletController(this._walletDao) {
+    loadData();
+  }
 
   WalletModel getWalletById(int? id) => wallets.firstWhere((e) => e.id == id);
 
