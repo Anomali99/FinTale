@@ -3,45 +3,52 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
+import '../../controllers/bill_controller.dart';
+import '../../controllers/settings_controller.dart';
+import '../../controllers/transaction_controller.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/bills_dict.dart';
 import '../../core/constants/menu_dict.dart';
-import '../../core/dummy/dummy_data.dart';
-import '../../core/theme/mode_provider.dart';
+import '../../features/bills/widgets/add_bill_modal.dart';
+import '../../features/bills/widgets/add_debt_modal.dart';
 import '../../models/bill_model.dart';
 import '../../models/debt_model.dart';
-import '../../models/transaction_model.dart';
 import '../../widgets/custom_bottom_sheet.dart';
 import 'widgets/bills_tab.dart';
 import 'widgets/debts_tab.dart';
 import 'widgets/template_tab.dart';
 
-class BillsScreen extends StatefulWidget {
+class BillsScreen extends StatelessWidget {
   const BillsScreen({super.key});
 
-  @override
-  State<StatefulWidget> createState() => _BillsScreenState();
-}
+  void _openAddBillModal(BuildContext context) async {
+    final result = await showModalBottomSheet<BillModel>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) {
+        return AddBillModal();
+      },
+    );
 
-class _BillsScreenState extends State<BillsScreen>
-    with SingleTickerProviderStateMixin {
-  late TabController _tabController;
-  final List<DebtModel> debts = DummyData.debts;
-  final List<BillModel> bills = DummyData.bills;
-  final List<TransactionModel> transactions = DummyData.transactions
-      .where((transaction) => transaction.billId != null)
-      .toList();
-
-  @override
-  void initState() {
-    super.initState();
-    _tabController = TabController(length: 3, vsync: this);
+    if (result != null && context.mounted) {
+      context.read<BillController>().createBill(result);
+    }
   }
 
-  @override
-  void dispose() {
-    _tabController.dispose();
-    super.dispose();
+  void _openAddDebtModal(BuildContext context) async {
+    final result = await showModalBottomSheet<DebtModel>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) {
+        return AddDebtModal();
+      },
+    );
+
+    if (result != null && context.mounted) {
+      context.read<BillController>().createDebt(result);
+    }
   }
 
   void _showActionPopup(BuildContext context, bool isRpg) {
@@ -49,7 +56,7 @@ class _BillsScreenState extends State<BillsScreen>
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) {
+      builder: (con) {
         return CustomBottomSheet(
           children: [
             BottomSheetChild(
@@ -58,7 +65,8 @@ class _BillsScreenState extends State<BillsScreen>
               color: Colors.blueAccent,
               icon: BillsDict.addTemplate.icon(isRpg),
               onTap: () {
-                Navigator.pop(context);
+                Navigator.pop(con);
+                _openAddBillModal(context);
               },
             ),
             BottomSheetChild(
@@ -67,7 +75,8 @@ class _BillsScreenState extends State<BillsScreen>
               color: AppColors.error,
               icon: BillsDict.addDebt.icon(isRpg),
               onTap: () {
-                Navigator.pop(context);
+                Navigator.pop(con);
+                _openAddDebtModal(context);
               },
             ),
           ],
@@ -78,10 +87,18 @@ class _BillsScreenState extends State<BillsScreen>
 
   @override
   Widget build(BuildContext context) {
-    final isRpg = Provider.of<ModeProvider>(context).isRpgMode;
+    final settingsController = context.watch<SettingsController>();
+    final billController = context.watch<BillController>();
+    final transactionController = context.watch<TransactionController>();
+
+    final isRpg = settingsController.isRpgMode;
+
+    final billTransaction = transactionController.billTransaction;
+    final bills = billController.bills;
+    final debts = billController.debts;
 
     return DefaultTabController(
-      length: 2,
+      length: 3,
       child: Scaffold(
         appBar: AppBar(
           title: Text(
@@ -96,7 +113,6 @@ class _BillsScreenState extends State<BillsScreen>
             const SizedBox(width: 8),
           ],
           bottom: TabBar(
-            controller: _tabController,
             indicatorColor: AppColors.primary,
             labelColor: AppColors.primary,
             unselectedLabelColor: AppColors.textSecondary,
@@ -108,9 +124,8 @@ class _BillsScreenState extends State<BillsScreen>
           ),
         ),
         body: TabBarView(
-          controller: _tabController,
           children: [
-            BillsTab(data: transactions, isRpg: isRpg),
+            BillsTab(data: billTransaction, isRpg: isRpg),
             TemplateTab(data: bills, isRpg: isRpg),
             DebtsTab(data: debts, isRpg: isRpg),
           ],

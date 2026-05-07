@@ -7,6 +7,7 @@ import '../../../controllers/wallet_controller.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/category_dict.dart';
 import '../../../core/constants/history_dict.dart';
+import '../../../core/constants/shared_dict.dart';
 import '../../../core/constants/status_dict.dart';
 import '../../../core/utils/currency_formatter.dart';
 import '../../../core/utils/time_formatter.dart';
@@ -177,7 +178,7 @@ class TransactionDetailModal extends StatelessWidget {
                   if (transaction.type == TransactionType.transfer) ...[
                     const SizedBox(height: 12),
                     _buildWalletRow(
-                      label: HistoryDict.destinationWallet,
+                      label: SharedDict.destinationWallet,
                       value: walletTarget?.name ?? '',
                       icon:
                           walletTarget?.icon ??

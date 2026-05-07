@@ -161,9 +161,6 @@ class InvestScreen extends StatelessWidget {
             ),
 
             TabBar(
-              isScrollable: true,
-              tabAlignment: TabAlignment.start,
-
               indicatorColor: AppColors.primary,
               labelColor: AppColors.primary,
               unselectedLabelColor: AppColors.textSecondary,

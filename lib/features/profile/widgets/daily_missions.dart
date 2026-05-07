@@ -111,7 +111,7 @@ class DailyMissions extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildSectionHeader('Daily Mission'),
+        _buildSectionHeader(ProfileDict.dailyMission),
         const SizedBox(height: 12),
         for (Map<String, dynamic> mission in dailyMissions)
           _buildTaskItem(
@@ -122,7 +122,7 @@ class DailyMissions extends StatelessWidget {
             isDone: mission['isDone'],
           ),
         const SizedBox(height: 20),
-        _buildSectionHeader('Weekly Mission'),
+        _buildSectionHeader(ProfileDict.weeklyMission),
         const SizedBox(height: 12),
         for (Map<String, dynamic> mission in weeklyMissions)
           _buildTaskItem(
@@ -133,7 +133,7 @@ class DailyMissions extends StatelessWidget {
             isDone: mission['isDone'],
           ),
         const SizedBox(height: 20),
-        _buildSectionHeader('Monthly Mission'),
+        _buildSectionHeader(ProfileDict.monthlyMission),
         const SizedBox(height: 12),
         for (Map<String, dynamic> mission in monthlyMissions)
           _buildTaskItem(
@@ -144,7 +144,7 @@ class DailyMissions extends StatelessWidget {
             isDone: mission['isDone'],
           ),
         const SizedBox(height: 20),
-        _buildSectionHeader('Special Mission'),
+        _buildSectionHeader(ProfileDict.specialMission),
         const SizedBox(height: 12),
         for (Map<String, dynamic> mission in specialMissions)
           _buildTaskItem(

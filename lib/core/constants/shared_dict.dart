@@ -10,9 +10,12 @@ class SharedDict {
   static const String amount = 'Jumlah';
   static const String title = 'Judul';
   static const String category = 'Kategori';
+  static const String sourceFunds = 'Sumber Dana';
+  static const String destinationWallet = 'Dompet Tujuan';
   static const String requiredTitle = 'Judul tidak boleh kosong.';
   static const String requiredName = 'Nama tidak boleh kosong.';
   static const String requiredAmount = 'Jumlah tidak boleh kosong.';
+  static const String requiredPrice = 'Harga tidak boleh kosong.';
   static const String requiredWallet = 'Silakan pilih sumber dana.';
   static const String requiredWalletDest = 'Silakan pilih dompet tujuan.';
   static const String requiredCategory = 'Silakan pilih kategori.';

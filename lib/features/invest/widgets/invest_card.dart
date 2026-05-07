@@ -36,7 +36,7 @@ class InvestCard extends StatelessWidget {
           hideDriver: true,
           children: [
             BottomSheetChild(
-              title: 'Beli Lagi (Tambah Modal)',
+              title: InvestDict.buyOrAddModal,
               color: AppColors.primary,
               icon: FontAwesomeIcons.plus,
               onTap: () {
@@ -45,7 +45,7 @@ class InvestCard extends StatelessWidget {
               },
             ),
             BottomSheetChild(
-              title: 'Perbarui Harga Pasar',
+              title: InvestDict.updatePrice,
               color: Colors.blueAccent,
               icon: FontAwesomeIcons.arrowsRotate,
               onTap: () {
@@ -55,7 +55,7 @@ class InvestCard extends StatelessWidget {
             ),
             if (asset.hasDividend)
               BottomSheetChild(
-                title: 'Klaim Dividen / Bunga',
+                title: InvestDict.claimDeviden,
                 color: AppColors.success,
                 icon: FontAwesomeIcons.moneyCheck,
                 onTap: () {

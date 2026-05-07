@@ -88,6 +88,7 @@ class AppDatabase {
       CREATE TABLE transactions (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         wallet_id INTEGER,
+        debt_id INTEGER,
         bill_id INTEGER,
         assets_id INTEGER,
         target_id INTEGER,
@@ -101,6 +102,7 @@ class AppDatabase {
         deleted_at INTEGER,
 
         FOREIGN KEY (wallet_id) REFERENCES wallets (id) ON DELETE RESTRICT,
+        FOREIGN KEY (debt_id) REFERENCES debts (id) ON DELETE RESTRICT,
         FOREIGN KEY (bill_id) REFERENCES bills (id) ON DELETE RESTRICT,
         FOREIGN KEY (assets_id) REFERENCES assets (id) ON DELETE RESTRICT,
         FOREIGN KEY (target_id) REFERENCES wallets (id) ON DELETE RESTRICT

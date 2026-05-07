@@ -7,6 +7,7 @@ enum StatusType { pending, overdue, paid }
 class TransactionModel {
   final int? id;
   final int? walletId;
+  int? debtId;
   int? billId;
   int? assetsId;
   final int? targetId;
@@ -27,6 +28,7 @@ class TransactionModel {
 
     this.id,
     this.walletId,
+    this.debtId,
     this.billId,
     this.assetsId,
     this.targetId,
@@ -44,6 +46,7 @@ class TransactionModel {
     return {
       "id": id,
       "wallet_id": walletId,
+      "debt_id": debtId,
       "bill_id": billId,
       "assets_id": assetsId,
       "target_id": targetId,
@@ -62,6 +65,7 @@ class TransactionModel {
     return TransactionModel(
       id: map['id'],
       walletId: map['wallet_id'],
+      debtId: map['debt_id'],
       billId: map['bill_id'],
       assetsId: map['assets_id'],
       targetId: map['target_id'],

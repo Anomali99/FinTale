@@ -257,7 +257,7 @@ class _DailyExpenseState extends State<DailyExpense> {
             DropdownButtonFormField<WalletModel>(
               initialValue: _selectedWallet,
               decoration: const InputDecoration(
-                labelText: HistoryDict.sourceFunds,
+                labelText: SharedDict.sourceFunds,
                 border: OutlineInputBorder(),
               ),
               items: wallets.map((entry) {
@@ -410,7 +410,7 @@ class _DailyExpenseState extends State<DailyExpense> {
                             _onAmountChanged(item.amountController, val),
                         validator: (val) {
                           if (val == null || val.isEmpty || val == '0') {
-                            return SharedDict.requiredAmount;
+                            return SharedDict.requiredPrice;
                           }
                           return null;
                         },

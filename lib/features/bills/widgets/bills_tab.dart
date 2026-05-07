@@ -38,22 +38,25 @@ class BillsTab extends StatelessWidget {
         const SizedBox(height: 12),
 
         if (pending.isEmpty) ...[
-          Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                FaIcon(
-                  StatusDict.pending.icon(isRpg),
-                  size: 48,
-                  color: AppColors.surfaceVariant,
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  'Empty ${StatusDict.pending.get(isRpg)} items',
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(color: AppColors.textSecondary),
-                ),
-              ],
+          SizedBox(
+            height: MediaQuery.of(context).size.height * 0.2,
+            child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  FaIcon(
+                    StatusDict.pending.icon(isRpg),
+                    size: 48,
+                    color: AppColors.surfaceVariant,
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    'Empty ${StatusDict.pending.get(isRpg)} items',
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(color: AppColors.textSecondary),
+                  ),
+                ],
+              ),
             ),
           ),
         ] else ...[
@@ -82,22 +85,25 @@ class BillsTab extends StatelessWidget {
         const SizedBox(height: 12),
 
         if (paid.isEmpty) ...[
-          Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                FaIcon(
-                  StatusDict.paid.icon(isRpg),
-                  size: 48,
-                  color: AppColors.surfaceVariant,
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  'Empty ${StatusDict.paid.get(isRpg)} items',
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(color: AppColors.textSecondary),
-                ),
-              ],
+          SizedBox(
+            height: MediaQuery.of(context).size.height * 0.2,
+            child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  FaIcon(
+                    StatusDict.paid.icon(isRpg),
+                    size: 48,
+                    color: AppColors.surfaceVariant,
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    'Empty ${StatusDict.paid.get(isRpg)} items',
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(color: AppColors.textSecondary),
+                  ),
+                ],
+              ),
             ),
           ),
         ] else ...[

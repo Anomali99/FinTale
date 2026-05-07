@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'controllers/analytics_controller.dart';
 import 'controllers/auth_controller.dart';
+import 'controllers/bill_controller.dart';
 import 'controllers/history_controller.dart';
 import 'controllers/home_controller.dart';
 import 'controllers/invest_controller.dart';
@@ -64,6 +65,7 @@ void main() async {
   );
   final profileController = ProfileController(userController);
   final skillController = SkillController(userController);
+  final billController = BillController(billDao, debtDao);
   final investController = InvestController(
     assetDao,
     userController,
@@ -87,6 +89,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => homeController),
         ChangeNotifierProvider(create: (_) => profileController),
         ChangeNotifierProvider(create: (_) => skillController),
+        ChangeNotifierProvider(create: (_) => billController),
         ChangeNotifierProvider(create: (_) => investController),
         ChangeNotifierProvider(create: (_) => historyController),
         ChangeNotifierProvider(create: (_) => analyticsController),

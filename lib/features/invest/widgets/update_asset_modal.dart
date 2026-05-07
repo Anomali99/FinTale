@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../../../core/constants/app_colors.dart';
+import '../../../core/constants/invest_dict.dart';
 import '../../../core/constants/shared_dict.dart';
 import '../../../models/assets_model.dart';
 import '../../../widgets/custom_button.dart';
@@ -30,7 +31,15 @@ class _UpdateAssetModalState extends State<UpdateAssetModal> {
     _nameController.text = widget.asset.name;
     _unitNameController.text = widget.asset.unitName;
 
-    _valueController.text = _formatNumber(widget.asset.value.toString());
+    BigInt pricePerUnit = BigInt.zero;
+    if (widget.asset.unit.toDouble() > 0) {
+      pricePerUnit = BigInt.from(
+        (widget.asset.value.toDouble() / widget.asset.unit.toDouble()).round(),
+      );
+    }
+
+    _valueController.text = _formatNumber(pricePerUnit.toString());
+    _isDevidenActive = widget.asset.hasDividend;
     _isDevidenActive = widget.asset.hasDividend;
   }
 
@@ -74,7 +83,10 @@ class _UpdateAssetModalState extends State<UpdateAssetModal> {
 
   void _submit() {
     if (_formKey.currentState!.validate()) {
-      BigInt newValue = BigInt.parse(_valueController.text.replaceAll('.', ''));
+      BigInt price = BigInt.parse(_valueController.text.replaceAll('.', ''));
+      BigInt total = BigInt.from(
+        (widget.asset.unit.toDouble() * price.toDouble()).round(),
+      );
 
       AssetsModel updatedAsset = AssetsModel(
         id: widget.asset.id,
@@ -84,7 +96,7 @@ class _UpdateAssetModalState extends State<UpdateAssetModal> {
         unitName: _unitNameController.text.trim(),
         invested: widget.asset.invested,
         hasDividend: _isDevidenActive,
-        value: newValue,
+        value: total,
         unit: widget.asset.unit,
       );
 
@@ -126,20 +138,20 @@ class _UpdateAssetModalState extends State<UpdateAssetModal> {
                 ),
               ),
 
-              const Text(
-                'Perbarui Data Aset',
+              Text(
+                InvestDict.updateAsset,
                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 24),
 
               TextFormField(
                 controller: _nameController,
-                decoration: const InputDecoration(
-                  labelText: 'Nama Aset',
+                decoration: InputDecoration(
+                  labelText: SharedDict.name,
                   border: OutlineInputBorder(),
                 ),
                 validator: (val) => val == null || val.trim().isEmpty
-                    ? SharedDict.requiredTitle
+                    ? SharedDict.requiredName
                     : null,
               ),
               const SizedBox(height: 16),
@@ -152,14 +164,16 @@ class _UpdateAssetModalState extends State<UpdateAssetModal> {
                       controller: _valueController,
                       keyboardType: TextInputType.number,
                       inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                      decoration: const InputDecoration(
-                        labelText: 'Total Harga Pasar Saat Ini',
+                      decoration: InputDecoration(
+                        labelText: InvestDict.generatePricePerUnit(
+                          _unitNameController.text,
+                        ),
                         prefixText: 'Rp ',
                         border: OutlineInputBorder(),
                       ),
                       onChanged: _onNumberChanged,
                       validator: (val) => val == null || val.isEmpty
-                          ? 'Nilai pasar tidak boleh kosong'
+                          ? SharedDict.requiredPrice
                           : null,
                     ),
                   ),
@@ -168,13 +182,13 @@ class _UpdateAssetModalState extends State<UpdateAssetModal> {
                     flex: 1,
                     child: TextFormField(
                       controller: _unitNameController,
-                      decoration: const InputDecoration(
-                        labelText: 'Satuan',
+                      decoration: InputDecoration(
+                        labelText: InvestDict.unit,
                         border: OutlineInputBorder(),
-                        hintText: 'Misal: Lembar, Unit, Lot, Gram',
                       ),
+                      onChanged: (val) => setState(() {}),
                       validator: (val) => val == null || val.trim().isEmpty
-                          ? 'Satuan wajib diisi'
+                          ? InvestDict.requiredUnit
                           : null,
                     ),
                   ),
@@ -183,20 +197,16 @@ class _UpdateAssetModalState extends State<UpdateAssetModal> {
 
               const SizedBox(height: 16),
 
-              NoteContainer(
-                text:
-                    'Memperbarui Total Harga Pasar tidak akan mengubah catatan modal awal (Invested) yang sudah Anda keluarkan. Ini murni untuk memantau nilai aset Anda saat ini.',
-                color: Colors.grey,
-              ),
+              NoteContainer(text: InvestDict.updateDesc, color: Colors.grey),
               const SizedBox(height: 16),
               SwitchListTile(
                 contentPadding: EdgeInsets.zero,
-                title: const Text(
-                  'Aset Menghasilkan Dividen/Bunga?',
+                title: Text(
+                  InvestDict.devidenCheck,
                   style: TextStyle(fontWeight: FontWeight.bold),
                 ),
-                subtitle: const Text(
-                  'Aktifkan jika instrumen ini memberikan imbal hasil rutin (seperti dividen saham atau kupon obligasi) yang nantinya dapat Anda klaim ke dompet.',
+                subtitle: Text(
+                  InvestDict.devidenCheckDesc,
                   style: TextStyle(
                     fontSize: 12,
                     color: AppColors.textSecondary,
@@ -209,7 +219,7 @@ class _UpdateAssetModalState extends State<UpdateAssetModal> {
               const SizedBox(height: 16),
 
               CustomButton(
-                title: 'Simpan Perubahan',
+                title: SharedDict.saveChanges,
                 color: AppColors.primary,
                 onTap: _submit,
               ),

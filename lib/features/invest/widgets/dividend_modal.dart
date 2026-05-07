@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../../../core/constants/app_colors.dart';
+import '../../../core/constants/invest_dict.dart';
 import '../../../core/constants/shared_dict.dart';
 import '../../../models/assets_model.dart';
 import '../../../models/transaction_detail_model.dart';
@@ -153,8 +154,8 @@ class _DividendModalState extends State<DividendModal> {
                 ),
               ),
 
-              const Text(
-                'Klaim Dividen / Bunga',
+              Text(
+                InvestDict.claimDeviden,
                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 8),
@@ -168,11 +169,12 @@ class _DividendModalState extends State<DividendModal> {
                 controller: _perUnitController,
                 keyboardType: TextInputType.number,
                 inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                decoration: const InputDecoration(
-                  labelText: 'Dividen per Satuan (Opsional)',
+                decoration: InputDecoration(
+                  labelText: InvestDict.generateDevidenPerUnit(
+                    widget.asset.unitName,
+                  ),
                   prefixText: 'Rp ',
                   border: OutlineInputBorder(),
-                  hintText: 'Misal: 50',
                 ),
                 onChanged: _onPerUnitChanged,
               ),
@@ -182,22 +184,22 @@ class _DividendModalState extends State<DividendModal> {
                 controller: _totalController,
                 keyboardType: TextInputType.number,
                 inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                decoration: const InputDecoration(
-                  labelText: 'Total Dividen Masuk (Rp)',
+                decoration: InputDecoration(
+                  labelText: InvestDict.totalDeviden,
                   prefixText: 'Rp ',
                   border: OutlineInputBorder(),
                 ),
                 onChanged: _onTotalChanged,
                 validator: (val) => val == null || val.isEmpty
-                    ? 'Total dividen tidak boleh kosong'
+                    ? InvestDict.requiredTotalDeviden
                     : null,
               ),
               const SizedBox(height: 16),
 
               DropdownButtonFormField<WalletModel>(
                 initialValue: _selectedWallet,
-                decoration: const InputDecoration(
-                  labelText: 'Simpan ke Dompet',
+                decoration: InputDecoration(
+                  labelText: SharedDict.destinationWallet,
                   border: OutlineInputBorder(),
                 ),
                 items: widget.wallets.map((wallet) {
@@ -208,19 +210,15 @@ class _DividendModalState extends State<DividendModal> {
                 }).toList(),
                 onChanged: (val) => setState(() => _selectedWallet = val),
                 validator: (val) =>
-                    val == null ? SharedDict.requiredWallet : null,
+                    val == null ? SharedDict.requiredWalletDest : null,
               ),
               const SizedBox(height: 16),
 
-              const NoteContainer(
-                text:
-                    'Klaim dividen akan langsung ditambahkan sebagai saldo (Pemasukan) ke dompet pilihan Anda tanpa mengubah nilai buku investasi awal Anda.',
-                color: Colors.grey,
-              ),
+              NoteContainer(text: InvestDict.devidenDesc, color: Colors.grey),
               const SizedBox(height: 32),
 
               CustomButton(
-                title: 'Klaim Pemasukan',
+                title: InvestDict.claim,
                 color: AppColors.success,
                 onTap: _submit,
               ),

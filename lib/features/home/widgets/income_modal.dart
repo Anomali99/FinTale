@@ -254,7 +254,7 @@ class _IncomeModalState extends State<IncomeModal> {
                 DropdownButtonFormField<WalletModel>(
                   initialValue: _selectedTarget,
                   decoration: InputDecoration(
-                    labelText: HistoryDict.destinationWallet,
+                    labelText: SharedDict.destinationWallet,
                     border: OutlineInputBorder(),
                   ),
                   items: widget.wallets

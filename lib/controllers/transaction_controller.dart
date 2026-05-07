@@ -8,6 +8,7 @@ import '../models/transaction_model.dart';
 class TransactionController extends ChangeNotifier {
   final TransactionDao _transactionDao;
   List<TransactionModel> transactions = [];
+  List<TransactionModel> billTransaction = [];
   Map<int, AnalyticModel> detailExpense = {};
   Map<int, AnalyticModel> detailInvest = {};
   BigInt income = BigInt.zero;

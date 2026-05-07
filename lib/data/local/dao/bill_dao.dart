@@ -15,7 +15,7 @@ class BillDao {
     data['updated_at'] = now;
     data['deleted_at'] = null;
 
-    return await database.insert('wallets', data);
+    return await database.insert('bills', data);
   }
 
   Future<List<BillModel>> readAllActiveData() async {

@@ -57,6 +57,7 @@ class DebtModel {
       id: map['id'],
       title: map['title'],
       amount: BigInt.parse(map['amount'] ?? '0'),
+      paidAmount: BigInt.parse(map['paid_amount'] ?? '0'),
       type: DebtType.values.firstWhere(
         (e) => e.name == map['type'],
         orElse: () => DebtType.other,

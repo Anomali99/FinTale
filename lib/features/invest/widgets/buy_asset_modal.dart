@@ -6,6 +6,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/history_dict.dart';
 import '../../../core/constants/home_dict.dart';
+import '../../../core/constants/invest_dict.dart';
 import '../../../core/constants/shared_dict.dart';
 import '../../../core/utils/currency_formatter.dart';
 import '../../../models/assets_model.dart';
@@ -68,7 +69,7 @@ class _BuyAssetModalState extends State<BuyAssetModal>
     if (widget.initialAsset != null) {
       initialIndex = 1;
       _selectedAsset = widget.initialAsset;
-      _unitAmountController.text = _selectedAsset!.unitName;
+      _unitNameController.text = _selectedAsset!.unitName;
     }
     _isNewAssetTab = initialIndex == 0;
 
@@ -296,7 +297,7 @@ class _BuyAssetModalState extends State<BuyAssetModal>
               ),
               if (_isHideTab)
                 Text(
-                  _isNewAssetTab ? 'Aset Baru' : 'Tambah Modal',
+                  _isNewAssetTab ? InvestDict.newAsset : InvestDict.addModal,
                   style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                 )
               else
@@ -324,8 +325,8 @@ class _BuyAssetModalState extends State<BuyAssetModal>
                     ),
                     unselectedLabelColor: AppColors.textSecondary,
                     tabs: [
-                      const Tab(text: 'Aset Baru'),
-                      const Tab(text: 'Tambah Modal'),
+                      Tab(text: InvestDict.newAsset),
+                      Tab(text: InvestDict.addModal),
                     ],
                   ),
                 ),
@@ -334,20 +335,20 @@ class _BuyAssetModalState extends State<BuyAssetModal>
               if (_isNewAssetTab) ...[
                 TextFormField(
                   controller: _nameController,
-                  decoration: const InputDecoration(
-                    labelText: 'Nama Aset',
+                  decoration: InputDecoration(
+                    labelText: SharedDict.name,
                     border: OutlineInputBorder(),
                   ),
                   validator: (val) => val == null || val.trim().isEmpty
-                      ? SharedDict.requiredTitle
+                      ? SharedDict.requiredName
                       : null,
                 ),
                 const SizedBox(height: 16),
 
                 DropdownButtonFormField<AssetsCategory>(
                   initialValue: _selectedCategory,
-                  decoration: const InputDecoration(
-                    labelText: 'Kategori',
+                  decoration: InputDecoration(
+                    labelText: SharedDict.category,
                     border: OutlineInputBorder(),
                   ),
                   items: AssetsCategory.values
@@ -362,13 +363,14 @@ class _BuyAssetModalState extends State<BuyAssetModal>
                       )
                       .toList(),
                   onChanged: (val) => setState(() => _selectedCategory = val),
-                  validator: (val) => val == null ? 'Pilih kategori' : null,
+                  validator: (val) =>
+                      val == null ? SharedDict.requiredCategory : null,
                 ),
                 const SizedBox(height: 16),
                 DropdownButtonFormField<RiskType>(
                   initialValue: _selectedRisk,
-                  decoration: const InputDecoration(
-                    labelText: 'Tingkat Risiko',
+                  decoration: InputDecoration(
+                    labelText: InvestDict.risk,
                     border: OutlineInputBorder(),
                   ),
                   items: RiskType.values
@@ -382,14 +384,15 @@ class _BuyAssetModalState extends State<BuyAssetModal>
                   onChanged: !_isLockRisk
                       ? (val) => setState(() => _selectedRisk = val)
                       : null,
-                  validator: (val) => val == null ? 'Pilih risiko' : null,
+                  validator: (val) =>
+                      val == null ? InvestDict.requiredRisk : null,
                 ),
                 const SizedBox(height: 16),
               ] else ...[
                 DropdownButtonFormField<AssetsModel>(
                   initialValue: _selectedAsset,
-                  decoration: const InputDecoration(
-                    labelText: 'Pilih Aset untuk Ditambah',
+                  decoration: InputDecoration(
+                    labelText: InvestDict.asset,
                     border: OutlineInputBorder(),
                   ),
                   items: widget.assets
@@ -404,7 +407,7 @@ class _BuyAssetModalState extends State<BuyAssetModal>
                         })
                       : null,
                   validator: (val) => val == null && !_isNewAssetTab
-                      ? 'Pilih aset terlebih dahulu'
+                      ? InvestDict.requiredAsset
                       : null,
                 ),
                 const SizedBox(height: 16),
@@ -420,18 +423,18 @@ class _BuyAssetModalState extends State<BuyAssetModal>
                       keyboardType: const TextInputType.numberWithOptions(
                         decimal: true,
                       ),
-                      decoration: const InputDecoration(
-                        labelText: 'Jumlah',
+                      decoration: InputDecoration(
+                        labelText: SharedDict.amount,
                         border: OutlineInputBorder(),
-                        hintText: 'Misal: 10',
                       ),
                       onChanged: (val) => _onNumberChanged(
                         _unitAmountController,
                         val,
                         isDecimal: true,
                       ),
-                      validator: (val) =>
-                          val == null || val.isEmpty ? 'Wajib diisi' : null,
+                      validator: (val) => val == null || val.isEmpty
+                          ? SharedDict.requiredAmount
+                          : null,
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -439,14 +442,15 @@ class _BuyAssetModalState extends State<BuyAssetModal>
                     flex: 1,
                     child: TextFormField(
                       controller: _unitNameController,
-                      decoration: const InputDecoration(
-                        labelText: 'Satuan',
+                      decoration: InputDecoration(
+                        labelText: InvestDict.unit,
                         border: OutlineInputBorder(),
-                        hintText: 'Unit/Lot/Gram',
                       ),
                       readOnly: !_isNewAssetTab,
-                      validator: (val) =>
-                          val == null || val.isEmpty ? 'Wajib diisi' : null,
+                      onChanged: (val) => setState(() {}),
+                      validator: (val) => val == null || val.isEmpty
+                          ? InvestDict.requiredUnit
+                          : null,
                     ),
                   ),
                 ],
@@ -457,24 +461,25 @@ class _BuyAssetModalState extends State<BuyAssetModal>
                 controller: _priceController,
                 keyboardType: TextInputType.number,
                 inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                decoration: const InputDecoration(
-                  labelText: 'Harga Beli per Satuan',
+                decoration: InputDecoration(
+                  labelText: InvestDict.generatePricePerUnit(
+                    _unitNameController.text,
+                  ),
                   prefixText: 'Rp ',
                   border: OutlineInputBorder(),
-                  hintText: 'Misal: 100.000',
                 ),
                 onChanged: (val) =>
                     _onNumberChanged(_priceController, val, isDecimal: false),
                 validator: (val) => val == null || val.isEmpty
-                    ? 'Harga tidak boleh kosong'
+                    ? SharedDict.requiredPrice
                     : null,
               ),
               const SizedBox(height: 16),
 
               DropdownButtonFormField<WalletModel>(
                 initialValue: _selectedWallet,
-                decoration: const InputDecoration(
-                  labelText: 'Dompet Sumber Dana',
+                decoration: InputDecoration(
+                  labelText: SharedDict.sourceFunds,
                   border: OutlineInputBorder(),
                 ),
                 items: widget.wallets
@@ -495,12 +500,12 @@ class _BuyAssetModalState extends State<BuyAssetModal>
               if (_isNewAssetTab)
                 SwitchListTile(
                   contentPadding: EdgeInsets.zero,
-                  title: const Text(
-                    'Aset Menghasilkan Dividen/Bunga?',
+                  title: Text(
+                    InvestDict.devidenCheck,
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
-                  subtitle: const Text(
-                    'Aktifkan jika instrumen ini memberikan imbal hasil rutin (seperti dividen saham atau kupon obligasi) yang nantinya dapat Anda klaim ke dompet.',
+                  subtitle: Text(
+                    InvestDict.devidenCheckDesc,
                     style: TextStyle(
                       fontSize: 12,
                       color: AppColors.textSecondary,
@@ -538,7 +543,12 @@ class _BuyAssetModalState extends State<BuyAssetModal>
                     if (_selectedWallet != null) ...[
                       NoteContainer(
                         text: widget.pendingAllocation != null
-                            ? 'Sisa saldo **${_selectedWallet?.name}** yang belum dialokasikan adalah **${CurrencyFormatter.convertToIdr(widget.pendingAllocation)}**. Pembelian investasi ini akan memotong saldo tersebut.'
+                            ? InvestDict.generateNote(
+                                _selectedWallet?.name ?? '',
+                                CurrencyFormatter.convertToIdr(
+                                  _selectedWallet?.reservedAmount,
+                                ),
+                              )
                             : _isReservedActive
                             ? HomeDict.generateNote(
                                 _selectedWallet?.name ?? '',
@@ -579,8 +589,8 @@ class _BuyAssetModalState extends State<BuyAssetModal>
                     const SizedBox(height: 16),
                     CustomButton(
                       title: _isNewAssetTab
-                          ? 'Beli Aset Baru'
-                          : 'Tambah Modal Investasi',
+                          ? InvestDict.buyNewAsset
+                          : InvestDict.addInvestModal,
                       color: AppColors.primary,
                       onTap: _submit,
                     ),

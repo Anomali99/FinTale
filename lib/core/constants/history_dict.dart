@@ -7,8 +7,6 @@ class HistoryDict {
   static const String emptyAnalytics = 'Belum Ada Data';
   static const String saveTo = 'Disimpan ke';
   static const String originWallet = 'Dompet Asal';
-  static const String destinationWallet = 'Dompet Tujuan';
-  static const String sourceFunds = 'Sumber Dana';
   static const String expenseAmount = 'Total Pembayaran';
   static const String addItem = 'Tambah Item Lagi';
   static const String deleteItem = 'Hapus Item';
