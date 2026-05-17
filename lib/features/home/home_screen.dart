@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
 import '../../controllers/analytics_controller.dart';
+import '../../controllers/bill_controller.dart';
 import '../../controllers/history_controller.dart';
 import '../../controllers/home_controller.dart';
 import '../../controllers/invest_controller.dart';
@@ -14,9 +15,9 @@ import '../../core/constants/app_colors.dart';
 import '../../core/constants/home_dict.dart';
 import '../../core/constants/title_dict.dart';
 import '../../features/invest/widgets/buy_asset_modal.dart';
-import '../../models/allocation_model.dart';
 import '../../models/assets_model.dart';
 import '../../models/transaction_model.dart';
+import '../../models/user_model.dart';
 import '../../models/wallet_model.dart';
 import '../profile/profile_screen.dart';
 import '../settings/settings_screen.dart';
@@ -41,7 +42,8 @@ class HomeScreen extends StatelessWidget {
       ),
       builder: (_) => WalletDetails(
         wallets: walletController.wallets,
-        onTap: (value) => _openUpdateOrAddWallet(context, wallet: value),
+        onTap: (value, {lock}) =>
+            _openUpdateOrAddWallet(context, wallet: value, lock: lock),
         isRpg: isRpg,
       ),
     );
@@ -53,17 +55,13 @@ class HomeScreen extends StatelessWidget {
     WalletModel wallet,
     bool isRpg,
   ) async {
+    final userController = context.read<UserController>();
     final investController = context.read<InvestController>();
-    final risk = allocation.subSector == SubSectorType.highRisk
-        ? RiskType.high
-        : allocation.subSector == SubSectorType.mediumRisk
-        ? RiskType.medium
-        : RiskType.low;
-    final assets = risk == RiskType.high
-        ? investController.highRisk
-        : risk == RiskType.medium
-        ? investController.mediumRisk
-        : investController.lowRisk;
+    final risk = allocation.subSector?.getRisk() ?? RiskType.low;
+    final assets = investController.getAssetsBySector(
+      sec: allocation.sector,
+      sub: allocation.subSector ?? SubSectorType.lowRisk,
+    );
     final result = await showModalBottomSheet<Map<String, dynamic>?>(
       context: context,
       isScrollControlled: true,
@@ -73,6 +71,7 @@ class HomeScreen extends StatelessWidget {
         assets: assets,
         initialRisk: risk,
         pendingAllocation: allocation.amount,
+        isEmergency: allocation.sector == SectorType.emergency,
         isRpg: isRpg,
       ),
     );
@@ -81,6 +80,7 @@ class HomeScreen extends StatelessWidget {
       TransactionModel transaction = result['transaction'];
       AssetsModel asset = result['asset'];
       await investController.saveTransaction(transaction, asset);
+      userController.incomeEmergencyTotal(transaction.amount);
       return transaction.amount;
     }
     return null;
@@ -94,6 +94,7 @@ class HomeScreen extends StatelessWidget {
     final walletController = context.read<WalletController>();
     final homeController = context.read<HomeController>();
     final historyController = context.read<HistoryController>();
+    final billController = context.read<BillController>();
     final analyticsController = context.read<AnalyticsController>();
     final wallet = walletController.getWalletById(allocation.walletId);
     BigInt? allocationUse;
@@ -118,18 +119,22 @@ class HomeScreen extends StatelessWidget {
       );
       historyController.applyFilter();
       analyticsController.applyFilter();
+      if (allocation.sector == SectorType.payDebt) {
+        await billController.loadData();
+      }
     }
   }
 
   void _openUpdateOrAddWallet(
     BuildContext context, {
     WalletModel? wallet,
+    bool? lock,
   }) async {
     final WalletModel? result = await showModalBottomSheet<WalletModel>(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) => WalletModal(wallet: wallet),
+      builder: (context) => WalletModal(wallet: wallet, lock: lock ?? false),
     );
 
     if (result != null && context.mounted) {
@@ -201,6 +206,7 @@ class HomeScreen extends StatelessWidget {
     final userTitle = userController.userTitle;
     final userLevel = userController.userLevel;
     final maxLimit = userController.currentDailyLimit;
+    final dailyPenalty = userController.dailyPenalty;
     final spentToday = userController.todayUsage;
     final xpPercentage = userController.xpPercentage;
 
@@ -299,7 +305,12 @@ class HomeScreen extends StatelessWidget {
             style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 12),
-          DailyLimit(limit: maxLimit, spent: spentToday, isRpg: isRpg),
+          DailyLimit(
+            limit: maxLimit,
+            spent: spentToday,
+            penalty: dailyPenalty,
+            isRpg: isRpg,
+          ),
 
           if (pendingAllocations.isNotEmpty) ...[
             const SizedBox(height: 32),

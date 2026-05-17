@@ -65,7 +65,12 @@ void main() async {
   );
   final profileController = ProfileController(userController);
   final skillController = SkillController(userController);
-  final billController = BillController(billDao, debtDao);
+  final billController = BillController(
+    billDao,
+    debtDao,
+    userController,
+    transactionController,
+  );
   final investController = InvestController(
     assetDao,
     userController,

@@ -1,8 +1,6 @@
 import '../models/term_model.dart';
 
 class HomeDict {
-  static const String addWallet = 'Tembah Dompet';
-  static const String updateWallet = 'Perbarui Dompet';
   static const String walletName = 'Nama Dompet';
   static const String walletType = 'Jenis Dompet';
   static const String initialAmount = 'Jumlah Awal';
@@ -10,15 +8,13 @@ class HomeDict {
   static const String recordIncome = 'Catat Pemasukan';
   static const String addIncome = 'Tambah Pemasukan';
   static const String feeAmount = 'Biaya Admin';
+  static const String regularFund = 'Dana Reguler';
   static const String feeCheck = 'Apakah ada biaya administrasi?';
   static const String requiredFee = 'Biaya admin tidak boleh kosong.';
   static const String feeCheckDesc =
-      'Centang ini jika penghasilan tersebut dikenakan biaya potongan.';
+      'Aktifkan ini jika penghasilan tersebut dikenakan biaya potongan.';
   static const String feeDesc =
       'Jika biaya tersebut aktif, jumlah pendapatan akan dikurangi biaya tersebut sebelum ditambahkan ke dompet Anda.';
-  static const String reservedCheck = 'Menggunakan Dana Cadangan?';
-  static const String reservedCheckDesc =
-      'Kurangi jumlah ini dari alokasi cadangan Anda, bukan dari saldo aktif Anda.';
   static const String autoCheck = 'Alokasi Otomatis?';
   static const String autoCheckDesc =
       'Secara otomatis, distribusikan pendapatan ini ke sektor Anda berdasarkan skill Anda.';
@@ -29,9 +25,19 @@ class HomeDict {
     rpg: 'Total HP',
   );
 
+  static const TermModel addWallet = TermModel(
+    normal: 'Tambah Dompet',
+    rpg: 'Tambah Penyimpanan',
+  );
+
+  static const TermModel updateWallet = TermModel(
+    normal: 'Perbarui Dompet',
+    rpg: 'Perbarui Penyimpanan',
+  );
+
   static const TermModel walletDetails = TermModel(
     normal: 'Detail Dompet',
-    rpg: 'Isi Tas (Inventory)',
+    rpg: 'Detail Penyimpanan',
   );
 
   static const TermModel dailyLimit = TermModel(
@@ -71,6 +77,14 @@ class HomeDict {
     rpg: 'Loot Belum Dibagi',
   );
 
-  static String generateNote(String name, String amount) =>
-      'Transaksi ini akan menggunakan dana cadangan **$name**. Saldo cadangan saat ini: **$amount**';
+  static String reservedCheck({bool isRpg = false}) =>
+      'Menggunakan Dana ${savings.get(isRpg)}?';
+
+  static String reservedCheckDesc({bool isRpg = false}) =>
+      'Kurangi jumlah ini dari alokasi ${savings.get(isRpg).toLowerCase()} Anda, bukan dari saldo aktif Anda.';
+
+  static String generateNote(String name, String amount, {bool isRpg = false}) {
+    final tabungan = savings.get(isRpg).toLowerCase();
+    return 'Transaksi ini akan menggunakan dana $tabungan **$name**. Saldo $tabungan saat ini: **$amount**';
+  }
 }

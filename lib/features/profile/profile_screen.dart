@@ -12,7 +12,7 @@ import '../../core/constants/profile_dict.dart';
 import '../../core/constants/shared_dict.dart';
 import '../../core/constants/skill_dict.dart';
 import '../../core/utils/currency_formatter.dart';
-import '../../models/allocation_model.dart';
+import '../../models/user_model.dart';
 import 'widgets/allocation_card.dart';
 import 'widgets/daily_missions.dart';
 import 'widgets/edit_modal.dart';

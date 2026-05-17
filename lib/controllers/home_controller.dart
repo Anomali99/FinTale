@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../models/allocation_model.dart';
 import '../models/transaction_model.dart';
+import '../models/user_model.dart';
 import '../models/wallet_model.dart';
 import 'transaction_controller.dart';
 import 'user_controller.dart';
@@ -126,7 +126,10 @@ class HomeController with ChangeNotifier {
           }
 
           if (dreamFund > 0.0) {
-            wallet.reservedIncome(BigInt.from(onePercentageAmount * dreamFund));
+            wallet.addReserved(
+              BigInt.from(onePercentageAmount * dreamFund),
+              isIncome: true,
+            );
           }
 
           void processAllocation(
@@ -149,7 +152,7 @@ class HomeController with ChangeNotifier {
 
             if (index != -1) {
               AllocationModel all = pendingAllocations[index];
-              all.income(allocatedAmount);
+              all.addAmount(allocatedAmount, isIncome: true);
               _userController.updatePending(index, all);
             } else {
               _userController.addPending(
@@ -190,7 +193,7 @@ class HomeController with ChangeNotifier {
           );
           await _userController.saveUser();
         }
-        wallet.income(transaction.amount);
+        wallet.addAmount(transaction.amount, isIncome: true);
       } else {
         WalletModel walletTarget = _walletController.getWalletById(
           transaction.targetId,
@@ -200,17 +203,34 @@ class HomeController with ChangeNotifier {
             ? transaction.detailTransaction[0].amount
             : transaction.amount;
 
+        BigInt feeAmount = expenseAmount - transaction.amount;
+
         BigInt availableAmount = wallet.amount - wallet.reservedAmount;
 
         if (useReserved == true) {
-          wallet.reservedExpense(expenseAmount);
-          walletTarget.reservedIncome(transaction.amount);
+          BigInt deductedFromReserved = expenseAmount > wallet.reservedAmount
+              ? wallet.reservedAmount
+              : expenseAmount;
+
+          wallet.addReserved(deductedFromReserved, isIncome: false);
+
+          BigInt arrivingReserved = deductedFromReserved > feeAmount
+              ? deductedFromReserved - feeAmount
+              : BigInt.zero;
+
+          walletTarget.addReserved(arrivingReserved, isIncome: true);
         } else if (expenseAmount > availableAmount) {
           BigInt overflowAmount = expenseAmount - availableAmount;
-          wallet.reservedExpense(overflowAmount);
+
+          BigInt deductedFromReserved = overflowAmount > wallet.reservedAmount
+              ? wallet.reservedAmount
+              : overflowAmount;
+
+          wallet.addReserved(deductedFromReserved, isIncome: false);
         }
-        wallet.expense(expenseAmount);
-        walletTarget.income(transaction.amount);
+
+        wallet.addAmount(expenseAmount, isIncome: false);
+        walletTarget.addAmount(transaction.amount, isIncome: true);
 
         await _walletController.updateWallet(walletTarget);
       }

@@ -1,4 +1,3 @@
-import '../../models/allocation_model.dart';
 import '../../models/user_model.dart';
 import 'global_messenger.dart';
 
@@ -18,6 +17,33 @@ extension LevelingExtension on UserModel {
 
   double get progressPercentage {
     return (xp / requiredXp).clamp(0.0, 1.0);
+  }
+
+  void addEmergencyTotal(BigInt amount, {bool isIncome = true}) {
+    bool tempMax = budget.tempEmergencyMax(amount, isIncome: isIncome);
+    if (tempMax != budget.isEmergencyMax) {
+      allocation.updateSkill(
+        AllocationMap.getAllocationByLevel(
+          level,
+          maxEmergency: tempMax,
+          noDebt: budget.isFreeDebt,
+        ),
+      );
+    }
+    budget.addEmergencyTotal(amount, isIncome: isIncome);
+  }
+
+  void updateFreeDebt(bool value) {
+    if (value != budget.isFreeDebt) {
+      allocation.updateSkill(
+        AllocationMap.getAllocationByLevel(
+          level,
+          maxEmergency: budget.isEmergencyMax,
+          noDebt: value,
+        ),
+      );
+    }
+    budget.updateFreeDebt(value);
   }
 
   void addXp(int xp) {

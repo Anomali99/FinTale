@@ -8,7 +8,7 @@ import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/profile_dict.dart';
 import '../../../core/constants/skill_dict.dart';
 import '../../../core/models/category_model.dart';
-import '../../../models/allocation_model.dart';
+import '../../../models/user_model.dart';
 
 class SkillTree extends StatefulWidget {
   const SkillTree({super.key});

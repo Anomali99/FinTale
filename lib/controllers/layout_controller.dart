@@ -4,6 +4,7 @@ import '../controllers/transaction_controller.dart';
 import '../controllers/user_controller.dart';
 import '../controllers/wallet_controller.dart';
 import '../models/transaction_model.dart';
+import '../models/wallet_model.dart';
 
 class LayoutController extends ChangeNotifier with WidgetsBindingObserver {
   final UserController _userController;
@@ -43,17 +44,35 @@ class LayoutController extends ChangeNotifier with WidgetsBindingObserver {
 
     BigInt availableAmount = wallet.amount - wallet.reservedAmount;
 
+    BigInt deductedFromReserved = BigInt.zero;
+
     if (useReserved == true) {
-      wallet.reservedExpense(expenseAmount);
+      deductedFromReserved = expenseAmount > wallet.reservedAmount
+          ? wallet.reservedAmount
+          : expenseAmount;
+
+      wallet.addReserved(deductedFromReserved, isIncome: false);
     } else if (expenseAmount > availableAmount) {
       BigInt overflowAmount = expenseAmount - availableAmount;
-      wallet.reservedExpense(overflowAmount);
+
+      deductedFromReserved = overflowAmount > wallet.reservedAmount
+          ? wallet.reservedAmount
+          : overflowAmount;
+
+      wallet.addReserved(deductedFromReserved, isIncome: false);
     }
-    wallet.expense(transaction.amount);
+
+    wallet.addAmount(expenseAmount, isIncome: false);
+
     await _walletController.updateWallet(wallet);
     await _walletController.loadData();
 
-    _userController.budget.useDaily(transaction.amount);
+    BigInt deductedFromRegular = expenseAmount - deductedFromReserved;
+
+    if (deductedFromRegular > BigInt.zero) {
+      _userController.useDaily(deductedFromRegular);
+    }
+
     await _userController.processRecordTransaction();
     await _userController.saveUser();
     await _userController.loadData();

@@ -5,7 +5,10 @@ class HistoryDict {
   static const String information = 'Informasi Dasar';
   static const String detailBreakdown = 'Rincian Item';
   static const String emptyAnalytics = 'Belum Ada Data';
+  static const String saveToShort = 'Ke';
+  static const String sourceFundsShort = 'Dari';
   static const String saveTo = 'Disimpan ke';
+  static const String sourceFunds = 'Sumber Dana';
   static const String originWallet = 'Dompet Asal';
   static const String expenseAmount = 'Total Pembayaran';
   static const String addItem = 'Tambah Item Lagi';

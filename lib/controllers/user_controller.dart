@@ -3,11 +3,7 @@ import 'package:flutter/material.dart';
 import '../core/utils/leveling_extension.dart';
 import '../core/utils/mission_extension.dart';
 import '../data/local/pref_service.dart';
-import '../models/allocation_model.dart';
-import '../models/user_allocation_model.dart';
-import '../models/user_budget_model.dart';
 import '../models/user_model.dart';
-import '../models/user_progress_model.dart';
 
 class UserController with ChangeNotifier {
   final PrefService _prefService;
@@ -26,6 +22,7 @@ class UserController with ChangeNotifier {
 
   UserBudgetModel get budget => currentUser?.budget ?? UserBudgetModel();
   BigInt get baseDailyLimit => budget.baseDailyLimit;
+  BigInt get dailyPenalty => budget.dailyPenalty;
   BigInt get currentDailyLimit => budget.currentDailyLimit;
   BigInt get todayUsage => budget.todayUsage;
   BigInt get emergencyAmount => budget.emergencyAmount;
@@ -53,10 +50,17 @@ class UserController with ChangeNotifier {
     }
   }
 
+  void incomeEmergencyTotal(BigInt amount) =>
+      currentUser?.addEmergencyTotal(amount, isIncome: true);
+  void expenseEmergencyTotal(BigInt amount) =>
+      currentUser?.addEmergencyTotal(amount, isIncome: false);
+  void updateFreeDebt(bool value) => currentUser?.updateFreeDebt(value);
+
   void updateEmergencyAmount(BigInt amount) =>
       budget.updateEmergencyAmount(amount);
   void updateBaseDailyLimit(BigInt amount) =>
       budget.updateBaseDailyLimit(amount);
+  void useDaily(BigInt amount) => budget.useDaily(amount);
 
   double? getAllocation(Enum type) => allocation.getSkillPercentage(type);
   void updateSkillByKey(Enum key, double skills) =>

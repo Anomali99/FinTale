@@ -8,7 +8,7 @@ class DebtModel {
   final String title;
   final BigInt amount;
   final DebtType type;
-  final BillModel? bill;
+  BillModel? bill;
   BigInt paidAmount;
 
   DebtModel({
@@ -21,26 +21,6 @@ class DebtModel {
 
     BigInt? paidAmount,
   }) : paidAmount = paidAmount ?? BigInt.from(0);
-
-  int get level => TierAnalyzer.calculateDebtLevel(amount);
-
-  BigInt get currentDebt => amount - paidAmount;
-
-  double debtPercentage(bool isRpg) {
-    if (amount > BigInt.zero) {
-      if (isRpg) {
-        return (currentDebt.toDouble() / amount.toDouble()).clamp(0.0, 1.0);
-      } else {
-        return (paidAmount.toDouble() / amount.toDouble()).clamp(0.0, 1.0);
-      }
-    } else {
-      return 0.0;
-    }
-  }
-
-  void addPayment(BigInt pay) {
-    paidAmount += pay;
-  }
 
   Map<String, dynamic> toMap() {
     return {
@@ -64,5 +44,33 @@ class DebtModel {
       ),
       bill: bill,
     );
+  }
+}
+
+extension DebtExtension on DebtModel {
+  bool get isFinished => paidAmount >= amount;
+
+  int get level => TierAnalyzer.calculateDebtLevel(amount);
+
+  BigInt get currentDebt => amount - paidAmount;
+
+  double debtPercentage(bool isRpg) {
+    if (amount > BigInt.zero) {
+      if (isRpg) {
+        return (currentDebt.toDouble() / amount.toDouble()).clamp(0.0, 1.0);
+      } else {
+        return (paidAmount.toDouble() / amount.toDouble()).clamp(0.0, 1.0);
+      }
+    } else {
+      return 0.0;
+    }
+  }
+
+  void updateBill(BillModel? bill) {
+    this.bill = bill;
+  }
+
+  void addPayment(BigInt pay) {
+    paidAmount += pay;
   }
 }

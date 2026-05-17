@@ -22,6 +22,7 @@ class BuyAssetModal extends StatefulWidget {
   final RiskType? initialRisk;
   final List<AssetsModel> assets;
   final BigInt? pendingAllocation;
+  final bool isEmergency;
   final bool isRpg;
 
   const BuyAssetModal({
@@ -31,6 +32,7 @@ class BuyAssetModal extends StatefulWidget {
     this.initialAsset,
     this.initialRisk,
     this.pendingAllocation,
+    this.isEmergency = false,
     this.isRpg = false,
   });
 
@@ -55,6 +57,7 @@ class _BuyAssetModalState extends State<BuyAssetModal>
   BigInt _amount = BigInt.zero;
   bool _isReservedActive = false;
   bool _isDevidenActive = false;
+  bool _isEmergencyActive = false;
 
   bool _isNewAssetTab = true;
   bool _isHideTab = false;
@@ -92,6 +95,8 @@ class _BuyAssetModalState extends State<BuyAssetModal>
       _isLockRisk = true;
       _selectedRisk = widget.initialRisk;
     }
+
+    _isEmergencyActive = widget.isEmergency;
 
     _tabController.addListener(() {
       if (_tabController.indexIsChanging) {
@@ -196,6 +201,7 @@ class _BuyAssetModalState extends State<BuyAssetModal>
           category: _selectedCategory!,
           unitName: _unitNameController.text,
           hasDividend: _isDevidenActive,
+          isEmergency: _isEmergencyActive,
           invested: _amount,
           value: _amount,
           unit: unitInput,
@@ -497,28 +503,33 @@ class _BuyAssetModalState extends State<BuyAssetModal>
                     val == null ? SharedDict.requiredWallet : null,
               ),
               const SizedBox(height: 16),
-              if (_isNewAssetTab)
+              if (_isNewAssetTab) ...[
                 SwitchListTile(
                   contentPadding: EdgeInsets.zero,
-                  title: Text(
-                    InvestDict.devidenCheck,
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  subtitle: Text(
-                    InvestDict.devidenCheckDesc,
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: AppColors.textSecondary,
-                    ),
-                  ),
+                  title: const Text(InvestDict.devidenCheck),
+                  subtitle: const Text(InvestDict.devidenCheckDesc),
                   value: _isDevidenActive,
                   onChanged: (val) => setState(() => _isDevidenActive = val),
                 ),
+                SwitchListTile(
+                  contentPadding: EdgeInsets.zero,
+                  title: const Text('Sebagai Dana Darurat?'),
+                  subtitle: const Text(
+                    'Aktifkan jika aset ini sangat disiapkan sebagai dana darurat.',
+                  ),
+                  value: _isEmergencyActive,
+                  onChanged: (val) => setState(
+                    () => !widget.isEmergency ? _isEmergencyActive = val : null,
+                  ),
+                ),
+              ],
               if (widget.pendingAllocation == null)
                 SwitchListTile(
                   contentPadding: EdgeInsets.zero,
-                  title: Text(HomeDict.reservedCheck),
-                  subtitle: Text(HomeDict.reservedCheckDesc),
+                  title: Text(HomeDict.reservedCheck(isRpg: widget.isRpg)),
+                  subtitle: Text(
+                    HomeDict.reservedCheckDesc(isRpg: widget.isRpg),
+                  ),
                   value: _isReservedActive,
                   onChanged: (val) => setState(() {
                     if (_selectedWallet != null) {
@@ -546,7 +557,7 @@ class _BuyAssetModalState extends State<BuyAssetModal>
                             ? InvestDict.generateNote(
                                 _selectedWallet?.name ?? '',
                                 CurrencyFormatter.convertToIdr(
-                                  _selectedWallet?.reservedAmount,
+                                  widget.pendingAllocation,
                                 ),
                               )
                             : _isReservedActive
@@ -555,6 +566,7 @@ class _BuyAssetModalState extends State<BuyAssetModal>
                                 CurrencyFormatter.convertToIdr(
                                   _selectedWallet?.reservedAmount,
                                 ),
+                                isRpg: widget.isRpg,
                               )
                             : HistoryDict.generateNote(
                                 _selectedWallet?.name ?? '',

@@ -1,5 +1,8 @@
 import 'package:decimal/decimal.dart';
 
+import '../core/constants/assets_dict.dart';
+import '../core/models/category_model.dart';
+
 enum RiskType { low, medium, high }
 
 enum AssetsCategory {
@@ -25,6 +28,7 @@ class AssetsModel {
   final RiskType type;
   final AssetsCategory category;
   final bool hasDividend;
+  final bool isEmergency;
   final String unitName;
   BigInt invested;
   BigInt value;
@@ -40,26 +44,9 @@ class AssetsModel {
     required this.unit,
 
     this.id,
-
-    bool? hasDividend,
-  }) : hasDividend = hasDividend ?? false;
-
-  void addInvested(BigInt addInvested, BigInt newValue, Decimal newUint) {
-    invested += addInvested;
-    value = newValue;
-    unit = newUint;
-  }
-
-  bool get isProfit => value > invested;
-
-  double get getPercentage {
-    if (invested == BigInt.zero) return 0.0;
-
-    double current = value.toDouble();
-    double capital = invested.toDouble();
-
-    return (((current - capital) / capital) * 100).abs();
-  }
+    this.hasDividend = false,
+    this.isEmergency = false,
+  });
 
   Map<String, dynamic> toMap() {
     return {
@@ -68,6 +55,7 @@ class AssetsModel {
       "type": type.name,
       "category": category.name,
       "has_dividend": hasDividend ? 1 : 0,
+      "is_emergency": isEmergency ? 1 : 0,
       "unit_name": unitName,
       "invested": invested.toString(),
       "value": value.toString(),
@@ -92,6 +80,37 @@ class AssetsModel {
       value: BigInt.parse(map['value'] ?? '0'),
       unit: Decimal.parse(map['unit'] ?? '0'),
       hasDividend: map['has_dividend'] == 1,
+      isEmergency: map['is_emergency'] == 1,
     );
+  }
+}
+
+extension AssetsExtension on AssetsModel {
+  void addInvested(BigInt addInvested, BigInt newValue, Decimal newUint) {
+    invested += addInvested;
+    value = newValue;
+    unit = newUint;
+  }
+
+  bool get isProfit => value > invested;
+
+  double get getPercentage {
+    if (invested == BigInt.zero) return 0.0;
+
+    double current = value.toDouble();
+    double capital = invested.toDouble();
+
+    return (((current - capital) / capital) * 100).abs();
+  }
+
+  CategoryModel get typeDict {
+    switch (type) {
+      case RiskType.low:
+        return AssetsDict.lowRisk;
+      case RiskType.medium:
+        return AssetsDict.mediumRisk;
+      case RiskType.high:
+        return AssetsDict.highRisk;
+    }
   }
 }

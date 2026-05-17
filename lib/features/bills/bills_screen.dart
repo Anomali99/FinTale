@@ -14,12 +14,52 @@ import '../../features/bills/widgets/add_debt_modal.dart';
 import '../../models/bill_model.dart';
 import '../../models/debt_model.dart';
 import '../../widgets/custom_bottom_sheet.dart';
+import 'widgets/active_bills_tab.dart';
+import 'widgets/bill_detail_modal.dart';
 import 'widgets/bills_tab.dart';
+import 'widgets/debt_detail_modal.dart';
 import 'widgets/debts_tab.dart';
-import 'widgets/template_tab.dart';
 
 class BillsScreen extends StatelessWidget {
   const BillsScreen({super.key});
+
+  void _openDebtDetail(BuildContext context, DebtModel data, bool isRpg) async {
+    final result = await showModalBottomSheet<DebtActionType>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => DebtDetailModal(debt: data, isRpg: isRpg),
+    );
+
+    if (result != null) {
+      if (result == DebtActionType.payDirect) {
+        /* TODO: Buka PayLiabilityModal untuk bayar sisa hutang (initialDebt) */
+      } else if (result == DebtActionType.payBill) {
+        /* TODO: Buka PayLiabilityModal untuk bayar tagihan (initialBill) */
+      } else if (result == DebtActionType.edit) {
+        /* TODO: Buka Modal Edit Hutang */
+      }
+    }
+  }
+
+  void _openBillDetail(BuildContext context, BillModel data, bool isRpg) async {
+    final result = await showModalBottomSheet<BillActionType>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => BillDetailModal(bill: data, isRpg: isRpg),
+    );
+
+    if (result != null) {
+      if (result == BillActionType.payDirect) {
+        /* TODO: Buka PayLiabilityModal untuk bayar tagihan ini */
+      } else if (result == BillActionType.generateDraft) {
+        /* TODO: Jalankan fungsi data.generateTransaction(isDirectPay: false) di Controller */
+      } else if (result == BillActionType.edit) {
+        /* TODO: Buka Modal Edit Tagihan */
+      }
+    }
+  }
 
   void _openAddBillModal(BuildContext context) async {
     final result = await showModalBottomSheet<BillModel>(
@@ -125,9 +165,17 @@ class BillsScreen extends StatelessWidget {
         ),
         body: TabBarView(
           children: [
-            BillsTab(data: billTransaction, isRpg: isRpg),
-            TemplateTab(data: bills, isRpg: isRpg),
-            DebtsTab(data: debts, isRpg: isRpg),
+            ActiveBillsTab(data: billTransaction, isRpg: isRpg),
+            BillsTab(
+              data: bills,
+              isRpg: isRpg,
+              onTapCard: (bill) => _openBillDetail(context, bill, isRpg),
+            ),
+            DebtsTab(
+              data: debts,
+              isRpg: isRpg,
+              onTapCard: (debt) => _openDebtDetail(context, debt, isRpg),
+            ),
           ],
         ),
       ),

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:provider/provider.dart';
 
+import '../../../controllers/wallet_controller.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/home_dict.dart';
 import '../../../core/utils/currency_formatter.dart';
@@ -9,7 +11,7 @@ import '../../../models/wallet_model.dart';
 class WalletDetails extends StatelessWidget {
   final bool isRpg;
   final List<WalletModel> wallets;
-  final ValueChanged<WalletModel?> onTap;
+  final Function(WalletModel?, {bool? lock}) onTap;
 
   const WalletDetails({
     super.key,
@@ -20,32 +22,14 @@ class WalletDetails extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final WalletModel cash = wallets[0];
-    List<WalletModel> bank = [];
-    List<WalletModel> eWallet = [];
-    List<WalletModel> platform = [];
-    BigInt totalBank = BigInt.zero;
-    BigInt totalEWallet = BigInt.zero;
-    BigInt totalPlatform = BigInt.zero;
-
-    for (WalletModel wallet in wallets) {
-      switch (wallet.type) {
-        case WalletType.bank:
-          bank.add(wallet);
-          totalBank += wallet.amount;
-          break;
-        case WalletType.eWallet:
-          eWallet.add(wallet);
-          totalEWallet += wallet.amount;
-          break;
-        case WalletType.platform:
-          platform.add(wallet);
-          totalPlatform += wallet.amount;
-          break;
-        case WalletType.cash:
-          continue;
-      }
-    }
+    final walletController = context.read<WalletController>();
+    final cash = walletController.cash;
+    final bank = walletController.bank;
+    final eWallet = walletController.eWallet;
+    final platform = walletController.platform;
+    final totalBank = walletController.totalBank;
+    final totalEWallet = walletController.totalEWallet;
+    final totalPlatform = walletController.totalPlatform;
 
     return DraggableScrollableSheet(
       initialChildSize: 0.6,
@@ -67,11 +51,8 @@ class WalletDetails extends StatelessWidget {
               ),
               const SizedBox(height: 24),
 
-              _buildSimpleWalletItem(
-                icon: FontAwesomeIcons.coins,
-                name: HomeDict.cash.get(isRpg),
-                amount: cash.amount,
-              ),
+              if (cash != null)
+                _buildSimpleWalletItem(context: context, wallet: cash),
 
               const Divider(color: Colors.white10, height: 32),
 
@@ -118,7 +99,7 @@ class WalletDetails extends StatelessWidget {
                   onPressed: () => {Navigator.pop(context), onTap(null)},
                   icon: const Icon(Icons.add, color: AppColors.primary),
                   label: Text(
-                    'Add New ${isRpg ? 'Storage' : 'Wallet'}',
+                    HomeDict.addWallet.get(isRpg),
                     style: const TextStyle(color: AppColors.primary),
                   ),
                   style: OutlinedButton.styleFrom(
@@ -166,23 +147,27 @@ class WalletDetails extends StatelessWidget {
   }
 
   Widget _buildSimpleWalletItem({
-    required FaIconData icon,
-    required String name,
-    required BigInt amount,
+    required BuildContext context,
+    required WalletModel wallet,
   }) {
-    return Row(
-      children: [
-        CircleAvatar(
-          backgroundColor: AppColors.surfaceVariant,
-          child: FaIcon(icon, size: 16, color: AppColors.textPrimary),
-        ),
-        const SizedBox(width: 16),
-        Expanded(child: Text(name, style: const TextStyle(fontSize: 16))),
-        Text(
-          CurrencyFormatter.convertToIdr(amount),
-          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-        ),
-      ],
+    return GestureDetector(
+      onTap: () => {Navigator.pop(context), onTap(wallet, lock: true)},
+      child: Row(
+        children: [
+          CircleAvatar(
+            backgroundColor: AppColors.surfaceVariant,
+            child: FaIcon(wallet.icon, size: 16, color: AppColors.textPrimary),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Text(wallet.name, style: const TextStyle(fontSize: 16)),
+          ),
+          Text(
+            CurrencyFormatter.convertToIdr(wallet.amount),
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+          ),
+        ],
+      ),
     );
   }
 

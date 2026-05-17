@@ -135,6 +135,7 @@ class TransactionDao {
     List<int>? walletId,
     List<StatusType>? status,
     List<TransactionType>? type,
+    bool isBills = false,
   }) async {
     final database = await _database;
     String whereClause = 'deleted_at IS NULL';
@@ -163,6 +164,10 @@ class TransactionDao {
       final placeholders = List.filled(type.length, '?').join(',');
       whereClause += ' AND type IN ($placeholders)';
       whereArgs.addAll(type.map((t) => t.name));
+    }
+
+    if (isBills) {
+      whereClause += ' AND bill_id IS NOT NULL';
     }
 
     final sql =

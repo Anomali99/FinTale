@@ -3,7 +3,9 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../../core/constants/app_colors.dart';
+import '../../../core/constants/category_dict.dart';
 import '../../../core/constants/invest_dict.dart';
+import '../../../core/constants/skill_dict.dart';
 import '../../../core/utils/currency_formatter.dart';
 import '../../../models/assets_model.dart';
 import '../../../widgets/custom_bottom_sheet.dart';
@@ -97,12 +99,80 @@ class InvestCard extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        asset.name,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            asset.name,
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+
+                          Row(
+                            children: [
+                              if (asset.isEmergency) ...[
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 8,
+                                    vertical: 4,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: Colors.cyan.withOpacity(0.2),
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: FaIcon(
+                                    SkillDict.emergency.icon(isRpg),
+                                    size: 12,
+                                    color: Colors.cyan,
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                              ],
+                              if (asset.hasDividend) ...[
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 8,
+                                    vertical: 4,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: Colors.blueAccent.withOpacity(0.2),
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: FaIcon(
+                                    CategoryDict.dividend.icon(isRpg),
+                                    size: 12,
+                                    color: Colors.blueAccent,
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                              ],
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                  vertical: 4,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: asset.isProfit
+                                      ? AppColors.success.withOpacity(0.2)
+                                      : AppColors.error.withOpacity(0.2),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Text(
+                                  '${asset.isProfit ? '+' : '-'} ${asset.getPercentage.toStringAsFixed(2)}%',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
+                                    color: asset.isProfit
+                                        ? AppColors.success
+                                        : AppColors.error,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
                       ),
                       Text(
                         '${asset.unit} ${asset.unitName} • ${asset.category.value}',
@@ -114,36 +184,9 @@ class InvestCard extends StatelessWidget {
                     ],
                   ),
                 ),
-
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 4,
-                      ),
-                      decoration: BoxDecoration(
-                        color: asset.isProfit
-                            ? AppColors.success.withOpacity(0.2)
-                            : AppColors.error.withOpacity(0.2),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Text(
-                        '${asset.isProfit ? '+' : '-'} ${asset.getPercentage.toStringAsFixed(2)}%',
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                          color: asset.isProfit
-                              ? AppColors.success
-                              : AppColors.error,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
               ],
             ),
+
             const SizedBox(height: 16),
 
             Row(

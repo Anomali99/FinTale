@@ -9,8 +9,14 @@ import 'debts_card.dart';
 class DebtsTab extends StatelessWidget {
   final bool isRpg;
   final List<DebtModel> data;
+  final Function(DebtModel) onTapCard;
 
-  const DebtsTab({super.key, required this.data, required this.isRpg});
+  const DebtsTab({
+    super.key,
+    required this.data,
+    required this.onTapCard,
+    required this.isRpg,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -38,7 +44,8 @@ class DebtsTab extends StatelessWidget {
     return ListView(
       padding: const EdgeInsets.all(24.0),
       children: [
-        for (DebtModel item in data) DebtsCard(data: item, isRpg: isRpg),
+        for (DebtModel item in data)
+          DebtsCard(data: item, isRpg: isRpg, onTap: () => onTapCard(item)),
         const SizedBox(height: 100),
       ],
     );

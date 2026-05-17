@@ -6,6 +6,8 @@ import '../controllers/wallet_controller.dart';
 import '../data/local/dao/asset_dao.dart';
 import '../models/assets_model.dart';
 import '../models/transaction_model.dart';
+import '../models/user_model.dart';
+import '../models/wallet_model.dart';
 
 class InvestController with ChangeNotifier {
   final AssetDao _assetDao;
@@ -14,7 +16,8 @@ class InvestController with ChangeNotifier {
   final TransactionController _transactionController;
 
   List<AssetsModel> assets = [];
-  List<AssetsModel> lowRisk = [];
+  List<AssetsModel> lowEmergency = [];
+  List<AssetsModel> lowNotEmergency = [];
   List<AssetsModel> mediumRisk = [];
   List<AssetsModel> highRisk = [];
   BigInt totalInvested = BigInt.zero;
@@ -38,6 +41,33 @@ class InvestController with ChangeNotifier {
     return (((current - capital) / capital) * 100).abs();
   }
 
+  List<AssetsModel> get lowRisk => [...lowEmergency, ...lowNotEmergency];
+
+  AssetsModel getAssetById(int id) => assets.firstWhere((e) => e.id == id);
+
+  List<AssetsModel> getAssetsBySector({
+    SectorType? sec,
+    required SubSectorType sub,
+  }) {
+    switch (sub) {
+      case SubSectorType.highRisk:
+        return highRisk;
+      case SubSectorType.mediumRisk:
+        return mediumRisk;
+      case SubSectorType.lowRisk:
+        switch (sec) {
+          case SectorType.emergency:
+            return lowEmergency;
+          case SectorType.investment:
+            return lowNotEmergency;
+          default:
+            return lowRisk;
+        }
+      default:
+        return [];
+    }
+  }
+
   Future<void> updateAsset(AssetsModel asset) async {
     if (asset.id != null) {
       await _assetDao.update(asset);
@@ -48,7 +78,7 @@ class InvestController with ChangeNotifier {
   Future<void> claimDeviden(TransactionModel transaction) async {
     await _transactionController.createTransaction(transaction);
     final wallet = _walletController.getWalletById(transaction.walletId);
-    wallet.income(transaction.amount);
+    wallet.addAmount(transaction.amount, isIncome: true);
     await _walletController.updateWallet(wallet);
     await _walletController.loadData();
   }
@@ -75,12 +105,12 @@ class InvestController with ChangeNotifier {
       BigInt availableAmount = wallet.amount - wallet.reservedAmount;
 
       if (useReserved == true) {
-        wallet.reservedExpense(expenseAmount);
+        wallet.addReserved(expenseAmount, isIncome: false);
       } else if (expenseAmount > availableAmount) {
         BigInt overflowAmount = expenseAmount - availableAmount;
-        wallet.reservedExpense(overflowAmount);
+        wallet.addReserved(overflowAmount, isIncome: false);
       }
-      wallet.expense(transaction.amount);
+      wallet.addAmount(transaction.amount, isIncome: false);
       await _walletController.updateWallet(wallet);
       await _walletController.loadData();
 
@@ -108,7 +138,11 @@ class InvestController with ChangeNotifier {
 
         switch (asset.type) {
           case RiskType.low:
-            lowRisk.add(asset);
+            if (asset.isEmergency) {
+              lowEmergency.add(asset);
+            } else {
+              lowNotEmergency.add(asset);
+            }
             break;
           case RiskType.medium:
             mediumRisk.add(asset);

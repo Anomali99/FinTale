@@ -1,15 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
 
+import '../../../controllers/settings_controller.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/home_dict.dart';
 import '../../../core/constants/shared_dict.dart';
+import '../../../core/utils/currency_formatter.dart';
 import '../../../models/wallet_model.dart';
 import '../../../widgets/custom_button.dart';
+import '../../../widgets/custom_table.dart';
 
 class WalletModal extends StatefulWidget {
   final WalletModel? wallet;
-  const WalletModal({super.key, this.wallet});
+  final bool lock;
+  const WalletModal({super.key, this.wallet, this.lock = false});
 
   @override
   State<WalletModal> createState() => _WalletModalState();
@@ -79,6 +84,7 @@ class _WalletModalState extends State<WalletModal> {
   @override
   Widget build(BuildContext context) {
     final bottomInset = MediaQuery.of(context).viewInsets.bottom;
+    final isRpg = context.read<SettingsController>().isRpgMode;
 
     return Container(
       padding: EdgeInsets.only(
@@ -99,16 +105,17 @@ class _WalletModalState extends State<WalletModal> {
           children: [
             Text(
               widget.wallet == null
-                  ? HomeDict.addWallet
-                  : HomeDict.updateWallet,
+                  ? HomeDict.addWallet.get(isRpg)
+                  : HomeDict.updateWallet.get(isRpg),
               style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 24),
             TextFormField(
               controller: _nameController,
+              enabled: !widget.lock,
               decoration: InputDecoration(
                 labelText: HomeDict.walletName,
-                border: OutlineInputBorder(),
+                border: const OutlineInputBorder(),
               ),
               validator: (value) => value == null || value.isEmpty
                   ? SharedDict.requiredName
@@ -122,6 +129,8 @@ class _WalletModalState extends State<WalletModal> {
                 border: OutlineInputBorder(),
               ),
               items: [
+                if (widget.lock)
+                  DropdownMenuItem(value: WalletType.cash, child: Text('Cash')),
                 DropdownMenuItem(value: WalletType.bank, child: Text('Bank')),
                 DropdownMenuItem(
                   value: WalletType.eWallet,
@@ -132,7 +141,9 @@ class _WalletModalState extends State<WalletModal> {
                   child: Text('Platform (RDN)'),
                 ),
               ],
-              onChanged: (val) => setState(() => _selectedType = val!),
+              onChanged: !widget.lock
+                  ? (val) => setState(() => _selectedType = val!)
+                  : null,
             ),
             if (widget.wallet == null) ...[
               const SizedBox(height: 16),
@@ -147,15 +158,50 @@ class _WalletModalState extends State<WalletModal> {
                 ),
                 onChanged: _onChanged,
               ),
+            ] else ...[
+              const SizedBox(height: 24),
+              CustomTable(
+                color: AppColors.surfaceVariant,
+                borderColor: AppColors.primary,
+                children: [
+                  CustomRowTable(
+                    label: HomeDict.totalBalance.get(false),
+                    value: CurrencyFormatter.convertToIdr(
+                      widget.wallet?.amount ?? BigInt.zero,
+                    ),
+                    valueColor: AppColors.textPrimary,
+                    boldValue: true,
+                  ),
+                  const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 12),
+                    child: Divider(color: Colors.white10, height: 1),
+                  ),
+                  CustomRowTable(
+                    label: HomeDict.regularFund,
+                    value: CurrencyFormatter.convertToIdr(
+                      widget.wallet?.regularAmount ?? BigInt.zero,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  CustomRowTable(
+                    label: HomeDict.savings.get(false),
+                    value: CurrencyFormatter.convertToIdr(
+                      widget.wallet?.reservedAmount ?? BigInt.zero,
+                    ),
+                  ),
+                ],
+              ),
             ],
-            const SizedBox(height: 24),
-            CustomButton(
-              title: widget.wallet == null
-                  ? SharedDict.addNew
-                  : SharedDict.saveChanges,
-              color: AppColors.primary,
-              onTap: _submit,
-            ),
+            if (!widget.lock) ...[
+              const SizedBox(height: 24),
+              CustomButton(
+                title: widget.wallet == null
+                    ? SharedDict.addNew
+                    : SharedDict.saveChanges,
+                color: AppColors.primary,
+                onTap: _submit,
+              ),
+            ],
           ],
         ),
       ),

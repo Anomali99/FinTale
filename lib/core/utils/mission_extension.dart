@@ -1,4 +1,4 @@
-import '../../models/user_progress_model.dart';
+import '../../models/user_model.dart';
 
 class MissionResult {
   final bool progressUpdated;

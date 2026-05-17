@@ -4,12 +4,24 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
 import '../../controllers/auth_controller.dart';
+import '../../controllers/skill_controller.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/auth_dict.dart';
 import '../../widgets/custom_button.dart';
 
 class AuthScreen extends StatelessWidget {
   const AuthScreen({super.key});
+
+  void _loginHandle(BuildContext context, {bool anonym = false}) async {
+    final authController = context.read<AuthController>();
+    final skillController = context.read<SkillController>();
+    if (anonym) {
+      await authController.loginAnonymously();
+    } else {
+      await authController.loginWithGoogle();
+    }
+    await skillController.loadData();
+  }
 
   void _showErrorSnackBar(BuildContext context, String message) {
     ScaffoldMessenger.of(context).showSnackBar(
@@ -91,7 +103,7 @@ class AuthScreen extends StatelessWidget {
                 )
               else ...[
                 ElevatedButton.icon(
-                  onPressed: () => authController.loginWithGoogle(),
+                  onPressed: () => _loginHandle(context, anonym: false),
                   icon: const FaIcon(FontAwesomeIcons.google, size: 20),
                   label: Text(AuthDict.signIn),
                   style: ElevatedButton.styleFrom(
@@ -104,7 +116,7 @@ class AuthScreen extends StatelessWidget {
                 CustomButton(
                   title: AuthDict.skip,
                   color: AppColors.primary,
-                  onTap: () => authController.loginAnonymously(),
+                  onTap: () => _loginHandle(context, anonym: true),
                 ),
               ],
               const SizedBox(height: 16),

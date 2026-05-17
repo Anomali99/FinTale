@@ -3,6 +3,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
+import '../../../controllers/invest_controller.dart';
 import '../../../controllers/wallet_controller.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/category_dict.dart';
@@ -12,6 +13,7 @@ import '../../../core/constants/status_dict.dart';
 import '../../../core/utils/currency_formatter.dart';
 import '../../../core/utils/time_formatter.dart';
 import '../../../core/utils/type_extension.dart';
+import '../../../models/assets_model.dart';
 import '../../../models/transaction_detail_model.dart';
 import '../../../models/transaction_model.dart';
 import '../../../models/wallet_model.dart';
@@ -29,12 +31,19 @@ class TransactionDetailModal extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final walletController = context.read<WalletController>();
+    final investController = context.read<InvestController>();
     final wallet = walletController.getWalletById(transaction.walletId!);
     final status = StatusDict.getbyEnum(transaction.status);
     WalletModel? walletTarget;
+    AssetsModel? asset;
 
     if (transaction.targetId != null) {
       walletTarget = walletController.getWalletById(transaction.targetId!);
+    }
+
+    if (transaction.assetsId != null &&
+        transaction.type == TransactionType.income) {
+      asset = investController.getAssetById(transaction.assetsId!);
     }
 
     return Container(
@@ -167,22 +176,34 @@ class TransactionDetailModal extends StatelessWidget {
                     child: Divider(color: Colors.white10, height: 1),
                   ),
 
+                  if (transaction.assetsId != null &&
+                      transaction.type == TransactionType.income &&
+                      asset != null) ...[
+                    _buildWalletRow(
+                      label: HistoryDict.sourceFunds,
+                      value: asset.name,
+                      icon: asset.typeDict.icon(isRpg),
+                    ),
+                    const SizedBox(height: 12),
+                  ],
+
                   _buildWalletRow(
                     label: transaction.type == TransactionType.income
                         ? HistoryDict.saveTo
-                        : HistoryDict.originWallet,
+                        : transaction.type == TransactionType.transfer
+                        ? HistoryDict.originWallet
+                        : HistoryDict.sourceFunds,
                     value: wallet.name,
                     icon: wallet.icon,
                   ),
 
-                  if (transaction.type == TransactionType.transfer) ...[
+                  if (transaction.type == TransactionType.transfer &&
+                      walletTarget != null) ...[
                     const SizedBox(height: 12),
                     _buildWalletRow(
                       label: SharedDict.destinationWallet,
-                      value: walletTarget?.name ?? '',
-                      icon:
-                          walletTarget?.icon ??
-                          FontAwesomeIcons.buildingColumns,
+                      value: walletTarget.name,
+                      icon: walletTarget.icon,
                     ),
                   ],
                 ],

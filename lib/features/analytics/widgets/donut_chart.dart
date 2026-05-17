@@ -14,7 +14,7 @@ class DonutChart extends StatelessWidget {
   final bool isRpg;
   final int touchedIndex;
   final Color activeColor;
-  final ValueChanged<int> onTouch;
+  final Function(int) onTouch;
 
   const DonutChart({
     super.key,

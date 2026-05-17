@@ -3,7 +3,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/profile_dict.dart';
-import '../../../models/user_progress_model.dart';
+import '../../../models/user_model.dart';
 
 class DailyMissions extends StatelessWidget {
   final UserProgressModel progress;

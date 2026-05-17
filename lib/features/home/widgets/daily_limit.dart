@@ -8,12 +8,14 @@ class DailyLimit extends StatelessWidget {
   final bool isRpg;
   final BigInt limit;
   final BigInt spent;
+  final BigInt? penalty;
 
   const DailyLimit({
     super.key,
     required this.limit,
     required this.spent,
     required this.isRpg,
+    this.penalty,
   });
 
   @override
@@ -64,9 +66,24 @@ class DailyLimit extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 8),
-          Text(
-            'Spent: ${CurrencyFormatter.convertToIdr(spent)} / ${CurrencyFormatter.convertToIdr(limit)}',
-            style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Spent: ${CurrencyFormatter.convertToIdr(spent)} / ${CurrencyFormatter.convertToIdr(limit)}',
+                style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
+              ),
+
+              if (penalty != null && penalty! > BigInt.zero)
+                Text(
+                  '- ${CurrencyFormatter.compact(penalty)} dari kemarin',
+                  style: const TextStyle(
+                    fontSize: 11,
+                    color: AppColors.error,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+            ],
           ),
         ],
       ),

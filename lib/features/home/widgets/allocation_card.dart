@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
+import '../../../core/constants/home_dict.dart';
 import '../../../core/constants/skill_dict.dart';
 import '../../../core/utils/currency_formatter.dart';
-import '../../../models/allocation_model.dart';
+import '../../../models/user_model.dart';
 
 class AllocationCard extends StatelessWidget {
   final AllocationModel allocation;
@@ -88,8 +89,8 @@ class AllocationCard extends StatelessWidget {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  const Text(
-                    'Reserved',
+                  Text(
+                    HomeDict.pending.get(isRpg),
                     style: TextStyle(fontSize: 11, color: Colors.grey),
                   ),
                   const SizedBox(height: 4),

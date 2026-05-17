@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
 
+import '../../../controllers/settings_controller.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/category_dict.dart';
 import '../../../core/constants/history_dict.dart';
@@ -170,6 +172,7 @@ class _IncomeModalState extends State<IncomeModal> {
 
   @override
   Widget build(BuildContext context) {
+    final isRpg = context.read<SettingsController>().isRpgMode;
     final bottomInset = MediaQuery.of(context).viewInsets.bottom;
 
     return Container(
@@ -373,8 +376,8 @@ class _IncomeModalState extends State<IncomeModal> {
               if (widget.isTransfer) ...[
                 SwitchListTile(
                   contentPadding: EdgeInsets.zero,
-                  title: Text(HomeDict.reservedCheck),
-                  subtitle: Text(HomeDict.reservedCheckDesc),
+                  title: Text(HomeDict.reservedCheck(isRpg: isRpg)),
+                  subtitle: Text(HomeDict.reservedCheckDesc(isRpg: isRpg)),
                   value: _isReservedActive,
                   onChanged: (val) => setState(() {
                     if (_selectedWallet != null) {
@@ -453,6 +456,7 @@ class _IncomeModalState extends State<IncomeModal> {
                           CurrencyFormatter.convertToIdr(
                             _selectedWallet?.reservedAmount,
                           ),
+                          isRpg: isRpg,
                         )
                       : HistoryDict.generateNote(
                           _selectedWallet?.name ?? '',

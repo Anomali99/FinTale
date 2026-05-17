@@ -17,8 +17,10 @@ class BillModel {
   final int? day;
   final int? month;
   final DayName? dayName;
+  bool isActive;
+  int? nextDueDate;
 
-  const BillModel({
+  BillModel({
     required this.title,
     required this.amount,
     required this.type,
@@ -28,48 +30,9 @@ class BillModel {
     this.day,
     this.month,
     this.dayName,
+    this.nextDueDate,
+    this.isActive = true,
   });
-
-  BillTier get tier => TierAnalyzer.calculateBillTier(amount, type);
-
-  String _getTargetTitle(DateTime targetDate) {
-    switch (type) {
-      case TimeType.daily:
-        return DateFormat('EEEE, dd MMMM yyyy').format(targetDate);
-
-      case TimeType.weekly:
-        return DateFormat('dd MMMM yyyy').format(targetDate);
-
-      case TimeType.monthly:
-        return DateFormat('MMMM yyyy').format(targetDate);
-
-      case TimeType.annual:
-        return DateFormat('yyyy').format(targetDate);
-    }
-  }
-
-  TransactionModel getTransaction(DateTime transactionDate) {
-    final String targetInfo = _getTargetTitle(transactionDate);
-
-    return TransactionModel(
-      type: TransactionType.expense,
-      billId: id,
-      title: title,
-      amount: amount,
-      status: StatusType.pending,
-      dateTimestamp: transactionDate.millisecondsSinceEpoch,
-      detailTransaction: [
-        TransactionDetailModel(
-          title: 'Bill $targetInfo',
-          amount: amount,
-          flow: FlowType.expense,
-          category: debtId != null
-              ? TransactionCategory.debtInstallment
-              : TransactionCategory.utilities,
-        ),
-      ],
-    );
-  }
 
   Map<String, dynamic> toMap() {
     return {
@@ -81,6 +44,8 @@ class BillModel {
       "day_name": dayName?.name,
       "day": day,
       "month": month,
+      "is_active": isActive ? 1 : 0,
+      "next_due_date": nextDueDate,
     };
   }
 
@@ -100,6 +65,195 @@ class BillModel {
       ),
       day: map['day'],
       month: map['month'],
+      isActive: map['is_active'] == 1,
+      nextDueDate: map['next_due_date'],
     );
+  }
+}
+
+extension BillExtension on BillModel {
+  BillTier get tier => TierAnalyzer.calculateBillTier(amount, type);
+
+  void toggleActive(bool value) {
+    isActive = value;
+  }
+
+  String _getTargetTitle(DateTime targetDate) {
+    switch (type) {
+      case TimeType.daily:
+        return DateFormat('EEEE, dd MMMM yyyy').format(targetDate);
+      case TimeType.weekly:
+        return DateFormat('dd MMMM yyyy').format(targetDate);
+      case TimeType.monthly:
+        return DateFormat('MMMM yyyy').format(targetDate);
+      case TimeType.annual:
+        return DateFormat('yyyy').format(targetDate);
+    }
+  }
+
+  TransactionModel generateTransaction({required bool isDirectPay}) {
+    DateTime now = DateTime.now();
+    DateTime targetDate = nextDueDate != null
+        ? DateTime.fromMillisecondsSinceEpoch(nextDueDate!)
+        : _calculateNextDateFrom(now);
+
+    TransactionModel transaction = TransactionModel(
+      type: TransactionType.expense,
+      billId: id,
+      debtId: debtId,
+      title: title,
+      amount: amount,
+      status: isDirectPay ? StatusType.paid : StatusType.pending,
+      dateTimestamp: isDirectPay
+          ? now.millisecondsSinceEpoch
+          : targetDate.millisecondsSinceEpoch,
+      detailTransaction: [
+        TransactionDetailModel(
+          title: 'Bill ${_getTargetTitle(targetDate)}',
+          amount: amount,
+          flow: FlowType.expense,
+          category: debtId != null
+              ? TransactionCategory.debtInstallment
+              : TransactionCategory.utilities,
+        ),
+      ],
+    );
+
+    advanceToNextBill();
+
+    return transaction;
+  }
+
+  bool isGeneratedForCurrentPeriod() {
+    if (nextDueDate == null) return false;
+
+    DateTime now = DateTime.now();
+    DateTime currentPeriodTarget = _getCurrentPeriodDueDate(now);
+
+    DateTime nextDate = DateTime.fromMillisecondsSinceEpoch(nextDueDate!);
+    DateTime normalizedNextDate = DateTime(
+      nextDate.year,
+      nextDate.month,
+      nextDate.day,
+    );
+
+    return normalizedNextDate.isAfter(currentPeriodTarget);
+  }
+
+  bool shouldAutoGenerate() {
+    if (!isActive || nextDueDate == null) return false;
+
+    DateTime now = DateTime.now();
+    DateTime dueDate = DateTime.fromMillisecondsSinceEpoch(nextDueDate!);
+
+    int differenceInDays = dueDate.difference(now).inDays;
+
+    return differenceInDays <= 15 && differenceInDays >= 0;
+  }
+
+  static StatusType checkTransactionStatus(
+    int dateTimestamp,
+    StatusType currentStatus,
+  ) {
+    if (currentStatus != StatusType.pending) return currentStatus;
+
+    DateTime now = DateTime.now();
+    DateTime dueDate = DateTime.fromMillisecondsSinceEpoch(dateTimestamp);
+
+    if (now.isAfter(dueDate)) {
+      return StatusType.overdue;
+    }
+
+    return currentStatus;
+  }
+
+  void skipNextBill() {
+    DateTime currentTarget = nextDueDate != null
+        ? DateTime.fromMillisecondsSinceEpoch(nextDueDate!)
+        : _calculateNextDateFrom(DateTime.now());
+
+    DateTime newlyCalculatedDate = _calculateNextDateFrom(currentTarget);
+    nextDueDate = newlyCalculatedDate.millisecondsSinceEpoch;
+  }
+
+  void advanceToNextBill() {
+    skipNextBill();
+  }
+
+  DateTime _getCurrentPeriodDueDate(DateTime now) {
+    DateTime baseDate = DateTime(now.year, now.month, now.day);
+
+    switch (type) {
+      case TimeType.daily:
+        return baseDate;
+
+      case TimeType.weekly:
+        int targetWeekday = _getWeekdayFromDayName(dayName ?? DayName.monday);
+        int diff = targetWeekday - baseDate.weekday;
+        return baseDate.add(Duration(days: diff));
+
+      case TimeType.monthly:
+        int targetDay = day ?? 1;
+        return _clampDate(baseDate.year, baseDate.month, targetDay);
+
+      case TimeType.annual:
+        int targetMonth = month ?? 1;
+        int targetDay = day ?? 1;
+        return _clampDate(baseDate.year, targetMonth, targetDay);
+    }
+  }
+
+  DateTime _calculateNextDateFrom(DateTime base) {
+    switch (type) {
+      case TimeType.daily:
+        return base.add(const Duration(days: 1));
+
+      case TimeType.weekly:
+        int targetWeekday = _getWeekdayFromDayName(dayName ?? DayName.monday);
+        int daysToAdd = (targetWeekday - base.weekday + 7) % 7;
+        if (daysToAdd == 0) daysToAdd = 7;
+        return base.add(Duration(days: daysToAdd));
+
+      case TimeType.monthly:
+        int targetDay = day ?? 1;
+        int nextMonth = base.month + 1;
+        int nextYear = base.year;
+        if (nextMonth > 12) {
+          nextMonth = 1;
+          nextYear++;
+        }
+        return _clampDate(nextYear, nextMonth, targetDay);
+
+      case TimeType.annual:
+        int targetMonth = month ?? 1;
+        int targetDay = day ?? 1;
+        int nextYear = base.year + 1;
+        return _clampDate(nextYear, targetMonth, targetDay);
+    }
+  }
+
+  DateTime _clampDate(int year, int month, int day) {
+    int maxDays = DateTime(year, month + 1, 0).day;
+    int safeDay = day > maxDays ? maxDays : day;
+    return DateTime(year, month, safeDay);
+  }
+
+  int _getWeekdayFromDayName(DayName dName) {
+    switch (dName) {
+      case DayName.monday:
+        return DateTime.monday;
+      case DayName.tuesday:
+        return DateTime.tuesday;
+      case DayName.wednesday:
+        return DateTime.wednesday;
+      case DayName.thursday:
+        return DateTime.thursday;
+      case DayName.friday:
+        return DateTime.friday;
+      case DayName.saturday:
+        return DateTime.saturday;
+      case DayName.sunday:
+        return DateTime.sunday;
+    }
   }
 }

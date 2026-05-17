@@ -2,18 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 
+import '../../../controllers/invest_controller.dart';
 import '../../../controllers/wallet_controller.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/category_dict.dart';
-import '../../../core/dummy/dummy_data.dart';
+import '../../../core/constants/history_dict.dart';
 import '../../../models/transaction_model.dart';
 import 'transaction_card.dart';
 
 class SectionHistory extends StatelessWidget {
   final bool isRpg;
   final String title;
-  final ValueChanged<TransactionModel?> onTap;
   final List<TransactionModel> transactions;
+  final Function(TransactionModel?) onTap;
 
   const SectionHistory({
     super.key,
@@ -25,6 +26,7 @@ class SectionHistory extends StatelessWidget {
 
   String _generateSubtitle(BuildContext context, TransactionModel data) {
     final walletController = context.read<WalletController>();
+    final investController = context.read<InvestController>();
     if (data.type == TransactionType.transfer) {
       String from = walletController.getWalletById(data.walletId ?? 1).name;
       String to = walletController.getWalletById(data.targetId ?? 1).name;
@@ -34,16 +36,17 @@ class SectionHistory extends StatelessWidget {
     if (data.type == TransactionType.expense ||
         data.type == TransactionType.debt) {
       String from = walletController.getWalletById(data.walletId ?? 1).name;
-      return 'From: $from';
+      return '${HistoryDict.sourceFundsShort}: $from';
     }
 
     if (data.type == TransactionType.income) {
       if (data.assetsId != null) {
-        String fromAsset = DummyData.assets[(data.assetsId ?? 1) - 1].name;
-        return 'From: $fromAsset';
+        String fromAsset =
+            investController.assets[(data.assetsId ?? 1) - 1].name;
+        return '${HistoryDict.sourceFundsShort}: $fromAsset';
       }
       String toWallet = walletController.getWalletById(data.walletId ?? 1).name;
-      return 'To: $toWallet';
+      return '${HistoryDict.saveToShort}: $toWallet';
     }
 
     return '-';

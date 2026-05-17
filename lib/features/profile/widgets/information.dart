@@ -7,7 +7,7 @@ import '../../../core/constants/menu_dict.dart';
 import '../../../core/constants/profile_dict.dart';
 import '../../../core/constants/skill_dict.dart';
 import '../../../core/constants/title_dict.dart';
-import '../../../models/allocation_model.dart';
+import '../../../models/user_model.dart';
 import '../../../widgets/markdown_text_parser.dart';
 
 class Information extends StatelessWidget {

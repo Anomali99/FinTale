@@ -31,6 +31,26 @@ class TransactionController extends ChangeNotifier {
     _monthlyCache.clear();
   }
 
+  Future<void> loadBillTransaction() async {
+    try {
+      DateTime now = DateTime.now();
+      DateTime finalStart = DateTime(now.year, now.month, 1);
+      DateTime finalEnd = DateTime(now.year, now.month + 1, 15, 23, 59, 59);
+
+      billTransaction = await _transactionDao.getFilteredDataWithChild(
+        startDate: finalStart,
+        endDate: finalEnd,
+        isBills: true,
+      );
+    } catch (e) {
+      debugPrint(
+        "[TRANSACTION] An error occurred while loading the detail transaction: $e",
+      );
+    } finally {
+      notifyListeners();
+    }
+  }
+
   Future<void> loadDetail({DateTime? startDate, DateTime? endDate}) async {
     try {
       DateTime now = DateTime.now();

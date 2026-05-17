@@ -10,9 +10,9 @@ class AssetTab extends StatelessWidget {
   final bool isRpg;
   final FaIconData icon;
   final List<AssetsModel> assets;
-  final ValueChanged<AssetsModel> updateAsset;
-  final ValueChanged<AssetsModel> addInvest;
-  final ValueChanged<AssetsModel> claimDeviden;
+  final Function(AssetsModel) updateAsset;
+  final Function(AssetsModel) addInvest;
+  final Function(AssetsModel) claimDeviden;
 
   const AssetTab({
     super.key,

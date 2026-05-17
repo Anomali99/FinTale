@@ -18,22 +18,6 @@ class WalletModel {
     BigInt? reservedAmount,
   }) : reservedAmount = reservedAmount ?? BigInt.zero;
 
-  void income(BigInt income) {
-    amount += income;
-  }
-
-  void expense(BigInt expense) {
-    amount -= expense;
-  }
-
-  void reservedIncome(BigInt income) {
-    reservedAmount += income;
-  }
-
-  void reservedExpense(BigInt expense) {
-    reservedAmount -= expense;
-  }
-
   Map<String, dynamic> toMap() {
     return {
       'id': id,
@@ -58,7 +42,26 @@ class WalletModel {
   }
 }
 
-extension WalletExten on WalletModel {
+extension WalletExtension on WalletModel {
+  BigInt get regularAmount =>
+      amount > BigInt.zero ? amount - reservedAmount : BigInt.zero;
+
+  void addAmount(BigInt amount, {bool isIncome = true}) {
+    if (isIncome) {
+      this.amount += amount;
+    } else {
+      this.amount -= amount;
+    }
+  }
+
+  void addReserved(BigInt amount, {bool isIncome = true}) {
+    if (isIncome) {
+      reservedAmount += amount;
+    } else {
+      reservedAmount -= amount;
+    }
+  }
+
   FaIconData get icon {
     switch (type) {
       case WalletType.cash:

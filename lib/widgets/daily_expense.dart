@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
+import '../controllers/settings_controller.dart';
 import '../controllers/wallet_controller.dart';
 import '../core/constants/app_colors.dart';
 import '../core/constants/category_dict.dart';
@@ -212,8 +213,10 @@ class _DailyExpenseState extends State<DailyExpense> {
 
   @override
   Widget build(BuildContext context) {
+    final settingsController = context.read<SettingsController>();
     final walletController = context.read<WalletController>();
     final wallets = walletController.wallets;
+    final isRpg = settingsController.isRpgMode;
 
     return Scaffold(
       backgroundColor: AppColors.surface,
@@ -226,7 +229,7 @@ class _DailyExpenseState extends State<DailyExpense> {
         ),
         centerTitle: true,
       ),
-      bottomNavigationBar: _buildBottomBar(),
+      bottomNavigationBar: _buildBottomBar(isRpg),
       body: Form(
         key: _formKey,
         child: ListView(
@@ -310,8 +313,8 @@ class _DailyExpenseState extends State<DailyExpense> {
             const SizedBox(height: 32),
             SwitchListTile(
               contentPadding: EdgeInsets.zero,
-              title: Text(HomeDict.reservedCheck),
-              subtitle: Text(HomeDict.reservedCheckDesc),
+              title: Text(HomeDict.reservedCheck(isRpg: isRpg)),
+              subtitle: Text(HomeDict.reservedCheckDesc(isRpg: isRpg)),
               value: _isReservedActive,
               onChanged: (val) => setState(() {
                 if (_selectedWallet != null) {
@@ -473,7 +476,7 @@ class _DailyExpenseState extends State<DailyExpense> {
     );
   }
 
-  Widget _buildBottomBar() {
+  Widget _buildBottomBar(bool isRpg) {
     return Container(
       padding: EdgeInsets.only(
         left: 24,
@@ -496,10 +499,18 @@ class _DailyExpenseState extends State<DailyExpense> {
         children: [
           if (_selectedWallet != null) ...[
             NoteContainer(
-              text: HistoryDict.generateNote(
-                _selectedWallet?.name ?? '',
-                CurrencyFormatter.convertToIdr(_selectedWallet?.amount),
-              ),
+              text: _isReservedActive
+                  ? HomeDict.generateNote(
+                      _selectedWallet?.name ?? '',
+                      CurrencyFormatter.convertToIdr(
+                        _selectedWallet?.reservedAmount,
+                      ),
+                      isRpg: isRpg,
+                    )
+                  : HistoryDict.generateNote(
+                      _selectedWallet?.name ?? '',
+                      CurrencyFormatter.convertToIdr(_selectedWallet?.amount),
+                    ),
               color: Colors.grey,
             ),
             const SizedBox(height: 8),
