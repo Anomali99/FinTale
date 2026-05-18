@@ -5,19 +5,19 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
-import '../controllers/settings_controller.dart';
-import '../controllers/wallet_controller.dart';
-import '../core/constants/app_colors.dart';
-import '../core/constants/category_dict.dart';
-import '../core/constants/history_dict.dart';
-import '../core/constants/home_dict.dart';
-import '../core/constants/shared_dict.dart';
-import '../core/utils/currency_formatter.dart';
-import '../models/transaction_detail_model.dart';
-import '../models/transaction_model.dart';
-import '../models/wallet_model.dart';
-import '../widgets/note_container.dart';
-import 'custom_button.dart';
+import '../../../controllers/settings_controller.dart';
+import '../../../controllers/wallet_controller.dart';
+import '../../../core/constants/app_colors.dart';
+import '../../../core/constants/category_dict.dart';
+import '../../../core/constants/history_dict.dart';
+import '../../../core/constants/home_dict.dart';
+import '../../../core/constants/shared_dict.dart';
+import '../../../core/utils/currency_formatter.dart';
+import '../../../models/transaction_detail_model.dart';
+import '../../../models/transaction_model.dart';
+import '../../../models/wallet_model.dart';
+import '../../../widgets/custom_button.dart';
+import '../../../widgets/note_container.dart';
 
 class ExpenseItemForm {
   TextEditingController titleController;
@@ -31,16 +31,14 @@ class ExpenseItemForm {
   });
 }
 
-class DailyExpense extends StatefulWidget {
-  final bool isRpg;
-
-  const DailyExpense({super.key, required this.isRpg});
+class DailyExpenseScreen extends StatefulWidget {
+  const DailyExpenseScreen({super.key});
 
   @override
-  State<DailyExpense> createState() => _DailyExpenseState();
+  State<DailyExpenseScreen> createState() => _DailyExpenseScreenState();
 }
 
-class _DailyExpenseState extends State<DailyExpense> {
+class _DailyExpenseScreenState extends State<DailyExpenseScreen> {
   final _formKey = GlobalKey<FormState>();
 
   final _mainTitleController = TextEditingController();
@@ -224,7 +222,7 @@ class _DailyExpenseState extends State<DailyExpense> {
         backgroundColor: AppColors.surface,
         elevation: 0,
         title: Text(
-          HistoryDict.recordExpense.get(widget.isRpg),
+          HistoryDict.recordExpense.get(isRpg),
           style: GoogleFonts.poppins(fontWeight: FontWeight.bold, fontSize: 18),
         ),
         centerTitle: true,
@@ -279,7 +277,7 @@ class _DailyExpenseState extends State<DailyExpense> {
                     onTap: _pickDate,
                     child: InputDecorator(
                       decoration: InputDecoration(
-                        labelText: HistoryDict.adventureTime.get(widget.isRpg),
+                        labelText: HistoryDict.adventureTime.get(isRpg),
                         border: const OutlineInputBorder(),
                       ),
                       child: Text(
@@ -432,7 +430,7 @@ class _DailyExpenseState extends State<DailyExpense> {
                             child: Text(
                               CategoryDict.getByTransactionCategory(
                                 cat,
-                              ).get(widget.isRpg),
+                              ).get(isRpg),
                             ),
                           );
                         }).toList(),
@@ -534,7 +532,7 @@ class _DailyExpenseState extends State<DailyExpense> {
           ),
           const SizedBox(height: 16),
           CustomButton(
-            title: HistoryDict.saveExpense.get(widget.isRpg),
+            title: HistoryDict.saveExpense.get(isRpg),
             color: AppColors.error,
             onTap: _submitForm,
           ),

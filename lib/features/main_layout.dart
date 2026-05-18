@@ -10,11 +10,10 @@ import '../core/constants/app_colors.dart';
 import '../core/constants/menu_dict.dart';
 import '../models/transaction_model.dart';
 import '../widgets/custom_bottom_sheet.dart';
-import '../widgets/daily_expense.dart';
-import 'bills/bills_screen.dart';
-import 'history/history_screen.dart';
-import 'home/home_screen.dart';
-import 'invest/invest_screen.dart';
+import 'bills/screens/bills_screen.dart';
+import 'history/screens/history_screen.dart';
+import 'home/screens/home_screen.dart';
+import 'invest/screens/invest_screen.dart';
 
 class MainLayout extends StatelessWidget {
   MainLayout({super.key});
@@ -27,16 +26,12 @@ class MainLayout extends StatelessWidget {
   ];
 
   void _submitTransactionHandle(BuildContext context) async {
-    final settingsController = context.read<SettingsController>();
     final layoutController = context.read<LayoutController>();
     final historyController = context.read<HistoryController>();
     final analyticsController = context.read<AnalyticsController>();
-    final result = await Navigator.push<Map<String, dynamic>>(
-      context,
-      MaterialPageRoute(
-        builder: (context) => DailyExpense(isRpg: settingsController.isRpgMode),
-      ),
-    );
+    final result =
+        await Navigator.pushNamed(context, '/daily-expense')
+            as Map<String, dynamic>?;
     if (result != null) {
       TransactionModel transaction = result['transaction'];
       bool useReserved = result['use_reserved'];

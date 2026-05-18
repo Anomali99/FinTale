@@ -3,22 +3,20 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
-import '../../controllers/profile_controller.dart';
-import '../../controllers/settings_controller.dart';
-import '../../controllers/user_controller.dart';
-import '../../core/constants/app_colors.dart';
-import '../../core/constants/menu_dict.dart';
-import '../../core/constants/profile_dict.dart';
-import '../../core/constants/shared_dict.dart';
-import '../../core/constants/skill_dict.dart';
-import '../../core/utils/currency_formatter.dart';
-import '../../models/user_model.dart';
-import 'widgets/allocation_card.dart';
-import 'widgets/daily_missions.dart';
-import 'widgets/edit_modal.dart';
-import 'widgets/information.dart';
-import 'widgets/profile_card.dart';
-import 'widgets/skill_tree.dart';
+import '../../../controllers/profile_controller.dart';
+import '../../../controllers/settings_controller.dart';
+import '../../../controllers/user_controller.dart';
+import '../../../core/constants/app_colors.dart';
+import '../../../core/constants/menu_dict.dart';
+import '../../../core/constants/profile_dict.dart';
+import '../../../core/constants/shared_dict.dart';
+import '../../../core/constants/skill_dict.dart';
+import '../../../core/utils/currency_formatter.dart';
+import '../../../models/user_model.dart';
+import '../widgets/allocation_card.dart';
+import '../widgets/daily_missions.dart';
+import '../widgets/edit_modal.dart';
+import '../widgets/profile_card.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -85,10 +83,7 @@ class ProfileScreen extends StatelessWidget {
         actions: [
           IconButton(
             icon: const FaIcon(FontAwesomeIcons.circleInfo, size: 20),
-            onPressed: () => Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const Information()),
-            ),
+            onPressed: () => Navigator.pushNamed(context, '/information'),
           ),
         ],
       ),
@@ -111,10 +106,7 @@ class ProfileScreen extends StatelessWidget {
             investmentPercentage: userController.getAllocation(
               SectorType.investment,
             ),
-            onTap: () => Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const SkillTree()),
-            ),
+            onTap: () => Navigator.pushNamed(context, 'skill-tree'),
             isRpg: isRpg,
           ),
           const SizedBox(height: 24),

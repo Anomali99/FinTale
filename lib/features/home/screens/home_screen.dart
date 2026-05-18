@@ -3,30 +3,28 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
-import '../../controllers/analytics_controller.dart';
-import '../../controllers/bill_controller.dart';
-import '../../controllers/history_controller.dart';
-import '../../controllers/home_controller.dart';
-import '../../controllers/invest_controller.dart';
-import '../../controllers/settings_controller.dart';
-import '../../controllers/user_controller.dart';
-import '../../controllers/wallet_controller.dart';
-import '../../core/constants/app_colors.dart';
-import '../../core/constants/home_dict.dart';
-import '../../core/constants/title_dict.dart';
-import '../../features/invest/widgets/buy_asset_modal.dart';
-import '../../models/assets_model.dart';
-import '../../models/transaction_model.dart';
-import '../../models/user_model.dart';
-import '../../models/wallet_model.dart';
-import '../profile/profile_screen.dart';
-import '../settings/settings_screen.dart';
-import 'widgets/allocation_card.dart';
-import 'widgets/balance_card.dart';
-import 'widgets/daily_limit.dart';
-import 'widgets/income_modal.dart';
-import 'widgets/wallet_details.dart';
-import 'widgets/wallet_modal.dart';
+import '../../../controllers/analytics_controller.dart';
+import '../../../controllers/bill_controller.dart';
+import '../../../controllers/history_controller.dart';
+import '../../../controllers/home_controller.dart';
+import '../../../controllers/invest_controller.dart';
+import '../../../controllers/settings_controller.dart';
+import '../../../controllers/user_controller.dart';
+import '../../../controllers/wallet_controller.dart';
+import '../../../core/constants/app_colors.dart';
+import '../../../core/constants/home_dict.dart';
+import '../../../core/constants/title_dict.dart';
+import '../../../models/assets_model.dart';
+import '../../../models/transaction_model.dart';
+import '../../../models/user_model.dart';
+import '../../../models/wallet_model.dart';
+import '../../invest/widgets/buy_asset_modal.dart';
+import '../widgets/allocation_card.dart';
+import '../widgets/balance_card.dart';
+import '../widgets/daily_limit.dart';
+import '../widgets/income_modal.dart';
+import '../widgets/wallet_details.dart';
+import '../widgets/wallet_modal.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -220,10 +218,7 @@ class HomeScreen extends StatelessWidget {
       appBar: AppBar(
         titleSpacing: 24,
         title: GestureDetector(
-          onTap: () => Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const ProfileScreen()),
-          ),
+          onTap: () => Navigator.pushNamed(context, '/profile'),
           child: Container(
             color: Colors.transparent,
             child: Column(
@@ -272,10 +267,7 @@ class HomeScreen extends StatelessWidget {
           IconButton(
             icon: const FaIcon(FontAwesomeIcons.gear, size: 20),
             onPressed: () async {
-              await Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const SettingsScreen()),
-              );
+              await Navigator.pushNamed(context, '/settings');
               if (context.mounted) homeController.loadData();
             },
           ),

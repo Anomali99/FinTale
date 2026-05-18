@@ -10,14 +10,14 @@ import '../../../core/constants/skill_dict.dart';
 import '../../../core/models/category_model.dart';
 import '../../../models/user_model.dart';
 
-class SkillTree extends StatefulWidget {
-  const SkillTree({super.key});
+class SkillTreeScreen extends StatefulWidget {
+  const SkillTreeScreen({super.key});
 
   @override
-  State<SkillTree> createState() => _SkillTreeState();
+  State<SkillTreeScreen> createState() => _SkillTreeScreenState();
 }
 
-class _SkillTreeState extends State<SkillTree> {
+class _SkillTreeScreenState extends State<SkillTreeScreen> {
   final GlobalKey _stackKey = GlobalKey();
   final Map<Enum?, GlobalKey> _nodeKeys = {};
   Map<Enum?, Offset> _nodePositions = {};

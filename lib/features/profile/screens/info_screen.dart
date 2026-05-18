@@ -10,8 +10,8 @@ import '../../../core/constants/title_dict.dart';
 import '../../../models/user_model.dart';
 import '../../../widgets/markdown_text_parser.dart';
 
-class Information extends StatelessWidget {
-  const Information({super.key});
+class InfoScreen extends StatelessWidget {
+  const InfoScreen({super.key});
 
   @override
   Widget build(BuildContext context) {

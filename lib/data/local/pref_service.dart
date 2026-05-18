@@ -11,9 +11,11 @@ class PrefService {
   static const String _keyUserProfile = 'user_profile';
   static const String _keyHideBalance = 'is_hide_balance';
   static const String _keyAppLock = 'is_app_lock';
+  static const String _keyBiometric = 'is_biometric';
   static const String _keyRpgMode = 'is_rpg_mode';
   static const String _keyNotification = 'is_notification';
   static const String _keyThemeMode = 'theme_mode';
+  static const String _keyPinHash = 'pin_hash';
 
   Future<void> saveUser(UserModel user) async {
     String jsonString = jsonEncode(user.toJson());
@@ -37,6 +39,11 @@ class PrefService {
   Future<void> setAppLock(bool value) async =>
       await _prefs.setBool(_keyAppLock, value);
 
+  bool get isBiometric => _prefs.getBool(_keyBiometric) ?? false;
+
+  Future<void> setBiometric(bool value) async =>
+      await _prefs.setBool(_keyBiometric, value);
+
   bool get isRpgMode => _prefs.getBool(_keyRpgMode) ?? false;
 
   Future<void> setRpgMode(bool value) async =>
@@ -51,6 +58,12 @@ class PrefService {
 
   Future<void> setThemeMode(String value) async =>
       await _prefs.setString(_keyThemeMode, value);
+
+  String? get pinHash => _prefs.getString(_keyPinHash);
+
+  Future<void> setPinHash(String? value) async => value == null
+      ? await _prefs.remove(_keyPinHash)
+      : await _prefs.setString(_keyPinHash, value);
 
   Future<void> clearAll() async {
     await _prefs.clear();

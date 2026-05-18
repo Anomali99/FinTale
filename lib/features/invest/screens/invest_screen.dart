@@ -3,22 +3,22 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
-import '../../controllers/analytics_controller.dart';
-import '../../controllers/history_controller.dart';
-import '../../controllers/invest_controller.dart';
-import '../../controllers/settings_controller.dart';
-import '../../controllers/wallet_controller.dart';
-import '../../core/constants/app_colors.dart';
-import '../../core/constants/assets_dict.dart';
-import '../../core/constants/invest_dict.dart';
-import '../../core/constants/menu_dict.dart';
-import '../../models/assets_model.dart';
-import '../../models/transaction_model.dart';
-import 'widgets/asset_tab.dart';
-import 'widgets/buy_asset_modal.dart';
-import 'widgets/dividend_modal.dart';
-import 'widgets/total_card.dart';
-import 'widgets/update_asset_modal.dart';
+import '../../../controllers/analytics_controller.dart';
+import '../../../controllers/history_controller.dart';
+import '../../../controllers/invest_controller.dart';
+import '../../../controllers/settings_controller.dart';
+import '../../../controllers/wallet_controller.dart';
+import '../../../core/constants/app_colors.dart';
+import '../../../core/constants/assets_dict.dart';
+import '../../../core/constants/invest_dict.dart';
+import '../../../core/constants/menu_dict.dart';
+import '../../../models/assets_model.dart';
+import '../../../models/transaction_model.dart';
+import '../widgets/asset_tab.dart';
+import '../widgets/buy_asset_modal.dart';
+import '../widgets/dividend_modal.dart';
+import '../widgets/total_card.dart';
+import '../widgets/update_asset_modal.dart';
 
 class InvestScreen extends StatelessWidget {
   const InvestScreen({super.key});

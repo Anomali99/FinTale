@@ -3,22 +3,22 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
-import '../../controllers/bill_controller.dart';
-import '../../controllers/settings_controller.dart';
-import '../../controllers/transaction_controller.dart';
-import '../../core/constants/app_colors.dart';
-import '../../core/constants/bills_dict.dart';
-import '../../core/constants/menu_dict.dart';
-import '../../features/bills/widgets/add_bill_modal.dart';
-import '../../features/bills/widgets/add_debt_modal.dart';
-import '../../models/bill_model.dart';
-import '../../models/debt_model.dart';
-import '../../widgets/custom_bottom_sheet.dart';
-import 'widgets/active_bills_tab.dart';
-import 'widgets/bill_detail_modal.dart';
-import 'widgets/bills_tab.dart';
-import 'widgets/debt_detail_modal.dart';
-import 'widgets/debts_tab.dart';
+import '../../../controllers/bill_controller.dart';
+import '../../../controllers/settings_controller.dart';
+import '../../../controllers/transaction_controller.dart';
+import '../../../core/constants/app_colors.dart';
+import '../../../core/constants/bills_dict.dart';
+import '../../../core/constants/menu_dict.dart';
+import '../../../models/bill_model.dart';
+import '../../../models/debt_model.dart';
+import '../../../widgets/custom_bottom_sheet.dart';
+import '../widgets/active_bills_tab.dart';
+import '../widgets/add_bill_modal.dart';
+import '../widgets/add_debt_modal.dart';
+import '../widgets/bill_detail_modal.dart';
+import '../widgets/bills_tab.dart';
+import '../widgets/debt_detail_modal.dart';
+import '../widgets/debts_tab.dart';
 
 class BillsScreen extends StatelessWidget {
   const BillsScreen({super.key});

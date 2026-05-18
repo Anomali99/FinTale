@@ -4,17 +4,17 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
-import '../../controllers/analytics_controller.dart';
-import '../../controllers/settings_controller.dart';
-import '../../controllers/transaction_controller.dart';
-import '../../core/constants/app_colors.dart';
-import '../../core/constants/history_dict.dart';
-import '../../core/constants/menu_dict.dart';
-import '../../core/models/analytic_model.dart';
-import '../../widgets/month_filter.dart';
-import 'widgets/detail_card.dart';
-import 'widgets/donut_chart.dart';
-import 'widgets/overview_card.dart';
+import '../../../controllers/analytics_controller.dart';
+import '../../../controllers/settings_controller.dart';
+import '../../../controllers/transaction_controller.dart';
+import '../../../core/constants/app_colors.dart';
+import '../../../core/constants/history_dict.dart';
+import '../../../core/constants/menu_dict.dart';
+import '../../../core/models/analytic_model.dart';
+import '../../../widgets/month_filter.dart';
+import '../widgets/detail_card.dart';
+import '../widgets/donut_chart.dart';
+import '../widgets/overview_card.dart';
 
 class AnalyticsScreen extends StatelessWidget {
   const AnalyticsScreen({super.key});

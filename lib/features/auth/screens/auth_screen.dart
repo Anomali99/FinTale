@@ -3,11 +3,11 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
-import '../../controllers/auth_controller.dart';
-import '../../controllers/skill_controller.dart';
-import '../../core/constants/app_colors.dart';
-import '../../core/constants/auth_dict.dart';
-import '../../widgets/custom_button.dart';
+import '../../../controllers/auth_controller.dart';
+import '../../../controllers/skill_controller.dart';
+import '../../../core/constants/app_colors.dart';
+import '../../../core/constants/auth_dict.dart';
+import '../../../widgets/custom_button.dart';
 
 class AuthScreen extends StatelessWidget {
   const AuthScreen({super.key});

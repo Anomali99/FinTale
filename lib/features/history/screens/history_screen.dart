@@ -4,20 +4,19 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
-import '../../controllers/history_controller.dart';
-import '../../controllers/settings_controller.dart';
-import '../../controllers/transaction_controller.dart';
-import '../../core/constants/app_colors.dart';
-import '../../core/constants/history_dict.dart';
-import '../../core/constants/menu_dict.dart';
-import '../../core/constants/shared_dict.dart';
-import '../../features/history/widgets/transaction_detail_modal.dart';
-import '../../models/transaction_model.dart';
-import '../../widgets/filter_bottom_sheet.dart';
-import '../../widgets/month_filter.dart';
-import '../analytics/analytics_screen.dart';
-import 'widgets/cash_flow_card.dart';
-import 'widgets/section_history.dart';
+import '../../../controllers/history_controller.dart';
+import '../../../controllers/settings_controller.dart';
+import '../../../controllers/transaction_controller.dart';
+import '../../../core/constants/app_colors.dart';
+import '../../../core/constants/history_dict.dart';
+import '../../../core/constants/menu_dict.dart';
+import '../../../core/constants/shared_dict.dart';
+import '../../../models/transaction_model.dart';
+import '../../../widgets/filter_bottom_sheet.dart';
+import '../../../widgets/month_filter.dart';
+import '../widgets/cash_flow_card.dart';
+import '../widgets/section_history.dart';
+import '../widgets/transaction_detail_modal.dart';
 
 class HistoryScreen extends StatelessWidget {
   const HistoryScreen({super.key});
@@ -97,12 +96,7 @@ class HistoryScreen extends StatelessWidget {
               size: 20,
               color: AppColors.primary,
             ),
-            onPressed: () => {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => AnalyticsScreen()),
-              ),
-            },
+            onPressed: () => Navigator.pushNamed(context, '/analytics'),
             tooltip: MenuDict.analytics.get(isRpg),
           ),
           const SizedBox(width: 8),

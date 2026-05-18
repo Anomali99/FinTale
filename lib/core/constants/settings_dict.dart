@@ -7,6 +7,10 @@ class SettingsDict {
   static const String theme = 'Tema';
   static const String appLocDesc = 'Kunci aplikasi dengan PIN/Biometrik.';
   static const String rpgDesc = 'Gunakan istilah ala game.';
+  static const String dataReset = 'Reset Data';
+  static const String dataResetBtn = 'Ya, Reset';
+  static const String dataResetDesc =
+      'Tindakan ini akan menghapus seluruh data dan mengulang progress Anda dari awal. Anda yakin ingin melakukan reset?';
 
   static const TermModel security = TermModel(
     normal: 'Keamanan & Privasi',
