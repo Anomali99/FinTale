@@ -7,10 +7,10 @@ import '../../../controllers/invest_controller.dart';
 import '../../../controllers/wallet_controller.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/category_dict.dart';
-import '../../../core/constants/history_dict.dart';
-import '../../../core/constants/shared_dict.dart';
-import '../../../core/constants/status_dict.dart';
+import '../../../core/constants/screen_dict.dart';
+import '../../../core/constants/ui_dict.dart';
 import '../../../core/utils/currency_formatter.dart';
+import '../../../core/utils/enum_types.dart';
 import '../../../core/utils/time_formatter.dart';
 import '../../../core/utils/type_extension.dart';
 import '../../../models/assets_model.dart';
@@ -33,7 +33,7 @@ class TransactionDetailModal extends StatelessWidget {
     final walletController = context.read<WalletController>();
     final investController = context.read<InvestController>();
     final wallet = walletController.getWalletById(transaction.walletId!);
-    final status = StatusDict.getbyEnum(transaction.status);
+    final status = CategoryDict.getStatusByEnum(transaction.status);
     WalletModel? walletTarget;
     AssetsModel? asset;
 
@@ -119,7 +119,7 @@ class TransactionDetailModal extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            HistoryDict.adventureTime.get(isRpg),
+                            ScreenDict.historyTime.get(isRpg),
                             style: TextStyle(
                               fontSize: 12,
                               color: AppColors.textSecondary,
@@ -141,7 +141,7 @@ class TransactionDetailModal extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
                           Text(
-                            HistoryDict.status,
+                            UiDict.status,
                             style: TextStyle(
                               fontSize: 12,
                               color: AppColors.textSecondary,
@@ -180,7 +180,7 @@ class TransactionDetailModal extends StatelessWidget {
                       transaction.type == TransactionType.income &&
                       asset != null) ...[
                     _buildWalletRow(
-                      label: HistoryDict.sourceFunds,
+                      label: UiDict.sourceFunds,
                       value: asset.name,
                       icon: asset.typeDict.icon(isRpg),
                     ),
@@ -189,10 +189,10 @@ class TransactionDetailModal extends StatelessWidget {
 
                   _buildWalletRow(
                     label: transaction.type == TransactionType.income
-                        ? HistoryDict.saveTo
+                        ? UiDict.saveTo
                         : transaction.type == TransactionType.transfer
-                        ? HistoryDict.originWallet
-                        : HistoryDict.sourceFunds,
+                        ? UiDict.originWallet
+                        : UiDict.sourceFunds,
                     value: wallet.name,
                     icon: wallet.icon,
                   ),
@@ -201,7 +201,7 @@ class TransactionDetailModal extends StatelessWidget {
                       walletTarget != null) ...[
                     const SizedBox(height: 12),
                     _buildWalletRow(
-                      label: SharedDict.destinationWallet,
+                      label: UiDict.destinationWallet,
                       value: walletTarget.name,
                       icon: walletTarget.icon,
                     ),
@@ -215,7 +215,7 @@ class TransactionDetailModal extends StatelessWidget {
             Align(
               alignment: Alignment.centerLeft,
               child: Text(
-                HistoryDict.detailBreakdown,
+                ScreenDict.breakdownDetail,
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.bold,

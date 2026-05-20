@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../core/constants/app_colors.dart';
-import '../../../core/constants/shared_dict.dart';
+import '../../../core/constants/ui_dict.dart';
 import '../../../core/utils/currency_formatter.dart';
 
 class OverviewCard extends StatelessWidget {
@@ -68,7 +68,7 @@ class OverviewCard extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                SharedDict.income.get(isRpg),
+                UiDict.income.get(isRpg),
                 style: const TextStyle(
                   color: AppColors.textSecondary,
                   fontSize: 12,
@@ -132,17 +132,17 @@ class OverviewCard extends StatelessWidget {
             children: [
               _buildLegendItem(
                 color: AppColors.error,
-                label: SharedDict.expense.get(isRpg),
+                label: UiDict.expense.get(isRpg),
                 amount: totalExpense,
               ),
               _buildLegendItem(
                 color: AppColors.primary,
-                label: SharedDict.invest.get(isRpg),
+                label: UiDict.menuInvest.get(isRpg),
                 amount: totalInvest,
               ),
               _buildLegendItem(
                 color: Colors.white24,
-                label: SharedDict.unallocated.get(isRpg),
+                label: UiDict.unallocated.get(isRpg),
                 amount: unallocated,
               ),
             ],

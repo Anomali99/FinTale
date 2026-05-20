@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../core/constants/app_colors.dart';
-import '../../../core/constants/home_dict.dart';
+import '../../../core/constants/screen_dict.dart';
 import '../../../core/utils/currency_formatter.dart';
 
 class DailyLimit extends StatelessWidget {
@@ -44,7 +44,7 @@ class DailyLimit extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(HomeDict.remainingToday.get(isRpg)),
+              Text(ScreenDict.homeRemainingToday.get(isRpg)),
               Text(
                 formattedRemaining,
                 style: TextStyle(
@@ -70,13 +70,16 @@ class DailyLimit extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Spent: ${CurrencyFormatter.convertToIdr(spent)} / ${CurrencyFormatter.convertToIdr(limit)}',
+                ScreenDict.getHomeSpent(
+                  CurrencyFormatter.convertToIdr(spent),
+                  CurrencyFormatter.convertToIdr(limit),
+                ),
                 style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
               ),
 
               if (penalty != null && penalty! > BigInt.zero)
                 Text(
-                  '- ${CurrencyFormatter.compact(penalty)} dari kemarin',
+                  ScreenDict.getHomePenalty(CurrencyFormatter.compact(penalty)),
                   style: const TextStyle(
                     fontSize: 11,
                     color: AppColors.error,

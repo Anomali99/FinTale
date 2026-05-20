@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
-import '../../models/transaction_detail_model.dart';
-import '../../models/transaction_model.dart';
 import '../models/category_model.dart';
 import '../models/icon_model.dart';
 import '../models/term_model.dart';
-import 'assets_dict.dart';
+import '../utils/enum_types.dart';
 
 class CategoryDict {
   static const CategoryModel food = CategoryModel(
@@ -66,16 +64,6 @@ class CategoryDict {
     ),
   );
 
-  static const CategoryModel debtInstallment = CategoryModel(
-    type: 'debt',
-    color: Colors.deepOrange,
-    terminology: TermModel(normal: 'Cicilan Hutang', rpg: 'Serangan ke Boss'),
-    icons: IconModel(
-      normal: FontAwesomeIcons.handHoldingDollar,
-      rpg: FontAwesomeIcons.dragon,
-    ),
-  );
-
   static const CategoryModel salary = CategoryModel(
     type: 'income',
     color: Colors.green,
@@ -119,9 +107,123 @@ class CategoryDict {
     ),
   );
 
-  static const CategoryModel lowRisk = AssetsDict.lowRisk;
-  static const CategoryModel mediumRisk = AssetsDict.mediumRisk;
-  static const CategoryModel highRisk = AssetsDict.highRisk;
+  static const CategoryModel lowRisk = CategoryModel(
+    type: 'Investasi',
+    color: Color(0xFF81C784),
+    terminology: TermModel(normal: 'Risiko Rendah', rpg: 'Tanker'),
+    description:
+        'Aset yang stabil dan aman untuk melindungi modalmu. Meski serangannya (return) kecil, aset ini adalah perisai terkuat menahan volatilitas pasar.',
+    icons: IconModel(
+      normal: FontAwesomeIcons.vault,
+      rpg: FontAwesomeIcons.shieldHalved,
+    ),
+  );
+
+  static const CategoryModel mediumRisk = CategoryModel(
+    type: 'Investasi',
+    color: Color(0xFFFFB74D),
+    terminology: TermModel(normal: 'Risiko Menengah', rpg: 'Fighter'),
+    description:
+        'Pasukan garis depan portofoliomu. Menawarkan keseimbangan antara risiko dan hadiah.',
+    icons: IconModel(
+      normal: FontAwesomeIcons.chartLine,
+      rpg: FontAwesomeIcons.handFist,
+    ),
+  );
+
+  static const CategoryModel highRisk = CategoryModel(
+    type: 'Investasi',
+    color: Color(0xFFF06292),
+    terminology: TermModel(normal: 'Risiko Tinggi', rpg: 'Assassin'),
+    description:
+        'Aset liar yang mampu memberikan keuntungan masif secara cepat—atau kerugian fatal.',
+    icons: IconModel(
+      normal: FontAwesomeIcons.rocket,
+      rpg: FontAwesomeIcons.userNinja,
+    ),
+  );
+
+  static const CategoryModel debtInstallment = CategoryModel(
+    type: 'debt',
+    color: Colors.deepOrange,
+    terminology: TermModel(normal: 'Cicilan Hutang', rpg: 'Serangan ke Boss'),
+    icons: IconModel(
+      normal: FontAwesomeIcons.handHoldingDollar,
+      rpg: FontAwesomeIcons.dragon,
+    ),
+  );
+
+  static const CategoryModel creditCard = CategoryModel(
+    terminology: TermModel(normal: 'Kartu Kredit', rpg: 'Debuff Racun'),
+    icons: IconModel(
+      normal: FontAwesomeIcons.creditCard,
+      rpg: FontAwesomeIcons.skullCrossbones,
+    ),
+  );
+
+  static const CategoryModel mortgage = CategoryModel(
+    terminology: TermModel(normal: 'KPR (Rumah)', rpg: 'Pertahanan Kastil'),
+    icons: IconModel(
+      normal: FontAwesomeIcons.house,
+      rpg: FontAwesomeIcons.chessRook,
+    ),
+  );
+
+  static const CategoryModel vehicle = CategoryModel(
+    terminology: TermModel(normal: 'Kredit Kendaraan', rpg: 'Cicilan Mount'),
+    icons: IconModel(normal: FontAwesomeIcons.car, rpg: FontAwesomeIcons.horse),
+  );
+
+  static const CategoryModel personalLoan = CategoryModel(
+    terminology: TermModel(normal: 'Pinjaman Pribadi', rpg: 'Hutang Tavern'),
+    icons: IconModel(
+      normal: FontAwesomeIcons.handshake,
+      rpg: FontAwesomeIcons.beerMugEmpty,
+    ),
+  );
+
+  static const CategoryModel businessLoan = CategoryModel(
+    terminology: TermModel(normal: 'Pinjaman Modal', rpg: 'Hutang Merchant'),
+    icons: IconModel(
+      normal: FontAwesomeIcons.store,
+      rpg: FontAwesomeIcons.scaleBalanced,
+    ),
+  );
+
+  static const CategoryModel otherDebt = CategoryModel(
+    terminology: TermModel(normal: 'Hutang Lainnya', rpg: 'Kutukan Misterius'),
+    icons: IconModel(
+      normal: FontAwesomeIcons.fileInvoiceDollar,
+      rpg: FontAwesomeIcons.ghost,
+    ),
+  );
+
+  static const CategoryModel statusPending = CategoryModel(
+    terminology: TermModel(normal: 'Tertunda', rpg: 'Berjalan'),
+    color: Colors.amber,
+    icons: IconModel(
+      normal: FontAwesomeIcons.hourglassHalf,
+      rpg: FontAwesomeIcons.fireFlameCurved,
+    ),
+  );
+
+  static const CategoryModel statusOverdue = CategoryModel(
+    terminology: TermModel(normal: 'Terlambat', rpg: 'Kritis'),
+    color: Colors.red,
+    icons: IconModel(
+      normal: FontAwesomeIcons.circleExclamation,
+      rpg: FontAwesomeIcons.skull,
+    ),
+  );
+
+  static const CategoryModel statusPaid = CategoryModel(
+    terminology: TermModel(normal: 'Lunas', rpg: 'Tuntas'),
+    color: Colors.green,
+    icons: IconModel(
+      normal: FontAwesomeIcons.circleCheck,
+      rpg: FontAwesomeIcons.medal,
+    ),
+  );
 
   static List<CategoryModel> get all => [
     food,
@@ -140,16 +242,42 @@ class CategoryDict {
     highRisk,
   ];
 
-  static List<CategoryModel> getByCategoryType(TransactionType type) {
+  static CategoryModel getAssetByEnum(RiskType type) {
     switch (type) {
-      case TransactionType.expense:
-        return [food, groceries, transport, entertainment, health, utilities];
-      case TransactionType.income:
-        return [salary, business, dividend];
-      case TransactionType.transfer:
-        return [transfer, lowRisk, mediumRisk, highRisk];
-      case TransactionType.debt:
-        return [debtInstallment];
+      case RiskType.low:
+        return lowRisk;
+      case RiskType.medium:
+        return mediumRisk;
+      case RiskType.high:
+        return highRisk;
+    }
+  }
+
+  static CategoryModel getDebtByEnum(DebtType type) {
+    switch (type) {
+      case DebtType.creditCard:
+        return creditCard;
+      case DebtType.mortgage:
+        return mortgage;
+      case DebtType.vehicle:
+        return vehicle;
+      case DebtType.personal:
+        return personalLoan;
+      case DebtType.business:
+        return businessLoan;
+      case DebtType.other:
+        return otherDebt;
+    }
+  }
+
+  static CategoryModel getStatusByEnum(StatusType status) {
+    switch (status) {
+      case StatusType.pending:
+        return statusPending;
+      case StatusType.overdue:
+        return statusOverdue;
+      case StatusType.paid:
+        return statusPaid;
     }
   }
 

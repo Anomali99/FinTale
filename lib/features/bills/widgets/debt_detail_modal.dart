@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
+import '../../../controllers/settings_controller.dart';
 import '../../../core/constants/app_colors.dart';
-import '../../../core/constants/debts_dict.dart';
+import '../../../core/constants/category_dict.dart';
+import '../../../core/constants/screen_dict.dart';
+import '../../../core/constants/ui_dict.dart';
 import '../../../core/utils/currency_formatter.dart';
 import '../../../models/debt_model.dart';
 import '../../../widgets/custom_button.dart';
@@ -13,12 +17,13 @@ enum DebtActionType { payDirect, payBill, edit }
 
 class DebtDetailModal extends StatelessWidget {
   final DebtModel debt;
-  final bool isRpg;
 
-  const DebtDetailModal({super.key, required this.debt, required this.isRpg});
+  const DebtDetailModal({super.key, required this.debt});
 
   @override
   Widget build(BuildContext context) {
+    final isRpg = context.read<SettingsController>().isRpgMode;
+
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: const BoxDecoration(
@@ -48,7 +53,7 @@ class DebtDetailModal extends StatelessWidget {
                   radius: 28,
                   backgroundColor: AppColors.error.withOpacity(0.2),
                   child: FaIcon(
-                    DebtsDict.getByEnum(debt.type).icon(isRpg),
+                    CategoryDict.getDebtByEnum(debt.type).icon(isRpg),
                     color: AppColors.error,
                     size: 24,
                   ),
@@ -86,7 +91,7 @@ class DebtDetailModal extends StatelessWidget {
               borderColor: AppColors.error,
               children: [
                 CustomRowTable(
-                  label: 'Sisa Pokok Hutang',
+                  label: ScreenDict.debtRemaining.get(isRpg),
                   value: CurrencyFormatter.convertToIdr(debt.currentDebt),
                   valueColor: AppColors.error,
                   boldValue: true,
@@ -96,12 +101,12 @@ class DebtDetailModal extends StatelessWidget {
                   child: Divider(color: Colors.white10, height: 1),
                 ),
                 CustomRowTable(
-                  label: 'Total Pinjaman Awal',
+                  label: ScreenDict.debtAmount.get(isRpg),
                   value: CurrencyFormatter.convertToIdr(debt.amount),
                 ),
                 const SizedBox(height: 8),
                 CustomRowTable(
-                  label: 'Sudah Dibayar',
+                  label: ScreenDict.debtPayAmount.get(isRpg),
                   value: CurrencyFormatter.convertToIdr(debt.paidAmount),
                   valueColor: AppColors.success,
                 ),
@@ -121,8 +126,8 @@ class DebtDetailModal extends StatelessWidget {
             const SizedBox(height: 24),
 
             if (debt.bill != null) ...[
-              const Text(
-                'Tagihan Rutin',
+              Text(
+                ScreenDict.debtBill.get(isRpg),
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 12),
@@ -130,25 +135,25 @@ class DebtDetailModal extends StatelessWidget {
                 color: AppColors.primary,
                 children: [
                   CustomRowTable(
-                    label: 'Nominal Cicilan',
+                    label: ScreenDict.debtBillAmount.get(isRpg),
                     value: CurrencyFormatter.convertToIdr(debt.bill!.amount),
                     boldValue: true,
                   ),
                   const SizedBox(height: 8),
                   CustomRowTable(
-                    label: 'Siklus',
+                    label: ScreenDict.billType.get(isRpg),
                     value: debt.bill!.type.name.toUpperCase(),
                   ),
                   const SizedBox(height: 8),
                   CustomRowTable(
-                    label: 'Jatuh Tempo Berikutnya',
+                    label: ScreenDict.nextBill.get(isRpg),
                     value: debt.bill!.nextDueDate != null
                         ? DateFormat('dd MMM yyyy').format(
                             DateTime.fromMillisecondsSinceEpoch(
                               debt.bill!.nextDueDate!,
                             ),
                           )
-                        : 'Belum dijadwalkan',
+                        : UiDict.noDate,
                     valueColor: AppColors.primary,
                   ),
                 ],
@@ -159,8 +164,10 @@ class DebtDetailModal extends StatelessWidget {
             if (!debt.isFinished) ...[
               if (debt.bill != null && debt.bill!.isActive) ...[
                 CustomButton(
-                  title:
-                      'Bayar Tagihan (${CurrencyFormatter.convertToIdr(debt.bill!.amount)})',
+                  title: ScreenDict.getPayBill(
+                    amount: CurrencyFormatter.convertToIdr(debt.bill!.amount),
+                    isRpg: isRpg,
+                  ),
                   color: AppColors.success,
                   onTap: () {
                     Navigator.pop(context, DebtActionType.payBill);
@@ -170,7 +177,7 @@ class DebtDetailModal extends StatelessWidget {
               ],
 
               CustomButton(
-                title: 'Bayar Sisa Pokok (Custom)',
+                title: ScreenDict.payDebt.get(isRpg),
                 color: AppColors.primary,
                 onTap: () {
                   Navigator.pop(context, DebtActionType.payDirect);
@@ -192,8 +199,8 @@ class DebtDetailModal extends StatelessWidget {
                 onPressed: () {
                   Navigator.pop(context, DebtActionType.edit);
                 },
-                child: const Text(
-                  'Edit Hutang',
+                child: Text(
+                  UiDict.getEdit(ScreenDict.debtsMaster.get(isRpg)),
                   style: TextStyle(
                     color: AppColors.textPrimary,
                     fontWeight: FontWeight.bold,

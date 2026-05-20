@@ -9,10 +9,10 @@ import '../../../controllers/settings_controller.dart';
 import '../../../controllers/wallet_controller.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/category_dict.dart';
-import '../../../core/constants/history_dict.dart';
-import '../../../core/constants/home_dict.dart';
-import '../../../core/constants/shared_dict.dart';
+import '../../../core/constants/screen_dict.dart';
+import '../../../core/constants/ui_dict.dart';
 import '../../../core/utils/currency_formatter.dart';
+import '../../../core/utils/enum_types.dart';
 import '../../../models/transaction_detail_model.dart';
 import '../../../models/transaction_model.dart';
 import '../../../models/wallet_model.dart';
@@ -222,7 +222,7 @@ class _DailyExpenseScreenState extends State<DailyExpenseScreen> {
         backgroundColor: AppColors.surface,
         elevation: 0,
         title: Text(
-          HistoryDict.recordExpense.get(isRpg),
+          ScreenDict.recordExpense.get(isRpg),
           style: GoogleFonts.poppins(fontWeight: FontWeight.bold, fontSize: 18),
         ),
         centerTitle: true,
@@ -234,7 +234,7 @@ class _DailyExpenseScreenState extends State<DailyExpenseScreen> {
           padding: const EdgeInsets.all(24.0),
           children: [
             Text(
-              HistoryDict.information,
+              ScreenDict.historyInformation,
               style: const TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
@@ -246,11 +246,11 @@ class _DailyExpenseScreenState extends State<DailyExpenseScreen> {
             TextFormField(
               controller: _mainTitleController,
               decoration: const InputDecoration(
-                labelText: SharedDict.title,
+                labelText: UiDict.title,
                 border: OutlineInputBorder(),
               ),
               validator: (val) => val == null || val.trim().isEmpty
-                  ? SharedDict.requiredTitle
+                  ? UiDict.requiredTitle
                   : null,
             ),
             const SizedBox(height: 20),
@@ -258,15 +258,14 @@ class _DailyExpenseScreenState extends State<DailyExpenseScreen> {
             DropdownButtonFormField<WalletModel>(
               initialValue: _selectedWallet,
               decoration: const InputDecoration(
-                labelText: SharedDict.sourceFunds,
+                labelText: UiDict.sourceFunds,
                 border: OutlineInputBorder(),
               ),
               items: wallets.map((entry) {
                 return DropdownMenuItem(value: entry, child: Text(entry.name));
               }).toList(),
               onChanged: (val) => setState(() => _selectedWallet = val),
-              validator: (val) =>
-                  val == null ? SharedDict.requiredWallet : null,
+              validator: (val) => val == null ? UiDict.requiredWallet : null,
             ),
             const SizedBox(height: 20),
 
@@ -277,7 +276,7 @@ class _DailyExpenseScreenState extends State<DailyExpenseScreen> {
                     onTap: _pickDate,
                     child: InputDecorator(
                       decoration: InputDecoration(
-                        labelText: HistoryDict.adventureTime.get(isRpg),
+                        labelText: ScreenDict.historyTime.get(isRpg),
                         border: const OutlineInputBorder(),
                       ),
                       child: Text(
@@ -302,7 +301,6 @@ class _DailyExpenseScreenState extends State<DailyExpenseScreen> {
                       FontAwesomeIcons.arrowRotateLeft,
                       color: AppColors.primary,
                     ),
-                    tooltip: HistoryDict.resetTime,
                   ),
                 ),
               ],
@@ -311,8 +309,8 @@ class _DailyExpenseScreenState extends State<DailyExpenseScreen> {
             const SizedBox(height: 32),
             SwitchListTile(
               contentPadding: EdgeInsets.zero,
-              title: Text(HomeDict.reservedCheck(isRpg: isRpg)),
-              subtitle: Text(HomeDict.reservedCheckDesc(isRpg: isRpg)),
+              title: Text(ScreenDict.getReservedCheck(isRpg: isRpg)),
+              subtitle: Text(ScreenDict.getReservedCheckDesc(isRpg: isRpg)),
               value: _isReservedActive,
               onChanged: (val) => setState(() {
                 if (_selectedWallet != null) {
@@ -324,7 +322,7 @@ class _DailyExpenseScreenState extends State<DailyExpenseScreen> {
             const SizedBox(height: 32),
 
             Text(
-              HistoryDict.detailBreakdown,
+              ScreenDict.breakdownDetail,
               style: const TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
@@ -378,7 +376,7 @@ class _DailyExpenseScreenState extends State<DailyExpenseScreen> {
                                 color: AppColors.error,
                               ),
                               onPressed: () => _removeItem(index),
-                              tooltip: HistoryDict.deleteItem,
+                              tooltip: UiDict.deleteItem,
                             ),
                         ],
                       ),
@@ -387,11 +385,11 @@ class _DailyExpenseScreenState extends State<DailyExpenseScreen> {
                       TextFormField(
                         controller: item.titleController,
                         decoration: const InputDecoration(
-                          labelText: SharedDict.name,
+                          labelText: UiDict.name,
                           border: OutlineInputBorder(),
                         ),
                         validator: (val) => val == null || val.trim().isEmpty
-                            ? SharedDict.requiredName
+                            ? UiDict.requiredName
                             : null,
                       ),
                       const SizedBox(height: 16),
@@ -403,7 +401,7 @@ class _DailyExpenseScreenState extends State<DailyExpenseScreen> {
                           FilteringTextInputFormatter.digitsOnly,
                         ],
                         decoration: const InputDecoration(
-                          labelText: HistoryDict.price,
+                          labelText: UiDict.price,
                           prefixText: 'Rp ',
                           border: OutlineInputBorder(),
                         ),
@@ -411,7 +409,7 @@ class _DailyExpenseScreenState extends State<DailyExpenseScreen> {
                             _onAmountChanged(item.amountController, val),
                         validator: (val) {
                           if (val == null || val.isEmpty || val == '0') {
-                            return SharedDict.requiredPrice;
+                            return UiDict.requiredPrice;
                           }
                           return null;
                         },
@@ -421,7 +419,7 @@ class _DailyExpenseScreenState extends State<DailyExpenseScreen> {
                       DropdownButtonFormField<TransactionCategory>(
                         initialValue: item.category,
                         decoration: const InputDecoration(
-                          labelText: SharedDict.category,
+                          labelText: UiDict.category,
                           border: OutlineInputBorder(),
                         ),
                         items: _expenseCategories.map((cat) {
@@ -436,7 +434,7 @@ class _DailyExpenseScreenState extends State<DailyExpenseScreen> {
                         }).toList(),
                         onChanged: (val) => setState(() => item.category = val),
                         validator: (val) =>
-                            val == null ? SharedDict.requiredCategory : null,
+                            val == null ? UiDict.requiredCategory : null,
                       ),
                     ],
                   ),
@@ -460,7 +458,7 @@ class _DailyExpenseScreenState extends State<DailyExpenseScreen> {
                 ),
                 icon: const Icon(Icons.add, color: AppColors.primary),
                 label: const Text(
-                  HistoryDict.addItem,
+                  UiDict.addItem,
                   style: TextStyle(
                     color: AppColors.primary,
                     fontWeight: FontWeight.bold,
@@ -498,14 +496,14 @@ class _DailyExpenseScreenState extends State<DailyExpenseScreen> {
           if (_selectedWallet != null) ...[
             NoteContainer(
               text: _isReservedActive
-                  ? HomeDict.generateNote(
+                  ? ScreenDict.getHomeNote(
                       _selectedWallet?.name ?? '',
                       CurrencyFormatter.convertToIdr(
                         _selectedWallet?.reservedAmount,
                       ),
                       isRpg: isRpg,
                     )
-                  : HistoryDict.generateNote(
+                  : ScreenDict.getHistoryNote(
                       _selectedWallet?.name ?? '',
                       CurrencyFormatter.convertToIdr(_selectedWallet?.amount),
                     ),
@@ -516,8 +514,8 @@ class _DailyExpenseScreenState extends State<DailyExpenseScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
-                HistoryDict.expenseAmount,
+              Text(
+                ScreenDict.expenseAmount.get(isRpg),
                 style: TextStyle(fontSize: 14, color: AppColors.textSecondary),
               ),
               Text(
@@ -532,7 +530,7 @@ class _DailyExpenseScreenState extends State<DailyExpenseScreen> {
           ),
           const SizedBox(height: 16),
           CustomButton(
-            title: HistoryDict.saveExpense.get(isRpg),
+            title: ScreenDict.saveExpense.get(isRpg),
             color: AppColors.error,
             onTap: _submitForm,
           ),

@@ -4,6 +4,8 @@ import 'package:intl/intl.dart';
 
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/category_dict.dart';
+import '../../../core/constants/screen_dict.dart';
+import '../../../core/constants/ui_dict.dart';
 import '../../../core/utils/currency_formatter.dart';
 import '../../../models/bill_model.dart';
 import '../../../widgets/custom_button.dart';
@@ -16,23 +18,6 @@ class BillDetailModal extends StatelessWidget {
   final bool isRpg;
 
   const BillDetailModal({super.key, required this.bill, required this.isRpg});
-
-  String _getScheduleText() {
-    switch (bill.type) {
-      case TimeType.daily:
-        return 'Setiap Hari';
-      case TimeType.weekly:
-        String dayNameStr = bill.dayName?.name ?? '';
-        if (dayNameStr.isNotEmpty) {
-          dayNameStr = dayNameStr[0].toUpperCase() + dayNameStr.substring(1);
-        }
-        return 'Mingguan (Setiap $dayNameStr)';
-      case TimeType.monthly:
-        return 'Bulanan (Tgl ${bill.day ?? '-'})';
-      case TimeType.annual:
-        return 'Tahunan (Tgl ${bill.day ?? '-'} Bulan ${bill.month ?? '-'})';
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -147,7 +132,7 @@ class BillDetailModal extends StatelessWidget {
               borderColor: mainColor,
               children: [
                 CustomRowTable(
-                  label: 'Nominal Tagihan',
+                  label: ScreenDict.billAmount.get(isRpg),
                   value: CurrencyFormatter.convertToIdr(bill.amount),
                   valueColor: AppColors.textPrimary,
                   boldValue: true,
@@ -157,28 +142,29 @@ class BillDetailModal extends StatelessWidget {
                   child: Divider(color: Colors.white10, height: 1),
                 ),
                 CustomRowTable(
-                  label: 'Siklus Pembayaran',
-                  value: _getScheduleText(),
+                  label: ScreenDict.billType.get(isRpg),
+                  value: bill.getScheduleTitle(),
                 ),
                 const SizedBox(height: 12),
                 CustomRowTable(
-                  label: 'Jatuh Tempo Berikutnya',
+                  label: ScreenDict.nextBill.get(isRpg),
                   value: bill.nextDueDate != null
                       ? DateFormat('EEEE, dd MMM yyyy').format(
                           DateTime.fromMillisecondsSinceEpoch(
                             bill.nextDueDate!,
                           ),
                         )
-                      : 'Belum dijadwalkan',
+                      : UiDict.noDate,
                   valueColor: AppColors.primary,
                   boldValue: true,
                 ),
                 const SizedBox(height: 12),
                 CustomRowTable(
-                  label: 'Tipe',
-                  value: bill.debtId != null
-                      ? 'Cicilan Hutang'
-                      : 'Tagihan Rutin',
+                  label: ScreenDict.billTypes.get(isRpg),
+                  value: ScreenDict.getBillTypes(
+                    isBillDebt: bill.debtId != null,
+                    isRpg: isRpg,
+                  ),
                   valueColor: bill.debtId != null
                       ? AppColors.error
                       : Colors.blueAccent,
@@ -189,7 +175,7 @@ class BillDetailModal extends StatelessWidget {
 
             if (bill.isActive) ...[
               CustomButton(
-                title: 'Bayar Sekarang',
+                title: ScreenDict.getPayBill(isRpg: isRpg),
                 color: AppColors.primary,
                 onTap: () {
                   Navigator.pop(context, BillActionType.payDirect);
@@ -198,7 +184,7 @@ class BillDetailModal extends StatelessWidget {
               const SizedBox(height: 12),
 
               CustomButton(
-                title: 'Generate Tagihan (Draf)',
+                title: ScreenDict.generatBill.get(isRpg),
                 color: Colors.orange,
                 onTap: () {
                   Navigator.pop(context, BillActionType.generateDraft);
@@ -206,9 +192,9 @@ class BillDetailModal extends StatelessWidget {
               ),
               const SizedBox(height: 12),
             ] else ...[
-              const Center(
+              Center(
                 child: Text(
-                  'Tagihan ini sedang dinonaktifkan.\nAktifkan melalui mode Edit untuk membayar.',
+                  ScreenDict.billWarning.get(isRpg),
                   textAlign: TextAlign.center,
                   style: TextStyle(color: AppColors.error, fontSize: 12),
                 ),
@@ -229,8 +215,8 @@ class BillDetailModal extends StatelessWidget {
                 onPressed: () {
                   Navigator.pop(context, BillActionType.edit);
                 },
-                child: const Text(
-                  'Edit Tagihan',
+                child: Text(
+                  UiDict.getEdit(ScreenDict.billsMaster.get(isRpg)),
                   style: TextStyle(
                     color: AppColors.textPrimary,
                     fontWeight: FontWeight.bold,

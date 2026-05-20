@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../core/utils/enum_types.dart';
 import '../core/utils/time_formatter.dart';
 import '../models/transaction_model.dart';
 import 'transaction_controller.dart';

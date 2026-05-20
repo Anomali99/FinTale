@@ -6,7 +6,7 @@ import 'package:provider/provider.dart';
 import '../../../controllers/auth_controller.dart';
 import '../../../controllers/skill_controller.dart';
 import '../../../core/constants/app_colors.dart';
-import '../../../core/constants/auth_dict.dart';
+import '../../../core/constants/ui_dict.dart';
 import '../../../widgets/custom_button.dart';
 
 class AuthScreen extends StatelessWidget {
@@ -64,7 +64,7 @@ class AuthScreen extends StatelessWidget {
               ),
               const SizedBox(height: 4),
               Text(
-                AuthDict.journey,
+                UiDict.authJourney,
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                   color: AppColors.textSecondary,
                 ),
@@ -81,7 +81,7 @@ class AuthScreen extends StatelessWidget {
 
               const Spacer(flex: 3),
               Text(
-                AuthDict.welcome,
+                UiDict.authWelcome,
                 style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                   fontWeight: FontWeight.bold,
                   color: AppColors.textPrimary,
@@ -89,7 +89,7 @@ class AuthScreen extends StatelessWidget {
               ),
               const SizedBox(height: 12),
               Text(
-                AuthDict.desc,
+                UiDict.authDesc,
                 style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                   color: AppColors.textSecondary,
                   height: 1.5,
@@ -105,7 +105,7 @@ class AuthScreen extends StatelessWidget {
                 ElevatedButton.icon(
                   onPressed: () => _loginHandle(context, anonym: false),
                   icon: const FaIcon(FontAwesomeIcons.google, size: 20),
-                  label: Text(AuthDict.signIn),
+                  label: Text(UiDict.authSignIn),
                   style: ElevatedButton.styleFrom(
                     minimumSize: const Size(double.infinity, 56),
                     elevation: 4,
@@ -114,7 +114,7 @@ class AuthScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 16),
                 CustomButton(
-                  title: AuthDict.skip,
+                  title: UiDict.authSkip,
                   color: AppColors.primary,
                   onTap: () => _loginHandle(context, anonym: true),
                 ),

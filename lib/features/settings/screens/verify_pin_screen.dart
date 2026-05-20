@@ -3,6 +3,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../../core/constants/app_colors.dart';
+import '../../../core/constants/ui_dict.dart';
 import '../../../core/utils/hash_helper.dart';
 import '../../../services/local_auth_service.dart';
 
@@ -71,8 +72,8 @@ class _VerifyPinScreenState extends State<VerifyPinScreen> {
       Navigator.pop(context, true);
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('PIN yang Anda masukkan salah.'),
+        SnackBar(
+          content: Text(UiDict.pinWrong),
           backgroundColor: AppColors.error,
           behavior: SnackBarBehavior.floating,
         ),
@@ -109,7 +110,7 @@ class _VerifyPinScreenState extends State<VerifyPinScreen> {
               const SizedBox(height: 24),
 
               Text(
-                widget.title ?? 'Masukkan PIN',
+                widget.title ?? UiDict.pinInput,
                 style: GoogleFonts.poppins(
                   fontSize: 22,
                   fontWeight: FontWeight.bold,
@@ -213,14 +214,14 @@ class _VerifyPinScreenState extends State<VerifyPinScreen> {
                             /* TODO: Lupa PIN Logic */
                           },
                           child: const Text(
-                            'Lupa PIN?',
+                            UiDict.forgotPin,
                             style: TextStyle(color: AppColors.textPrimary),
                           ),
                         ),
                       TextButton(
                         onPressed: () {},
                         child: const Text(
-                          'Ubah Akun?',
+                          UiDict.changeAcount,
                           style: TextStyle(color: AppColors.textPrimary),
                         ),
                       ),

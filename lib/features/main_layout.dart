@@ -7,7 +7,7 @@ import '../controllers/history_controller.dart';
 import '../controllers/layout_controller.dart';
 import '../controllers/settings_controller.dart';
 import '../core/constants/app_colors.dart';
-import '../core/constants/menu_dict.dart';
+import '../core/constants/ui_dict.dart';
 import '../models/transaction_model.dart';
 import '../widgets/custom_bottom_sheet.dart';
 import 'bills/screens/bills_screen.dart';
@@ -52,17 +52,17 @@ class MainLayout extends StatelessWidget {
         return CustomBottomSheet(
           children: [
             BottomSheetChild(
-              title: MenuDict.pay.get(isRpg),
-              subtitle: MenuDict.pay.description ?? "",
+              title: UiDict.menuPayDebt.get(isRpg),
+              subtitle: UiDict.menuPayDebt.description ?? "",
               color: AppColors.error,
-              icon: MenuDict.pay.icon(isRpg),
+              icon: UiDict.menuPayDebt.icon(isRpg),
               onTap: () => Navigator.pop(con),
             ),
             BottomSheetChild(
-              title: MenuDict.daily.get(isRpg),
-              subtitle: MenuDict.daily.description ?? "",
+              title: UiDict.menuDailyUse.get(isRpg),
+              subtitle: UiDict.menuDailyUse.description ?? "",
               color: Colors.blueAccent,
-              icon: MenuDict.daily.icon(isRpg),
+              icon: UiDict.menuDailyUse.icon(isRpg),
               onTap: () {
                 Navigator.pop(con);
                 _submitTransactionHandle(context);
@@ -90,7 +90,7 @@ class MainLayout extends StatelessWidget {
         foregroundColor: Colors.white,
         elevation: 4,
         shape: const CircleBorder(),
-        child: FaIcon(MenuDict.pay.icon(isRpg), size: 24),
+        child: FaIcon(UiDict.menuPayDebt.icon(isRpg), size: 24),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
 
@@ -105,30 +105,30 @@ class MainLayout extends StatelessWidget {
             children: [
               _buildNavItem(
                 context: context,
-                icon: MenuDict.home.icon(isRpg),
-                label: MenuDict.home.get(isRpg),
+                icon: UiDict.menuHome.icon(isRpg),
+                label: UiDict.menuHome.get(isRpg),
                 index: 0,
                 layoutController: layoutController,
               ),
               _buildNavItem(
                 context: context,
-                icon: MenuDict.bills.icon(isRpg),
-                label: MenuDict.bills.get(isRpg),
+                icon: UiDict.menuBills.icon(isRpg),
+                label: UiDict.menuBills.get(isRpg),
                 index: 1,
                 layoutController: layoutController,
               ),
               const SizedBox(width: 48),
               _buildNavItem(
                 context: context,
-                icon: MenuDict.invest.icon(isRpg),
-                label: MenuDict.invest.get(isRpg),
+                icon: UiDict.menuInvest.icon(isRpg),
+                label: UiDict.menuInvest.get(isRpg),
                 index: 2,
                 layoutController: layoutController,
               ),
               _buildNavItem(
                 context: context,
-                icon: MenuDict.history.icon(isRpg),
-                label: MenuDict.history.get(isRpg),
+                icon: UiDict.menuHistory.icon(isRpg),
+                label: UiDict.menuHistory.get(isRpg),
                 index: 3,
                 layoutController: layoutController,
               ),

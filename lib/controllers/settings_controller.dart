@@ -6,6 +6,7 @@ import '../data/local/pref_service.dart';
 import '../models/user_model.dart';
 import '../models/wallet_model.dart';
 import '../services/local_auth_service.dart';
+import '../services/notification_service.dart';
 import 'auth_controller.dart';
 
 class SettingsController with ChangeNotifier {
@@ -113,9 +114,26 @@ class SettingsController with ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> changeNotification(bool value) async {
+  Future<bool> changeNotification(BuildContext context, bool value) async {
+    if (value == true) {
+      bool isGranted = await NotificationService().requestPermission();
+
+      if (!isGranted) {
+        return false;
+      }
+
+      await NotificationService().showInstantNotification(
+        stringId: 'testing',
+        title: 'Testing',
+        body: 'Testing Notifikasi',
+      );
+    } else {
+      await NotificationService().cancelAllNotifications();
+    }
+
     await _prefService.setNotification(value);
     notifyListeners();
+    return true;
   }
 
   Future<void> changeThemeMode(String? value) async {

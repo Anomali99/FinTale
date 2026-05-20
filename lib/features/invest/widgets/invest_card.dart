@@ -1,17 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 
+import '../../../controllers/settings_controller.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/category_dict.dart';
-import '../../../core/constants/invest_dict.dart';
-import '../../../core/constants/skill_dict.dart';
+import '../../../core/constants/gamification_dict.dart';
+import '../../../core/constants/screen_dict.dart';
 import '../../../core/utils/currency_formatter.dart';
 import '../../../models/assets_model.dart';
 import '../../../widgets/custom_bottom_sheet.dart';
 
 class InvestCard extends StatelessWidget {
-  final bool isRpg;
   final FaIconData icon;
   final AssetsModel asset;
   final VoidCallback updateAsset;
@@ -22,13 +23,13 @@ class InvestCard extends StatelessWidget {
     super.key,
     required this.icon,
     required this.asset,
-    required this.isRpg,
     required this.updateAsset,
     required this.addInvest,
     required this.claimDeviden,
   });
 
   void _showAssetOptions(BuildContext context) {
+    final isRpg = context.read<SettingsController>().isRpgMode;
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
@@ -38,7 +39,7 @@ class InvestCard extends StatelessWidget {
           hideDriver: true,
           children: [
             BottomSheetChild(
-              title: InvestDict.buyOrAddModal,
+              title: ScreenDict.investAddModal.get(isRpg),
               color: AppColors.primary,
               icon: FontAwesomeIcons.plus,
               onTap: () {
@@ -47,7 +48,7 @@ class InvestCard extends StatelessWidget {
               },
             ),
             BottomSheetChild(
-              title: InvestDict.updatePrice,
+              title: ScreenDict.investUpdatePrice.get(isRpg),
               color: Colors.blueAccent,
               icon: FontAwesomeIcons.arrowsRotate,
               onTap: () {
@@ -57,7 +58,7 @@ class InvestCard extends StatelessWidget {
             ),
             if (asset.hasDividend)
               BottomSheetChild(
-                title: InvestDict.claimDeviden,
+                title: ScreenDict.investClaimDeviden,
                 color: AppColors.success,
                 icon: FontAwesomeIcons.moneyCheck,
                 onTap: () {
@@ -73,6 +74,7 @@ class InvestCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isRpg = context.read<SettingsController>().isRpgMode;
     return InkWell(
       onTap: () => _showAssetOptions(context),
       borderRadius: BorderRadius.circular(16),
@@ -123,7 +125,7 @@ class InvestCard extends StatelessWidget {
                                     borderRadius: BorderRadius.circular(8),
                                   ),
                                   child: FaIcon(
-                                    SkillDict.emergency.icon(isRpg),
+                                    GamificationDict.skillEmergency.icon(isRpg),
                                     size: 12,
                                     color: Colors.cyan,
                                   ),
@@ -196,7 +198,7 @@ class InvestCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      InvestDict.invested.get(isRpg),
+                      ScreenDict.investModal.get(isRpg),
                       style: const TextStyle(
                         fontSize: 12,
                         color: AppColors.textSecondary,
@@ -212,7 +214,7 @@ class InvestCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     Text(
-                      InvestDict.value.get(isRpg),
+                      ScreenDict.investValue.get(isRpg),
                       style: const TextStyle(
                         fontSize: 12,
                         color: AppColors.textSecondary,

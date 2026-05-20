@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../core/utils/enum_types.dart';
 import '../models/transaction_model.dart';
 import '../models/user_model.dart';
 import '../models/wallet_model.dart';

@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:provider/provider.dart';
 
+import '../../../controllers/settings_controller.dart';
 import '../../../core/constants/app_colors.dart';
-import '../../../core/constants/invest_dict.dart';
+import '../../../core/constants/ui_dict.dart';
 import '../../../models/assets_model.dart';
 import 'invest_card.dart';
 
 class AssetTab extends StatelessWidget {
-  final bool isRpg;
   final FaIconData icon;
   final List<AssetsModel> assets;
   final Function(AssetsModel) updateAsset;
@@ -18,7 +19,6 @@ class AssetTab extends StatelessWidget {
     super.key,
     required this.icon,
     required this.assets,
-    required this.isRpg,
     required this.updateAsset,
     required this.addInvest,
     required this.claimDeviden,
@@ -26,6 +26,7 @@ class AssetTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isRpg = context.read<SettingsController>().isRpgMode;
     if (assets.isEmpty) {
       return Center(
         child: Column(
@@ -34,7 +35,10 @@ class AssetTab extends StatelessWidget {
             FaIcon(icon, size: 48, color: AppColors.surfaceVariant),
             const SizedBox(height: 16),
             Text(
-              InvestDict.empty.get(isRpg),
+              UiDict.getEmptyDesc(
+                UiDict.menuInvest.get(isRpg).toLowerCase(),
+                isRpg: isRpg,
+              ),
               textAlign: TextAlign.center,
               style: const TextStyle(color: AppColors.textSecondary),
             ),
@@ -58,7 +62,6 @@ class AssetTab extends StatelessWidget {
           addInvest: () => addInvest(assets[index]),
           claimDeviden: () => claimDeviden(assets[index]),
           icon: icon,
-          isRpg: isRpg,
         );
       },
     );

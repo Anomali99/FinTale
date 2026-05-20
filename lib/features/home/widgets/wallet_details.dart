@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 
 import '../../../controllers/wallet_controller.dart';
 import '../../../core/constants/app_colors.dart';
-import '../../../core/constants/home_dict.dart';
+import '../../../core/constants/screen_dict.dart';
 import '../../../core/utils/currency_formatter.dart';
 import '../../../models/wallet_model.dart';
 
@@ -43,7 +43,7 @@ class WalletDetails extends StatelessWidget {
             controller: controller,
             children: [
               Text(
-                HomeDict.walletDetails.get(isRpg),
+                ScreenDict.walletDetail.get(isRpg),
                 style: const TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
@@ -52,7 +52,11 @@ class WalletDetails extends StatelessWidget {
               const SizedBox(height: 24),
 
               if (cash != null)
-                _buildSimpleWalletItem(context: context, wallet: cash),
+                _buildSimpleWalletItem(
+                  context: context,
+                  wallet: cash,
+                  isRpg: isRpg,
+                ),
 
               const Divider(color: Colors.white10, height: 32),
 
@@ -60,7 +64,7 @@ class WalletDetails extends StatelessWidget {
                 _buildWalletItem(
                   context: context,
                   icon: FontAwesomeIcons.buildingColumns,
-                  title: HomeDict.bankAccount.get(isRpg),
+                  title: ScreenDict.walletBank.get(isRpg),
                   totalAmount: totalBank,
                   wallet: bank,
                 ),
@@ -72,7 +76,7 @@ class WalletDetails extends StatelessWidget {
                 _buildWalletItem(
                   context: context,
                   icon: FontAwesomeIcons.wallet,
-                  title: HomeDict.eWallet.get(isRpg),
+                  title: ScreenDict.walletEwallet.get(isRpg),
                   totalAmount: totalEWallet,
                   wallet: eWallet,
                 ),
@@ -84,7 +88,7 @@ class WalletDetails extends StatelessWidget {
                 _buildWalletItem(
                   context: context,
                   icon: FontAwesomeIcons.mobileScreen,
-                  title: HomeDict.platform.get(isRpg),
+                  title: ScreenDict.walletPlatform.get(isRpg),
                   totalAmount: totalPlatform,
                   wallet: platform,
                 ),
@@ -99,7 +103,7 @@ class WalletDetails extends StatelessWidget {
                   onPressed: () => {Navigator.pop(context), onTap(null)},
                   icon: const Icon(Icons.add, color: AppColors.primary),
                   label: Text(
-                    HomeDict.addWallet.get(isRpg),
+                    ScreenDict.addWallet.get(isRpg),
                     style: const TextStyle(color: AppColors.primary),
                   ),
                   style: OutlinedButton.styleFrom(
@@ -149,6 +153,7 @@ class WalletDetails extends StatelessWidget {
   Widget _buildSimpleWalletItem({
     required BuildContext context,
     required WalletModel wallet,
+    required bool isRpg,
   }) {
     return GestureDetector(
       onTap: () => {Navigator.pop(context), onTap(wallet, lock: true)},
@@ -160,7 +165,10 @@ class WalletDetails extends StatelessWidget {
           ),
           const SizedBox(width: 16),
           Expanded(
-            child: Text(wallet.name, style: const TextStyle(fontSize: 16)),
+            child: Text(
+              ScreenDict.walletCash.get(isRpg),
+              style: const TextStyle(fontSize: 16),
+            ),
           ),
           Text(
             CurrencyFormatter.convertToIdr(wallet.amount),

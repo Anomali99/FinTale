@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../core/utils/enum_types.dart';
 import '../core/utils/leveling_extension.dart';
-import '../models/user_model.dart';
 import 'user_controller.dart';
 
 class SkillController with ChangeNotifier {

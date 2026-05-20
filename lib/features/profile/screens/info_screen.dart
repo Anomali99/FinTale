@@ -3,11 +3,11 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../../core/constants/app_colors.dart';
-import '../../../core/constants/menu_dict.dart';
-import '../../../core/constants/profile_dict.dart';
-import '../../../core/constants/skill_dict.dart';
-import '../../../core/constants/title_dict.dart';
-import '../../../models/user_model.dart';
+import '../../../core/constants/category_dict.dart';
+import '../../../core/constants/gamification_dict.dart';
+import '../../../core/constants/ui_dict.dart';
+import '../../../core/models/mission_model.dart';
+import '../../../core/utils/enum_types.dart';
 import '../../../widgets/markdown_text_parser.dart';
 
 class InfoScreen extends StatelessWidget {
@@ -18,126 +18,32 @@ class InfoScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          MenuDict.information,
+          UiDict.information,
           style: GoogleFonts.poppins(fontWeight: FontWeight.bold),
         ),
       ),
       body: ListView(
         padding: const EdgeInsets.all(24.0),
         children: [
-          _buildSectionHeader(ProfileDict.dailyMission),
+          _buildSectionHeader(GamificationDict.missionDaily),
           const SizedBox(height: 16),
-          _buildMissionCard(
-            icon: ProfileDict.recordTransaction.icon(false),
-            title: ProfileDict.recordTransaction.get(false),
-            desc: ProfileDict.recordTransaction.description ?? '',
-            xp: '+10 XP',
-            frequency: 'Harian',
-            limit: '3x',
-            color: ProfileDict.recordTransaction.color ?? Colors.blueAccent,
-          ),
-          _buildMissionCard(
-            icon: ProfileDict.dailyBudgetCap.icon(false),
-            title: ProfileDict.dailyBudgetCap.get(false),
-            desc: ProfileDict.dailyBudgetCap.description ?? '',
-            xp: '+25 XP',
-            frequency: 'Harian',
-            limit: '1x',
-            color: ProfileDict.dailyBudgetCap.color ?? Colors.greenAccent,
-          ),
-          _buildSectionHeader(ProfileDict.weeklyMission),
-          const SizedBox(height: 16),
-          _buildMissionCard(
-            icon: ProfileDict.weeklyCheckin.icon(false),
-            title: ProfileDict.weeklyCheckin.get(false),
-            desc: ProfileDict.weeklyCheckin.description ?? '',
-            xp: '+100 XP',
-            frequency: 'Mingguan',
-            limit: '1x',
-            color: ProfileDict.weeklyCheckin.color ?? Colors.teal,
-          ),
-          _buildMissionCard(
-            icon: ProfileDict.consistentBudgeting.icon(false),
-            title: ProfileDict.consistentBudgeting.get(false),
-            desc: ProfileDict.consistentBudgeting.description ?? '',
-            xp: '+150 XP',
-            frequency: 'Mingguan',
-            limit: '1x',
-            color: ProfileDict.consistentBudgeting.color ?? Colors.cyan,
-          ),
-          _buildSectionHeader(ProfileDict.monthlyMission),
-          const SizedBox(height: 16),
-          _buildMissionCard(
-            icon: ProfileDict.monthlySavingsGoal.icon(false),
-            title: ProfileDict.monthlySavingsGoal.get(false),
-            desc: ProfileDict.monthlySavingsGoal.description ?? '',
-            xp: '+500 XP',
-            frequency: 'Bulanan',
-            limit: '1x',
-            color: ProfileDict.monthlySavingsGoal.color ?? Colors.amber,
-          ),
-          _buildMissionCard(
-            icon: ProfileDict.debtPayment.icon(false),
-            title: ProfileDict.debtPayment.get(false),
-            desc: ProfileDict.debtPayment.description ?? '',
-            xp: '+300 XP',
-            frequency: 'Bulanan',
-            limit: '1x',
-            color: ProfileDict.debtPayment.color ?? Colors.redAccent,
-          ),
-          _buildMissionCard(
-            icon: ProfileDict.monthlyReview.icon(false),
-            title: ProfileDict.monthlyReview.get(false),
-            desc: ProfileDict.monthlyReview.description ?? '',
-            xp: '+200 XP',
-            frequency: 'Bulanan',
-            limit: '1x',
-            color: ProfileDict.monthlyReview.color ?? Colors.deepOrangeAccent,
-          ),
-          _buildSectionHeader(ProfileDict.specialMission),
-          const SizedBox(height: 16),
-          _buildMissionCard(
-            icon: ProfileDict.firstTransaction.icon(false),
-            title: ProfileDict.firstTransaction.get(false),
-            desc: ProfileDict.firstTransaction.description ?? '',
-            xp: '+100 XP',
-            frequency: 'Spesial',
-            limit: '1x',
-            color: ProfileDict.firstTransaction.color ?? Colors.pinkAccent,
-          ),
-          _buildMissionCard(
-            icon: ProfileDict.createWallet.icon(false),
-            title: ProfileDict.createWallet.get(false),
-            desc: ProfileDict.createWallet.description ?? '',
-            xp: '+50 XP',
-            frequency: 'Spesial',
-            limit: '3x',
-            color: ProfileDict.createWallet.color ?? Colors.purpleAccent,
-          ),
-          _buildMissionCard(
-            icon: ProfileDict.setAllocation.icon(false),
-            title: ProfileDict.setAllocation.get(false),
-            desc: ProfileDict.setAllocation.description ?? '',
-            xp: '+200 XP',
-            frequency: 'Spesial',
-            limit: '1x',
-            color: ProfileDict.setAllocation.color ?? Colors.indigoAccent,
-          ),
+          for (MissionModel mission in GamificationDict.allMission)
+            _buildMissionCard(mission: mission),
 
           const SizedBox(height: 32),
 
-          _buildSectionHeader(ProfileDict.titleSystem),
+          _buildSectionHeader(GamificationDict.titleSystem),
           const SizedBox(height: 16),
           _buildTitleTable(),
 
           const SizedBox(height: 32),
 
-          _buildSectionHeader(ProfileDict.allocationGuide),
+          _buildSectionHeader(GamificationDict.allocationGuide),
           const SizedBox(height: 16),
 
           _buildLevelTierCard(
             level: '1 - 10',
-            title: TitleDict.noviceSaver.get(false),
+            title: GamificationDict.titleNovice.get(false),
             skills: {
               SectorType.living: {
                 "value": "55% ± 5%",
@@ -164,7 +70,7 @@ class InfoScreen extends StatelessWidget {
 
           _buildLevelTierCard(
             level: '11 - 20',
-            title: TitleDict.smartBudgeter.get(false),
+            title: GamificationDict.titleSmart.get(false),
             skills: {
               SectorType.living: {
                 "value": "50% ± 5%",
@@ -191,7 +97,7 @@ class InfoScreen extends StatelessWidget {
 
           _buildLevelTierCard(
             level: '21 - 30',
-            title: TitleDict.wiseInvestor.get(false),
+            title: GamificationDict.titleWise.get(false),
             skills: {
               SectorType.living: {
                 "value": "45% ± 7%",
@@ -218,7 +124,7 @@ class InfoScreen extends StatelessWidget {
 
           _buildLevelTierCard(
             level: '31 - 40',
-            title: TitleDict.wealthBuilder.get(false),
+            title: GamificationDict.titleWealth.get(false),
             skills: {
               SectorType.living: {
                 "value": "40% ± 7%",
@@ -245,7 +151,7 @@ class InfoScreen extends StatelessWidget {
 
           _buildLevelTierCard(
             level: '41 - 49',
-            title: TitleDict.wealthBuilder.get(false),
+            title: GamificationDict.titleWealth.get(false),
             skills: {
               SectorType.living: {
                 "value": "35% ± 10%",
@@ -272,7 +178,7 @@ class InfoScreen extends StatelessWidget {
 
           _buildLevelTierCard(
             level: '50+',
-            title: TitleDict.financialMaster.get(false),
+            title: GamificationDict.titleMaster.get(false),
             skills: {
               SectorType.living: {
                 "value": "CUSTOM",
@@ -299,21 +205,21 @@ class InfoScreen extends StatelessWidget {
 
           const SizedBox(height: 24),
 
-          _buildSectionHeader(ProfileDict.allocationRules),
+          _buildSectionHeader(GamificationDict.allocationRules),
           const SizedBox(height: 12),
           _buildMechanismCard(
-            'Prioritas Hibrida ${SkillDict.lowRisk.get(false)}',
-            'Node `${SkillDict.lowRisk.get(false)}` mengambil persentasenya dari `${SkillDict.emergency.get(false)}` maupun `${SkillDict.investment.get(false)}`. **`${SkillDict.emergency.get(false)}` adalah prioritas mutlak.** Contohnya, alokasi 30% `${SkillDict.lowRisk.get(false)}` akan menguras penuh 20% kapasitas `${SkillDict.emergency.get(false)}` terlebih dahulu sebelum mengambil sisa 10%-nya dari `${SkillDict.investment.get(false)}`.',
+            GamificationDict.missionNote1Title,
+            GamificationDict.missionNote1,
             icon: FontAwesomeIcons.arrowsDownToLine,
           ),
           _buildMechanismCard(
-            'Sinergi ${SkillDict.dailyRoutine.get(false)} & ${SkillDict.dreamFund.get(false)}',
-            'Node `${SkillDict.dailyRoutine.get(false)}` berbagi wadah poin yang sama dengan `${SkillDict.dreamFund.get(false)}`. Anda memiliki kebebasan strategis untuk menabung anggaran harian Anda ke dalam `${SkillDict.dreamFund.get(false)}` untuk mewujudkan tujuan besar atau membeli item legendaris di masa depan.',
+            GamificationDict.missionNote2Title,
+            GamificationDict.missionNote2,
             icon: FontAwesomeIcons.handHoldingHeart,
           ),
           _buildMechanismCard(
-            'Status Alokasi Bebas',
-            'Setelah `${SkillDict.debt.get(false)}` Anda lunas atau `${SkillDict.emergency.get(false)}` sudah mencapai kapasitas maksimal, Anda akan membuka "Mode Bebas" (Poin Ekstra) di mana poin tersebut dapat didistribusikan ulang ke node mana pun di dalam pohon alokasi.',
+            GamificationDict.missionNote3Title,
+            GamificationDict.missionNote3,
             icon: FontAwesomeIcons.fire,
             color: Colors.orange,
           ),
@@ -385,59 +291,59 @@ class InfoScreen extends StatelessWidget {
             child: Column(
               children: [
                 _buildStatRow(
-                  SkillDict.dailyParent.icon(false),
-                  SkillDict.dailyParent.get(false),
+                  GamificationDict.skillDaily.icon(false),
+                  GamificationDict.skillDaily.get(false),
                   skills[SectorType.living]['value'],
-                  SkillDict.dailyParent.color ?? Colors.blueAccent,
+                  GamificationDict.skillDaily.color ?? Colors.blueAccent,
                 ),
                 _buildSubStatRow(
-                  '- ${SkillDict.dailyRoutine.get(false)}',
+                  '- ${GamificationDict.skillRoutine.get(false)}',
                   skills[SectorType.living]['sub'][SubSectorType.essentials],
                 ),
                 _buildSubStatRow(
-                  '- ${SkillDict.dreamFund.get(false)}',
+                  '- ${GamificationDict.skillDream.get(false)}',
                   skills[SectorType.living]['sub'][SubSectorType.dreamFund],
                 ),
                 const SizedBox(height: 12),
 
                 _buildStatRow(
-                  SkillDict.debt.icon(false),
-                  SkillDict.debt.get(false),
+                  GamificationDict.skillDebt.icon(false),
+                  GamificationDict.skillDebt.get(false),
                   skills[SectorType.payDebt]['value'],
-                  SkillDict.debt.color ?? Colors.redAccent,
+                  GamificationDict.skillDebt.color ?? Colors.redAccent,
                 ),
                 const SizedBox(height: 12),
 
                 _buildStatRow(
-                  SkillDict.emergency.icon(false),
-                  SkillDict.emergency.get(false),
+                  GamificationDict.skillInvestment.icon(false),
+                  GamificationDict.skillInvestment.get(false),
                   skills[SectorType.emergency]['value'],
-                  SkillDict.emergency.color ?? Colors.greenAccent,
+                  GamificationDict.skillInvestment.color ?? Colors.greenAccent,
                 ),
                 _buildSubStatRow(
-                  '- ${SkillDict.lowRisk.get(false)}',
+                  '- ${CategoryDict.lowRisk.get(false)}',
                   skills[SectorType.emergency]['sub'][SubSectorType.lowRisk],
                 ),
                 const SizedBox(height: 12),
 
                 _buildStatRow(
-                  SkillDict.investment.icon(false),
-                  SkillDict.investment.get(false),
+                  GamificationDict.skillInvestment.icon(false),
+                  GamificationDict.skillInvestment.get(false),
                   skills[SectorType.investment]['value'],
-                  SkillDict.investment.color ?? Colors.purpleAccent,
+                  GamificationDict.skillInvestment.color ?? Colors.purpleAccent,
                 ),
 
                 _buildSubStatRow(
-                  '- ${SkillDict.lowRisk.get(false)}',
+                  '- ${CategoryDict.lowRisk.get(false)}',
                   skills[SectorType.investment]['sub'][SubSectorType.lowRisk],
                 ),
                 _buildSubStatRow(
-                  '- ${SkillDict.mediumRisk.get(false)}',
+                  '- ${CategoryDict.mediumRisk.get(false)}',
                   skills[SectorType.investment]['sub'][SubSectorType
                       .mediumRisk],
                 ),
                 _buildSubStatRow(
-                  '- ${SkillDict.highRisk.get(false)}',
+                  '- ${CategoryDict.highRisk.get(false)}',
                   skills[SectorType.investment]['sub'][SubSectorType.highRisk],
                 ),
               ],
@@ -508,21 +414,13 @@ class InfoScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildMissionCard({
-    required FaIconData icon,
-    required String title,
-    required String desc,
-    required String xp,
-    required String frequency,
-    required String limit,
-    required Color color,
-  }) {
+  Widget _buildMissionCard({required MissionModel mission}) {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
         color: AppColors.surfaceVariant,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: color.withOpacity(0.3)),
+        border: Border.all(color: mission.color.withOpacity(0.3)),
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(20),
@@ -531,7 +429,11 @@ class InfoScreen extends StatelessWidget {
             Positioned(
               right: -20,
               top: -20,
-              child: FaIcon(icon, size: 80, color: color.withOpacity(0.05)),
+              child: FaIcon(
+                mission.icon(false),
+                size: 80,
+                color: mission.color.withOpacity(0.05),
+              ),
             ),
             Padding(
               padding: const EdgeInsets.all(20),
@@ -543,12 +445,16 @@ class InfoScreen extends StatelessWidget {
                     children: [
                       Row(
                         children: [
-                          FaIcon(icon, size: 18, color: color),
+                          FaIcon(
+                            mission.icon(false),
+                            size: 18,
+                            color: mission.color,
+                          ),
                           const SizedBox(width: 10),
                           SizedBox(
                             width: 175,
                             child: Text(
-                              title,
+                              mission.get(false),
                               maxLines: 2,
                               style: const TextStyle(
                                 fontWeight: FontWeight.bold,
@@ -564,15 +470,15 @@ class InfoScreen extends StatelessWidget {
                           vertical: 4,
                         ),
                         decoration: BoxDecoration(
-                          color: color.withOpacity(0.2),
+                          color: mission.color.withOpacity(0.2),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(
-                          frequency,
+                          mission.frequency,
                           style: TextStyle(
                             fontSize: 10,
                             fontWeight: FontWeight.bold,
-                            color: color,
+                            color: mission.color,
                           ),
                         ),
                       ),
@@ -580,7 +486,7 @@ class InfoScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    desc,
+                    mission.description,
                     style: const TextStyle(
                       fontSize: 12,
                       color: AppColors.textSecondary,
@@ -591,14 +497,14 @@ class InfoScreen extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        'Limit: $limit',
+                        'Limit: ${mission.limit}',
                         style: const TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.w500,
                         ),
                       ),
                       Text(
-                        xp,
+                        mission.xp,
                         style: const TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.bold,
@@ -635,28 +541,28 @@ class InfoScreen extends StatelessWidget {
             _buildTableRow(['Level', 'RPG', 'Standar'], isHeader: true),
             _buildTableRow([
               '1 - 10',
-              TitleDict.noviceSaver.get(true),
-              TitleDict.noviceSaver.get(false),
+              GamificationDict.titleNovice.get(true),
+              GamificationDict.titleNovice.get(false),
             ]),
             _buildTableRow([
               '11 - 20',
-              TitleDict.smartBudgeter.get(true),
-              TitleDict.smartBudgeter.get(false),
+              GamificationDict.titleSmart.get(true),
+              GamificationDict.titleSmart.get(false),
             ]),
             _buildTableRow([
               '21 - 30',
-              TitleDict.wiseInvestor.get(true),
-              TitleDict.wiseInvestor.get(false),
+              GamificationDict.titleWise.get(true),
+              GamificationDict.titleWise.get(false),
             ]),
             _buildTableRow([
               '31 - 49',
-              TitleDict.wealthBuilder.get(true),
-              TitleDict.wealthBuilder.get(false),
+              GamificationDict.titleWealth.get(true),
+              GamificationDict.titleWealth.get(false),
             ]),
             _buildTableRow([
               '50+',
-              TitleDict.financialMaster.get(true),
-              TitleDict.financialMaster.get(false),
+              GamificationDict.titleWealth.get(true),
+              GamificationDict.titleWealth.get(false),
             ]),
           ],
         ),

@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
 
+import '../../../controllers/settings_controller.dart';
 import '../../../core/constants/app_colors.dart';
-import '../../../core/constants/shared_dict.dart';
+import '../../../core/constants/screen_dict.dart';
+import '../../../core/constants/ui_dict.dart';
+import '../../../core/utils/enum_types.dart';
 import '../../../models/bill_model.dart';
 import '../../../widgets/custom_button.dart';
 
@@ -36,9 +40,13 @@ class _AddBillModalState extends State<AddBillModal> {
         title: _titleController.text.trim(),
         amount: BigInt.parse(_amountController.text.replaceAll('.', '')),
         type: _selectedType,
-        day: _selectedDay,
-        month: _selectedMonth,
-        dayName: _selectedDayName,
+        day:
+            _selectedType == TimeType.monthly ||
+                _selectedType == TimeType.annual
+            ? _selectedDay
+            : null,
+        month: _selectedType == TimeType.annual ? _selectedMonth : null,
+        dayName: _selectedType == TimeType.weekly ? _selectedDayName : null,
       );
       Navigator.pop(context, bill);
     }
@@ -47,6 +55,7 @@ class _AddBillModalState extends State<AddBillModal> {
   @override
   Widget build(BuildContext context) {
     final bottomInset = MediaQuery.of(context).viewInsets.bottom;
+    final isRpg = context.read<SettingsController>().isRpgMode;
 
     return Container(
       padding: EdgeInsets.only(
@@ -77,22 +86,20 @@ class _AddBillModalState extends State<AddBillModal> {
                   ),
                 ),
               ),
-              const Text(
-                'Tambah Tagihan Baru',
+              Text(
+                ScreenDict.addBill.get(isRpg),
                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 24),
 
               TextFormField(
                 controller: _titleController,
-                decoration: const InputDecoration(
-                  labelText: 'Nama Tagihan',
-                  hintText: 'Misal: Listrik, Netflix',
+                decoration: InputDecoration(
+                  labelText: ScreenDict.billName.get(isRpg),
                   border: OutlineInputBorder(),
                 ),
-                validator: (val) => val == null || val.isEmpty
-                    ? SharedDict.requiredTitle
-                    : null,
+                validator: (val) =>
+                    val == null || val.isEmpty ? UiDict.requiredName : null,
               ),
               const SizedBox(height: 16),
 
@@ -100,8 +107,8 @@ class _AddBillModalState extends State<AddBillModal> {
                 controller: _amountController,
                 keyboardType: TextInputType.number,
                 inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                decoration: const InputDecoration(
-                  labelText: 'Nominal Tagihan',
+                decoration: InputDecoration(
+                  labelText: ScreenDict.billAmount.get(isRpg),
                   prefixText: 'Rp ',
                   border: OutlineInputBorder(),
                 ),
@@ -124,21 +131,25 @@ class _AddBillModalState extends State<AddBillModal> {
                   );
                 },
                 validator: (val) =>
-                    val == null || val.isEmpty ? 'Wajib diisi' : null,
+                    val == null ||
+                        val.replaceAll('.', '').isEmpty ||
+                        val.replaceAll('.', '') == '0'
+                    ? UiDict.requiredAmount
+                    : null,
               ),
               const SizedBox(height: 16),
 
               DropdownButtonFormField<TimeType>(
                 initialValue: _selectedType,
-                decoration: const InputDecoration(
-                  labelText: 'Siklus Penagihan',
+                decoration: InputDecoration(
+                  labelText: ScreenDict.billType.get(isRpg),
                   border: OutlineInputBorder(),
                 ),
                 items: TimeType.values
                     .map(
                       (t) => DropdownMenuItem(
                         value: t,
-                        child: Text(t.name.toUpperCase()),
+                        child: Text(t.value.toUpperCase()),
                       ),
                     )
                     .toList(),
@@ -149,15 +160,15 @@ class _AddBillModalState extends State<AddBillModal> {
               if (_selectedType == TimeType.weekly)
                 DropdownButtonFormField<DayName>(
                   initialValue: _selectedDayName,
-                  decoration: const InputDecoration(
-                    labelText: 'Hari Penagihan',
+                  decoration: InputDecoration(
+                    labelText: ScreenDict.billDay.get(isRpg),
                     border: OutlineInputBorder(),
                   ),
                   items: DayName.values
                       .map(
                         (d) => DropdownMenuItem(
                           value: d,
-                          child: Text(d.name.toUpperCase()),
+                          child: Text(d.value.toUpperCase()),
                         ),
                       )
                       .toList(),
@@ -169,8 +180,8 @@ class _AddBillModalState extends State<AddBillModal> {
                 TextFormField(
                   initialValue: _selectedDay.toString(),
                   keyboardType: TextInputType.number,
-                  decoration: const InputDecoration(
-                    labelText: 'Tanggal Penagihan (1-31)',
+                  decoration: InputDecoration(
+                    labelText: ScreenDict.billDate.get(isRpg),
                     border: OutlineInputBorder(),
                   ),
                   onChanged: (val) => _selectedDay = int.tryParse(val) ?? 1,
@@ -180,24 +191,25 @@ class _AddBillModalState extends State<AddBillModal> {
                 const SizedBox(height: 16),
                 DropdownButtonFormField<int>(
                   initialValue: _selectedMonth,
-                  decoration: const InputDecoration(
-                    labelText: 'Bulan Penagihan',
+                  decoration: InputDecoration(
+                    labelText: ScreenDict.billMonth.get(isRpg),
                     border: OutlineInputBorder(),
                   ),
-                  items: List.generate(
-                    12,
-                    (index) => DropdownMenuItem(
-                      value: index + 1,
-                      child: Text('Bulan ${index + 1}'),
-                    ),
-                  ),
+                  items: MonthName.values
+                      .map(
+                        (d) => DropdownMenuItem(
+                          value: d.intValue,
+                          child: Text(d.value.toUpperCase()),
+                        ),
+                      )
+                      .toList(),
                   onChanged: (val) => setState(() => _selectedMonth = val!),
                 ),
               ],
 
               const SizedBox(height: 32),
               CustomButton(
-                title: 'Simpan Tagihan',
+                title: UiDict.addNew,
                 color: AppColors.primary,
                 onTap: _submit,
               ),

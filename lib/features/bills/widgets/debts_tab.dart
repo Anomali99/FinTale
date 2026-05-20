@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import '../../../core/constants/app_colors.dart';
-import '../../../core/constants/bills_dict.dart';
+import '../../../core/constants/screen_dict.dart';
+import '../../../core/constants/ui_dict.dart';
 import '../../../models/debt_model.dart';
 import 'debts_card.dart';
 
@@ -26,13 +27,16 @@ class DebtsTab extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             FaIcon(
-              BillsDict.addDebt.icon(isRpg),
+              ScreenDict.addDebt.icon(isRpg),
               size: 48,
               color: AppColors.surfaceVariant,
             ),
             const SizedBox(height: 16),
             Text(
-              'Empty ${BillsDict.debts.get(isRpg)}',
+              UiDict.getEmptyDesc(
+                ScreenDict.debtsMaster.get(isRpg).toLowerCase(),
+                isRpg: isRpg,
+              ),
               textAlign: TextAlign.center,
               style: const TextStyle(color: AppColors.textSecondary),
             ),

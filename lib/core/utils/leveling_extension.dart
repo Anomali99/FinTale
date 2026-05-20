@@ -1,4 +1,5 @@
 import '../../models/user_model.dart';
+import 'enum_types.dart';
 import 'global_messenger.dart';
 
 class LevelUpResult {

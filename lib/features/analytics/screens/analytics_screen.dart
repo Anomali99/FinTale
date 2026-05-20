@@ -8,8 +8,8 @@ import '../../../controllers/analytics_controller.dart';
 import '../../../controllers/settings_controller.dart';
 import '../../../controllers/transaction_controller.dart';
 import '../../../core/constants/app_colors.dart';
-import '../../../core/constants/history_dict.dart';
-import '../../../core/constants/menu_dict.dart';
+import '../../../core/constants/screen_dict.dart';
+import '../../../core/constants/ui_dict.dart';
 import '../../../core/models/analytic_model.dart';
 import '../../../widgets/month_filter.dart';
 import '../widgets/detail_card.dart';
@@ -44,7 +44,7 @@ class AnalyticsScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          MenuDict.analytics.get(isRpg),
+          UiDict.menuAnalytics.get(isRpg),
           style: GoogleFonts.poppins(fontWeight: FontWeight.bold),
         ),
       ),
@@ -92,7 +92,7 @@ class AnalyticsScreen extends StatelessWidget {
                         ),
                       ),
                       child: Text(
-                        HistoryDict.breakdownExpense.get(isRpg),
+                        ScreenDict.breakdownExpense.get(isRpg),
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           color: showExpense
@@ -122,7 +122,7 @@ class AnalyticsScreen extends StatelessWidget {
                         ),
                       ),
                       child: Text(
-                        HistoryDict.breakdownInvest.get(isRpg),
+                        ScreenDict.breakdownInvest.get(isRpg),
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           color: !showExpense
@@ -175,13 +175,16 @@ class AnalyticsScreen extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     FaIcon(
-                      MenuDict.analytics.icon(isRpg),
+                      UiDict.menuAnalytics.icon(isRpg),
                       size: 48,
                       color: AppColors.surfaceVariant,
                     ),
                     const SizedBox(height: 16),
                     Text(
-                      HistoryDict.emptyAnalytics,
+                      UiDict.getEmptyDesc(
+                        UiDict.menuAnalytics.get(isRpg).toLowerCase(),
+                        isRpg: isRpg,
+                      ),
                       textAlign: TextAlign.center,
                       style: const TextStyle(color: AppColors.textSecondary),
                     ),

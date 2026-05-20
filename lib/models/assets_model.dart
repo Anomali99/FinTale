@@ -1,9 +1,8 @@
 import 'package:decimal/decimal.dart';
 
-import '../core/constants/assets_dict.dart';
+import '../core/constants/category_dict.dart';
 import '../core/models/category_model.dart';
-
-enum RiskType { low, medium, high }
+import '../core/utils/enum_types.dart';
 
 enum AssetsCategory {
   gold('Emas / Logam Mulia'),
@@ -106,11 +105,11 @@ extension AssetsExtension on AssetsModel {
   CategoryModel get typeDict {
     switch (type) {
       case RiskType.low:
-        return AssetsDict.lowRisk;
+        return CategoryDict.lowRisk;
       case RiskType.medium:
-        return AssetsDict.mediumRisk;
+        return CategoryDict.mediumRisk;
       case RiskType.high:
-        return AssetsDict.highRisk;
+        return CategoryDict.highRisk;
     }
   }
 }

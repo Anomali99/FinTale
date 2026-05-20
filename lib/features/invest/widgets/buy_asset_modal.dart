@@ -2,13 +2,15 @@ import 'package:decimal/decimal.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 
+import '../../../controllers/settings_controller.dart';
 import '../../../core/constants/app_colors.dart';
-import '../../../core/constants/history_dict.dart';
-import '../../../core/constants/home_dict.dart';
-import '../../../core/constants/invest_dict.dart';
-import '../../../core/constants/shared_dict.dart';
+import '../../../core/constants/category_dict.dart';
+import '../../../core/constants/screen_dict.dart';
+import '../../../core/constants/ui_dict.dart';
 import '../../../core/utils/currency_formatter.dart';
+import '../../../core/utils/enum_types.dart';
 import '../../../models/assets_model.dart';
 import '../../../models/transaction_detail_model.dart';
 import '../../../models/transaction_model.dart';
@@ -271,6 +273,7 @@ class _BuyAssetModalState extends State<BuyAssetModal>
   @override
   Widget build(BuildContext context) {
     final bottomInset = MediaQuery.of(context).viewInsets.bottom;
+    final isRpg = context.read<SettingsController>().isRpgMode;
 
     return Container(
       padding: EdgeInsets.only(
@@ -303,7 +306,9 @@ class _BuyAssetModalState extends State<BuyAssetModal>
               ),
               if (_isHideTab)
                 Text(
-                  _isNewAssetTab ? InvestDict.newAsset : InvestDict.addModal,
+                  _isNewAssetTab
+                      ? ScreenDict.investNewAsset.get(isRpg)
+                      : ScreenDict.investAddModal.get(isRpg),
                   style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                 )
               else
@@ -331,8 +336,8 @@ class _BuyAssetModalState extends State<BuyAssetModal>
                     ),
                     unselectedLabelColor: AppColors.textSecondary,
                     tabs: [
-                      Tab(text: InvestDict.newAsset),
-                      Tab(text: InvestDict.addModal),
+                      Tab(text: ScreenDict.investNewAsset.get(isRpg)),
+                      Tab(text: ScreenDict.investAddModal.get(isRpg)),
                     ],
                   ),
                 ),
@@ -342,11 +347,11 @@ class _BuyAssetModalState extends State<BuyAssetModal>
                 TextFormField(
                   controller: _nameController,
                   decoration: InputDecoration(
-                    labelText: SharedDict.name,
+                    labelText: UiDict.name,
                     border: OutlineInputBorder(),
                   ),
                   validator: (val) => val == null || val.trim().isEmpty
-                      ? SharedDict.requiredName
+                      ? UiDict.requiredName
                       : null,
                 ),
                 const SizedBox(height: 16),
@@ -354,7 +359,7 @@ class _BuyAssetModalState extends State<BuyAssetModal>
                 DropdownButtonFormField<AssetsCategory>(
                   initialValue: _selectedCategory,
                   decoration: InputDecoration(
-                    labelText: SharedDict.category,
+                    labelText: UiDict.category,
                     border: OutlineInputBorder(),
                   ),
                   items: AssetsCategory.values
@@ -370,35 +375,40 @@ class _BuyAssetModalState extends State<BuyAssetModal>
                       .toList(),
                   onChanged: (val) => setState(() => _selectedCategory = val),
                   validator: (val) =>
-                      val == null ? SharedDict.requiredCategory : null,
+                      val == null ? UiDict.requiredCategory : null,
                 ),
                 const SizedBox(height: 16),
                 DropdownButtonFormField<RiskType>(
                   initialValue: _selectedRisk,
                   decoration: InputDecoration(
-                    labelText: InvestDict.risk,
+                    labelText: ScreenDict.investRisk.get(isRpg),
                     border: OutlineInputBorder(),
                   ),
                   items: RiskType.values
                       .map(
                         (risk) => DropdownMenuItem(
                           value: risk,
-                          child: Text(risk.name.toUpperCase()),
+                          child: Text(
+                            CategoryDict.getAssetByEnum(
+                              risk,
+                            ).get(isRpg).toUpperCase(),
+                          ),
                         ),
                       )
                       .toList(),
                   onChanged: !_isLockRisk
                       ? (val) => setState(() => _selectedRisk = val)
                       : null,
-                  validator: (val) =>
-                      val == null ? InvestDict.requiredRisk : null,
+                  validator: (val) => val == null
+                      ? ScreenDict.investRiskRequired.get(isRpg)
+                      : null,
                 ),
                 const SizedBox(height: 16),
               ] else ...[
                 DropdownButtonFormField<AssetsModel>(
                   initialValue: _selectedAsset,
                   decoration: InputDecoration(
-                    labelText: InvestDict.asset,
+                    labelText: ScreenDict.investAsset.get(isRpg),
                     border: OutlineInputBorder(),
                   ),
                   items: widget.assets
@@ -413,7 +423,7 @@ class _BuyAssetModalState extends State<BuyAssetModal>
                         })
                       : null,
                   validator: (val) => val == null && !_isNewAssetTab
-                      ? InvestDict.requiredAsset
+                      ? ScreenDict.investAssetRequired.get(isRpg)
                       : null,
                 ),
                 const SizedBox(height: 16),
@@ -430,7 +440,7 @@ class _BuyAssetModalState extends State<BuyAssetModal>
                         decimal: true,
                       ),
                       decoration: InputDecoration(
-                        labelText: SharedDict.amount,
+                        labelText: UiDict.amount,
                         border: OutlineInputBorder(),
                       ),
                       onChanged: (val) => _onNumberChanged(
@@ -439,7 +449,7 @@ class _BuyAssetModalState extends State<BuyAssetModal>
                         isDecimal: true,
                       ),
                       validator: (val) => val == null || val.isEmpty
-                          ? SharedDict.requiredAmount
+                          ? UiDict.requiredAmount
                           : null,
                     ),
                   ),
@@ -449,13 +459,13 @@ class _BuyAssetModalState extends State<BuyAssetModal>
                     child: TextFormField(
                       controller: _unitNameController,
                       decoration: InputDecoration(
-                        labelText: InvestDict.unit,
+                        labelText: ScreenDict.investUnit.get(isRpg),
                         border: OutlineInputBorder(),
                       ),
                       readOnly: !_isNewAssetTab,
                       onChanged: (val) => setState(() {}),
                       validator: (val) => val == null || val.isEmpty
-                          ? InvestDict.requiredUnit
+                          ? ScreenDict.investUnitRequired.get(isRpg)
                           : null,
                     ),
                   ),
@@ -468,7 +478,7 @@ class _BuyAssetModalState extends State<BuyAssetModal>
                 keyboardType: TextInputType.number,
                 inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                 decoration: InputDecoration(
-                  labelText: InvestDict.generatePricePerUnit(
+                  labelText: ScreenDict.getInvestDevidenPerUnit(
                     _unitNameController.text,
                   ),
                   prefixText: 'Rp ',
@@ -476,16 +486,15 @@ class _BuyAssetModalState extends State<BuyAssetModal>
                 ),
                 onChanged: (val) =>
                     _onNumberChanged(_priceController, val, isDecimal: false),
-                validator: (val) => val == null || val.isEmpty
-                    ? SharedDict.requiredPrice
-                    : null,
+                validator: (val) =>
+                    val == null || val.isEmpty ? UiDict.requiredPrice : null,
               ),
               const SizedBox(height: 16),
 
               DropdownButtonFormField<WalletModel>(
                 initialValue: _selectedWallet,
                 decoration: InputDecoration(
-                  labelText: SharedDict.sourceFunds,
+                  labelText: UiDict.sourceFunds,
                   border: OutlineInputBorder(),
                 ),
                 items: widget.wallets
@@ -499,23 +508,22 @@ class _BuyAssetModalState extends State<BuyAssetModal>
                 onChanged: !_isLockWallet
                     ? (val) => setState(() => _selectedWallet = val)
                     : null,
-                validator: (val) =>
-                    val == null ? SharedDict.requiredWallet : null,
+                validator: (val) => val == null ? UiDict.requiredWallet : null,
               ),
               const SizedBox(height: 16),
               if (_isNewAssetTab) ...[
                 SwitchListTile(
                   contentPadding: EdgeInsets.zero,
-                  title: const Text(InvestDict.devidenCheck),
-                  subtitle: const Text(InvestDict.devidenCheckDesc),
+                  title: Text(ScreenDict.getDevidenCheck(isRpg: isRpg)),
+                  subtitle: Text(ScreenDict.getDevidenCheckDesc(isRpg: isRpg)),
                   value: _isDevidenActive,
                   onChanged: (val) => setState(() => _isDevidenActive = val),
                 ),
                 SwitchListTile(
                   contentPadding: EdgeInsets.zero,
-                  title: const Text('Sebagai Dana Darurat?'),
-                  subtitle: const Text(
-                    'Aktifkan jika aset ini sangat disiapkan sebagai dana darurat.',
+                  title: Text(ScreenDict.getEmergencyCheck(isRpg: isRpg)),
+                  subtitle: Text(
+                    ScreenDict.getEmergencyCheckDesc(isRpg: isRpg),
                   ),
                   value: _isEmergencyActive,
                   onChanged: (val) => setState(
@@ -526,9 +534,9 @@ class _BuyAssetModalState extends State<BuyAssetModal>
               if (widget.pendingAllocation == null)
                 SwitchListTile(
                   contentPadding: EdgeInsets.zero,
-                  title: Text(HomeDict.reservedCheck(isRpg: widget.isRpg)),
+                  title: Text(ScreenDict.getReservedCheck(isRpg: widget.isRpg)),
                   subtitle: Text(
-                    HomeDict.reservedCheckDesc(isRpg: widget.isRpg),
+                    ScreenDict.getReservedCheckDesc(isRpg: widget.isRpg),
                   ),
                   value: _isReservedActive,
                   onChanged: (val) => setState(() {
@@ -554,21 +562,21 @@ class _BuyAssetModalState extends State<BuyAssetModal>
                     if (_selectedWallet != null) ...[
                       NoteContainer(
                         text: widget.pendingAllocation != null
-                            ? InvestDict.generateNote(
+                            ? ScreenDict.getInvestNote(
                                 _selectedWallet?.name ?? '',
                                 CurrencyFormatter.convertToIdr(
                                   widget.pendingAllocation,
                                 ),
                               )
                             : _isReservedActive
-                            ? HomeDict.generateNote(
+                            ? ScreenDict.getHomeNote(
                                 _selectedWallet?.name ?? '',
                                 CurrencyFormatter.convertToIdr(
                                   _selectedWallet?.reservedAmount,
                                 ),
                                 isRpg: widget.isRpg,
                               )
-                            : HistoryDict.generateNote(
+                            : ScreenDict.getHistoryNote(
                                 _selectedWallet?.name ?? '',
                                 CurrencyFormatter.convertToIdr(
                                   _selectedWallet?.amount,
@@ -581,8 +589,8 @@ class _BuyAssetModalState extends State<BuyAssetModal>
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Text(
-                          HistoryDict.expenseAmount,
+                        Text(
+                          ScreenDict.expenseAmount.get(isRpg),
                           style: TextStyle(
                             fontSize: 14,
                             color: AppColors.textSecondary,
@@ -601,8 +609,8 @@ class _BuyAssetModalState extends State<BuyAssetModal>
                     const SizedBox(height: 16),
                     CustomButton(
                       title: _isNewAssetTab
-                          ? InvestDict.buyNewAsset
-                          : InvestDict.addInvestModal,
+                          ? ScreenDict.investBuyAsset.get(isRpg)
+                          : ScreenDict.investAddModal.get(isRpg),
                       color: AppColors.primary,
                       onTap: _submit,
                     ),

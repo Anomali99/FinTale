@@ -9,9 +9,9 @@ import '../../../controllers/invest_controller.dart';
 import '../../../controllers/settings_controller.dart';
 import '../../../controllers/wallet_controller.dart';
 import '../../../core/constants/app_colors.dart';
-import '../../../core/constants/assets_dict.dart';
-import '../../../core/constants/invest_dict.dart';
-import '../../../core/constants/menu_dict.dart';
+import '../../../core/constants/category_dict.dart';
+import '../../../core/constants/screen_dict.dart';
+import '../../../core/constants/ui_dict.dart';
 import '../../../models/assets_model.dart';
 import '../../../models/transaction_model.dart';
 import '../widgets/asset_tab.dart';
@@ -136,12 +136,12 @@ class InvestScreen extends StatelessWidget {
       child: Scaffold(
         appBar: AppBar(
           title: Text(
-            MenuDict.invest.get(isRpg),
+            UiDict.menuInvest.get(isRpg),
             style: GoogleFonts.poppins(fontWeight: FontWeight.bold),
           ),
           actions: [
             IconButton(
-              icon: FaIcon(InvestDict.add.icon(isRpg), size: 20),
+              icon: FaIcon(ScreenDict.investAdd.get(isRpg), size: 20),
               onPressed: () => _openAddAsset(context, isRpg),
             ),
             const SizedBox(width: 8),
@@ -156,7 +156,6 @@ class InvestScreen extends StatelessWidget {
                 totalCapital: totalInvested,
                 totalCurrent: totalValue,
                 percentage: overallPercentage,
-                isRpg: isRpg,
               ),
             ),
 
@@ -167,16 +166,16 @@ class InvestScreen extends StatelessWidget {
 
               tabs: [
                 Tab(
-                  icon: FaIcon(AssetsDict.lowRisk.icon(isRpg), size: 16),
-                  text: AssetsDict.lowRisk.get(isRpg),
+                  icon: FaIcon(CategoryDict.lowRisk.icon(isRpg), size: 16),
+                  text: CategoryDict.lowRisk.get(isRpg),
                 ),
                 Tab(
-                  icon: FaIcon(AssetsDict.mediumRisk.icon(isRpg), size: 16),
-                  text: AssetsDict.mediumRisk.get(isRpg),
+                  icon: FaIcon(CategoryDict.mediumRisk.icon(isRpg), size: 16),
+                  text: CategoryDict.mediumRisk.get(isRpg),
                 ),
                 Tab(
-                  icon: FaIcon(AssetsDict.highRisk.icon(isRpg), size: 16),
-                  text: AssetsDict.highRisk.get(isRpg),
+                  icon: FaIcon(CategoryDict.highRisk.icon(isRpg), size: 16),
+                  text: CategoryDict.highRisk.get(isRpg),
                 ),
               ],
             ),
@@ -185,28 +184,25 @@ class InvestScreen extends StatelessWidget {
               child: TabBarView(
                 children: [
                   AssetTab(
-                    icon: AssetsDict.lowRisk.icon(isRpg),
+                    icon: CategoryDict.lowRisk.icon(isRpg),
                     addInvest: (value) => _openAddInvest(context, value, isRpg),
                     updateAsset: (value) => _openUpdateAsset(context, value),
                     claimDeviden: (value) => _openDevidendAsset(context, value),
                     assets: lowRisk,
-                    isRpg: isRpg,
                   ),
                   AssetTab(
-                    icon: AssetsDict.mediumRisk.icon(isRpg),
+                    icon: CategoryDict.mediumRisk.icon(isRpg),
                     addInvest: (value) => _openAddInvest(context, value, isRpg),
                     updateAsset: (value) => _openUpdateAsset(context, value),
                     claimDeviden: (value) => _openDevidendAsset(context, value),
                     assets: mediumRisk,
-                    isRpg: isRpg,
                   ),
                   AssetTab(
-                    icon: AssetsDict.highRisk.icon(isRpg),
+                    icon: CategoryDict.highRisk.icon(isRpg),
                     addInvest: (value) => _openAddInvest(context, value, isRpg),
                     updateAsset: (value) => _openUpdateAsset(context, value),
                     claimDeviden: (value) => _openDevidendAsset(context, value),
                     assets: highRisk,
-                    isRpg: isRpg,
                   ),
                 ],
               ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../core/utils/enum_types.dart';
 import '../core/utils/leveling_extension.dart';
 import '../core/utils/mission_extension.dart';
 import '../data/local/pref_service.dart';

@@ -3,8 +3,8 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../../core/constants/app_colors.dart';
-import '../../../core/constants/home_dict.dart';
-import '../../../core/constants/shared_dict.dart';
+import '../../../core/constants/screen_dict.dart';
+import '../../../core/constants/ui_dict.dart';
 import '../../../core/utils/currency_formatter.dart';
 
 class BalanceCard extends StatelessWidget {
@@ -69,7 +69,7 @@ class BalanceCard extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        HomeDict.totalBalance.get(isRpg),
+                        ScreenDict.homeTotalBalance.get(isRpg),
                         style: const TextStyle(
                           color: AppColors.textSecondary,
                           fontSize: 13,
@@ -120,7 +120,7 @@ class BalanceCard extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              HomeDict.pending.get(isRpg),
+                              ScreenDict.homePending.get(isRpg),
                               style: const TextStyle(
                                 color: AppColors.textSecondary,
                                 fontSize: 11,
@@ -146,7 +146,7 @@ class BalanceCard extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
                             Text(
-                              HomeDict.savings.get(isRpg),
+                              ScreenDict.homeSavings.get(isRpg),
                               style: const TextStyle(
                                 color: AppColors.textSecondary,
                                 fontSize: 11,
@@ -191,13 +191,13 @@ class BalanceCard extends StatelessWidget {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             FaIcon(
-                              SharedDict.income.icon(isRpg),
+                              UiDict.income.icon(isRpg),
                               color: AppColors.success,
                               size: 14,
                             ),
                             const SizedBox(width: 8),
                             Text(
-                              SharedDict.income.get(isRpg),
+                              UiDict.income.get(isRpg),
                               style: const TextStyle(
                                 fontSize: 13,
                                 fontWeight: FontWeight.bold,
@@ -217,13 +217,13 @@ class BalanceCard extends StatelessWidget {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             FaIcon(
-                              SharedDict.transfer.icon(isRpg),
+                              UiDict.transfer.icon(isRpg),
                               color: AppColors.warning,
                               size: 14,
                             ),
                             const SizedBox(width: 8),
                             Text(
-                              SharedDict.transfer.get(isRpg),
+                              UiDict.transfer.get(isRpg),
                               style: const TextStyle(
                                 fontSize: 13,
                                 fontWeight: FontWeight.bold,

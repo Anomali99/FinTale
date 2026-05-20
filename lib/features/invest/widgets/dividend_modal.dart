@@ -3,8 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../../../core/constants/app_colors.dart';
-import '../../../core/constants/invest_dict.dart';
-import '../../../core/constants/shared_dict.dart';
+import '../../../core/constants/category_dict.dart';
+import '../../../core/constants/screen_dict.dart';
+import '../../../core/constants/ui_dict.dart';
+import '../../../core/utils/enum_types.dart';
 import '../../../models/assets_model.dart';
 import '../../../models/transaction_detail_model.dart';
 import '../../../models/transaction_model.dart';
@@ -100,14 +102,14 @@ class _DividendModalState extends State<DividendModal> {
 
       TransactionModel transaction = TransactionModel(
         type: TransactionType.income,
-        title: 'Klaim Dividen ${widget.asset.name}',
+        title: '${ScreenDict.investClaimDeviden} ${widget.asset.name}',
         amount: totalAmount,
         status: StatusType.paid,
         walletId: _selectedWallet?.id,
         assetsId: widget.asset.id,
         detailTransaction: [
           TransactionDetailModel(
-            title: 'Dividen / Bunga',
+            title: CategoryDict.dividend.get(false),
             amount: totalAmount,
             category: TransactionCategory.dividend,
             flow: FlowType.income,
@@ -155,12 +157,16 @@ class _DividendModalState extends State<DividendModal> {
               ),
 
               Text(
-                InvestDict.claimDeviden,
+                ScreenDict.investClaimDeviden,
                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 8),
               Text(
-                'Aset: ${widget.asset.name} (${widget.asset.unit} ${widget.asset.unitName})',
+                ScreenDict.getClaimTitle(
+                  name: widget.asset.name,
+                  unit: widget.asset.unit.toString(),
+                  unitName: widget.asset.unitName,
+                ),
                 style: const TextStyle(color: AppColors.textSecondary),
               ),
               const SizedBox(height: 24),
@@ -170,7 +176,7 @@ class _DividendModalState extends State<DividendModal> {
                 keyboardType: TextInputType.number,
                 inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                 decoration: InputDecoration(
-                  labelText: InvestDict.generateDevidenPerUnit(
+                  labelText: ScreenDict.getInvestDevidenPerUnit(
                     widget.asset.unitName,
                   ),
                   prefixText: 'Rp ',
@@ -185,13 +191,13 @@ class _DividendModalState extends State<DividendModal> {
                 keyboardType: TextInputType.number,
                 inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                 decoration: InputDecoration(
-                  labelText: InvestDict.totalDeviden,
+                  labelText: ScreenDict.investTotalDeviden,
                   prefixText: 'Rp ',
                   border: OutlineInputBorder(),
                 ),
                 onChanged: _onTotalChanged,
                 validator: (val) => val == null || val.isEmpty
-                    ? InvestDict.requiredTotalDeviden
+                    ? ScreenDict.investTotalDevidenRequired
                     : null,
               ),
               const SizedBox(height: 16),
@@ -199,7 +205,7 @@ class _DividendModalState extends State<DividendModal> {
               DropdownButtonFormField<WalletModel>(
                 initialValue: _selectedWallet,
                 decoration: InputDecoration(
-                  labelText: SharedDict.destinationWallet,
+                  labelText: UiDict.destinationWallet,
                   border: OutlineInputBorder(),
                 ),
                 items: widget.wallets.map((wallet) {
@@ -210,15 +216,18 @@ class _DividendModalState extends State<DividendModal> {
                 }).toList(),
                 onChanged: (val) => setState(() => _selectedWallet = val),
                 validator: (val) =>
-                    val == null ? SharedDict.requiredWalletDest : null,
+                    val == null ? UiDict.requiredWalletDest : null,
               ),
               const SizedBox(height: 16),
 
-              NoteContainer(text: InvestDict.devidenDesc, color: Colors.grey),
+              NoteContainer(
+                text: ScreenDict.investDevidenDesc,
+                color: Colors.grey,
+              ),
               const SizedBox(height: 32),
 
               CustomButton(
-                title: InvestDict.claim,
+                title: ScreenDict.investClaim,
                 color: AppColors.success,
                 onTap: _submit,
               ),

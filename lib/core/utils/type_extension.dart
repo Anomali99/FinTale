@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../../../models/transaction_detail_model.dart';
-import '../../../models/transaction_model.dart';
 import '../constants/app_colors.dart';
+import 'enum_types.dart';
 
 extension TypeExtension on TransactionType {
   Color get color {
@@ -55,6 +54,39 @@ extension FlowExtension on FlowType {
         return '- ';
       case FlowType.transfer:
         return '';
+    }
+  }
+}
+
+extension StatusExtension on StatusType {
+  Color get cardColor {
+    switch (this) {
+      case StatusType.paid:
+        return AppColors.surfaceVariant.withOpacity(0.5);
+      case StatusType.pending:
+      case StatusType.overdue:
+        return AppColors.surfaceVariant;
+    }
+  }
+
+  Color get textColor {
+    switch (this) {
+      case StatusType.paid:
+        return AppColors.textSecondary;
+      case StatusType.pending:
+      case StatusType.overdue:
+        return AppColors.textPrimary;
+    }
+  }
+
+  Color get accentColor {
+    switch (this) {
+      case StatusType.paid:
+        return AppColors.success;
+      case StatusType.pending:
+        return AppColors.primary;
+      case StatusType.overdue:
+        return AppColors.error;
     }
   }
 }

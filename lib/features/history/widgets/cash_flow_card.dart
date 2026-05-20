@@ -3,7 +3,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../../core/constants/app_colors.dart';
-import '../../../core/constants/shared_dict.dart';
+import '../../../core/constants/ui_dict.dart';
 import '../../../core/utils/currency_formatter.dart';
 
 class CashFlowCard extends StatelessWidget {
@@ -31,7 +31,7 @@ class CashFlowCard extends StatelessWidget {
         children: [
           _buildFlowBlock(
             amount: totalIncome,
-            icon: SharedDict.income.icon(isRpg),
+            icon: UiDict.income.icon(isRpg),
             color: AppColors.success,
           ),
 
@@ -39,7 +39,7 @@ class CashFlowCard extends StatelessWidget {
 
           _buildFlowBlock(
             amount: totalExpense,
-            icon: SharedDict.expense.icon(isRpg),
+            icon: UiDict.expense.icon(isRpg),
             color: AppColors.error,
           ),
         ],

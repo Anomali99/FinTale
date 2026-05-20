@@ -1,12 +1,10 @@
 import 'package:intl/intl.dart';
 
+import '../core/constants/screen_dict.dart';
+import '../core/utils/enum_types.dart';
 import '../core/utils/tier_analyzer.dart';
 import 'transaction_detail_model.dart';
 import 'transaction_model.dart';
-
-enum TimeType { daily, weekly, monthly, annual }
-
-enum DayName { monday, tuesday, wednesday, thursday, friday, saturday, sunday }
 
 class BillModel {
   final int? id;
@@ -78,6 +76,19 @@ extension BillExtension on BillModel {
     isActive = value;
   }
 
+  String getScheduleTitle() {
+    switch (type) {
+      case TimeType.daily:
+        return TimeType.daily.value;
+      case TimeType.weekly:
+        return '${TimeType.weekly.value} (${dayName?.value ?? ''})';
+      case TimeType.monthly:
+        return '${TimeType.monthly.value} (${day ?? '-'})';
+      case TimeType.annual:
+        return '${TimeType.annual.value} (${day ?? '-'} ${month ?? '-'})';
+    }
+  }
+
   String _getTargetTitle(DateTime targetDate) {
     switch (type) {
       case TimeType.daily:
@@ -109,7 +120,8 @@ extension BillExtension on BillModel {
           : targetDate.millisecondsSinceEpoch,
       detailTransaction: [
         TransactionDetailModel(
-          title: 'Bill ${_getTargetTitle(targetDate)}',
+          title:
+              '${ScreenDict.billsMaster.normal} (${_getTargetTitle(targetDate)})',
           amount: amount,
           flow: FlowType.expense,
           category: debtId != null

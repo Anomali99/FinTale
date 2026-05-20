@@ -1,35 +1,4 @@
-import 'assets_model.dart';
-
-enum TitleType {
-  noviceSaver,
-  smartBudgeter,
-  wiseInvestor,
-  wealthBuilder,
-  financialMaster,
-}
-
-enum SectorType { living, payDebt, emergency, investment }
-
-enum SubSectorType {
-  essentials,
-  dreamFund,
-  lowRisk,
-  mediumRisk,
-  highRisk;
-
-  RiskType? getRisk() {
-    switch (this) {
-      case SubSectorType.lowRisk:
-        return RiskType.low;
-      case SubSectorType.mediumRisk:
-        return RiskType.medium;
-      case SubSectorType.highRisk:
-        return RiskType.high;
-      default:
-        return null;
-    }
-  }
-}
+import '../core/utils/enum_types.dart';
 
 class UserModel {
   final String uid;

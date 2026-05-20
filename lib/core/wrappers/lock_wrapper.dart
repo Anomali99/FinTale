@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../controllers/settings_controller.dart';
 import '../../controllers/user_controller.dart';
 import '../../services/local_auth_service.dart';
+import '../constants/ui_dict.dart';
 
 class LockWrapper extends StatefulWidget {
   final Widget child;
@@ -107,11 +108,11 @@ class _LockWrapperState extends State<LockWrapper> with WidgetsBindingObserver {
             children: [
               const Icon(Icons.lock, size: 64, color: Colors.grey),
               const SizedBox(height: 16),
-              const Text('Aplikasi Terkunci', style: TextStyle(fontSize: 20)),
+              const Text(UiDict.appLock, style: TextStyle(fontSize: 20)),
               const SizedBox(height: 24),
               ElevatedButton(
                 onPressed: _promptUnlock,
-                child: const Text('Buka Kunci'),
+                child: const Text(UiDict.openApp),
               ),
             ],
           ),

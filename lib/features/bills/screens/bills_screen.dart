@@ -7,8 +7,7 @@ import '../../../controllers/bill_controller.dart';
 import '../../../controllers/settings_controller.dart';
 import '../../../controllers/transaction_controller.dart';
 import '../../../core/constants/app_colors.dart';
-import '../../../core/constants/bills_dict.dart';
-import '../../../core/constants/menu_dict.dart';
+import '../../../core/constants/screen_dict.dart';
 import '../../../models/bill_model.dart';
 import '../../../models/debt_model.dart';
 import '../../../widgets/custom_bottom_sheet.dart';
@@ -23,12 +22,12 @@ import '../widgets/debts_tab.dart';
 class BillsScreen extends StatelessWidget {
   const BillsScreen({super.key});
 
-  void _openDebtDetail(BuildContext context, DebtModel data, bool isRpg) async {
+  void _openDebtDetail(BuildContext context, DebtModel data) async {
     final result = await showModalBottomSheet<DebtActionType>(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) => DebtDetailModal(debt: data, isRpg: isRpg),
+      builder: (context) => DebtDetailModal(debt: data),
     );
 
     if (result != null) {
@@ -100,20 +99,20 @@ class BillsScreen extends StatelessWidget {
         return CustomBottomSheet(
           children: [
             BottomSheetChild(
-              title: BillsDict.addTemplate.get(isRpg),
-              subtitle: BillsDict.addTemplate.description ?? "",
+              title: ScreenDict.addBill.get(isRpg),
+              subtitle: ScreenDict.addBill.description ?? "",
               color: Colors.blueAccent,
-              icon: BillsDict.addTemplate.icon(isRpg),
+              icon: ScreenDict.addBill.icon(isRpg),
               onTap: () {
                 Navigator.pop(con);
                 _openAddBillModal(context);
               },
             ),
             BottomSheetChild(
-              title: BillsDict.addDebt.get(isRpg),
-              subtitle: BillsDict.addDebt.description ?? "",
+              title: ScreenDict.addDebt.get(isRpg),
+              subtitle: ScreenDict.addDebt.description ?? "",
               color: AppColors.error,
-              icon: BillsDict.addDebt.icon(isRpg),
+              icon: ScreenDict.addDebt.icon(isRpg),
               onTap: () {
                 Navigator.pop(con);
                 _openAddDebtModal(context);
@@ -142,12 +141,12 @@ class BillsScreen extends StatelessWidget {
       child: Scaffold(
         appBar: AppBar(
           title: Text(
-            MenuDict.bills.get(isRpg),
+            ScreenDict.billsMaster.get(isRpg),
             style: GoogleFonts.poppins(fontWeight: FontWeight.bold),
           ),
           actions: [
             IconButton(
-              icon: FaIcon(BillsDict.addIcon.get(isRpg), size: 20),
+              icon: FaIcon(ScreenDict.addIcon.get(isRpg), size: 20),
               onPressed: () => _showActionPopup(context, isRpg),
             ),
             const SizedBox(width: 8),
@@ -157,9 +156,9 @@ class BillsScreen extends StatelessWidget {
             labelColor: AppColors.primary,
             unselectedLabelColor: AppColors.textSecondary,
             tabs: [
-              Tab(text: BillsDict.bills.get(isRpg)),
-              Tab(text: BillsDict.template.get(isRpg)),
-              Tab(text: BillsDict.debts.get(isRpg)),
+              Tab(text: ScreenDict.billsActive.get(isRpg)),
+              Tab(text: ScreenDict.billsMaster.get(isRpg)),
+              Tab(text: ScreenDict.debtsMaster.get(isRpg)),
             ],
           ),
         ),
@@ -174,7 +173,7 @@ class BillsScreen extends StatelessWidget {
             DebtsTab(
               data: debts,
               isRpg: isRpg,
-              onTapCard: (debt) => _openDebtDetail(context, debt, isRpg),
+              onTapCard: (debt) => _openDebtDetail(context, debt),
             ),
           ],
         ),

@@ -3,42 +3,9 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/category_dict.dart';
-import '../../../core/constants/status_dict.dart';
 import '../../../core/utils/time_formatter.dart';
+import '../../../core/utils/type_extension.dart';
 import '../../../models/transaction_model.dart';
-
-extension StatusTypeUI on StatusType {
-  Color get cardColor {
-    switch (this) {
-      case StatusType.paid:
-        return AppColors.surfaceVariant.withOpacity(0.5);
-      case StatusType.pending:
-      case StatusType.overdue:
-        return AppColors.surfaceVariant;
-    }
-  }
-
-  Color get textColor {
-    switch (this) {
-      case StatusType.paid:
-        return AppColors.textSecondary;
-      case StatusType.pending:
-      case StatusType.overdue:
-        return AppColors.textPrimary;
-    }
-  }
-
-  Color get accentColor {
-    switch (this) {
-      case StatusType.paid:
-        return AppColors.success;
-      case StatusType.pending:
-        return AppColors.primary;
-      case StatusType.overdue:
-        return AppColors.error;
-    }
-  }
-}
 
 class ActiveBillCard extends StatelessWidget {
   final bool isRpg;
@@ -125,7 +92,7 @@ class ActiveBillCard extends StatelessWidget {
 
               if (isCleared) ...[
                 FaIcon(
-                  StatusDict.paid.icon(isRpg),
+                  CategoryDict.statusPaid.icon(isRpg),
                   color: AppColors.success,
                   size: 28,
                 ),

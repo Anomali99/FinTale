@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../../core/constants/app_colors.dart';
-import '../../../core/constants/shared_dict.dart';
+import '../../../core/constants/ui_dict.dart';
 import '../../../core/models/analytic_model.dart';
 import '../../../core/utils/currency_formatter.dart';
 
@@ -86,8 +86,8 @@ class DonutChart extends StatelessWidget {
             children: [
               Text(
                 showExpense
-                    ? 'Total ${SharedDict.expense.get(isRpg)}'
-                    : 'Total ${SharedDict.invest.get(isRpg)}',
+                    ? UiDict.getTotal(UiDict.income.get(isRpg))
+                    : UiDict.getTotal(UiDict.menuInvest.get(isRpg)),
                 style: const TextStyle(
                   fontSize: 10,
                   color: AppColors.textSecondary,

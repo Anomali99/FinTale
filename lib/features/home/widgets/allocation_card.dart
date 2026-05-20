@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
-import '../../../core/constants/home_dict.dart';
-import '../../../core/constants/skill_dict.dart';
+import '../../../core/constants/gamification_dict.dart';
+import '../../../core/constants/screen_dict.dart';
+import '../../../core/models/category_model.dart';
 import '../../../core/utils/currency_formatter.dart';
 import '../../../models/user_model.dart';
 
@@ -20,14 +21,15 @@ class AllocationCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Color sectorColor = SkillDict.getByEnum(
-      allocation.subSector ?? allocation.sector,
-    ).color!;
-    final String sectorName = SkillDict.getByEnum(allocation.sector).get(isRpg);
-
-    final String? subSectorName = allocation.subSector != null
-        ? SkillDict.getByEnum(allocation.subSector!).get(isRpg)
+    final CategoryModel sector = GamificationDict.getSkillByEnum(
+      allocation.sector,
+    );
+    final CategoryModel? subSector = allocation.subSector != null
+        ? GamificationDict.getSkillByEnum(allocation.subSector!)
         : null;
+    final Color sectorColor = subSector?.color ?? sector.color!;
+    final String sectorName = sector.get(isRpg);
+    final String? subSectorName = subSector?.get(isRpg);
 
     return Card(
       elevation: 0,
@@ -51,9 +53,7 @@ class AllocationCard extends StatelessWidget {
                   shape: BoxShape.circle,
                 ),
                 child: FaIcon(
-                  SkillDict.getByEnum(
-                    allocation.subSector ?? allocation.sector,
-                  ).icon(isRpg),
+                  (subSector ?? sector).icon(isRpg),
                   color: sectorColor,
                   size: 24,
                 ),
@@ -90,7 +90,7 @@ class AllocationCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Text(
-                    HomeDict.pending.get(isRpg),
+                    ScreenDict.homePending.get(isRpg),
                     style: TextStyle(fontSize: 11, color: Colors.grey),
                   ),
                   const SizedBox(height: 4),

@@ -4,7 +4,8 @@ import 'package:provider/provider.dart';
 
 import '../controllers/wallet_controller.dart';
 import '../core/constants/app_colors.dart';
-import '../models/transaction_model.dart';
+import '../core/constants/ui_dict.dart';
+import '../core/utils/enum_types.dart';
 import 'custom_button.dart';
 
 class FilterBottomSheet extends StatefulWidget {
@@ -101,7 +102,7 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
   Widget build(BuildContext context) {
     final walletController = context.read<WalletController>();
     final wallets = walletController.wallets;
-    String dateText = "Pilih tanggal awal dan akhir";
+    String dateText = UiDict.setDate;
     if (_startDate != null && _endDate != null) {
       dateText =
           "${DateFormat('dd MMM yyyy').format(_startDate!)} - ${DateFormat('dd MMM yyyy').format(_endDate!)}";
@@ -121,7 +122,7 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Filter Transaksi',
+                UiDict.transactionFilter,
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
@@ -137,7 +138,7 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
                     vertical: 4,
                   ),
                   child: Text(
-                    'Reset',
+                    UiDict.reset,
                     style: TextStyle(
                       color: AppColors.error,
                       fontWeight: FontWeight.bold,
@@ -150,7 +151,7 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
           const SizedBox(height: 24),
 
           Text(
-            'Rentang Tanggal',
+            UiDict.rangeDate,
             style: TextStyle(fontSize: 14, color: AppColors.textSecondary),
           ),
           const SizedBox(height: 8),
@@ -197,8 +198,8 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'Tipe transaksi',
+                  Text(
+                    UiDict.transactionType,
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
@@ -206,15 +207,15 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
                     ),
                   ),
                   const SizedBox(height: 8),
-                  _buildTypeCheckbox('Pemasukan', TransactionType.income),
-                  _buildTypeCheckbox('Pengeluaran', TransactionType.expense),
-                  _buildTypeCheckbox('Transfer', TransactionType.transfer),
-                  _buildTypeCheckbox('Pembayaran Hutang', TransactionType.debt),
+                  _buildTypeCheckbox(TransactionType.income),
+                  _buildTypeCheckbox(TransactionType.expense),
+                  _buildTypeCheckbox(TransactionType.transfer),
+                  _buildTypeCheckbox(TransactionType.debt),
 
                   const SizedBox(height: 24),
 
                   const Text(
-                    'Metode transaksi',
+                    UiDict.transactionMethode,
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
@@ -223,10 +224,10 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
                   ),
                   const SizedBox(height: 8),
                   if (wallets.isEmpty)
-                    const Padding(
+                    Padding(
                       padding: EdgeInsets.all(8.0),
                       child: Text(
-                        "Belum ada dompet",
+                        UiDict.getEmptyDesc(UiDict.wallet),
                         style: TextStyle(color: AppColors.textSecondary),
                       ),
                     ),
@@ -240,7 +241,7 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
           const SizedBox(height: 16),
 
           CustomButton(
-            title: 'Terapkan Filter',
+            title: UiDict.applyFilter,
             color: AppColors.primary,
             onTap: _applyFilter,
           ),
@@ -249,7 +250,7 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
     );
   }
 
-  Widget _buildTypeCheckbox(String title, TransactionType type) {
+  Widget _buildTypeCheckbox(TransactionType type) {
     return CheckboxListTile(
       contentPadding: EdgeInsets.zero,
       controlAffinity: ListTileControlAffinity.leading,
@@ -257,7 +258,7 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
       checkColor: Colors.black,
       side: const BorderSide(color: Colors.white54, width: 1.5),
       title: Text(
-        title,
+        type.value,
         style: const TextStyle(fontSize: 14, color: AppColors.textPrimary),
       ),
       value: _selectedTypes.contains(type),

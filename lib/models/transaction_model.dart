@@ -1,8 +1,5 @@
+import '../core/utils/enum_types.dart';
 import 'transaction_detail_model.dart';
-
-enum TransactionType { expense, debt, income, transfer }
-
-enum StatusType { pending, overdue, paid }
 
 class TransactionModel {
   final int? id;

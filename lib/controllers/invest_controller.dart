@@ -3,10 +3,10 @@ import 'package:flutter/material.dart';
 import '../controllers/transaction_controller.dart';
 import '../controllers/user_controller.dart';
 import '../controllers/wallet_controller.dart';
+import '../core/utils/enum_types.dart';
 import '../data/local/dao/asset_dao.dart';
 import '../models/assets_model.dart';
 import '../models/transaction_model.dart';
-import '../models/user_model.dart';
 import '../models/wallet_model.dart';
 
 class InvestController with ChangeNotifier {

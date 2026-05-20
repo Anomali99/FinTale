@@ -1,5 +1,6 @@
 import '../../models/user_model.dart';
 import '../../models/wallet_model.dart';
+import 'enum_types.dart';
 import 'leveling_extension.dart';
 
 class StarterPack {

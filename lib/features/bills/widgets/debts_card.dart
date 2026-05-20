@@ -3,8 +3,8 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../../core/constants/app_colors.dart';
-import '../../../core/constants/bills_dict.dart';
-import '../../../core/constants/debts_dict.dart';
+import '../../../core/constants/category_dict.dart';
+import '../../../core/constants/screen_dict.dart';
 import '../../../core/utils/currency_formatter.dart';
 import '../../../models/debt_model.dart';
 
@@ -51,7 +51,7 @@ class DebtsCard extends StatelessWidget {
                     shape: BoxShape.circle,
                   ),
                   child: FaIcon(
-                    DebtsDict.getByEnum(data.type).icon(isRpg),
+                    CategoryDict.getDebtByEnum(data.type).icon(isRpg),
                     color: AppColors.error,
                     size: 28,
                   ),
@@ -89,7 +89,7 @@ class DebtsCard extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  BillsDict.remaining.get(isRpg),
+                  ScreenDict.debtRemaining.get(isRpg),
                   style: const TextStyle(
                     fontSize: 12,
                     color: AppColors.textSecondary,

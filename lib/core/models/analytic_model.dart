@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
-import '../../models/transaction_detail_model.dart';
 import '../constants/category_dict.dart';
+import '../utils/enum_types.dart';
 import 'category_model.dart';
 
 class AnalyticModel {

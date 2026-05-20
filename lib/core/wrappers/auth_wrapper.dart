@@ -5,6 +5,7 @@ import '../../controllers/auth_controller.dart';
 import '../../features/auth/screens/auth_screen.dart';
 import '../../services/auth_service.dart';
 import '../constants/app_colors.dart';
+import '../constants/ui_dict.dart';
 
 class AuthWrapper extends StatelessWidget {
   final Widget child;
@@ -35,7 +36,7 @@ class AuthWrapper extends StatelessWidget {
                     const CircularProgressIndicator(color: AppColors.primary),
                     const SizedBox(height: 16),
                     Text(
-                      'Setting up your character profile...',
+                      UiDict.authSetup,
                       style: TextStyle(
                         color: AppColors.primary.withOpacity(0.7),
                       ),

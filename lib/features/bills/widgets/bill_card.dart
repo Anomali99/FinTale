@@ -19,23 +19,6 @@ class BillCard extends StatelessWidget {
     required this.isRpg,
   });
 
-  String _getScheduleText() {
-    switch (data.type) {
-      case TimeType.daily:
-        return 'Setiap Hari';
-      case TimeType.weekly:
-        String dayNameStr = data.dayName?.name ?? '';
-        if (dayNameStr.isNotEmpty) {
-          dayNameStr = dayNameStr[0].toUpperCase() + dayNameStr.substring(1);
-        }
-        return 'Mingguan (Setiap $dayNameStr)';
-      case TimeType.monthly:
-        return 'Bulanan (Tgl ${data.day ?? '-'})';
-      case TimeType.annual:
-        return 'Tahunan (Tgl ${data.day ?? '-'} Bln ${data.month ?? '-'})';
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final Color mainColor = data.tier.color;
@@ -103,7 +86,7 @@ class BillCard extends StatelessWidget {
 
                       Expanded(
                         child: Text(
-                          _getScheduleText(),
+                          data.getScheduleTitle(),
                           style: const TextStyle(
                             fontSize: 11,
                             color: AppColors.textSecondary,

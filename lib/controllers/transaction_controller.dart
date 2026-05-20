@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../core/models/analytic_model.dart';
+import '../core/utils/enum_types.dart';
 import '../data/local/dao/transaction_dao.dart';
 import '../models/transaction_detail_model.dart';
 import '../models/transaction_model.dart';

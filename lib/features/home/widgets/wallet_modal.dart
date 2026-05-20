@@ -4,9 +4,10 @@ import 'package:provider/provider.dart';
 
 import '../../../controllers/settings_controller.dart';
 import '../../../core/constants/app_colors.dart';
-import '../../../core/constants/home_dict.dart';
-import '../../../core/constants/shared_dict.dart';
+import '../../../core/constants/screen_dict.dart';
+import '../../../core/constants/ui_dict.dart';
 import '../../../core/utils/currency_formatter.dart';
+import '../../../core/utils/enum_types.dart';
 import '../../../models/wallet_model.dart';
 import '../../../widgets/custom_button.dart';
 import '../../../widgets/custom_table.dart';
@@ -105,8 +106,8 @@ class _WalletModalState extends State<WalletModal> {
           children: [
             Text(
               widget.wallet == null
-                  ? HomeDict.addWallet.get(isRpg)
-                  : HomeDict.updateWallet.get(isRpg),
+                  ? ScreenDict.addWallet.get(isRpg)
+                  : ScreenDict.updateWallet.get(isRpg),
               style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 24),
@@ -114,18 +115,17 @@ class _WalletModalState extends State<WalletModal> {
               controller: _nameController,
               enabled: !widget.lock,
               decoration: InputDecoration(
-                labelText: HomeDict.walletName,
+                labelText: ScreenDict.walletName,
                 border: const OutlineInputBorder(),
               ),
-              validator: (value) => value == null || value.isEmpty
-                  ? SharedDict.requiredName
-                  : null,
+              validator: (value) =>
+                  value == null || value.isEmpty ? UiDict.requiredName : null,
             ),
             const SizedBox(height: 16),
             DropdownButtonFormField<WalletType>(
               initialValue: _selectedType,
               decoration: InputDecoration(
-                labelText: HomeDict.walletType,
+                labelText: ScreenDict.walletType,
                 border: OutlineInputBorder(),
               ),
               items: [
@@ -152,7 +152,7 @@ class _WalletModalState extends State<WalletModal> {
                 keyboardType: TextInputType.number,
                 inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                 decoration: InputDecoration(
-                  labelText: HomeDict.initialAmount,
+                  labelText: UiDict.initialAmount,
                   prefixText: 'Rp ',
                   border: OutlineInputBorder(),
                 ),
@@ -165,7 +165,7 @@ class _WalletModalState extends State<WalletModal> {
                 borderColor: AppColors.primary,
                 children: [
                   CustomRowTable(
-                    label: HomeDict.totalBalance.get(false),
+                    label: ScreenDict.homeTotalBalance.get(false),
                     value: CurrencyFormatter.convertToIdr(
                       widget.wallet?.amount ?? BigInt.zero,
                     ),
@@ -177,14 +177,14 @@ class _WalletModalState extends State<WalletModal> {
                     child: Divider(color: Colors.white10, height: 1),
                   ),
                   CustomRowTable(
-                    label: HomeDict.regularFund,
+                    label: ScreenDict.homeRegular.get(isRpg),
                     value: CurrencyFormatter.convertToIdr(
                       widget.wallet?.regularAmount ?? BigInt.zero,
                     ),
                   ),
                   const SizedBox(height: 12),
                   CustomRowTable(
-                    label: HomeDict.savings.get(false),
+                    label: ScreenDict.homeSavings.get(isRpg),
                     value: CurrencyFormatter.convertToIdr(
                       widget.wallet?.reservedAmount ?? BigInt.zero,
                     ),
@@ -196,8 +196,8 @@ class _WalletModalState extends State<WalletModal> {
               const SizedBox(height: 24),
               CustomButton(
                 title: widget.wallet == null
-                    ? SharedDict.addNew
-                    : SharedDict.saveChanges,
+                    ? UiDict.addNew
+                    : UiDict.saveChanges,
                 color: AppColors.primary,
                 onTap: _submit,
               ),

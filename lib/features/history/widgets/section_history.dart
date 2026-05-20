@@ -6,7 +6,8 @@ import '../../../controllers/invest_controller.dart';
 import '../../../controllers/wallet_controller.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/category_dict.dart';
-import '../../../core/constants/history_dict.dart';
+import '../../../core/constants/ui_dict.dart';
+import '../../../core/utils/enum_types.dart';
 import '../../../models/transaction_model.dart';
 import 'transaction_card.dart';
 
@@ -36,17 +37,17 @@ class SectionHistory extends StatelessWidget {
     if (data.type == TransactionType.expense ||
         data.type == TransactionType.debt) {
       String from = walletController.getWalletById(data.walletId ?? 1).name;
-      return '${HistoryDict.sourceFundsShort}: $from';
+      return '${UiDict.sourceFundsShort}: $from';
     }
 
     if (data.type == TransactionType.income) {
       if (data.assetsId != null) {
         String fromAsset =
             investController.assets[(data.assetsId ?? 1) - 1].name;
-        return '${HistoryDict.sourceFundsShort}: $fromAsset';
+        return '${UiDict.sourceFundsShort}: $fromAsset';
       }
       String toWallet = walletController.getWalletById(data.walletId ?? 1).name;
-      return '${HistoryDict.saveToShort}: $toWallet';
+      return '${UiDict.saveToShort}: $toWallet';
     }
 
     return '-';

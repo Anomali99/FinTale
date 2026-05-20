@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
 
+import '../../../controllers/settings_controller.dart';
 import '../../../core/constants/app_colors.dart';
-import '../../../core/constants/invest_dict.dart';
-import '../../../core/constants/shared_dict.dart';
+import '../../../core/constants/screen_dict.dart';
+import '../../../core/constants/ui_dict.dart';
 import '../../../models/assets_model.dart';
 import '../../../widgets/custom_button.dart';
 import '../../../widgets/note_container.dart';
@@ -107,6 +109,7 @@ class _UpdateAssetModalState extends State<UpdateAssetModal> {
   @override
   Widget build(BuildContext context) {
     final bottomInset = MediaQuery.of(context).viewInsets.bottom;
+    final isRpg = context.read<SettingsController>().isRpgMode;
 
     return Container(
       padding: EdgeInsets.only(
@@ -139,7 +142,7 @@ class _UpdateAssetModalState extends State<UpdateAssetModal> {
               ),
 
               Text(
-                InvestDict.updateAsset,
+                ScreenDict.investUpdateAsset.get(isRpg),
                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 24),
@@ -147,11 +150,11 @@ class _UpdateAssetModalState extends State<UpdateAssetModal> {
               TextFormField(
                 controller: _nameController,
                 decoration: InputDecoration(
-                  labelText: SharedDict.name,
+                  labelText: UiDict.name,
                   border: OutlineInputBorder(),
                 ),
                 validator: (val) => val == null || val.trim().isEmpty
-                    ? SharedDict.requiredName
+                    ? UiDict.requiredName
                     : null,
               ),
               const SizedBox(height: 16),
@@ -165,7 +168,7 @@ class _UpdateAssetModalState extends State<UpdateAssetModal> {
                       keyboardType: TextInputType.number,
                       inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                       decoration: InputDecoration(
-                        labelText: InvestDict.generatePricePerUnit(
+                        labelText: ScreenDict.generatePricePerUnit(
                           _unitNameController.text,
                         ),
                         prefixText: 'Rp ',
@@ -173,7 +176,7 @@ class _UpdateAssetModalState extends State<UpdateAssetModal> {
                       ),
                       onChanged: _onNumberChanged,
                       validator: (val) => val == null || val.isEmpty
-                          ? SharedDict.requiredPrice
+                          ? UiDict.requiredPrice
                           : null,
                     ),
                   ),
@@ -183,12 +186,12 @@ class _UpdateAssetModalState extends State<UpdateAssetModal> {
                     child: TextFormField(
                       controller: _unitNameController,
                       decoration: InputDecoration(
-                        labelText: InvestDict.unit,
+                        labelText: ScreenDict.investUnit.get(isRpg),
                         border: OutlineInputBorder(),
                       ),
                       onChanged: (val) => setState(() {}),
                       validator: (val) => val == null || val.trim().isEmpty
-                          ? InvestDict.requiredUnit
+                          ? ScreenDict.investUnitRequired.get(isRpg)
                           : null,
                     ),
                   ),
@@ -197,16 +200,19 @@ class _UpdateAssetModalState extends State<UpdateAssetModal> {
 
               const SizedBox(height: 16),
 
-              NoteContainer(text: InvestDict.updateDesc, color: Colors.grey),
+              NoteContainer(
+                text: ScreenDict.getInvestUpdateDesc(isRpg: isRpg),
+                color: Colors.grey,
+              ),
               const SizedBox(height: 16),
               SwitchListTile(
                 contentPadding: EdgeInsets.zero,
                 title: Text(
-                  InvestDict.devidenCheck,
+                  ScreenDict.getDevidenCheck(isRpg: isRpg),
                   style: TextStyle(fontWeight: FontWeight.bold),
                 ),
                 subtitle: Text(
-                  InvestDict.devidenCheckDesc,
+                  ScreenDict.getDevidenCheckDesc(isRpg: isRpg),
                   style: TextStyle(
                     fontSize: 12,
                     color: AppColors.textSecondary,
@@ -219,7 +225,7 @@ class _UpdateAssetModalState extends State<UpdateAssetModal> {
               const SizedBox(height: 16),
 
               CustomButton(
-                title: SharedDict.saveChanges,
+                title: UiDict.saveChanges,
                 color: AppColors.primary,
                 onTap: _submit,
               ),

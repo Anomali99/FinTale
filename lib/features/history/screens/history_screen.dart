@@ -8,9 +8,7 @@ import '../../../controllers/history_controller.dart';
 import '../../../controllers/settings_controller.dart';
 import '../../../controllers/transaction_controller.dart';
 import '../../../core/constants/app_colors.dart';
-import '../../../core/constants/history_dict.dart';
-import '../../../core/constants/menu_dict.dart';
-import '../../../core/constants/shared_dict.dart';
+import '../../../core/constants/ui_dict.dart';
 import '../../../models/transaction_model.dart';
 import '../../../widgets/filter_bottom_sheet.dart';
 import '../../../widgets/month_filter.dart';
@@ -81,23 +79,22 @@ class HistoryScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          MenuDict.history.get(isRpg),
+          UiDict.menuHistory.get(isRpg),
           style: GoogleFonts.poppins(fontWeight: FontWeight.bold),
         ),
         actions: [
           IconButton(
-            icon: FaIcon(SharedDict.filter.icon(isRpg), size: 18),
+            icon: FaIcon(FontAwesomeIcons.filter, size: 18),
             onPressed: () => _openFilter(context),
-            tooltip: SharedDict.filter.get(isRpg),
           ),
           IconButton(
             icon: FaIcon(
-              MenuDict.analytics.icon(isRpg),
+              UiDict.menuAnalytics.icon(isRpg),
               size: 20,
               color: AppColors.primary,
             ),
             onPressed: () => Navigator.pushNamed(context, '/analytics'),
-            tooltip: MenuDict.analytics.get(isRpg),
+            tooltip: UiDict.menuAnalytics.get(isRpg),
           ),
           const SizedBox(width: 8),
         ],
@@ -145,13 +142,16 @@ class HistoryScreen extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     FaIcon(
-                      MenuDict.history.icon(isRpg),
+                      UiDict.menuHistory.icon(isRpg),
                       size: 48,
                       color: AppColors.surfaceVariant,
                     ),
                     const SizedBox(height: 16),
                     Text(
-                      HistoryDict.empty.get(isRpg),
+                      UiDict.getEmptyDesc(
+                        UiDict.menuHistory.get(isRpg).toLowerCase(),
+                        isRpg: isRpg,
+                      ),
                       textAlign: TextAlign.center,
                       style: const TextStyle(color: AppColors.textSecondary),
                     ),

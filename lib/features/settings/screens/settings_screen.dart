@@ -13,8 +13,7 @@ import '../../../controllers/transaction_controller.dart';
 import '../../../controllers/user_controller.dart';
 import '../../../controllers/wallet_controller.dart';
 import '../../../core/constants/app_colors.dart';
-import '../../../core/constants/menu_dict.dart';
-import '../../../core/constants/settings_dict.dart';
+import '../../../core/constants/ui_dict.dart';
 import '../../../models/wallet_model.dart';
 import '../../../widgets/custom_button.dart';
 
@@ -30,19 +29,7 @@ class SettingsScreen extends StatelessWidget {
           canPop: false,
           child: AlertDialog(
             backgroundColor: AppColors.surfaceVariant,
-            content: Row(
-              children: [
-                CircularProgressIndicator(color: AppColors.primary),
-                SizedBox(width: 24),
-                Text(
-                  'Memproses permintaan...',
-                  style: TextStyle(
-                    color: AppColors.textPrimary,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
-            ),
+            content: CircularProgressIndicator(color: AppColors.primary),
           ),
         );
       },
@@ -125,8 +112,8 @@ class SettingsScreen extends StatelessWidget {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(con),
-            child: const Text(
-              'Batal',
+            child: Text(
+              UiDict.cancel,
               style: TextStyle(color: AppColors.textSecondary),
             ),
           ),
@@ -167,7 +154,7 @@ class SettingsScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          MenuDict.settings,
+          UiDict.settings,
           style: GoogleFonts.poppins(fontWeight: FontWeight.bold),
         ),
       ),
@@ -175,7 +162,7 @@ class SettingsScreen extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 8.0),
         children: [
           _buildSectionHeader(
-            SettingsDict.security.get(settingsController.isRpgMode),
+            UiDict.setSecurityGroup.get(settingsController.isRpgMode),
           ),
           Container(
             decoration: BoxDecoration(
@@ -190,9 +177,9 @@ class SettingsScreen extends StatelessWidget {
                     color: AppColors.textPrimary,
                     size: 20,
                   ),
-                  title: const Text('Hide Balance'),
+                  title: Text(UiDict.setHideBalance),
                   subtitle: Text(
-                    SettingsDict.balanceDesc.get(settingsController.isRpgMode),
+                    UiDict.setBalanceDesc.get(settingsController.isRpgMode),
                   ),
                   trailing: Switch(
                     value: settingsController.isHideBalance,
@@ -207,8 +194,8 @@ class SettingsScreen extends StatelessWidget {
                     color: AppColors.textPrimary,
                     size: 20,
                   ),
-                  title: const Text('App Lock'),
-                  subtitle: const Text(SettingsDict.appLocDesc),
+                  title: Text(UiDict.setAppLock),
+                  subtitle: const Text(UiDict.setLockDesc),
                   trailing: Switch(
                     value: settingsController.isAppLock,
                     activeThumbColor: AppColors.primary,
@@ -220,9 +207,7 @@ class SettingsScreen extends StatelessWidget {
                       if (!success && context.mounted) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
-                            content: Text(
-                              'Autentikasi diperlukan untuk mengubah pengaturan ini.',
-                            ),
+                            content: Text(UiDict.authRequired),
                             backgroundColor: AppColors.error,
                           ),
                         );
@@ -253,8 +238,8 @@ class SettingsScreen extends StatelessWidget {
                             left: 56,
                             right: 16,
                           ),
-                          title: const Text(
-                            'Ubah PIN Keamanan',
+                          title: Text(
+                            UiDict.changePin,
                             style: TextStyle(fontSize: 14),
                           ),
                           trailing: const Icon(
@@ -267,9 +252,7 @@ class SettingsScreen extends StatelessWidget {
                             if (!success && context.mounted) {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
-                                  content: Text(
-                                    'Gagal memverifikasi biometrik.',
-                                  ),
+                                  content: Text(UiDict.changePinCancel),
                                   backgroundColor: AppColors.error,
                                 ),
                               );
@@ -289,12 +272,12 @@ class SettingsScreen extends StatelessWidget {
                               left: 56,
                               right: 16,
                             ),
-                            title: const Text(
-                              'Gunakan Sidik Jari / Face ID',
+                            title: Text(
+                              UiDict.biometric,
                               style: TextStyle(fontSize: 14),
                             ),
-                            subtitle: const Text(
-                              'Buka aplikasi tanpa memasukkan PIN',
+                            subtitle: Text(
+                              UiDict.biometricDesc,
                               style: TextStyle(
                                 fontSize: 12,
                                 color: AppColors.textSecondary,
@@ -308,9 +291,7 @@ class SettingsScreen extends StatelessWidget {
                               if (!success && context.mounted) {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(
-                                    content: Text(
-                                      'Gagal memverifikasi biometrik.',
-                                    ),
+                                    content: Text(UiDict.biometricFailed),
                                     backgroundColor: AppColors.error,
                                   ),
                                 );
@@ -327,7 +308,7 @@ class SettingsScreen extends StatelessWidget {
           ),
 
           _buildSectionHeader(
-            SettingsDict.appSettings.get(settingsController.isRpgMode),
+            UiDict.setAppGroup.get(settingsController.isRpgMode),
           ),
           Container(
             decoration: BoxDecoration(
@@ -342,8 +323,8 @@ class SettingsScreen extends StatelessWidget {
                     color: AppColors.textPrimary,
                     size: 20,
                   ),
-                  title: const Text('Gamification Mode'),
-                  subtitle: const Text(SettingsDict.rpgDesc),
+                  title: Text(UiDict.setRpg),
+                  subtitle: const Text(UiDict.setRpgDesc),
                   trailing: Switch(
                     value: settingsController.isRpgMode,
                     activeThumbColor: AppColors.primary,
@@ -357,11 +338,22 @@ class SettingsScreen extends StatelessWidget {
                     color: AppColors.textPrimary,
                     size: 20,
                   ),
-                  title: Text(SettingsDict.notifications),
+                  title: Text(UiDict.setNotification),
                   trailing: Switch(
                     value: settingsController.isNotification,
                     activeThumbColor: AppColors.primary,
-                    onChanged: settingsController.changeNotification,
+                    onChanged: (val) async {
+                      bool success = await settingsController
+                          .changeNotification(context, val);
+                      if (!success && context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text(UiDict.setNotificationsFiled),
+                            backgroundColor: AppColors.error,
+                          ),
+                        );
+                      }
+                    },
                   ),
                 ),
                 const Divider(color: Colors.white10, height: 1, indent: 56),
@@ -371,7 +363,7 @@ class SettingsScreen extends StatelessWidget {
                     color: AppColors.textPrimary,
                     size: 20,
                   ),
-                  title: Text(SettingsDict.theme),
+                  title: Text(UiDict.setTheme),
                   trailing: DropdownButton<String>(
                     value: settingsController.themeMode,
                     dropdownColor: AppColors.surface,
@@ -400,7 +392,7 @@ class SettingsScreen extends StatelessWidget {
           ),
 
           _buildSectionHeader(
-            SettingsDict.data.get(settingsController.isRpgMode),
+            UiDict.setDataGroup.get(settingsController.isRpgMode),
           ),
 
           Container(
@@ -416,7 +408,7 @@ class SettingsScreen extends StatelessWidget {
                     color: AppColors.textPrimary,
                     size: 20,
                   ),
-                  title: const Text('Export Data (Json)'),
+                  title: Text(UiDict.setExport),
                   trailing: const Icon(
                     Icons.chevron_right,
                     color: AppColors.textSecondary,
@@ -432,7 +424,7 @@ class SettingsScreen extends StatelessWidget {
                     color: AppColors.textPrimary,
                     size: 20,
                   ),
-                  title: const Text('Import Data'),
+                  title: Text(UiDict.setImport),
                   trailing: const Icon(
                     Icons.chevron_right,
                     color: AppColors.textSecondary,
@@ -449,14 +441,14 @@ class SettingsScreen extends StatelessWidget {
                     size: 20,
                   ),
                   title: Text(
-                    SettingsDict.dataReset,
+                    UiDict.setDataReset,
                     style: const TextStyle(color: AppColors.error),
                   ),
                   onTap: () => _showWarningDialog(
                     context,
-                    title: '${SettingsDict.dataReset}?',
-                    desc: SettingsDict.dataResetDesc,
-                    yesTitle: SettingsDict.dataResetBtn,
+                    title: '${UiDict.setDataReset}?',
+                    desc: UiDict.setDataResetDesc,
+                    yesTitle: UiDict.setDataResetBtn,
                     onYes: () => _handleAction(
                       context,
                       settingsController.handleResetData,
@@ -471,7 +463,7 @@ class SettingsScreen extends StatelessWidget {
 
           CustomButton(
             icon: FontAwesomeIcons.arrowsRotate,
-            title: SettingsDict.sync,
+            title: UiDict.setSync,
             color: Colors.blueAccent,
             onTap: () {
               /* TODO: Sync Data */
@@ -480,7 +472,7 @@ class SettingsScreen extends StatelessWidget {
           const SizedBox(height: 16),
           CustomButton(
             icon: FontAwesomeIcons.arrowRightFromBracket,
-            title: SettingsDict.signOut,
+            title: UiDict.setSignOut,
             color: AppColors.error,
             onTap: () =>
                 _handleAction(context, settingsController.handleSignOut),

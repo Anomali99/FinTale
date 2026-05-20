@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 
 import '../../../controllers/settings_controller.dart';
 import '../../../core/constants/app_colors.dart';
+import '../../../core/constants/ui_dict.dart';
 import '../../../core/utils/hash_helper.dart';
 
 enum PinStep { enterOld, enterNew, confirmNew }
@@ -62,11 +63,13 @@ class _CreatePinScreenState extends State<CreatePinScreen> {
   void _onBackPressed() {
     setState(() {
       if (_currentStep == PinStep.enterOld) {
-        if (_oldPinInput.isNotEmpty)
+        if (_oldPinInput.isNotEmpty) {
           _oldPinInput = _oldPinInput.substring(0, _oldPinInput.length - 1);
+        }
       } else if (_currentStep == PinStep.enterNew) {
-        if (_firstPin.isNotEmpty)
+        if (_firstPin.isNotEmpty) {
           _firstPin = _firstPin.substring(0, _firstPin.length - 1);
+        }
       } else if (_currentStep == PinStep.confirmNew) {
         if (_confirmPin.isNotEmpty) {
           _confirmPin = _confirmPin.substring(0, _confirmPin.length - 1);
@@ -86,8 +89,8 @@ class _CreatePinScreenState extends State<CreatePinScreen> {
       });
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('PIN Lama salah.'),
+        SnackBar(
+          content: Text(UiDict.pinWrong),
           backgroundColor: AppColors.error,
         ),
       );
@@ -106,7 +109,7 @@ class _CreatePinScreenState extends State<CreatePinScreen> {
         Navigator.pop(context, true);
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('PIN Keamanan berhasil diperbarui!'),
+            content: Text(UiDict.changePinSuccess),
             backgroundColor: AppColors.success,
           ),
         );
@@ -114,7 +117,7 @@ class _CreatePinScreenState extends State<CreatePinScreen> {
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('PIN konfirmasi tidak cocok.'),
+          content: Text(UiDict.confirmPinWorng),
           backgroundColor: AppColors.error,
         ),
       );
@@ -129,22 +132,22 @@ class _CreatePinScreenState extends State<CreatePinScreen> {
   String get _currentTitle {
     switch (_currentStep) {
       case PinStep.enterOld:
-        return 'Masukkan PIN Lama';
+        return UiDict.inputOldPin;
       case PinStep.enterNew:
-        return 'Buat PIN Baru';
+        return UiDict.createNewPin;
       case PinStep.confirmNew:
-        return 'Konfirmasi PIN Baru';
+        return UiDict.confirmNewPin;
     }
   }
 
   String get _currentSubtitle {
     switch (_currentStep) {
       case PinStep.enterOld:
-        return 'Verifikasi identitas Anda untuk melanjutkan';
+        return UiDict.inputOldPinSub;
       case PinStep.enterNew:
-        return 'PIN ini akan digunakan untuk mengunci aplikasi';
+        return UiDict.createNewPinSub;
       case PinStep.confirmNew:
-        return 'Masukkan kembali 6 digit PIN untuk verifikasi';
+        return UiDict.confirmNewPinSub;
     }
   }
 
@@ -227,7 +230,7 @@ class _CreatePinScreenState extends State<CreatePinScreen> {
                   /* TODO: Implement Send OTP*/
                 },
                 child: const Text(
-                  'Lupa PIN?',
+                  UiDict.forgotPin,
                   style: TextStyle(
                     color: AppColors.primary,
                     fontWeight: FontWeight.bold,

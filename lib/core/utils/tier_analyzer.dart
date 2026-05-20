@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../../../models/bill_model.dart';
+import 'enum_types.dart';
 
 enum BillTier {
   sss(rank: 'SSS-Rank', color: Colors.deepPurple, title: 'Mythical Quest'),

@@ -5,10 +5,11 @@ import 'package:provider/provider.dart';
 import '../../../controllers/settings_controller.dart';
 import '../../../controllers/skill_controller.dart';
 import '../../../core/constants/app_colors.dart';
-import '../../../core/constants/profile_dict.dart';
-import '../../../core/constants/skill_dict.dart';
+import '../../../core/constants/category_dict.dart';
+import '../../../core/constants/gamification_dict.dart';
+import '../../../core/constants/ui_dict.dart';
 import '../../../core/models/category_model.dart';
-import '../../../models/user_model.dart';
+import '../../../core/utils/enum_types.dart';
 
 class SkillTreeScreen extends StatefulWidget {
   const SkillTreeScreen({super.key});
@@ -85,7 +86,7 @@ class _SkillTreeScreenState extends State<SkillTreeScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(ProfileDict.allocationTree.get(isRpg)),
+        title: Text(GamificationDict.allocationTree.get(isRpg)),
         actions: [
           IconButton(
             onPressed: () => skillController.resetAllocation(),
@@ -94,7 +95,6 @@ class _SkillTreeScreenState extends State<SkillTreeScreen> {
               size: 20,
               color: Colors.orangeAccent,
             ),
-            tooltip: 'Reset to Default',
           ),
           SizedBox(width: 10),
         ],
@@ -118,38 +118,32 @@ class _SkillTreeScreenState extends State<SkillTreeScreen> {
                   child: Column(
                     children: [
                       const SizedBox(height: 60),
-                      _buildNode(
-                        null,
-                        SkillDict.income,
-                        100,
-                        isRpg,
-                        isRoot: true,
-                      ),
+                      _buildNode(null, UiDict.income, 100, isRpg, isRoot: true),
                       const SizedBox(height: 100),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
                           _buildNode(
                             SectorType.living,
-                            SkillDict.dailyParent,
+                            GamificationDict.skillDaily,
                             allocs[SectorType.living],
                             isRpg,
                           ),
                           _buildNode(
                             SectorType.payDebt,
-                            SkillDict.debt,
+                            GamificationDict.skillDebt,
                             allocs[SectorType.payDebt],
                             isRpg,
                           ),
                           _buildNode(
                             SectorType.emergency,
-                            SkillDict.emergency,
+                            GamificationDict.skillEmergency,
                             allocs[SectorType.emergency],
                             isRpg,
                           ),
                           _buildNode(
                             SectorType.investment,
-                            SkillDict.investment,
+                            GamificationDict.skillInvestment,
                             allocs[SectorType.investment],
                             isRpg,
                           ),
@@ -163,35 +157,35 @@ class _SkillTreeScreenState extends State<SkillTreeScreen> {
                           children: [
                             _buildNode(
                               SubSectorType.essentials,
-                              SkillDict.dailyRoutine,
+                              GamificationDict.skillRoutine,
                               allocs[SubSectorType.essentials],
                               isRpg,
                               size: 48,
                             ),
                             _buildNode(
                               SubSectorType.dreamFund,
-                              SkillDict.dreamFund,
+                              GamificationDict.skillDream,
                               allocs[SubSectorType.dreamFund],
                               isRpg,
                               size: 48,
                             ),
                             _buildNode(
                               SubSectorType.lowRisk,
-                              SkillDict.lowRisk,
+                              CategoryDict.lowRisk,
                               allocs[SubSectorType.lowRisk],
                               isRpg,
                               size: 48,
                             ),
                             _buildNode(
                               SubSectorType.mediumRisk,
-                              SkillDict.mediumRisk,
+                              CategoryDict.mediumRisk,
                               allocs[SubSectorType.mediumRisk],
                               isRpg,
                               size: 48,
                             ),
                             _buildNode(
                               SubSectorType.highRisk,
-                              SkillDict.highRisk,
+                              CategoryDict.highRisk,
                               allocs[SubSectorType.highRisk],
                               isRpg,
                               size: 48,
@@ -314,7 +308,10 @@ class _SkillTreeScreenState extends State<SkillTreeScreen> {
 
     final bool isRoot = selectedNode == null;
     final desc = controller.selectedNode != null
-        ? SkillDict.getByEnum(controller.selectedNode!).description ?? ''
+        ? GamificationDict.getSkillByEnum(
+                controller.selectedNode!,
+              ).description ??
+              ''
         : '';
     bool isLocked = currentPercent == null;
 
@@ -417,7 +414,7 @@ class _SkillTreeScreenState extends State<SkillTreeScreen> {
                     size: 20,
                   ),
                   title: const Text(
-                    'Skill Locked',
+                    GamificationDict.lockedSkill,
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.bold,
@@ -425,7 +422,7 @@ class _SkillTreeScreenState extends State<SkillTreeScreen> {
                     ),
                   ),
                   subtitle: Text(
-                    'This category will unlock automatically as you progress.',
+                    GamificationDict.lockedSkillDesc,
                     style: TextStyle(fontSize: 10, color: Colors.grey.shade500),
                   ),
                 ),
@@ -435,8 +432,8 @@ class _SkillTreeScreenState extends State<SkillTreeScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text(
-                      'Regular Free Pts:',
+                    Text(
+                      GamificationDict.skillPoint,
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 13,
@@ -456,8 +453,8 @@ class _SkillTreeScreenState extends State<SkillTreeScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text(
-                      'Extra Free Pts:',
+                    Text(
+                      GamificationDict.skillExtraPoint,
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 13,
@@ -478,9 +475,7 @@ class _SkillTreeScreenState extends State<SkillTreeScreen> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      (selectedNode is SectorType)
-                          ? 'Regular Free Pts:'
-                          : 'Regular Parent Pts:',
+                      '${GamificationDict.skillPoint}:',
                       style: const TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 13,
@@ -501,9 +496,7 @@ class _SkillTreeScreenState extends State<SkillTreeScreen> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      (selectedNode is SectorType)
-                          ? 'Extra Free Pts:'
-                          : 'Extra Parent Pts:',
+                      '${GamificationDict.skillExtraPoint}:',
                       style: const TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 13,

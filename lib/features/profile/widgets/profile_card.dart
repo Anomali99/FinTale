@@ -3,7 +3,8 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../../core/constants/app_colors.dart';
-import '../../../core/constants/title_dict.dart';
+import '../../../core/constants/gamification_dict.dart';
+import '../../../core/utils/enum_types.dart';
 import '../../../core/utils/leveling_extension.dart';
 import '../../../models/user_model.dart';
 
@@ -89,7 +90,7 @@ class ProfileCard extends StatelessWidget {
                       ],
                     ),
                     Text(
-                      'Lv. $level - ${TitleDict.getByEnum(title).get(isRpg)}',
+                      'Lv. $level - ${GamificationDict.getTitleByEnum(title).get(isRpg)}',
                       style: const TextStyle(color: AppColors.textSecondary),
                     ),
                     if (user?.email != null) ...[

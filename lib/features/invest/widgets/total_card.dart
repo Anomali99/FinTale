@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 
+import '../../../controllers/settings_controller.dart';
 import '../../../core/constants/app_colors.dart';
-import '../../../core/constants/invest_dict.dart';
+import '../../../core/constants/screen_dict.dart';
 import '../../../core/utils/currency_formatter.dart';
 
 class TotalCard extends StatelessWidget {
-  final bool isRpg;
   final bool isProvit;
   final BigInt totalCapital;
   final BigInt totalCurrent;
@@ -19,11 +20,11 @@ class TotalCard extends StatelessWidget {
     required this.totalCapital,
     required this.totalCurrent,
     required this.percentage,
-    required this.isRpg,
   });
 
   @override
   Widget build(BuildContext context) {
+    final isRpg = context.read<SettingsController>().isRpgMode;
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
@@ -43,7 +44,7 @@ class TotalCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            InvestDict.total.get(isRpg),
+            ScreenDict.investTotal.get(isRpg),
             style: const TextStyle(
               color: AppColors.textSecondary,
               fontSize: 14,
@@ -66,7 +67,7 @@ class TotalCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    InvestDict.invested.get(isRpg),
+                    ScreenDict.investModal.get(isRpg),
                     style: const TextStyle(
                       color: AppColors.textSecondary,
                       fontSize: 12,

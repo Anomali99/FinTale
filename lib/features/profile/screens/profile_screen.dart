@@ -7,12 +7,11 @@ import '../../../controllers/profile_controller.dart';
 import '../../../controllers/settings_controller.dart';
 import '../../../controllers/user_controller.dart';
 import '../../../core/constants/app_colors.dart';
-import '../../../core/constants/menu_dict.dart';
-import '../../../core/constants/profile_dict.dart';
-import '../../../core/constants/shared_dict.dart';
-import '../../../core/constants/skill_dict.dart';
+import '../../../core/constants/gamification_dict.dart';
+import '../../../core/constants/screen_dict.dart';
+import '../../../core/constants/ui_dict.dart';
 import '../../../core/utils/currency_formatter.dart';
-import '../../../models/user_model.dart';
+import '../../../core/utils/enum_types.dart';
 import '../widgets/allocation_card.dart';
 import '../widgets/daily_missions.dart';
 import '../widgets/edit_modal.dart';
@@ -26,8 +25,8 @@ class ProfileScreen extends StatelessWidget {
       context: context,
       isScrollControlled: true,
       builder: (context) => EditModal(
-        title: 'Edit ${SharedDict.name}',
-        fieldTitle: SharedDict.name,
+        title: UiDict.getEdit(UiDict.name),
+        fieldTitle: UiDict.name,
         defaultValue: defaultValue,
       ),
     );
@@ -45,8 +44,8 @@ class ProfileScreen extends StatelessWidget {
       context: context,
       isScrollControlled: true,
       builder: (context) => EditModal(
-        title: 'Edit $title',
-        fieldTitle: SharedDict.amount,
+        title: UiDict.getEdit(title),
+        fieldTitle: UiDict.amount,
         defaultValue: defaultValue,
         isCurrency: true,
       ),
@@ -77,7 +76,7 @@ class ProfileScreen extends StatelessWidget {
       appBar: AppBar(
         titleSpacing: 24,
         title: Text(
-          MenuDict.profile,
+          UiDict.profile,
           style: GoogleFonts.poppins(fontWeight: FontWeight.bold),
         ),
         actions: [
@@ -106,19 +105,19 @@ class ProfileScreen extends StatelessWidget {
             investmentPercentage: userController.getAllocation(
               SectorType.investment,
             ),
-            onTap: () => Navigator.pushNamed(context, 'skill-tree'),
+            onTap: () => Navigator.pushNamed(context, '/skill-tree'),
             isRpg: isRpg,
           ),
           const SizedBox(height: 24),
 
           _buildSettingCard(
-            ProfileDict.baseDaily.icon(isRpg),
-            ProfileDict.baseDaily.get(isRpg),
+            ScreenDict.homeDailyLimit.icon(isRpg),
+            ScreenDict.homeDailyLimit.get(isRpg),
             '${CurrencyFormatter.convertToIdr(baseDailyLimit)} / day',
             onTap: () async {
               BigInt? result = await _openEditNum(
                 context,
-                ProfileDict.baseDaily.get(isRpg),
+                ScreenDict.homeDailyLimit.get(isRpg),
                 defaultValue: baseDailyLimit.toString(),
               );
               if (result != null) profileController.saveBaseDailyLimit(result);
@@ -126,15 +125,15 @@ class ProfileScreen extends StatelessWidget {
           ),
           const SizedBox(height: 24),
           _buildSettingCard(
-            SkillDict.emergency.icon(isRpg),
-            SkillDict.emergency.get(isRpg),
+            GamificationDict.skillEmergency.icon(isRpg),
+            GamificationDict.skillEmergency.get(isRpg),
             '${CurrencyFormatter.convertToIdr(emergencyTotal)} / ${CurrencyFormatter.convertToIdr(emergencyAmount)}',
             currentProgress: emergencyTotal,
             maxProgress: emergencyAmount,
             onTap: () async {
               BigInt? result = await _openEditNum(
                 context,
-                SkillDict.emergency.get(isRpg),
+                GamificationDict.skillEmergency.get(isRpg),
                 defaultValue: emergencyAmount.toString(),
               );
               if (result != null) profileController.saveEmergencyAmount(result);

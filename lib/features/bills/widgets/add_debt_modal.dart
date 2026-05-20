@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
 
+import '../../../controllers/settings_controller.dart';
 import '../../../core/constants/app_colors.dart';
-import '../../../core/constants/shared_dict.dart';
+import '../../../core/constants/screen_dict.dart';
+import '../../../core/constants/ui_dict.dart';
+import '../../../core/utils/enum_types.dart';
 import '../../../models/bill_model.dart';
 import '../../../models/debt_model.dart';
 import '../../../widgets/custom_button.dart';
@@ -61,7 +65,7 @@ class _AddDebtModalState extends State<AddDebtModal> {
       BillModel? bill;
       if (_createBill) {
         bill = BillModel(
-          title: 'Cicilan: ${_titleController.text.trim()}',
+          title: ScreenDict.getDebtBillTitle(_titleController.text.trim()),
           amount: BigInt.parse(_installmentController.text.replaceAll('.', '')),
           type: _billFrequency,
           day: _billDay,
@@ -85,6 +89,7 @@ class _AddDebtModalState extends State<AddDebtModal> {
   @override
   Widget build(BuildContext context) {
     final bottomInset = MediaQuery.of(context).viewInsets.bottom;
+    final isRpg = context.read<SettingsController>().isRpgMode;
 
     return Container(
       padding: EdgeInsets.only(
@@ -115,28 +120,27 @@ class _AddDebtModalState extends State<AddDebtModal> {
                   ),
                 ),
               ),
-              const Text(
-                'Tambah Hutang Baru',
+              Text(
+                ScreenDict.addDebt.get(isRpg),
                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 24),
 
               TextFormField(
                 controller: _titleController,
-                decoration: const InputDecoration(
-                  labelText: 'Nama Hutang / Pinjaman',
+                decoration: InputDecoration(
+                  labelText: ScreenDict.debtName.get(isRpg),
                   border: OutlineInputBorder(),
                 ),
-                validator: (val) => val == null || val.isEmpty
-                    ? SharedDict.requiredTitle
-                    : null,
+                validator: (val) =>
+                    val == null || val.isEmpty ? UiDict.requiredName : null,
               ),
               const SizedBox(height: 16),
 
               DropdownButtonFormField<DebtType>(
                 initialValue: _selectedType,
-                decoration: const InputDecoration(
-                  labelText: 'Tipe Hutang',
+                decoration: InputDecoration(
+                  labelText: ScreenDict.debtType.get(isRpg),
                   border: OutlineInputBorder(),
                 ),
                 items: DebtType.values
@@ -158,15 +162,19 @@ class _AddDebtModalState extends State<AddDebtModal> {
                       controller: _totalAmountController,
                       keyboardType: TextInputType.number,
                       inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                      decoration: const InputDecoration(
-                        labelText: 'Total Hutang',
+                      decoration: InputDecoration(
+                        labelText: ScreenDict.debtAmount.get(isRpg),
                         prefixText: 'Rp ',
                         border: OutlineInputBorder(),
                       ),
                       onChanged: (val) =>
                           _onNumberChanged(_totalAmountController, val),
                       validator: (val) =>
-                          val == null || val.isEmpty ? 'Wajib diisi' : null,
+                          val == null ||
+                              val.replaceAll('.', '').isEmpty ||
+                              val.replaceAll('.', '') == '0'
+                          ? ScreenDict.debtAmountRequired.get(isRpg)
+                          : null,
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -175,8 +183,8 @@ class _AddDebtModalState extends State<AddDebtModal> {
                       controller: _paidAmountController,
                       keyboardType: TextInputType.number,
                       inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                      decoration: const InputDecoration(
-                        labelText: 'Sudah Dibayar',
+                      decoration: InputDecoration(
+                        labelText: ScreenDict.debtPayAmount.get(isRpg),
                         prefixText: 'Rp ',
                         border: OutlineInputBorder(),
                       ),
@@ -190,13 +198,11 @@ class _AddDebtModalState extends State<AddDebtModal> {
               const SizedBox(height: 16),
               SwitchListTile(
                 contentPadding: EdgeInsets.zero,
-                title: const Text(
-                  'Buat Tagihan Rutin?',
+                title: Text(
+                  ScreenDict.debtBillCheck.get(isRpg),
                   style: TextStyle(fontWeight: FontWeight.bold),
                 ),
-                subtitle: const Text(
-                  'Aktifkan untuk memantau cicilan setiap periode secara otomatis.',
-                ),
+                subtitle: Text(ScreenDict.getDebtBillDesc(isRpg: isRpg)),
                 value: _createBill,
                 onChanged: (val) => setState(() => _createBill = val),
               ),
@@ -207,16 +213,19 @@ class _AddDebtModalState extends State<AddDebtModal> {
                   controller: _installmentController,
                   keyboardType: TextInputType.number,
                   inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                  decoration: const InputDecoration(
-                    labelText: 'Nominal Cicilan',
+                  decoration: InputDecoration(
+                    labelText: ScreenDict.debtBillAmount.get(isRpg),
                     prefixText: 'Rp ',
                     border: OutlineInputBorder(),
                   ),
                   onChanged: (val) =>
                       _onNumberChanged(_installmentController, val),
                   validator: (val) =>
-                      _createBill && (val == null || val.isEmpty)
-                      ? 'Wajib diisi'
+                      _createBill &&
+                          (val == null ||
+                              val.replaceAll('.', '').isEmpty ||
+                              val.replaceAll('.', '') == '0')
+                      ? UiDict.requiredAmount
                       : null,
                 ),
                 const SizedBox(height: 16),
@@ -225,18 +234,18 @@ class _AddDebtModalState extends State<AddDebtModal> {
                     Expanded(
                       child: DropdownButtonFormField<TimeType>(
                         initialValue: _billFrequency,
-                        decoration: const InputDecoration(
-                          labelText: 'Frekuensi',
+                        decoration: InputDecoration(
+                          labelText: ScreenDict.billType.get(isRpg),
                           border: OutlineInputBorder(),
                         ),
-                        items: const [
+                        items: [
                           DropdownMenuItem(
                             value: TimeType.monthly,
-                            child: Text('Bulanan'),
+                            child: Text(TimeType.monthly.value),
                           ),
                           DropdownMenuItem(
                             value: TimeType.weekly,
-                            child: Text('Mingguan'),
+                            child: Text(TimeType.weekly.value),
                           ),
                         ],
                         onChanged: (val) =>
@@ -250,8 +259,8 @@ class _AddDebtModalState extends State<AddDebtModal> {
                         keyboardType: TextInputType.number,
                         decoration: InputDecoration(
                           labelText: _billFrequency == TimeType.monthly
-                              ? 'Tanggal'
-                              : 'Hari ke-',
+                              ? UiDict.date
+                              : UiDict.onDay,
                           border: const OutlineInputBorder(),
                         ),
                         onChanged: (val) => _billDay = int.tryParse(val) ?? 1,
@@ -263,7 +272,7 @@ class _AddDebtModalState extends State<AddDebtModal> {
 
               const SizedBox(height: 32),
               CustomButton(
-                title: 'Simpan Hutang',
+                title: UiDict.addNew,
                 color: AppColors.primary,
                 onTap: _submit,
               ),

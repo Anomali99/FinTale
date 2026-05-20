@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import '../../../core/constants/app_colors.dart';
-import '../../../core/constants/profile_dict.dart';
+import '../../../core/constants/gamification_dict.dart';
 import '../../../models/user_model.dart';
 
 class DailyMissions extends StatelessWidget {
@@ -14,78 +14,78 @@ class DailyMissions extends StatelessWidget {
   Widget build(BuildContext context) {
     final List<Map<String, dynamic>> dailyMissions = [
       {
-        "icon": FontAwesomeIcons.penToSquare,
-        "title": ProfileDict.recordTransaction.get(isRpg),
-        "xp": '+10 XP',
+        "icon": GamificationDict.missionRecordTransaction.icon(isRpg),
+        "title": GamificationDict.missionRecordTransaction.get(isRpg),
+        "xp": GamificationDict.missionRecordTransaction.xp,
         "subtitle": 'Progress: ${progress.dailyTransactionCount} / 3',
         "isDone": progress.dailyTransactionCount >= 3,
       },
       {
-        "icon": FontAwesomeIcons.wallet,
-        "title": ProfileDict.dailyBudgetCap.get(isRpg),
-        "xp": '+25 XP',
+        "icon": GamificationDict.missionDailyBudgetCap.icon(isRpg),
+        "title": GamificationDict.missionDailyBudgetCap.get(isRpg),
+        "xp": GamificationDict.missionDailyBudgetCap.xp,
         "subtitle": 'Limit: 1x',
         "isDone": progress.isDailyBudgetClaimed,
       },
     ];
     final List<Map<String, dynamic>> weeklyMissions = [
       {
-        "icon": FontAwesomeIcons.calendarCheck,
-        "title": ProfileDict.weeklyCheckin.get(isRpg),
-        "xp": '+100 XP',
+        "icon": GamificationDict.missionWeeklyCheckin.icon(isRpg),
+        "title": GamificationDict.missionWeeklyCheckin.get(isRpg),
+        "xp": GamificationDict.missionWeeklyCheckin.xp,
         "subtitle": 'Limit: 1x',
         "isDone": progress.isWeeklyCheckInClaimed,
       },
       {
-        "icon": FontAwesomeIcons.chartLine,
-        "title": ProfileDict.consistentBudgeting.get(isRpg),
-        "xp": '+150 XP',
+        "icon": GamificationDict.missionConsistentBudgeting.icon(isRpg),
+        "title": GamificationDict.missionConsistentBudgeting.get(isRpg),
+        "xp": GamificationDict.missionConsistentBudgeting.xp,
         "subtitle": 'Limit: 1x',
         "isDone": progress.isWeeklyBudgetClaimed,
       },
     ];
     final List<Map<String, dynamic>> monthlyMissions = [
       {
-        "icon": FontAwesomeIcons.piggyBank,
-        "title": ProfileDict.monthlySavingsGoal.get(isRpg),
-        "xp": '+500 XP',
+        "icon": GamificationDict.missionMonthlySavingsGoal.icon(isRpg),
+        "title": GamificationDict.missionMonthlySavingsGoal.get(isRpg),
+        "xp": GamificationDict.missionMonthlySavingsGoal.xp,
         "subtitle": 'Limit: 1x',
         "isDone": progress.isMonthlySavingsClaimed,
       },
       {
-        "icon": FontAwesomeIcons.fileInvoiceDollar,
-        "title": ProfileDict.debtPayment.get(isRpg),
-        "xp": '+300 XP',
+        "icon": GamificationDict.missionDebtPayment.icon(isRpg),
+        "title": GamificationDict.missionDebtPayment.get(isRpg),
+        "xp": GamificationDict.missionDebtPayment.xp,
         "subtitle": 'Limit: 1x',
         "isDone": progress.isMonthlyDebtClaimed,
       },
       {
-        "icon": FontAwesomeIcons.chartPie,
-        "title": ProfileDict.monthlyReview.get(isRpg),
-        "xp": '+200 XP',
+        "icon": GamificationDict.missionMonthlyReview.icon(isRpg),
+        "title": GamificationDict.missionMonthlyReview.get(isRpg),
+        "xp": GamificationDict.missionMonthlyReview.xp,
         "subtitle": 'Limit: 1x',
         "isDone": progress.isMonthlyReviewClaimed,
       },
     ];
     final List<Map<String, dynamic>> specialMissions = [
       {
-        "icon": FontAwesomeIcons.flagCheckered,
-        "title": ProfileDict.firstTransaction.get(isRpg),
-        "xp": '+100 XP',
+        "icon": GamificationDict.missionFirstTransaction.icon(isRpg),
+        "title": GamificationDict.missionRecordTransaction.get(isRpg),
+        "xp": GamificationDict.missionFirstTransaction.xp,
         "subtitle": 'Limit: 1x',
         "isDone": progress.isFirstTransactionClaimed,
       },
       {
-        "icon": FontAwesomeIcons.buildingColumns,
-        "title": ProfileDict.createWallet.get(isRpg),
-        "xp": '+50 XP',
+        "icon": GamificationDict.missionCreateWallet.icon(isRpg),
+        "title": GamificationDict.missionCreateWallet.get(isRpg),
+        "xp": GamificationDict.missionCreateWallet.xp,
         "subtitle": 'Progress: ${progress.walletCreatedCount} / 3',
         "isDone": progress.walletCreatedCount >= 3,
       },
       {
-        "icon": FontAwesomeIcons.sliders,
-        "title": ProfileDict.setAllocation.get(isRpg),
-        "xp": '+200 XP',
+        "icon": GamificationDict.missionSetAllocation.icon(isRpg),
+        "title": GamificationDict.missionSetAllocation.get(isRpg),
+        "xp": GamificationDict.missionSetAllocation.xp,
         "subtitle": 'Limit: 1x',
         "isDone": progress.isAllocationSetClaimed,
       },
@@ -111,7 +111,7 @@ class DailyMissions extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildSectionHeader(ProfileDict.dailyMission),
+        _buildSectionHeader(GamificationDict.missionDaily),
         const SizedBox(height: 12),
         for (Map<String, dynamic> mission in dailyMissions)
           _buildTaskItem(
@@ -122,7 +122,7 @@ class DailyMissions extends StatelessWidget {
             isDone: mission['isDone'],
           ),
         const SizedBox(height: 20),
-        _buildSectionHeader(ProfileDict.weeklyMission),
+        _buildSectionHeader(GamificationDict.missionWeekly),
         const SizedBox(height: 12),
         for (Map<String, dynamic> mission in weeklyMissions)
           _buildTaskItem(
@@ -133,7 +133,7 @@ class DailyMissions extends StatelessWidget {
             isDone: mission['isDone'],
           ),
         const SizedBox(height: 20),
-        _buildSectionHeader(ProfileDict.monthlyMission),
+        _buildSectionHeader(GamificationDict.missionMonthly),
         const SizedBox(height: 12),
         for (Map<String, dynamic> mission in monthlyMissions)
           _buildTaskItem(
@@ -144,7 +144,7 @@ class DailyMissions extends StatelessWidget {
             isDone: mission['isDone'],
           ),
         const SizedBox(height: 20),
-        _buildSectionHeader(ProfileDict.specialMission),
+        _buildSectionHeader(GamificationDict.missionSpecial),
         const SizedBox(height: 12),
         for (Map<String, dynamic> mission in specialMissions)
           _buildTaskItem(

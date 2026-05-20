@@ -1,6 +1,6 @@
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
-enum WalletType { cash, bank, eWallet, platform }
+import '../core/utils/enum_types.dart';
 
 class WalletModel {
   final int? id;

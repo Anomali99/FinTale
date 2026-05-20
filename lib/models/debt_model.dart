@@ -1,7 +1,6 @@
+import '../core/utils/enum_types.dart';
 import '../core/utils/tier_analyzer.dart';
 import 'bill_model.dart';
-
-enum DebtType { creditCard, mortgage, vehicle, personal, business, other }
 
 class DebtModel {
   final int? id;

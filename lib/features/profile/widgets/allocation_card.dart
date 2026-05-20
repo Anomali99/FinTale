@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import '../../../core/constants/app_colors.dart';
-import '../../../core/constants/profile_dict.dart';
-import '../../../core/constants/skill_dict.dart';
+import '../../../core/constants/gamification_dict.dart';
 import 'stat_radar.dart';
 
 class AllocationCard extends StatelessWidget {
@@ -43,7 +42,7 @@ class AllocationCard extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  ProfileDict.stats.get(isRpg),
+                  GamificationDict.statistics.get(isRpg),
                   style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
                 const Icon(
@@ -88,24 +87,24 @@ class AllocationCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       _statRow(
-                        SkillDict.dailyParent.get(isRpg),
+                        GamificationDict.skillDaily.get(isRpg),
                         '${livingPercentage.toInt().toString()}%',
-                        SkillDict.dailyParent.color ?? Colors.blue,
+                        GamificationDict.skillDaily.color ?? Colors.blue,
                       ),
                       _statRow(
-                        SkillDict.debt.get(isRpg),
+                        GamificationDict.skillDebt.get(isRpg),
                         '${payDebtPercentage.toInt().toString()}%',
-                        SkillDict.debt.color ?? Colors.blue,
+                        GamificationDict.skillDebt.color ?? Colors.blue,
                       ),
                       _statRow(
-                        SkillDict.emergency.get(isRpg),
+                        GamificationDict.skillEmergency.get(isRpg),
                         '${emergencyPercentage.toInt().toString()}%',
-                        SkillDict.emergency.color ?? Colors.blue,
+                        GamificationDict.skillEmergency.color ?? Colors.blue,
                       ),
                       _statRow(
-                        SkillDict.investment.get(isRpg),
+                        GamificationDict.skillInvestment.get(isRpg),
                         '${investmentPercentage.toInt().toString()}%',
-                        SkillDict.investment.color ?? Colors.blue,
+                        GamificationDict.skillInvestment.color ?? Colors.blue,
                       ),
                     ],
                   ),

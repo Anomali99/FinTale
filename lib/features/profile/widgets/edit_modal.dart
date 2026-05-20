@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../../../core/constants/app_colors.dart';
-import '../../../core/constants/shared_dict.dart';
+import '../../../core/constants/ui_dict.dart';
 import '../../../widgets/custom_button.dart';
 
 class EditModal extends StatefulWidget {
@@ -127,9 +127,9 @@ class _EditModalState extends State<EditModal> {
                   if (value == null || value.trim().isEmpty) {
                     if (widget.isCurrency &&
                         value!.trim().replaceAll('.', '').isEmpty) {
-                      return SharedDict.requiredAmount;
+                      return UiDict.requiredAmount;
                     } else {
-                      return SharedDict.requiredName;
+                      return UiDict.requiredName;
                     }
                   }
                   return null;
@@ -140,7 +140,7 @@ class _EditModalState extends State<EditModal> {
               const SizedBox(height: 32),
 
               CustomButton(
-                title: SharedDict.saveChanges,
+                title: UiDict.saveChanges,
                 color: AppColors.primary,
                 onTap: _submit,
               ),

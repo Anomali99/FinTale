@@ -12,8 +12,9 @@ import '../../../controllers/settings_controller.dart';
 import '../../../controllers/user_controller.dart';
 import '../../../controllers/wallet_controller.dart';
 import '../../../core/constants/app_colors.dart';
-import '../../../core/constants/home_dict.dart';
-import '../../../core/constants/title_dict.dart';
+import '../../../core/constants/gamification_dict.dart';
+import '../../../core/constants/screen_dict.dart';
+import '../../../core/utils/enum_types.dart';
 import '../../../models/assets_model.dart';
 import '../../../models/transaction_model.dart';
 import '../../../models/user_model.dart';
@@ -236,7 +237,7 @@ class HomeScreen extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                 ),
                 Text(
-                  TitleDict.getByEnum(userTitle).get(isRpg),
+                  GamificationDict.getTitleByEnum(userTitle).get(isRpg),
                   style: const TextStyle(
                     fontSize: 11,
                     color: AppColors.textSecondary,
@@ -293,7 +294,7 @@ class HomeScreen extends StatelessWidget {
           const SizedBox(height: 32),
 
           Text(
-            HomeDict.dailyLimit.get(isRpg),
+            ScreenDict.homeDailyLimit.get(isRpg),
             style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 12),
@@ -307,7 +308,7 @@ class HomeScreen extends StatelessWidget {
           if (pendingAllocations.isNotEmpty) ...[
             const SizedBox(height: 32),
             Text(
-              HomeDict.pending.get(isRpg),
+              ScreenDict.homePending.get(isRpg),
               style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 12),

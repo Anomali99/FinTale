@@ -1,21 +1,4 @@
-enum TransactionCategory {
-  food,
-  groceries,
-  transport,
-  entertainment,
-  health,
-  utilities,
-  debtInstallment,
-  salary,
-  business,
-  dividend,
-  transfer,
-  lowRisk,
-  mediumRisk,
-  highRisk,
-}
-
-enum FlowType { expense, income, transfer }
+import '../core/utils/enum_types.dart';
 
 class TransactionDetailModel {
   final int? id;

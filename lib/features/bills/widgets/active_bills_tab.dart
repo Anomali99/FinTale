@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import '../../../core/constants/app_colors.dart';
-import '../../../core/constants/status_dict.dart';
+import '../../../core/constants/category_dict.dart';
+import '../../../core/constants/ui_dict.dart';
+import '../../../core/utils/enum_types.dart';
 import '../../../models/transaction_model.dart';
 import 'active_bill_card.dart';
 
@@ -29,7 +31,7 @@ class ActiveBillsTab extends StatelessWidget {
       padding: const EdgeInsets.all(24.0),
       children: [
         Text(
-          StatusDict.pending.get(isRpg).toUpperCase(),
+          CategoryDict.statusPending.get(isRpg).toUpperCase(),
           style: const TextStyle(
             fontWeight: FontWeight.bold,
             color: AppColors.textSecondary,
@@ -45,13 +47,16 @@ class ActiveBillsTab extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   FaIcon(
-                    StatusDict.pending.icon(isRpg),
+                    CategoryDict.statusPending.icon(isRpg),
                     size: 48,
                     color: AppColors.surfaceVariant,
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    'Empty ${StatusDict.pending.get(isRpg)} items',
+                    UiDict.getEmptyDesc(
+                      CategoryDict.statusPending.get(isRpg).toLowerCase(),
+                      isRpg: isRpg,
+                    ),
                     textAlign: TextAlign.center,
                     style: const TextStyle(color: AppColors.textSecondary),
                   ),
@@ -72,7 +77,7 @@ class ActiveBillsTab extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: Text(
-                StatusDict.paid.get(isRpg).toUpperCase(),
+                CategoryDict.statusPaid.get(isRpg).toUpperCase(),
                 style: const TextStyle(
                   color: AppColors.success,
                   fontWeight: FontWeight.bold,
@@ -92,13 +97,16 @@ class ActiveBillsTab extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   FaIcon(
-                    StatusDict.paid.icon(isRpg),
+                    CategoryDict.statusPaid.icon(isRpg),
                     size: 48,
                     color: AppColors.surfaceVariant,
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    'Empty ${StatusDict.paid.get(isRpg)} items',
+                    UiDict.getEmptyDesc(
+                      CategoryDict.statusPaid.get(isRpg).toLowerCase(),
+                      isRpg: isRpg,
+                    ),
                     textAlign: TextAlign.center,
                     style: const TextStyle(color: AppColors.textSecondary),
                   ),
