@@ -62,6 +62,28 @@ extension WalletExtension on WalletModel {
     }
   }
 
+  BigInt autoExpanse(BigInt amount, {bool useReserved = false}) {
+    BigInt availableAmount = this.amount - reservedAmount;
+    BigInt deductedFromReserved = BigInt.zero;
+
+    if (useReserved) {
+      deductedFromReserved = amount > reservedAmount ? reservedAmount : amount;
+
+      addReserved(deductedFromReserved, isIncome: false);
+    } else if (amount > availableAmount) {
+      BigInt overflowAmount = amount - availableAmount;
+
+      deductedFromReserved = overflowAmount > reservedAmount
+          ? reservedAmount
+          : overflowAmount;
+
+      addReserved(deductedFromReserved, isIncome: false);
+    }
+
+    addAmount(amount, isIncome: false);
+    return deductedFromReserved;
+  }
+
   FaIconData get icon {
     switch (type) {
       case WalletType.cash:

@@ -2,7 +2,7 @@ import '../core/utils/enum_types.dart';
 import 'transaction_detail_model.dart';
 
 class TransactionModel {
-  final int? id;
+  int? id;
   final int? walletId;
   int? debtId;
   int? billId;
@@ -30,6 +30,10 @@ class TransactionModel {
     this.assetsId,
     this.targetId,
   });
+
+  void setTransactionId(int? id) {
+    this.id = id;
+  }
 
   void setAssetId(int id) {
     assetsId = id;

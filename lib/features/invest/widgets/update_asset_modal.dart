@@ -168,7 +168,7 @@ class _UpdateAssetModalState extends State<UpdateAssetModal> {
                       keyboardType: TextInputType.number,
                       inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                       decoration: InputDecoration(
-                        labelText: ScreenDict.generatePricePerUnit(
+                        labelText: ScreenDict.getInvestPricePerUnit(
                           _unitNameController.text,
                         ),
                         prefixText: 'Rp ',

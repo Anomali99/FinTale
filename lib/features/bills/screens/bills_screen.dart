@@ -3,13 +3,17 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
+import '../../../controllers/analytics_controller.dart';
 import '../../../controllers/bill_controller.dart';
+import '../../../controllers/history_controller.dart';
 import '../../../controllers/settings_controller.dart';
 import '../../../controllers/transaction_controller.dart';
+import '../../../controllers/wallet_controller.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/screen_dict.dart';
 import '../../../models/bill_model.dart';
 import '../../../models/debt_model.dart';
+import '../../../models/transaction_model.dart';
 import '../../../widgets/custom_bottom_sheet.dart';
 import '../widgets/active_bills_tab.dart';
 import '../widgets/add_bill_modal.dart';
@@ -18,25 +22,34 @@ import '../widgets/bill_detail_modal.dart';
 import '../widgets/bills_tab.dart';
 import '../widgets/debt_detail_modal.dart';
 import '../widgets/debts_tab.dart';
+import '../widgets/pay_debt_modal.dart';
 
 class BillsScreen extends StatelessWidget {
   const BillsScreen({super.key});
 
-  void _openDebtDetail(BuildContext context, DebtModel data) async {
+  void _openDebtDetail(BuildContext context, DebtModel data, bool isRpg) async {
     final result = await showModalBottomSheet<DebtActionType>(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) => DebtDetailModal(debt: data),
+      builder: (_) => DebtDetailModal(debt: data, isRpg: isRpg),
     );
 
-    if (result != null) {
+    if (result != null && context.mounted) {
       if (result == DebtActionType.payDirect) {
-        /* TODO: Buka PayLiabilityModal untuk bayar sisa hutang (initialDebt) */
+        _openPayDebtOrBillModal(
+          context,
+          initialDebt: data,
+          title: ScreenDict.getPayBill(isRpg: isRpg),
+        );
       } else if (result == DebtActionType.payBill) {
-        /* TODO: Buka PayLiabilityModal untuk bayar tagihan (initialBill) */
+        _openPayDebtOrBillModal(
+          context,
+          initialBill: data.bill,
+          title: ScreenDict.getPayDebt(isCustom: false, isRpg: isRpg),
+        );
       } else if (result == DebtActionType.edit) {
-        /* TODO: Buka Modal Edit Hutang */
+        _openAddDebtModal(context, initialDebt: data);
       }
     }
   }
@@ -46,27 +59,41 @@ class BillsScreen extends StatelessWidget {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) => BillDetailModal(bill: data, isRpg: isRpg),
+      builder: (_) => BillDetailModal(bill: data, isRpg: isRpg),
     );
 
-    if (result != null) {
+    if (result != null && context.mounted) {
       if (result == BillActionType.payDirect) {
-        /* TODO: Buka PayLiabilityModal untuk bayar tagihan ini */
+        _openPayDebtOrBillModal(
+          context,
+          initialBill: data,
+          title: ScreenDict.getPayBill(isRpg: isRpg),
+        );
       } else if (result == BillActionType.generateDraft) {
-        /* TODO: Jalankan fungsi data.generateTransaction(isDirectPay: false) di Controller */
+        final success = await context.read<BillController>().generateBillDraft(
+          data,
+        );
+        if (!success) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Gagal membuat draf karena sudah ada.'),
+              backgroundColor: AppColors.error,
+            ),
+          );
+        }
       } else if (result == BillActionType.edit) {
-        /* TODO: Buka Modal Edit Tagihan */
+        _openAddBillModal(context, initialBill: data);
       }
     }
   }
 
-  void _openAddBillModal(BuildContext context) async {
+  void _openAddBillModal(BuildContext context, {BillModel? initialBill}) async {
     final result = await showModalBottomSheet<BillModel>(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (context) {
-        return AddBillModal();
+        return AddBillModal(initialBill: initialBill);
       },
     );
 
@@ -75,13 +102,53 @@ class BillsScreen extends StatelessWidget {
     }
   }
 
-  void _openAddDebtModal(BuildContext context) async {
+  void _openPayDebtOrBillModal(
+    BuildContext context, {
+    required String title,
+    DebtModel? initialDebt,
+    BillModel? initialBill,
+  }) async {
+    final billController = context.read<BillController>();
+    final historyController = context.read<HistoryController>();
+    final analyticsController = context.read<AnalyticsController>();
+    final wallets = context.read<WalletController>().wallets;
+    List<DebtModel> debts = initialDebt != null ? [initialDebt] : [];
+    List<BillModel> bills = initialBill != null ? [initialBill] : [];
+    final result = await showModalBottomSheet<Map<String, dynamic>>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) {
+        return PayDebtModal(
+          title: title,
+          wallets: wallets,
+          debts: debts,
+          bils: bills,
+        );
+      },
+    );
+
+    if (result != null && context.mounted) {
+      TransactionModel transaction = result['transaction'];
+      bool useReserved = result['use_reserved'];
+      bool isBill = result['is_bill'];
+      if (isBill) {
+        await billController.payBill(transaction, useReserved: useReserved);
+      } else {
+        await billController.payDebt(transaction, useReserved: useReserved);
+      }
+      historyController.applyFilter();
+      analyticsController.applyFilter();
+    }
+  }
+
+  void _openAddDebtModal(BuildContext context, {DebtModel? initialDebt}) async {
     final result = await showModalBottomSheet<DebtModel>(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (context) {
-        return AddDebtModal();
+        return AddDebtModal(initialDebt: initialDebt);
       },
     );
 
@@ -173,7 +240,7 @@ class BillsScreen extends StatelessWidget {
             DebtsTab(
               data: debts,
               isRpg: isRpg,
-              onTapCard: (debt) => _openDebtDetail(context, debt),
+              onTapCard: (debt) => _openDebtDetail(context, debt, isRpg),
             ),
           ],
         ),

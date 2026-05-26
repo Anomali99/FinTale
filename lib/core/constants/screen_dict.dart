@@ -4,6 +4,7 @@ import '../models/category_model.dart';
 import '../models/icon_model.dart';
 import '../models/term_model.dart';
 import 'gamification_dict.dart';
+import 'ui_dict.dart';
 
 class ScreenDict {
   static const String walletName = 'Nama Dompet';
@@ -111,12 +112,16 @@ class ScreenDict {
     rpg: 'Bulan Quest',
   );
   static const TermModel billAmount = TermModel(
-    normal: 'Jumlah Tagihan',
-    rpg: 'Jumlah Quest',
+    normal: 'Nominal Tagihan',
+    rpg: 'Nominal Quest',
   );
   static const TermModel billWarning = TermModel(
     normal: 'Tagihan ini sedang dinonaktifkan.',
     rpg: 'Quest ini sedang dinonaktifkan.',
+  );
+  static const TermModel billRequired = TermModel(
+    normal: 'Silakan pilih tagihan.',
+    rpg: 'Silakan pilih quest.',
   );
   static const TermModel nextBill = TermModel(
     normal: 'Jatuh Tempo Berikutnya',
@@ -156,14 +161,15 @@ class ScreenDict {
     rpg: 'Quest Rutin',
   );
   static const TermModel debtBillAmount = TermModel(
-    normal: 'Jumlah Cicilan',
+    normal: 'Nominal Cicilan',
     rpg: 'Jumlah Demage',
   );
 
-  static const TermModel payDebt = TermModel(
-    normal: 'Bayar Sisa Pokok (Custom)',
-    rpg: 'Serang Boss (Custom)',
+  static const TermModel debtRequired = TermModel(
+    normal: 'Silakan pilih hutang.',
+    rpg: 'Silakan pilih boss.',
   );
+
   static const TermModel generatBill = TermModel(
     normal: 'Generate Tagihan (Draf)',
     rpg: 'Aktifkan Quest (Draf)',
@@ -211,16 +217,16 @@ class ScreenDict {
     rpg: 'Jenis Pasukan',
   );
   static const TermModel investAssetRequired = TermModel(
-    normal: 'Silakan pilih tingkat risiko.',
-    rpg: 'Silakan pilih jenis pasukan.',
+    normal: 'Silakan pilih aset.',
+    rpg: 'Silakan pilih pasukan.',
   );
   static const TermModel investUnitRequired = TermModel(
     normal: 'Satuan',
     rpg: 'Unit',
   );
   static const TermModel investRiskRequired = TermModel(
-    normal: 'Tingkat Risiko',
-    rpg: 'Jenis Pasukan',
+    normal: 'Silakan pilih tingkat risiko.',
+    rpg: 'Silakan pilih jenis pasukan.',
   );
 
   static const TermModel historyTime = TermModel(
@@ -335,6 +341,12 @@ class ScreenDict {
     return result;
   }
 
+  static String getPayDebt({bool isCustom = true, bool isRpg = false}) {
+    String result = isRpg ? 'Serang Boss' : 'Bayar Sisa Pokok';
+    if (isCustom) result += ' (Custom)';
+    return result;
+  }
+
   static String getBillTypes({required bool isBillDebt, bool isRpg = false}) {
     if (isBillDebt) {
       if (isRpg) {
@@ -354,7 +366,7 @@ class ScreenDict {
   static String getInvestDevidenPerUnit(String unitName) =>
       'Dividen per $unitName';
 
-  static String generatePricePerUnit(String unitName) =>
+  static String getInvestPricePerUnit(String unitName) =>
       'Harga Beli per $unitName';
 
   static String getClaimTitle({
@@ -380,6 +392,15 @@ class ScreenDict {
 
   static String getDevidenCheckDesc({bool isRpg = false}) =>
       'Aktifkan jika ${isRpg ? 'pasukan' : 'aset'} ini memberikan imbal hasil rutin (seperti dividen saham atau kupon obligasi) yang nantinya dapat Anda klaim ke dompet.';
+
+  static String getBillLockCheck({bool isRpg = false}) =>
+      'Nonaktifkan ${billsMaster.get(isRpg)}?';
+
+  static String getBillLockCheckDesc({bool isRpg = false}) =>
+      'Aktifkan jika ${billsMaster.get(isRpg).toLowerCase()} ini sudah tidak dibutuhkan. Sistem notifikasi dan pembayaran akan dinonaktifkan hingga anda  mengaktifkanya lagi di kemudian hari.';
+
+  static String getFeeCheckDesc({bool isIncome = false, bool isRpg = false}) =>
+      'Jika biaya tersebut aktif, nominal ${isIncome ? UiDict.income.get(isRpg).toLowerCase() : UiDict.expense.get(isRpg).toLowerCase()} akan ${isIncome ? 'dikurangi' : 'ditambah'} biaya tersebut${isIncome ? ' sebelum ditambahkan ke dompet Anda' : ''}.';
 
   static String getHistoryNote(String name, String amount) =>
       'Saldo dompet **$name** saat ini: **$amount**';

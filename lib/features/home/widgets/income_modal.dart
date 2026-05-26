@@ -368,7 +368,8 @@ class _IncomeModalState extends State<IncomeModal> {
                 ),
                 const SizedBox(height: 12),
                 NoteContainer(
-                  text: "Note: ${UiDict.feeDesc}",
+                  text:
+                      "Note: ${ScreenDict.getFeeCheckDesc(isIncome: !widget.isTransfer, isRpg: isRpg)}",
                   color: Colors.grey,
                 ),
               ],

@@ -11,7 +11,8 @@ import '../../../models/bill_model.dart';
 import '../../../widgets/custom_button.dart';
 
 class AddBillModal extends StatefulWidget {
-  const AddBillModal({super.key});
+  final BillModel? initialBill;
+  const AddBillModal({super.key, this.initialBill});
 
   @override
   State<AddBillModal> createState() => _AddBillModalState();
@@ -26,6 +27,30 @@ class _AddBillModalState extends State<AddBillModal> {
   DayName _selectedDayName = DayName.monday;
   int _selectedDay = 1;
   int _selectedMonth = 1;
+  bool _isLockActive = false;
+
+  @override
+  void initState() {
+    super.initState();
+    final initialValue = widget.initialBill;
+    if (initialValue != null) {
+      _titleController.text = initialValue.title;
+      _selectedType = initialValue.type;
+      _selectedDayName = initialValue.dayName ?? DayName.monday;
+      _selectedMonth = initialValue.month ?? 1;
+      _selectedDay = initialValue.day ?? 1;
+      _isLockActive = !initialValue.isActive;
+
+      String formattedText = initialValue.amount.toString().replaceAllMapped(
+        RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
+        (Match m) => '${m[1]}.',
+      );
+      _amountController.value = TextEditingValue(
+        text: formattedText,
+        selection: TextSelection.collapsed(offset: formattedText.length),
+      );
+    }
+  }
 
   @override
   void dispose() {
@@ -37,8 +62,10 @@ class _AddBillModalState extends State<AddBillModal> {
   void _submit() {
     if (_formKey.currentState!.validate()) {
       final bill = BillModel(
+        id: widget.initialBill?.id,
         title: _titleController.text.trim(),
         amount: BigInt.parse(_amountController.text.replaceAll('.', '')),
+        isActive: !_isLockActive,
         type: _selectedType,
         day:
             _selectedType == TimeType.monthly ||
@@ -87,7 +114,9 @@ class _AddBillModalState extends State<AddBillModal> {
                 ),
               ),
               Text(
-                ScreenDict.addBill.get(isRpg),
+                widget.initialBill == null
+                    ? ScreenDict.addBill.get(isRpg)
+                    : UiDict.getEdit(ScreenDict.billsMaster.get(isRpg)),
                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 24),
@@ -207,9 +236,31 @@ class _AddBillModalState extends State<AddBillModal> {
                 ),
               ],
 
+              if (widget.initialBill != null) ...[
+                const SizedBox(height: 16),
+                SwitchListTile(
+                  contentPadding: EdgeInsets.zero,
+                  title: Text(
+                    ScreenDict.getBillLockCheck(isRpg: isRpg),
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  subtitle: Text(
+                    ScreenDict.getBillLockCheckDesc(isRpg: isRpg),
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
+                  value: _isLockActive,
+                  onChanged: (val) => setState(() => _isLockActive = val),
+                ),
+              ],
+
               const SizedBox(height: 32),
               CustomButton(
-                title: UiDict.addNew,
+                title: widget.initialBill == null
+                    ? UiDict.addNew
+                    : UiDict.saveChanges,
                 color: AppColors.primary,
                 onTap: _submit,
               ),

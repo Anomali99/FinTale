@@ -16,9 +16,12 @@ import '../../../core/constants/gamification_dict.dart';
 import '../../../core/constants/screen_dict.dart';
 import '../../../core/utils/enum_types.dart';
 import '../../../models/assets_model.dart';
+import '../../../models/bill_model.dart';
+import '../../../models/debt_model.dart';
 import '../../../models/transaction_model.dart';
 import '../../../models/user_model.dart';
 import '../../../models/wallet_model.dart';
+import '../../bills/widgets/pay_debt_modal.dart';
 import '../../invest/widgets/buy_asset_modal.dart';
 import '../widgets/allocation_card.dart';
 import '../widgets/balance_card.dart';
@@ -48,11 +51,63 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
+  Future<BigInt?> _openPayDebt(
+    BuildContext context,
+    AllocationModel allocation,
+    WalletModel wallet,
+  ) async {
+    final billController = context.read<BillController>();
+    List<DebtModel> debts = [];
+    List<BillModel> bills = [];
+    for (DebtModel debt in billController.debts) {
+      if (!debt.isFinished) {
+        debts.add(debt);
+        if (debt.bill != null) {
+          bills.add(debt.bill!);
+        }
+      }
+    }
+    if (debts.isNotEmpty) {
+      final result = await showModalBottomSheet<Map<String, dynamic>>(
+        context: context,
+        isScrollControlled: true,
+        backgroundColor: Colors.transparent,
+        builder: (context) {
+          return PayDebtModal(
+            pendingAllocation: allocation.amount,
+            wallets: [wallet],
+            debts: debts,
+            bils: bills,
+          );
+        },
+      );
+
+      if (result != null && context.mounted) {
+        TransactionModel transaction = result['transaction'];
+        bool useReserved = result['use_reserved'];
+        bool isBill = result['is_bill'];
+        if (isBill) {
+          await billController.payBill(transaction, useReserved: useReserved);
+        } else {
+          await billController.payDebt(transaction, useReserved: useReserved);
+        }
+        return transaction.amount;
+      }
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Tidak ada hutang'),
+          backgroundColor: AppColors.success,
+        ),
+      );
+    }
+    return null;
+  }
+
   Future<BigInt?> _openAddAsset(
     BuildContext context,
     AllocationModel allocation,
     WalletModel wallet,
-    bool isRpg,
   ) async {
     final userController = context.read<UserController>();
     final investController = context.read<InvestController>();
@@ -71,7 +126,6 @@ class HomeScreen extends StatelessWidget {
         initialRisk: risk,
         pendingAllocation: allocation.amount,
         isEmergency: allocation.sector == SectorType.emergency,
-        isRpg: isRpg,
       ),
     );
 
@@ -88,7 +142,6 @@ class HomeScreen extends StatelessWidget {
   void _onTapAllocation(
     BuildContext context,
     AllocationModel allocation,
-    bool isRpg,
   ) async {
     final walletController = context.read<WalletController>();
     final homeController = context.read<HomeController>();
@@ -101,10 +154,11 @@ class HomeScreen extends StatelessWidget {
       case SectorType.living:
         break;
       case SectorType.payDebt:
+        allocationUse = await _openPayDebt(context, allocation, wallet);
         break;
       case SectorType.emergency:
       case SectorType.investment:
-        allocationUse = await _openAddAsset(context, allocation, wallet, isRpg);
+        allocationUse = await _openAddAsset(context, allocation, wallet);
         break;
     }
     if (allocationUse != null) {
@@ -316,7 +370,7 @@ class HomeScreen extends StatelessWidget {
               return AllocationCard(
                 allocation: item,
                 isRpg: isRpg,
-                onTap: () => _onTapAllocation(context, item, isRpg),
+                onTap: () => _onTapAllocation(context, item),
               );
             }),
           ],

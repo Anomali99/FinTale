@@ -12,7 +12,8 @@ import '../../../models/debt_model.dart';
 import '../../../widgets/custom_button.dart';
 
 class AddDebtModal extends StatefulWidget {
-  const AddDebtModal({super.key});
+  final DebtModel? initialDebt;
+  const AddDebtModal({super.key, this.initialDebt});
 
   @override
   State<AddDebtModal> createState() => _AddDebtModalState();
@@ -31,6 +32,29 @@ class _AddDebtModalState extends State<AddDebtModal> {
   bool _createBill = false;
   TimeType _billFrequency = TimeType.monthly;
   int _billDay = 1;
+
+  @override
+  void initState() {
+    super.initState();
+    final initialValue = widget.initialDebt;
+    if (initialValue != null) {
+      _titleController.text = initialValue.title;
+      _selectedType = initialValue.type;
+      _onNumberChanged(_totalAmountController, initialValue.amount.toString());
+      _onNumberChanged(
+        _paidAmountController,
+        initialValue.paidAmount.toString(),
+      );
+
+      final initialBill = initialValue.bill;
+      if (initialBill != null) {
+        _createBill = initialBill.isActive;
+        _billDay = initialBill.day ?? initialBill.dayName?.intValue ?? 1;
+        _billFrequency = initialBill.type;
+        _onNumberChanged(_installmentController, initialBill.amount.toString());
+      }
+    }
+  }
 
   @override
   void dispose() {
@@ -63,16 +87,22 @@ class _AddDebtModalState extends State<AddDebtModal> {
   void _submit() {
     if (_formKey.currentState!.validate()) {
       BillModel? bill;
-      if (_createBill) {
+      if (_createBill || widget.initialDebt?.bill != null) {
         bill = BillModel(
+          id: widget.initialDebt?.bill?.id,
           title: ScreenDict.getDebtBillTitle(_titleController.text.trim()),
           amount: BigInt.parse(_installmentController.text.replaceAll('.', '')),
           type: _billFrequency,
-          day: _billDay,
+          isActive: _createBill,
+          dayName: _billFrequency == TimeType.weekly
+              ? DayName.getByIntValue(_billDay)
+              : null,
+          day: _billFrequency == TimeType.monthly ? _billDay : null,
         );
       }
 
       DebtModel debt = DebtModel(
+        id: widget.initialDebt?.id,
         title: _titleController.text.trim(),
         amount: BigInt.parse(_totalAmountController.text.replaceAll('.', '')),
         paidAmount: BigInt.parse(

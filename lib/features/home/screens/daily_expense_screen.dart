@@ -8,7 +8,6 @@ import 'package:provider/provider.dart';
 import '../../../controllers/settings_controller.dart';
 import '../../../controllers/wallet_controller.dart';
 import '../../../core/constants/app_colors.dart';
-import '../../../core/constants/category_dict.dart';
 import '../../../core/constants/screen_dict.dart';
 import '../../../core/constants/ui_dict.dart';
 import '../../../core/utils/currency_formatter.dart';
@@ -42,20 +41,14 @@ class _DailyExpenseScreenState extends State<DailyExpenseScreen> {
   final _formKey = GlobalKey<FormState>();
 
   final _mainTitleController = TextEditingController();
+  final _feeController = TextEditingController(text: '0');
   DateTime _selectedDate = DateTime.now();
   WalletModel? _selectedWallet;
+
   bool _isReservedActive = false;
+  bool _isFeeActive = false;
 
   final List<ExpenseItemForm> _items = [];
-
-  final List<TransactionCategory> _expenseCategories = [
-    TransactionCategory.food,
-    TransactionCategory.groceries,
-    TransactionCategory.transport,
-    TransactionCategory.entertainment,
-    TransactionCategory.health,
-    TransactionCategory.utilities,
-  ];
 
   @override
   void initState() {
@@ -66,6 +59,7 @@ class _DailyExpenseScreenState extends State<DailyExpenseScreen> {
   @override
   void dispose() {
     _mainTitleController.dispose();
+    _feeController.dispose();
     for (var item in _items) {
       item.titleController.dispose();
       item.amountController.dispose();
@@ -126,6 +120,12 @@ class _DailyExpenseScreenState extends State<DailyExpenseScreen> {
         total += BigInt.parse(cleanText);
       }
     }
+    if (_isFeeActive) {
+      String cleanFeee = _feeController.text.replaceAll('.', '');
+      if (cleanFeee.isNotEmpty) {
+        total += BigInt.parse(cleanFeee);
+      }
+    }
     return total;
   }
 
@@ -142,6 +142,20 @@ class _DailyExpenseScreenState extends State<DailyExpenseScreen> {
             title: item.titleController.text.trim(),
             amount: amount,
             category: item.category!,
+            flow: FlowType.expense,
+          ),
+        );
+      }
+
+      if (_isFeeActive) {
+        BigInt cleanFeeAmount = BigInt.parse(
+          _feeController.text.replaceAll('.', ''),
+        );
+        details.add(
+          TransactionDetailModel(
+            title: 'Fee',
+            amount: cleanFeeAmount,
+            category: TransactionCategory.utilities,
             flow: FlowType.expense,
           ),
         );
@@ -306,7 +320,41 @@ class _DailyExpenseScreenState extends State<DailyExpenseScreen> {
               ],
             ),
 
-            const SizedBox(height: 32),
+            const SizedBox(height: 16),
+            SwitchListTile(
+              contentPadding: EdgeInsets.zero,
+              title: const Text(UiDict.feeCheck),
+              subtitle: const Text(UiDict.feeCheckDesc),
+              value: _isFeeActive,
+              onChanged: (val) => setState(() => _isFeeActive = val),
+            ),
+
+            if (_isFeeActive) ...[
+              const SizedBox(height: 8),
+              TextFormField(
+                controller: _feeController,
+                keyboardType: TextInputType.number,
+                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                decoration: InputDecoration(
+                  labelText: UiDict.feeAmount,
+                  prefixText: 'Rp ',
+                  border: OutlineInputBorder(),
+                ),
+                validator: (value) {
+                  if (_isFeeActive &&
+                      (value == null || value.isEmpty || value == '0')) {
+                    return UiDict.requiredFee;
+                  }
+                  return null;
+                },
+                onChanged: (value) => _onAmountChanged(_feeController, value),
+              ),
+              const SizedBox(height: 12),
+              NoteContainer(
+                text: "Note: ${ScreenDict.getFeeCheckDesc(isRpg: isRpg)}",
+                color: Colors.grey,
+              ),
+            ],
             SwitchListTile(
               contentPadding: EdgeInsets.zero,
               title: Text(ScreenDict.getReservedCheck(isRpg: isRpg)),
@@ -318,6 +366,7 @@ class _DailyExpenseScreenState extends State<DailyExpenseScreen> {
                 }
               }),
             ),
+
             const Divider(height: 1, color: Colors.white24),
             const SizedBox(height: 32),
 
@@ -422,14 +471,10 @@ class _DailyExpenseScreenState extends State<DailyExpenseScreen> {
                           labelText: UiDict.category,
                           border: OutlineInputBorder(),
                         ),
-                        items: _expenseCategories.map((cat) {
+                        items: TransactionCategory.expenseCategories.map((cat) {
                           return DropdownMenuItem(
                             value: cat,
-                            child: Text(
-                              CategoryDict.getByTransactionCategory(
-                                cat,
-                              ).get(isRpg),
-                            ),
+                            child: Text(cat.categoryDict.get(isRpg)),
                           );
                         }).toList(),
                         onChanged: (val) => setState(() => item.category = val),

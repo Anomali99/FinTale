@@ -3,14 +3,19 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 
 import '../controllers/analytics_controller.dart';
+import '../controllers/bill_controller.dart';
 import '../controllers/history_controller.dart';
 import '../controllers/layout_controller.dart';
 import '../controllers/settings_controller.dart';
+import '../controllers/wallet_controller.dart';
 import '../core/constants/app_colors.dart';
 import '../core/constants/ui_dict.dart';
+import '../models/bill_model.dart';
+import '../models/debt_model.dart';
 import '../models/transaction_model.dart';
 import '../widgets/custom_bottom_sheet.dart';
 import 'bills/screens/bills_screen.dart';
+import 'bills/widgets/pay_debt_modal.dart';
 import 'history/screens/history_screen.dart';
 import 'home/screens/home_screen.dart';
 import 'invest/screens/invest_screen.dart';
@@ -24,6 +29,53 @@ class MainLayout extends StatelessWidget {
     const InvestScreen(),
     const HistoryScreen(),
   ];
+
+  void _submitDebtHandle(BuildContext context) async {
+    final billController = context.read<BillController>();
+    final historyController = context.read<HistoryController>();
+    final analyticsController = context.read<AnalyticsController>();
+    final wallets = context.read<WalletController>().wallets;
+    List<DebtModel> debts = [];
+    List<BillModel> bills = [];
+    for (DebtModel debt in billController.debts) {
+      if (!debt.isFinished) {
+        debts.add(debt);
+        if (debt.bill != null) {
+          bills.add(debt.bill!);
+        }
+      }
+    }
+    if (debts.isNotEmpty) {
+      final result = await showModalBottomSheet<Map<String, dynamic>>(
+        context: context,
+        isScrollControlled: true,
+        backgroundColor: Colors.transparent,
+        builder: (context) {
+          return PayDebtModal(wallets: wallets, debts: debts, bils: bills);
+        },
+      );
+
+      if (result != null && context.mounted) {
+        TransactionModel transaction = result['transaction'];
+        bool useReserved = result['use_reserved'];
+        bool isBill = result['is_bill'];
+        if (isBill) {
+          await billController.payBill(transaction, useReserved: useReserved);
+        } else {
+          await billController.payDebt(transaction, useReserved: useReserved);
+        }
+        historyController.applyFilter();
+        analyticsController.applyFilter();
+      }
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Tidak ada hutang'),
+          backgroundColor: AppColors.success,
+        ),
+      );
+    }
+  }
 
   void _submitTransactionHandle(BuildContext context) async {
     final layoutController = context.read<LayoutController>();
@@ -56,7 +108,10 @@ class MainLayout extends StatelessWidget {
               subtitle: UiDict.menuPayDebt.description ?? "",
               color: AppColors.error,
               icon: UiDict.menuPayDebt.icon(isRpg),
-              onTap: () => Navigator.pop(con),
+              onTap: () {
+                Navigator.pop(con);
+                _submitDebtHandle(context);
+              },
             ),
             BottomSheetChild(
               title: UiDict.menuDailyUse.get(isRpg),

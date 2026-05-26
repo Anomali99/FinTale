@@ -1,4 +1,3 @@
-import 'package:decimal/decimal.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -6,100 +5,89 @@ import 'package:provider/provider.dart';
 
 import '../../../controllers/settings_controller.dart';
 import '../../../core/constants/app_colors.dart';
-import '../../../core/constants/category_dict.dart';
 import '../../../core/constants/screen_dict.dart';
 import '../../../core/constants/ui_dict.dart';
 import '../../../core/utils/currency_formatter.dart';
 import '../../../core/utils/enum_types.dart';
-import '../../../models/assets_model.dart';
+import '../../../models/bill_model.dart';
+import '../../../models/debt_model.dart';
 import '../../../models/transaction_detail_model.dart';
 import '../../../models/transaction_model.dart';
 import '../../../models/wallet_model.dart';
 import '../../../widgets/custom_button.dart';
 import '../../../widgets/note_container.dart';
 
-class BuyAssetModal extends StatefulWidget {
+class PayDebtModal extends StatefulWidget {
+  final String? title;
   final List<WalletModel> wallets;
-  final AssetsModel? initialAsset;
-  final RiskType? initialRisk;
-  final List<AssetsModel> assets;
+  final List<DebtModel>? debts;
+  final List<BillModel>? bils;
   final BigInt? pendingAllocation;
-  final bool isEmergency;
-
-  const BuyAssetModal({
+  const PayDebtModal({
     super.key,
     required this.wallets,
-    required this.assets,
-    this.initialAsset,
-    this.initialRisk,
+    this.title,
+    this.debts,
+    this.bils,
     this.pendingAllocation,
-    this.isEmergency = false,
   });
 
   @override
-  State<BuyAssetModal> createState() => _BuyAssetModalState();
+  State<PayDebtModal> createState() => _PayDebtModalState();
 }
 
-class _BuyAssetModalState extends State<BuyAssetModal>
+class _PayDebtModalState extends State<PayDebtModal>
     with SingleTickerProviderStateMixin {
   final _formKey = GlobalKey<FormState>();
   late TabController _tabController;
 
-  final _nameController = TextEditingController();
-  final _unitNameController = TextEditingController(text: 'Unit');
+  final _amountController = TextEditingController(text: '0');
   final _feeController = TextEditingController(text: '0');
-  final _unitAmountController = TextEditingController();
-  final _priceController = TextEditingController();
 
-  AssetsModel? _selectedAsset;
   WalletModel? _selectedWallet;
-  AssetsCategory? _selectedCategory;
-  RiskType? _selectedRisk;
+  DebtModel? _selectedDebt;
+  BillModel? _selectedBill;
   BigInt _amount = BigInt.zero;
   bool _isReservedActive = false;
-  bool _isDevidenActive = false;
-  bool _isEmergencyActive = false;
   bool _isFeeActive = false;
 
-  bool _isNewAssetTab = true;
+  bool _isBillTab = true;
   bool _isHideTab = false;
-  bool _isLockRisk = false;
   bool _isLockWallet = false;
 
-  Decimal get _cleanAssetUnit => _unitAmountController.text.isNotEmpty
-      ? Decimal.parse(_unitAmountController.text.replaceAll(',', '.'))
-      : Decimal.zero;
-
-  BigInt get _cleanAssetPriceUnit => _priceController.text.isNotEmpty
-      ? BigInt.parse(_priceController.text.replaceAll('.', ''))
+  BigInt get _cleanAmount => _amountController.text.isNotEmpty
+      ? BigInt.parse(_amountController.text.replaceAll('.', ''))
       : BigInt.zero;
 
   BigInt get _cleanFeeAmount => _feeController.text.isNotEmpty
       ? BigInt.parse(_feeController.text.replaceAll('.', ''))
       : BigInt.zero;
 
-  BigInt get _cleanAssetAmount {
-    Decimal cleanUnit = _cleanAssetUnit;
-    BigInt cleanPrice = _cleanAssetPriceUnit;
-
-    if (cleanUnit == Decimal.zero || cleanPrice == BigInt.zero) {
-      return BigInt.zero;
-    }
-
-    return BigInt.from((cleanUnit.toDouble() * cleanPrice.toDouble()).round());
-  }
-
   @override
   void initState() {
     super.initState();
 
-    int initialIndex = 0;
-    if (widget.initialAsset != null) {
-      initialIndex = 1;
-      _selectedAsset = widget.initialAsset;
-      _unitNameController.text = _selectedAsset!.unitName;
+    int initialIndex = 1;
+    if (widget.bils?.length == 1 && (widget.debts?.isEmpty ?? true)) {
+      initialIndex = 0;
+      _isHideTab = true;
     }
-    _isNewAssetTab = initialIndex == 0;
+    if (widget.debts?.length == 1 && (widget.bils?.isEmpty ?? true)) {
+      initialIndex = 1;
+      _isHideTab = true;
+    }
+    if (widget.bils != null && widget.bils!.isNotEmpty) {
+      _selectedBill = widget.bils?[0];
+      _onNumberChanged(
+        _amountController,
+        _selectedBill?.amount.toString() ?? '0',
+      );
+    }
+    if (widget.debts != null && widget.debts!.isNotEmpty) {
+      _selectedDebt = widget.debts?[0];
+    }
+
+    _isBillTab = initialIndex == 0;
 
     _tabController = TabController(
       length: 2,
@@ -107,26 +95,15 @@ class _BuyAssetModalState extends State<BuyAssetModal>
       initialIndex: initialIndex,
     );
 
-    if (widget.assets.isEmpty || widget.initialAsset != null) {
-      _isHideTab = true;
-    }
-
     if (widget.wallets.length == 1) {
       _isLockWallet = true;
       _selectedWallet = widget.wallets[0];
     }
 
-    if (widget.initialRisk != null) {
-      _isLockRisk = true;
-      _selectedRisk = widget.initialRisk;
-    }
-
-    _isEmergencyActive = widget.isEmergency;
-
     _tabController.addListener(() {
       if (_tabController.indexIsChanging) {
         setState(() {
-          _isNewAssetTab = _tabController.index == 0;
+          _isBillTab = _tabController.index == 0;
           _resetForm();
         });
       }
@@ -136,37 +113,27 @@ class _BuyAssetModalState extends State<BuyAssetModal>
   @override
   void dispose() {
     _tabController.dispose();
-    _nameController.dispose();
-    _unitNameController.dispose();
-    _unitAmountController.dispose();
-    _priceController.dispose();
+    _amountController.dispose();
     _feeController.dispose();
     super.dispose();
   }
 
   void _resetForm() {
-    _unitAmountController.text = '0';
-    _priceController.text = '0';
     _feeController.text = '0';
-    _amount = BigInt.zero;
     _isReservedActive = false;
     _isFeeActive = false;
-    _isDevidenActive = false;
-    if (_isNewAssetTab) {
-      _unitNameController.text = 'Unit';
+    if (_isBillTab) {
+      _onNumberChanged(
+        _amountController,
+        _selectedBill?.amount.toString() ?? '0',
+      );
     } else {
-      _unitNameController.text = _selectedAsset?.unitName ?? 'Unit';
+      _onNumberChanged(_amountController, '0');
     }
   }
 
-  void _onNumberChanged(
-    TextEditingController controller,
-    String value, {
-    bool isDecimal = false,
-  }) {
-    String cleanText = isDecimal
-        ? value.replaceAll(',', '.')
-        : value.replaceAll('.', '');
+  void _onNumberChanged(TextEditingController controller, String value) {
+    String cleanText = value.replaceAll('.', '');
 
     if (cleanText.isEmpty) {
       controller.text = '';
@@ -174,26 +141,24 @@ class _BuyAssetModalState extends State<BuyAssetModal>
       return;
     }
 
-    if (!isDecimal) {
-      BigInt currentValue = BigInt.tryParse(cleanText) ?? BigInt.zero;
-      String formattedText = currentValue.toString().replaceAllMapped(
-        RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
-        (Match m) => '${m[1]}.',
-      );
+    BigInt currentValue = BigInt.tryParse(cleanText) ?? BigInt.zero;
+    String formattedText = currentValue.toString().replaceAllMapped(
+      RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
+      (Match m) => '${m[1]}.',
+    );
 
-      if (controller.text != formattedText) {
-        controller.value = TextEditingValue(
-          text: formattedText,
-          selection: TextSelection.collapsed(offset: formattedText.length),
-        );
-      }
+    if (controller.text != formattedText) {
+      controller.value = TextEditingValue(
+        text: formattedText,
+        selection: TextSelection.collapsed(offset: formattedText.length),
+      );
     }
     _calculateTotal();
   }
 
   void _calculateTotal() {
     try {
-      BigInt total = _cleanAssetAmount;
+      BigInt total = _cleanAmount;
       if (_isFeeActive) {
         total += _cleanFeeAmount;
       }
@@ -207,61 +172,24 @@ class _BuyAssetModalState extends State<BuyAssetModal>
 
   void _submit() {
     if (_formKey.currentState!.validate()) {
-      Decimal cleanUnit = _cleanAssetUnit;
-      BigInt cleanAssetAmount = _cleanAssetAmount;
-
-      AssetsModel assetToReturn;
-      String transactionTitle;
-
-      if (_isNewAssetTab) {
-        assetToReturn = AssetsModel(
-          name: _nameController.text,
-          type: _selectedRisk!,
-          category: _selectedCategory!,
-          unitName: _unitNameController.text,
-          hasDividend: _isDevidenActive,
-          isEmergency: _isEmergencyActive,
-          invested: cleanAssetAmount,
-          value: cleanAssetAmount,
-          unit: cleanUnit,
+      TransactionModel transaction;
+      if (_isBillTab) {
+        transaction = _selectedBill!.generateTransaction(
+          status: StatusType.paid,
+          walletId: _selectedWallet?.id,
+          totalAmount: _amount,
+          detailAmount: _cleanAmount,
         );
-
-        transactionTitle =
-            '${ScreenDict.investBuyAsset.normal} ${assetToReturn.name}';
       } else {
-        BigInt cleanPrice = _cleanAssetPriceUnit;
-        Decimal newTotalUnit = _selectedAsset!.unit + cleanUnit;
-        BigInt newTotalValue = BigInt.from(
-          (newTotalUnit.toDouble() * cleanPrice.toDouble()).round(),
+        transaction = _selectedDebt!.generateTransaction(
+          walletId: _selectedWallet?.id,
+          totalAmount: _amount,
+          detailAmount: _cleanAmount,
         );
-
-        assetToReturn = AssetsModel(
-          id: _selectedAsset?.id,
-          name: _selectedAsset!.name,
-          type: _selectedAsset!.type,
-          category: _selectedAsset!.category,
-          unitName: _selectedAsset!.unitName,
-          invested: _selectedAsset!.invested + cleanAssetAmount,
-          hasDividend: _selectedAsset!.hasDividend,
-          value: newTotalValue,
-          unit: newTotalUnit,
-        );
-
-        transactionTitle =
-            '${ScreenDict.investAddModal.normal} ${assetToReturn.name}';
       }
 
-      List<TransactionDetailModel> details = [
-        TransactionDetailModel(
-          title: '${assetToReturn.name} $cleanUnit ${assetToReturn.unitName}',
-          amount: _amount,
-          category: _selectedRisk!.getTransactionCategory(),
-          flow: FlowType.expense,
-        ),
-      ];
-
       if (_isFeeActive) {
-        details.add(
+        transaction.detailTransaction.add(
           TransactionDetailModel(
             title: 'Fee',
             amount: _cleanFeeAmount,
@@ -271,19 +199,8 @@ class _BuyAssetModalState extends State<BuyAssetModal>
         );
       }
 
-      TransactionModel transaction = TransactionModel(
-        type: TransactionType.expense,
-        title: transactionTitle,
-        amount: _amount,
-        status: StatusType.paid,
-        walletId: _selectedWallet?.id,
-        assetsId: assetToReturn.id,
-        detailTransaction: details,
-        dateTimestamp: DateTime.now().millisecondsSinceEpoch,
-      );
-
       Navigator.pop(context, {
-        "asset": assetToReturn,
+        "is_bill": _isBillTab,
         "transaction": transaction,
         'use_reserved': _isReservedActive,
       });
@@ -326,9 +243,11 @@ class _BuyAssetModalState extends State<BuyAssetModal>
               ),
               if (_isHideTab)
                 Text(
-                  _isNewAssetTab
-                      ? ScreenDict.investNewAsset.get(isRpg)
-                      : ScreenDict.investAddModal.get(isRpg),
+                  widget.title ??
+                      ScreenDict.getBillTypes(
+                        isBillDebt: !_isBillTab,
+                        isRpg: isRpg,
+                      ),
                   style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                 )
               else
@@ -356,156 +275,81 @@ class _BuyAssetModalState extends State<BuyAssetModal>
                     ),
                     unselectedLabelColor: AppColors.textSecondary,
                     tabs: [
-                      Tab(text: ScreenDict.investNewAsset.get(isRpg)),
-                      Tab(text: ScreenDict.investAddModal.get(isRpg)),
+                      Tab(
+                        text: ScreenDict.getBillTypes(
+                          isBillDebt: false,
+                          isRpg: isRpg,
+                        ),
+                      ),
+                      Tab(
+                        text: ScreenDict.getBillTypes(
+                          isBillDebt: true,
+                          isRpg: isRpg,
+                        ),
+                      ),
                     ],
                   ),
                 ),
               const SizedBox(height: 24),
 
-              if (_isNewAssetTab) ...[
-                TextFormField(
-                  controller: _nameController,
+              if (_isBillTab)
+                DropdownButtonFormField<BillModel>(
+                  initialValue: _selectedBill,
                   decoration: InputDecoration(
-                    labelText: UiDict.name,
+                    labelText: ScreenDict.billsMaster.get(isRpg),
                     border: OutlineInputBorder(),
                   ),
-                  validator: (val) => val == null || val.trim().isEmpty
-                      ? UiDict.requiredName
-                      : null,
-                ),
-                const SizedBox(height: 16),
-
-                DropdownButtonFormField<AssetsCategory>(
-                  initialValue: _selectedCategory,
-                  decoration: InputDecoration(
-                    labelText: UiDict.category,
-                    border: OutlineInputBorder(),
-                  ),
-                  items: AssetsCategory.values
+                  items: (widget.bils ?? [])
                       .map(
-                        (cat) => DropdownMenuItem(
-                          value: cat,
-                          child: Text(
-                            cat.value,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
+                        (a) => DropdownMenuItem(value: a, child: Text(a.title)),
                       )
                       .toList(),
-                  onChanged: (val) => setState(() => _selectedCategory = val),
-                  validator: (val) =>
-                      val == null ? UiDict.requiredCategory : null,
-                ),
-                const SizedBox(height: 16),
-                DropdownButtonFormField<RiskType>(
-                  initialValue: _selectedRisk,
-                  decoration: InputDecoration(
-                    labelText: ScreenDict.investRisk.get(isRpg),
-                    border: OutlineInputBorder(),
-                  ),
-                  items: RiskType.values
-                      .map(
-                        (risk) => DropdownMenuItem(
-                          value: risk,
-                          child: Text(
-                            CategoryDict.getAssetByEnum(
-                              risk,
-                            ).get(isRpg).toUpperCase(),
-                          ),
-                        ),
-                      )
-                      .toList(),
-                  onChanged: !_isLockRisk
-                      ? (val) => setState(() => _selectedRisk = val)
-                      : null,
-                  validator: (val) => val == null
-                      ? ScreenDict.investRiskRequired.get(isRpg)
-                      : null,
-                ),
-                const SizedBox(height: 16),
-              ] else ...[
-                DropdownButtonFormField<AssetsModel>(
-                  initialValue: _selectedAsset,
-                  decoration: InputDecoration(
-                    labelText: ScreenDict.investAsset.get(isRpg),
-                    border: OutlineInputBorder(),
-                  ),
-                  items: widget.assets
-                      .map(
-                        (a) => DropdownMenuItem(value: a, child: Text(a.name)),
-                      )
-                      .toList(),
-                  onChanged: widget.initialAsset == null
+                  onChanged: widget.bils != null && widget.bils!.length > 1
                       ? (val) => setState(() {
-                          _selectedAsset = val;
-                          _unitNameController.text = val?.unitName ?? 'Unit';
+                          _selectedBill = val;
+                          _onNumberChanged(
+                            _amountController,
+                            val!.amount.toString(),
+                          );
                         })
                       : null,
-                  validator: (val) => val == null && !_isNewAssetTab
-                      ? ScreenDict.investAssetRequired.get(isRpg)
+                  validator: (val) => val == null && !_isBillTab
+                      ? ScreenDict.billAmount.get(isRpg)
+                      : null,
+                )
+              else
+                DropdownButtonFormField<DebtModel>(
+                  initialValue: _selectedDebt,
+                  decoration: InputDecoration(
+                    labelText: ScreenDict.debtsMaster.get(isRpg),
+                    border: OutlineInputBorder(),
+                  ),
+                  items: (widget.debts ?? [])
+                      .map(
+                        (a) => DropdownMenuItem(value: a, child: Text(a.title)),
+                      )
+                      .toList(),
+                  onChanged: widget.debts != null && widget.debts!.length > 1
+                      ? (val) => setState(() {
+                          _selectedDebt = val;
+                        })
+                      : null,
+                  validator: (val) => val == null && !_isBillTab
+                      ? ScreenDict.debtRequired.get(isRpg)
                       : null,
                 ),
-                const SizedBox(height: 16),
-              ],
-
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(
-                    flex: 2,
-                    child: TextFormField(
-                      controller: _unitAmountController,
-                      keyboardType: const TextInputType.numberWithOptions(
-                        decimal: true,
-                      ),
-                      decoration: InputDecoration(
-                        labelText: UiDict.amount,
-                        border: OutlineInputBorder(),
-                      ),
-                      onChanged: (val) => _onNumberChanged(
-                        _unitAmountController,
-                        val,
-                        isDecimal: true,
-                      ),
-                      validator: (val) => val == null || val.isEmpty
-                          ? UiDict.requiredAmount
-                          : null,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    flex: 1,
-                    child: TextFormField(
-                      controller: _unitNameController,
-                      decoration: InputDecoration(
-                        labelText: ScreenDict.investUnit.get(isRpg),
-                        border: OutlineInputBorder(),
-                      ),
-                      readOnly: !_isNewAssetTab,
-                      onChanged: (val) => setState(() {}),
-                      validator: (val) => val == null || val.isEmpty
-                          ? ScreenDict.investUnitRequired.get(isRpg)
-                          : null,
-                    ),
-                  ),
-                ],
-              ),
               const SizedBox(height: 16),
 
               TextFormField(
-                controller: _priceController,
+                controller: _amountController,
                 keyboardType: TextInputType.number,
                 inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                 decoration: InputDecoration(
-                  labelText: ScreenDict.getInvestPricePerUnit(
-                    _unitNameController.text,
-                  ),
+                  labelText: UiDict.amount,
                   prefixText: 'Rp ',
                   border: OutlineInputBorder(),
                 ),
-                onChanged: (val) =>
-                    _onNumberChanged(_priceController, val, isDecimal: false),
+                onChanged: (val) => _onNumberChanged(_amountController, val),
                 validator: (val) =>
                     val == null || val.isEmpty ? UiDict.requiredPrice : null,
               ),
@@ -531,26 +375,6 @@ class _BuyAssetModalState extends State<BuyAssetModal>
                 validator: (val) => val == null ? UiDict.requiredWallet : null,
               ),
               const SizedBox(height: 16),
-              if (_isNewAssetTab) ...[
-                SwitchListTile(
-                  contentPadding: EdgeInsets.zero,
-                  title: Text(ScreenDict.getDevidenCheck(isRpg: isRpg)),
-                  subtitle: Text(ScreenDict.getDevidenCheckDesc(isRpg: isRpg)),
-                  value: _isDevidenActive,
-                  onChanged: (val) => setState(() => _isDevidenActive = val),
-                ),
-                SwitchListTile(
-                  contentPadding: EdgeInsets.zero,
-                  title: Text(ScreenDict.getEmergencyCheck(isRpg: isRpg)),
-                  subtitle: Text(
-                    ScreenDict.getEmergencyCheckDesc(isRpg: isRpg),
-                  ),
-                  value: _isEmergencyActive,
-                  onChanged: (val) => setState(
-                    () => !widget.isEmergency ? _isEmergencyActive = val : null,
-                  ),
-                ),
-              ],
 
               SwitchListTile(
                 contentPadding: EdgeInsets.zero,
@@ -662,9 +486,12 @@ class _BuyAssetModalState extends State<BuyAssetModal>
                     ),
                     const SizedBox(height: 16),
                     CustomButton(
-                      title: _isNewAssetTab
-                          ? ScreenDict.investBuyAsset.get(isRpg)
-                          : ScreenDict.investAddModal.get(isRpg),
+                      title: _isBillTab
+                          ? ScreenDict.getPayBill(isRpg: isRpg)
+                          : ScreenDict.getPayDebt(
+                              isCustom: false,
+                              isRpg: isRpg,
+                            ),
                       color: AppColors.primary,
                       onTap: _submit,
                     ),

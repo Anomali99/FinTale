@@ -1,5 +1,8 @@
+import '../core/constants/ui_dict.dart';
 import '../core/utils/enum_types.dart';
 import '../core/utils/tier_analyzer.dart';
+import '../models/transaction_detail_model.dart';
+import '../models/transaction_model.dart';
 import 'bill_model.dart';
 
 class DebtModel {
@@ -71,5 +74,32 @@ extension DebtExtension on DebtModel {
 
   void addPayment(BigInt pay) {
     paidAmount += pay;
+  }
+
+  TransactionModel generateTransaction({
+    StatusType? status,
+    int? walletId,
+    BigInt? totalAmount,
+    BigInt? detailAmount,
+  }) {
+    DateTime now = DateTime.now();
+
+    return TransactionModel(
+      type: TransactionType.debt,
+      debtId: id,
+      walletId: walletId,
+      title: 'Bayar $title',
+      amount: totalAmount ?? amount,
+      status: status ?? StatusType.paid,
+      dateTimestamp: now.millisecondsSinceEpoch,
+      detailTransaction: [
+        TransactionDetailModel(
+          title: '${UiDict.amount} Bayar',
+          amount: detailAmount ?? amount,
+          flow: FlowType.expense,
+          category: TransactionCategory.debtInstallment,
+        ),
+      ],
+    );
   }
 }

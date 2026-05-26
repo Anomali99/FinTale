@@ -33,43 +33,22 @@ class LayoutController extends ChangeNotifier with WidgetsBindingObserver {
 
   Future<void> saveTransaction(
     TransactionModel transaction, {
-    bool? useReserved,
+    bool excludeDaily = false,
+    bool useReserved = false,
   }) async {
     final wallet = _walletController.getWalletById(transaction.walletId ?? 1);
     await _transactionController.createTransaction(transaction);
-
-    BigInt expenseAmount = transaction.detailTransaction.isNotEmpty
-        ? transaction.detailTransaction[0].amount
-        : transaction.amount;
-
-    BigInt availableAmount = wallet.amount - wallet.reservedAmount;
-
-    BigInt deductedFromReserved = BigInt.zero;
-
-    if (useReserved == true) {
-      deductedFromReserved = expenseAmount > wallet.reservedAmount
-          ? wallet.reservedAmount
-          : expenseAmount;
-
-      wallet.addReserved(deductedFromReserved, isIncome: false);
-    } else if (expenseAmount > availableAmount) {
-      BigInt overflowAmount = expenseAmount - availableAmount;
-
-      deductedFromReserved = overflowAmount > wallet.reservedAmount
-          ? wallet.reservedAmount
-          : overflowAmount;
-
-      wallet.addReserved(deductedFromReserved, isIncome: false);
-    }
-
-    wallet.addAmount(expenseAmount, isIncome: false);
+    BigInt deductedFromReserved = wallet.autoExpanse(
+      transaction.amount,
+      useReserved: useReserved,
+    );
 
     await _walletController.updateWallet(wallet);
     await _walletController.loadData();
 
-    BigInt deductedFromRegular = expenseAmount - deductedFromReserved;
+    BigInt deductedFromRegular = transaction.amount - deductedFromReserved;
 
-    if (deductedFromRegular > BigInt.zero) {
+    if (deductedFromRegular > BigInt.zero && !excludeDaily) {
       _userController.useDaily(deductedFromRegular);
     }
 

@@ -27,9 +27,18 @@ class TransactionController extends ChangeNotifier {
 
   BigInt get totalIdle => totalIncome - (totalExpense + totalInvest);
 
-  Future<void> createTransaction(TransactionModel transaction) async {
-    await _transactionDao.create(transaction);
-    _monthlyCache.clear();
+  Future<void> createTransaction(
+    TransactionModel transaction, {
+    bool isDraft = false,
+  }) async {
+    if (transaction.id == null) {
+      await _transactionDao.create(transaction);
+    } else {
+      await _transactionDao.update(transaction);
+    }
+    if (!isDraft) {
+      _monthlyCache.clear();
+    }
   }
 
   Future<void> loadBillTransaction() async {

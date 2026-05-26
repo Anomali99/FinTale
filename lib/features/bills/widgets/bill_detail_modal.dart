@@ -17,7 +17,7 @@ class BillDetailModal extends StatelessWidget {
   final BillModel bill;
   final bool isRpg;
 
-  const BillDetailModal({super.key, required this.bill, required this.isRpg});
+  const BillDetailModal({super.key, required this.bill, this.isRpg = false});
 
   @override
   Widget build(BuildContext context) {
@@ -149,7 +149,7 @@ class BillDetailModal extends StatelessWidget {
                 CustomRowTable(
                   label: ScreenDict.nextBill.get(isRpg),
                   value: bill.nextDueDate != null
-                      ? DateFormat('EEEE, dd MMM yyyy').format(
+                      ? DateFormat('dd MMM yyyy').format(
                           DateTime.fromMillisecondsSinceEpoch(
                             bill.nextDueDate!,
                           ),

@@ -65,6 +65,7 @@ void main() async {
     billDao,
     debtDao,
     userController,
+    walletController,
     transactionController,
   );
   final investController = InvestController(

@@ -56,7 +56,7 @@ class InvestScreen extends StatelessWidget {
     }
   }
 
-  void _openAddAsset(BuildContext context, bool isRpg) async {
+  void _openAddAsset(BuildContext context) async {
     final investController = context.read<InvestController>();
     final walletController = context.read<WalletController>();
     final historyController = context.read<HistoryController>();
@@ -68,7 +68,6 @@ class InvestScreen extends StatelessWidget {
       builder: (context) => BuyAssetModal(
         wallets: walletController.wallets,
         assets: investController.assets,
-        isRpg: isRpg,
       ),
     );
 
@@ -86,11 +85,7 @@ class InvestScreen extends StatelessWidget {
     }
   }
 
-  void _openAddInvest(
-    BuildContext context,
-    AssetsModel assets,
-    bool isRpg,
-  ) async {
+  void _openAddInvest(BuildContext context, AssetsModel assets) async {
     final investController = context.read<InvestController>();
     final walletController = context.read<WalletController>();
     final historyController = context.read<HistoryController>();
@@ -103,7 +98,6 @@ class InvestScreen extends StatelessWidget {
         initialAsset: assets,
         wallets: walletController.wallets,
         assets: [assets],
-        isRpg: isRpg,
       ),
     );
 
@@ -142,7 +136,7 @@ class InvestScreen extends StatelessWidget {
           actions: [
             IconButton(
               icon: FaIcon(ScreenDict.investAdd.get(isRpg), size: 20),
-              onPressed: () => _openAddAsset(context, isRpg),
+              onPressed: () => _openAddAsset(context),
             ),
             const SizedBox(width: 8),
           ],
@@ -185,21 +179,21 @@ class InvestScreen extends StatelessWidget {
                 children: [
                   AssetTab(
                     icon: CategoryDict.lowRisk.icon(isRpg),
-                    addInvest: (value) => _openAddInvest(context, value, isRpg),
+                    addInvest: (value) => _openAddInvest(context, value),
                     updateAsset: (value) => _openUpdateAsset(context, value),
                     claimDeviden: (value) => _openDevidendAsset(context, value),
                     assets: lowRisk,
                   ),
                   AssetTab(
                     icon: CategoryDict.mediumRisk.icon(isRpg),
-                    addInvest: (value) => _openAddInvest(context, value, isRpg),
+                    addInvest: (value) => _openAddInvest(context, value),
                     updateAsset: (value) => _openUpdateAsset(context, value),
                     claimDeviden: (value) => _openDevidendAsset(context, value),
                     assets: mediumRisk,
                   ),
                   AssetTab(
                     icon: CategoryDict.highRisk.icon(isRpg),
-                    addInvest: (value) => _openAddInvest(context, value, isRpg),
+                    addInvest: (value) => _openAddInvest(context, value),
                     updateAsset: (value) => _openUpdateAsset(context, value),
                     claimDeviden: (value) => _openDevidendAsset(context, value),
                     assets: highRisk,

@@ -21,7 +21,9 @@ class BillCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Color mainColor = data.tier.color;
+    final Color mainColor = data.isActive
+        ? data.tier.color
+        : AppColors.textSecondary;
 
     return InkWell(
       onTap: onTap,
@@ -69,7 +71,9 @@ class BillCard extends StatelessWidget {
                     style: GoogleFonts.poppins(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
-                      color: AppColors.textPrimary,
+                      color: data.isActive
+                          ? AppColors.textPrimary
+                          : AppColors.textSecondary,
                     ),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
@@ -110,7 +114,9 @@ class BillCard extends StatelessWidget {
                   style: GoogleFonts.poppins(
                     fontWeight: FontWeight.bold,
                     fontSize: 14,
-                    color: AppColors.textPrimary,
+                    color: data.isActive
+                        ? AppColors.textPrimary
+                        : AppColors.textSecondary,
                   ),
                 ),
                 const SizedBox(height: 6),
@@ -123,24 +129,52 @@ class BillCard extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 6),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 6,
-                    vertical: 2,
-                  ),
-                  decoration: BoxDecoration(
-                    color: mainColor.withOpacity(0.15),
-                    borderRadius: BorderRadius.circular(4),
-                    border: Border.all(color: mainColor.withOpacity(0.5)),
-                  ),
-                  child: Text(
-                    data.tier.rank,
-                    style: TextStyle(
-                      fontSize: 9,
-                      fontWeight: FontWeight.bold,
-                      color: mainColor,
+
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    if (!data.isActive) ...[
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 6,
+                          vertical: 2,
+                        ),
+                        decoration: BoxDecoration(
+                          color: mainColor.withOpacity(0.15),
+                          borderRadius: BorderRadius.circular(4),
+                          border: Border.all(color: mainColor.withOpacity(0.5)),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 1),
+                          child: FaIcon(
+                            FontAwesomeIcons.lock,
+                            color: mainColor,
+                            size: 9,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 6),
+                    ],
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 6,
+                        vertical: 2,
+                      ),
+                      decoration: BoxDecoration(
+                        color: mainColor.withOpacity(0.15),
+                        borderRadius: BorderRadius.circular(4),
+                        border: Border.all(color: mainColor.withOpacity(0.5)),
+                      ),
+                      child: Text(
+                        data.tier.rank,
+                        style: TextStyle(
+                          fontSize: 9,
+                          fontWeight: FontWeight.bold,
+                          color: mainColor,
+                        ),
+                      ),
                     ),
-                  ),
+                  ],
                 ),
               ],
             ),

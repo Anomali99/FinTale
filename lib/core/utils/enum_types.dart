@@ -1,4 +1,22 @@
-enum RiskType { low, medium, high }
+import '../constants/category_dict.dart';
+import '../models/category_model.dart';
+
+enum RiskType {
+  low,
+  medium,
+  high;
+
+  TransactionCategory getTransactionCategory() {
+    switch (this) {
+      case RiskType.low:
+        return TransactionCategory.lowRisk;
+      case RiskType.medium:
+        return TransactionCategory.mediumRisk;
+      case RiskType.high:
+        return TransactionCategory.highRisk;
+    }
+  }
+}
 
 enum DebtType { creditCard, mortgage, vehicle, personal, business, other }
 
@@ -13,16 +31,22 @@ enum TimeType {
 }
 
 enum DayName {
-  monday('Senin'),
-  tuesday('Selasa'),
-  wednesday('Rabu'),
-  thursday('Kamis'),
-  friday('Jum\'at'),
-  saturday('Sabtu'),
-  sunday('Minggu');
+  monday('Senin', 1),
+  tuesday('Selasa', 2),
+  wednesday('Rabu', 3),
+  thursday('Kamis', 4),
+  friday('Jum\'at', 5),
+  saturday('Sabtu', 6),
+  sunday('Minggu', 7);
 
   final String value;
-  const DayName(this.value);
+  final int intValue;
+  const DayName(this.value, this.intValue);
+
+  static DayName getByIntValue(int intValue) => DayName.values.firstWhere(
+    (e) => e.intValue == intValue,
+    orElse: () => DayName.sunday,
+  );
 }
 
 enum MonthName {
@@ -42,6 +66,11 @@ enum MonthName {
   final String value;
   final int intValue;
   const MonthName(this.value, this.intValue);
+
+  static MonthName getByIntValue(int intValue) => MonthName.values.firstWhere(
+    (e) => e.intValue == intValue,
+    orElse: () => MonthName.january,
+  );
 }
 
 enum TransactionCategory {
@@ -58,7 +87,30 @@ enum TransactionCategory {
   transfer,
   lowRisk,
   mediumRisk,
-  highRisk,
+  highRisk;
+
+  CategoryModel get categoryDict => CategoryDict.getByTransactionCategory(this);
+
+  static List<TransactionCategory> get expenseCategories => [
+    food,
+    groceries,
+    transport,
+    entertainment,
+    health,
+    utilities,
+  ];
+
+  static List<TransactionCategory> get incomeCategories => [
+    salary,
+    business,
+    dividend,
+  ];
+
+  static List<TransactionCategory> get investCategories => [
+    lowRisk,
+    mediumRisk,
+    highRisk,
+  ];
 }
 
 enum FlowType { expense, income, transfer }

@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
-import 'package:provider/provider.dart';
 
-import '../../../controllers/settings_controller.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/category_dict.dart';
 import '../../../core/constants/screen_dict.dart';
@@ -17,13 +15,12 @@ enum DebtActionType { payDirect, payBill, edit }
 
 class DebtDetailModal extends StatelessWidget {
   final DebtModel debt;
+  final bool isRpg;
 
-  const DebtDetailModal({super.key, required this.debt});
+  const DebtDetailModal({super.key, required this.debt, this.isRpg = false});
 
   @override
   Widget build(BuildContext context) {
-    final isRpg = context.read<SettingsController>().isRpgMode;
-
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: const BoxDecoration(
@@ -177,7 +174,7 @@ class DebtDetailModal extends StatelessWidget {
               ],
 
               CustomButton(
-                title: ScreenDict.payDebt.get(isRpg),
+                title: ScreenDict.getPayDebt(isCustom: true, isRpg: isRpg),
                 color: AppColors.primary,
                 onTap: () {
                   Navigator.pop(context, DebtActionType.payDirect);

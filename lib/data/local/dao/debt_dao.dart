@@ -102,7 +102,7 @@ class DebtDao {
 
         await database.update(
           'bills',
-          parentData,
+          childData,
           where: 'id = ?',
           whereArgs: [bill.id],
         );

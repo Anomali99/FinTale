@@ -89,40 +89,51 @@ extension BillExtension on BillModel {
     }
   }
 
-  String _getTargetTitle(DateTime targetDate) {
+  DateTime get _targetDate => nextDueDate != null
+      ? DateTime.fromMillisecondsSinceEpoch(nextDueDate!)
+      : _calculateNextDateFrom(DateTime.now());
+
+  String getTargetTitle({DateTime? targetDate}) {
+    DateTime target = targetDate ?? _targetDate;
     switch (type) {
       case TimeType.daily:
-        return DateFormat('EEEE, dd MMMM yyyy').format(targetDate);
+        return DateFormat('EEEE, dd MMMM yyyy').format(target);
       case TimeType.weekly:
-        return DateFormat('dd MMMM yyyy').format(targetDate);
+        return DateFormat('dd MMMM yyyy').format(target);
       case TimeType.monthly:
-        return DateFormat('MMMM yyyy').format(targetDate);
+        return DateFormat('MMMM yyyy').format(target);
       case TimeType.annual:
-        return DateFormat('yyyy').format(targetDate);
+        return DateFormat('yyyy').format(target);
     }
   }
 
-  TransactionModel generateTransaction({required bool isDirectPay}) {
+  TransactionModel generateTransaction({
+    StatusType? status,
+    int? walletId,
+    BigInt? totalAmount,
+    BigInt? detailAmount,
+    bool autoAdvance = false,
+  }) {
     DateTime now = DateTime.now();
-    DateTime targetDate = nextDueDate != null
-        ? DateTime.fromMillisecondsSinceEpoch(nextDueDate!)
-        : _calculateNextDateFrom(now);
+    DateTime targetDate = _targetDate;
 
     TransactionModel transaction = TransactionModel(
-      type: TransactionType.expense,
+      type: debtId != null ? TransactionType.debt : TransactionType.expense,
       billId: id,
       debtId: debtId,
+      walletId: walletId,
       title: title,
-      amount: amount,
-      status: isDirectPay ? StatusType.paid : StatusType.pending,
-      dateTimestamp: isDirectPay
+      amount: totalAmount ?? amount,
+      status: status ?? StatusType.pending,
+
+      dateTimestamp: status == StatusType.paid
           ? now.millisecondsSinceEpoch
           : targetDate.millisecondsSinceEpoch,
       detailTransaction: [
         TransactionDetailModel(
           title:
-              '${ScreenDict.billsMaster.normal} (${_getTargetTitle(targetDate)})',
-          amount: amount,
+              '${ScreenDict.billsMaster.normal} (${getTargetTitle(targetDate: targetDate)})',
+          amount: detailAmount ?? amount,
           flow: FlowType.expense,
           category: debtId != null
               ? TransactionCategory.debtInstallment
@@ -131,7 +142,9 @@ extension BillExtension on BillModel {
       ],
     );
 
-    advanceToNextBill();
+    if (autoAdvance) {
+      advanceToNextBill();
+    }
 
     return transaction;
   }
@@ -179,19 +192,6 @@ extension BillExtension on BillModel {
     return currentStatus;
   }
 
-  void skipNextBill() {
-    DateTime currentTarget = nextDueDate != null
-        ? DateTime.fromMillisecondsSinceEpoch(nextDueDate!)
-        : _calculateNextDateFrom(DateTime.now());
-
-    DateTime newlyCalculatedDate = _calculateNextDateFrom(currentTarget);
-    nextDueDate = newlyCalculatedDate.millisecondsSinceEpoch;
-  }
-
-  void advanceToNextBill() {
-    skipNextBill();
-  }
-
   DateTime _getCurrentPeriodDueDate(DateTime now) {
     DateTime baseDate = DateTime(now.year, now.month, now.day);
 
@@ -212,6 +212,69 @@ extension BillExtension on BillModel {
         int targetMonth = month ?? 1;
         int targetDay = day ?? 1;
         return _clampDate(baseDate.year, targetMonth, targetDay);
+    }
+  }
+
+  bool canRevert() {
+    if (nextDueDate == null) return false;
+
+    DateTime currentTarget = DateTime.fromMillisecondsSinceEpoch(nextDueDate!);
+
+    DateTime previousTarget = _calculatePreviousDateFrom(currentTarget);
+
+    DateTime now = DateTime.now();
+
+    DateTime today = DateTime(now.year, now.month, now.day);
+    DateTime normalizedPrevious = DateTime(
+      previousTarget.year,
+      previousTarget.month,
+      previousTarget.day,
+    );
+
+    return !normalizedPrevious.isBefore(today);
+  }
+
+  void advanceToNextBill() {
+    DateTime currentTarget = nextDueDate != null
+        ? DateTime.fromMillisecondsSinceEpoch(nextDueDate!)
+        : _calculateNextDateFrom(DateTime.now());
+
+    nextDueDate = _calculateNextDateFrom(currentTarget).millisecondsSinceEpoch;
+  }
+
+  void revertToPreviousBill() {
+    DateTime currentTarget = nextDueDate != null
+        ? DateTime.fromMillisecondsSinceEpoch(nextDueDate!)
+        : _calculateNextDateFrom(DateTime.now());
+
+    nextDueDate = _calculatePreviousDateFrom(
+      currentTarget,
+    ).millisecondsSinceEpoch;
+  }
+
+  DateTime _calculatePreviousDateFrom(DateTime base) {
+    switch (type) {
+      case TimeType.daily:
+        return base.subtract(const Duration(days: 1));
+
+      case TimeType.weekly:
+        return base.subtract(const Duration(days: 7));
+
+      case TimeType.monthly:
+        int targetDay = day ?? 1;
+        int prevMonth = base.month - 1;
+        int prevYear = base.year;
+        if (prevMonth < 1) {
+          prevMonth = 12;
+          prevYear--;
+        }
+        return _clampDate(prevYear, prevMonth, targetDay);
+
+      case TimeType.annual:
+        int targetMonth = month ?? 1;
+        int targetDay = day ?? 1;
+        int prevYear = base.year - 1;
+        return _clampDate(prevYear, targetMonth, targetDay);
     }
   }
 
