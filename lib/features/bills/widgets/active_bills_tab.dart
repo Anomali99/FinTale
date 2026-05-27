@@ -10,9 +10,15 @@ import 'active_bill_card.dart';
 
 class ActiveBillsTab extends StatelessWidget {
   final bool isRpg;
+  final Function(TransactionModel) onTap;
   final List<TransactionModel> data;
 
-  const ActiveBillsTab({super.key, required this.data, required this.isRpg});
+  const ActiveBillsTab({
+    super.key,
+    required this.data,
+    required this.onTap,
+    required this.isRpg,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -66,7 +72,7 @@ class ActiveBillsTab extends StatelessWidget {
           ),
         ] else ...[
           for (TransactionModel item in pending)
-            ActiveBillCard(data: item, isRpg: isRpg),
+            ActiveBillCard(data: item, isRpg: isRpg, onTap: () => onTap(item)),
         ],
 
         const SizedBox(height: 32),

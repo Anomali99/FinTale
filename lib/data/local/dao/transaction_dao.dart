@@ -225,7 +225,7 @@ class TransactionDao {
 
         await database.update(
           'transaction_details',
-          parentData,
+          childData,
           where: 'id = ?',
           whereArgs: [detail.id],
         );

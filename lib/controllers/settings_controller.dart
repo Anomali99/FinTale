@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 
+import '../controllers/user_controller.dart';
 import '../core/utils/starter_pack.dart';
 import '../data/local/app_database.dart';
 import '../data/local/pref_service.dart';
 import '../models/user_model.dart';
 import '../models/wallet_model.dart';
+import '../services/backup_service.dart';
 import '../services/local_auth_service.dart';
 import '../services/notification_service.dart';
 import 'auth_controller.dart';
@@ -12,9 +14,14 @@ import 'auth_controller.dart';
 class SettingsController with ChangeNotifier {
   final PrefService _prefService;
   final AuthController _authController;
+  final UserController _userController;
   bool _isHardwareBiometricSupported = false;
 
-  SettingsController(this._prefService, this._authController) {
+  SettingsController(
+    this._prefService,
+    this._authController,
+    this._userController,
+  ) {
     _initHardwareCheck();
   }
 
@@ -121,12 +128,6 @@ class SettingsController with ChangeNotifier {
       if (!isGranted) {
         return false;
       }
-
-      await NotificationService().showInstantNotification(
-        stringId: 'testing',
-        title: 'Testing',
-        body: 'Testing Notifikasi',
-      );
     } else {
       await NotificationService().cancelAllNotifications();
     }
@@ -167,6 +168,7 @@ class SettingsController with ChangeNotifier {
 
   Future<Map<String, dynamic>> handleSignOut() async {
     try {
+      await NotificationService().cancelAllNotifications();
       await _authController.logoutAndClearData();
       return {"success": true};
     } catch (e) {
@@ -185,6 +187,8 @@ class SettingsController with ChangeNotifier {
         );
         WalletModel newWallet = StarterPack.defaultWallet;
 
+        await NotificationService().cancelAllNotifications();
+
         await AppDatabase.instance.deleteDB();
         await _prefService.saveUser(newUser);
 
@@ -195,5 +199,44 @@ class SettingsController with ChangeNotifier {
     } catch (e) {
       return {"success": false, "error": 'Error:  $e'};
     }
+  }
+
+  Future<bool> handleExportData() async {
+    try {
+      final Map<String, dynamic> dbData = await AppDatabase.instance
+          .exportAllData();
+
+      final Map<String, dynamic> userData =
+          _userController.currentUser?.toJson() ?? {};
+
+      final bool isSuccess = await BackupService().exportData(userData, dbData);
+
+      return isSuccess;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  Future<Map<String, dynamic>> handleImportData() async {
+    final Map<String, dynamic>? backupData = await BackupService().importData();
+
+    if (backupData != null) {
+      try {
+        final Map<String, dynamic> dbData = backupData['database'];
+        final Map<String, dynamic> userData = backupData['user'];
+
+        await NotificationService().cancelAllNotifications();
+
+        await _prefService.saveRawUser(userData);
+        bool isDbSuccess = await AppDatabase.instance.importDatabase(dbData);
+
+        if (isDbSuccess) {
+          return {"success": true, "load": true};
+        }
+      } catch (e) {
+        return {"success": false, "load": false, "error": 'Error:  $e'};
+      }
+    }
+    return {"success": false, "load": false};
   }
 }

@@ -11,7 +11,7 @@ class TransactionModel {
   final String title;
   final BigInt amount;
   final int dateTimestamp;
-  final StatusType status;
+  StatusType status;
   final TransactionType type;
   final List<TransactionDetailModel> detailTransaction;
 
@@ -41,6 +41,10 @@ class TransactionModel {
 
   void setBillId(int id) {
     billId = id;
+  }
+
+  void setStatus(StatusType status) {
+    this.status = status;
   }
 
   Map<String, dynamic> toMap() {

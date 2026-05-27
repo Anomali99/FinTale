@@ -15,6 +15,7 @@ class UserController with ChangeNotifier {
   }
 
   bool get isHideBalance => _prefService.isHideBalance;
+  bool get isNotification => _prefService.isNotification;
 
   String get userName => currentUser?.name ?? 'Adventurer';
   TitleType get userTitle => currentUser?.title ?? TitleType.noviceSaver;
@@ -100,6 +101,22 @@ class UserController with ChangeNotifier {
       if (firstResult.xpGranted) {
         currentUser?.addXp(firstResult.xpReward);
       }
+      await saveUser();
+    }
+  }
+
+  Future<void> processDebtPayment() async {
+    MissionResult? result = progress.processDebtPayment();
+    if (result.xpGranted) {
+      currentUser?.addXp(result.xpReward);
+      await saveUser();
+    }
+  }
+
+  Future<void> processMonthlyReview() async {
+    MissionResult? result = progress.processMonthlyReview();
+    if (result.xpGranted) {
+      currentUser?.addXp(result.xpReward);
       await saveUser();
     }
   }

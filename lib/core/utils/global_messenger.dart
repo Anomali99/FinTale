@@ -6,6 +6,18 @@ class GlobalMessenger {
   static final GlobalKey<ScaffoldMessengerState> globalMessengerKey =
       GlobalKey<ScaffoldMessengerState>();
 
+  static void swowMessage({required String message, bool isSuccess = true}) {
+    final snackBar = SnackBar(
+      content: Text(message),
+      backgroundColor: isSuccess ? Color(0xFF4CAF50) : Color(0xFFEF5350),
+      behavior: SnackBarBehavior.floating,
+    );
+
+    globalMessengerKey.currentState
+      ?..hideCurrentSnackBar()
+      ..showSnackBar(snackBar);
+  }
+
   static void showSleekXpNotification(int xpReward) {
     final snackBar = SnackBar(
       elevation: 0,

@@ -134,6 +134,69 @@ class AppDatabase {
     db.close();
   }
 
+  Future<Map<String, dynamic>> exportAllData() async {
+    final db = await instance.database;
+    final Map<String, dynamic> databaseData = {};
+
+    List<String> tables = [
+      'wallets',
+      'assets',
+      'debts',
+      'bills',
+      'transactions',
+      'transaction_details',
+    ];
+
+    for (String table in tables) {
+      final List<Map<String, dynamic>> data = await db.query(table);
+      databaseData[table] = data;
+    }
+
+    return databaseData;
+  }
+
+  Future<bool> importDatabase(Map<String, dynamic> databaseData) async {
+    final db = await instance.database;
+    try {
+      await db.transaction((txn) async {
+        List<String> deleteOrder = [
+          'transaction_details',
+          'transactions',
+          'bills',
+          'debts',
+          'assets',
+          'wallets',
+        ];
+
+        for (String table in deleteOrder) {
+          await txn.delete(table);
+        }
+
+        List<String> insertOrder = [
+          'wallets',
+          'assets',
+          'debts',
+          'bills',
+          'transactions',
+          'transaction_details',
+        ];
+
+        for (String table in insertOrder) {
+          if (databaseData.containsKey(table)) {
+            List<dynamic> rows = databaseData[table];
+            for (var row in rows) {
+              await txn.insert(table, Map<String, dynamic>.from(row));
+            }
+          }
+        }
+      });
+
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
   Future<void> deleteDB() async {
     final dbPath = await getDatabasesPath();
     final path = join(dbPath, 'fintale.db');

@@ -22,6 +22,7 @@ import '../widgets/bill_detail_modal.dart';
 import '../widgets/bills_tab.dart';
 import '../widgets/debt_detail_modal.dart';
 import '../widgets/debts_tab.dart';
+import '../widgets/pay_bill_modal.dart';
 import '../widgets/pay_debt_modal.dart';
 
 class BillsScreen extends StatelessWidget {
@@ -102,6 +103,21 @@ class BillsScreen extends StatelessWidget {
     }
   }
 
+  void _openAddDebtModal(BuildContext context, {DebtModel? initialDebt}) async {
+    final result = await showModalBottomSheet<DebtModel>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) {
+        return AddDebtModal(initialDebt: initialDebt);
+      },
+    );
+
+    if (result != null && context.mounted) {
+      context.read<BillController>().createDebt(result);
+    }
+  }
+
   void _openPayDebtOrBillModal(
     BuildContext context, {
     required String title,
@@ -142,18 +158,29 @@ class BillsScreen extends StatelessWidget {
     }
   }
 
-  void _openAddDebtModal(BuildContext context, {DebtModel? initialDebt}) async {
-    final result = await showModalBottomSheet<DebtModel>(
+  void _openActiveBillModal(BuildContext context, TransactionModel data) async {
+    final billController = context.read<BillController>();
+    final historyController = context.read<HistoryController>();
+    final analyticsController = context.read<AnalyticsController>();
+    final result = await showModalBottomSheet<Map<String, dynamic>>(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (context) {
-        return AddDebtModal(initialDebt: initialDebt);
+        return PayBillModal(transaction: data);
       },
     );
 
     if (result != null && context.mounted) {
-      context.read<BillController>().createDebt(result);
+      TransactionModel transaction = result['transaction'];
+      bool useReserved = result['use_reserved'];
+      await billController.payBill(
+        transaction,
+        useReserved: useReserved,
+        checkExisting: false,
+      );
+      historyController.applyFilter();
+      analyticsController.applyFilter();
     }
   }
 
@@ -231,7 +258,12 @@ class BillsScreen extends StatelessWidget {
         ),
         body: TabBarView(
           children: [
-            ActiveBillsTab(data: billTransaction, isRpg: isRpg),
+            ActiveBillsTab(
+              data: billTransaction,
+              isRpg: isRpg,
+              onTap: (transaction) =>
+                  _openActiveBillModal(context, transaction),
+            ),
             BillsTab(
               data: bills,
               isRpg: isRpg,

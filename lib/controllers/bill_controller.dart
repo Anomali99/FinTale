@@ -10,6 +10,7 @@ import '../models/bill_model.dart';
 import '../models/debt_model.dart';
 import '../models/transaction_model.dart';
 import '../models/wallet_model.dart';
+import '../services/notification_service.dart';
 
 class BillController with ChangeNotifier {
   final BillDao _billDao;
@@ -55,20 +56,93 @@ class BillController with ChangeNotifier {
     return null;
   }
 
-  Future<bool> generateBillDraft(BillModel bill) async {
+  Future<void> checAndCreateNotification() async {
+    try {
+      DateTime now = DateTime.now();
+
+      DateTime today = DateTime(now.year, now.month, now.day);
+
+      for (BillModel bill in bills) {
+        if (!bill.isActive || bill.nextDueDate == null) continue;
+
+        DateTime target = DateTime.fromMillisecondsSinceEpoch(
+          bill.nextDueDate!,
+        );
+        DateTime targetDate = DateTime(target.year, target.month, target.day);
+
+        int diffInDays = targetDate.difference(today).inDays;
+
+        if (bill.type == TimeType.daily) {
+          if (diffInDays <= 0) {
+            await generateBillDraft(bill, status: StatusType.overdue);
+          }
+          continue;
+        }
+
+        int generateThreshold = 3;
+        if (bill.type == TimeType.monthly) generateThreshold = 15;
+        if (bill.type == TimeType.annual) generateThreshold = 30;
+
+        if (diffInDays <= 0) {
+          await generateBillDraft(bill, status: StatusType.overdue);
+        } else if (diffInDays <= generateThreshold) {
+          await generateBillDraft(bill);
+        } else {
+          DateTime scheduleDate = targetDate.subtract(
+            Duration(days: generateThreshold),
+          );
+
+          scheduleDate = scheduleDate.add(const Duration(hours: 8));
+
+          await NotificationService().scheduleCustomNotification(
+            stringId: 'bill_${bill.id}',
+            title: 'Master Quest Mendekati!',
+            body:
+                'Quest ${bill.title} akan aktif dalam $generateThreshold hari. Persiapkan loot Anda!',
+            scheduledTime: scheduleDate,
+          );
+        }
+      }
+    } catch (e) {
+      debugPrint("[BILL] An error occurred while create bills notif: $e");
+    }
+  }
+
+  Future<bool> generateBillDraft(BillModel bill, {StatusType? status}) async {
     try {
       final existingPendingTransaction = getActiveTransaction(bill.id);
-      if (existingPendingTransaction != null) return false;
 
-      TransactionModel transaction = bill.generateTransaction();
-      await _transactionController.createTransaction(
-        transaction,
-        isDraft: true,
-      );
+      if (existingPendingTransaction != null && status == null) return false;
+
+      if (status == StatusType.overdue) {
+        if (existingPendingTransaction != null) {
+          existingPendingTransaction.status = StatusType.overdue;
+
+          await _transactionController.createTransaction(
+            existingPendingTransaction,
+            isDraft: true,
+          );
+        } else {
+          TransactionModel transaction = bill.generateTransaction(
+            status: StatusType.overdue,
+          );
+          await _transactionController.createTransaction(
+            transaction,
+            isDraft: true,
+          );
+        }
+      } else {
+        TransactionModel transaction = bill.generateTransaction(status: status);
+        await _transactionController.createTransaction(
+          transaction,
+          isDraft: true,
+        );
+      }
+
       await _transactionController.loadBillTransaction();
       return true;
     } catch (e) {
-      debugPrint("[BILL] An error occurred while create bills: $e");
+      debugPrint("[BILL] An error occurred while generate bills: $e");
       return false;
     } finally {
       notifyListeners();
@@ -78,6 +152,7 @@ class BillController with ChangeNotifier {
   Future<void> payBill(
     TransactionModel transaction, {
     bool useReserved = false,
+    bool checkExisting = true,
   }) async {
     try {
       final wallet = _walletController.getWalletById(transaction.walletId ?? 1);
@@ -86,23 +161,28 @@ class BillController with ChangeNotifier {
       if (transaction.debtId != null) {
         final debt = getDebtById(transaction.debtId);
 
-        if (debt.isFinished && debt.bill != null) {
-          debt.bill?.toggleActive(false);
+        if (debt.bill != null) {
+          if (debt.isFinished) {
+            debt.bill?.toggleActive(false);
+          }
+          debt.bill?.advanceToNextBill();
         }
-        debt.bill?.advanceToNextBill();
         await _debtDao.update(debt);
+        await _userController.processDebtPayment();
       } else {
         final bill = getBillById(transaction.billId ?? 1);
         bill.advanceToNextBill();
         await _billDao.update(bill);
       }
 
-      final existingPendingTransaction = getActiveTransaction(
-        transaction.billId,
-      );
+      if (checkExisting) {
+        final existingPendingTransaction = getActiveTransaction(
+          transaction.billId,
+        );
 
-      if (existingPendingTransaction != null) {
-        transaction.setTransactionId(existingPendingTransaction.id);
+        if (existingPendingTransaction != null) {
+          transaction.setTransactionId(existingPendingTransaction.id);
+        }
       }
 
       await _transactionController.createTransaction(transaction);
@@ -133,8 +213,11 @@ class BillController with ChangeNotifier {
       wallet.autoExpanse(transaction.amount, useReserved: useReserved);
       debt.addPayment(transaction.detailTransaction[0].amount);
 
-      if (debt.isFinished && debt.bill != null) {
-        debt.bill?.toggleActive(false);
+      if (debt.bill != null) {
+        if (debt.isFinished) {
+          debt.bill?.toggleActive(false);
+        }
+        debt.bill?.advanceToNextBill();
       }
 
       await _debtDao.update(debt);
@@ -143,6 +226,7 @@ class BillController with ChangeNotifier {
 
       _userController.updateFreeDebt(isFreeDebt);
       await _userController.processRecordTransaction();
+      await _userController.processDebtPayment();
       await _userController.saveUser();
       await _walletController.loadData();
       await _userController.loadData();
@@ -195,6 +279,9 @@ class BillController with ChangeNotifier {
     try {
       await loadDebtData();
       await _transactionController.loadBillTransaction();
+      if (_userController.isNotification) {
+        await checAndCreateNotification();
+      }
     } catch (e) {
       debugPrint("[BILL] An error occurred while loading data: $e");
     } finally {

@@ -10,12 +10,14 @@ import '../../../models/transaction_model.dart';
 class ActiveBillCard extends StatelessWidget {
   final bool isRpg;
   final TransactionModel data;
+  final VoidCallback? onTap;
   final bool isCleared;
 
   const ActiveBillCard({
     super.key,
     required this.data,
     required this.isRpg,
+    this.onTap,
     this.isCleared = false,
   });
 
@@ -32,9 +34,7 @@ class ActiveBillCard extends StatelessWidget {
       ),
       child: InkWell(
         borderRadius: BorderRadius.circular(16),
-        onTap: () {
-          /* TODO: Buka BottomSheet Detail / Edit Tagihan */
-        },
+        onTap: onTap,
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Row(

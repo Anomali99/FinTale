@@ -302,7 +302,9 @@ class _AddDebtModalState extends State<AddDebtModal> {
 
               const SizedBox(height: 32),
               CustomButton(
-                title: UiDict.addNew,
+                title: widget.initialDebt == null
+                    ? UiDict.addNew
+                    : UiDict.saveChanges,
                 color: AppColors.primary,
                 onTap: _submit,
               ),

@@ -89,12 +89,12 @@ extension BillExtension on BillModel {
     }
   }
 
-  DateTime get _targetDate => nextDueDate != null
+  DateTime get targetDate => nextDueDate != null
       ? DateTime.fromMillisecondsSinceEpoch(nextDueDate!)
       : _calculateNextDateFrom(DateTime.now());
 
   String getTargetTitle({DateTime? targetDate}) {
-    DateTime target = targetDate ?? _targetDate;
+    DateTime target = targetDate ?? this.targetDate;
     switch (type) {
       case TimeType.daily:
         return DateFormat('EEEE, dd MMMM yyyy').format(target);
@@ -115,7 +115,7 @@ extension BillExtension on BillModel {
     bool autoAdvance = false,
   }) {
     DateTime now = DateTime.now();
-    DateTime targetDate = _targetDate;
+    DateTime targetDate = this.targetDate;
 
     TransactionModel transaction = TransactionModel(
       type: debtId != null ? TransactionType.debt : TransactionType.expense,

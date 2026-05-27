@@ -14,17 +14,23 @@ import '../../../controllers/user_controller.dart';
 import '../../../controllers/wallet_controller.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/ui_dict.dart';
+import '../../../core/utils/global_messenger.dart';
 import '../../../models/wallet_model.dart';
 import '../../../widgets/custom_button.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
 
-  void _handleAction(BuildContext context, Function onAction) async {
+  void _handleAction(
+    BuildContext context,
+    Function onAction, {
+    String? onSuccess,
+    String? onFailed,
+  }) async {
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (BuildContext con) {
+      builder: (_) {
         return const PopScope(
           canPop: false,
           child: AlertDialog(
@@ -43,7 +49,7 @@ class SettingsScreen extends StatelessWidget {
 
     if (result['success']) {
       WalletModel? wallet = result['wallet'];
-      if (wallet != null) {
+      if (wallet != null || result['load'] == true) {
         final walletController = context.read<WalletController>();
         final userController = context.read<UserController>();
         final transactionController = context.read<TransactionController>();
@@ -53,7 +59,9 @@ class SettingsScreen extends StatelessWidget {
         final historyController = context.read<HistoryController>();
         final analyticsController = context.read<AnalyticsController>();
 
-        await walletController.createWallet(wallet);
+        if (wallet != null) {
+          await walletController.createWallet(wallet);
+        }
         await walletController.loadData();
         await userController.loadData();
         await transactionController.loadData();
@@ -64,15 +72,15 @@ class SettingsScreen extends StatelessWidget {
         analyticsController.applyFilter();
       }
 
+      if (onSuccess != null) {
+        GlobalMessenger.swowMessage(message: onSuccess, isSuccess: true);
+      }
       Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(result["error"] ?? ''),
-          backgroundColor: AppColors.error,
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
+      String? failed = onFailed ?? result["error"];
+      if (failed != null) {
+        GlobalMessenger.swowMessage(message: failed, isSuccess: false);
+      }
     }
   }
 
@@ -95,12 +103,16 @@ class SettingsScreen extends StatelessWidget {
               color: isDanger ? AppColors.error : AppColors.warning,
             ),
             const SizedBox(width: 12),
-            Text(
-              title,
-              style: TextStyle(
-                color: isDanger ? AppColors.error : AppColors.warning,
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
+            Expanded(
+              child: Text(
+                title,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  color: isDanger ? AppColors.error : AppColors.warning,
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
           ],
@@ -205,11 +217,9 @@ class SettingsScreen extends StatelessWidget {
                         val,
                       );
                       if (!success && context.mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text(UiDict.authRequired),
-                            backgroundColor: AppColors.error,
-                          ),
+                        GlobalMessenger.swowMessage(
+                          message: UiDict.authRequired,
+                          isSuccess: false,
                         );
                       }
                     },
@@ -250,11 +260,9 @@ class SettingsScreen extends StatelessWidget {
                             bool success = await settingsController
                                 .handleResetPin(context);
                             if (!success && context.mounted) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text(UiDict.changePinCancel),
-                                  backgroundColor: AppColors.error,
-                                ),
+                              GlobalMessenger.swowMessage(
+                                message: UiDict.changePinCancel,
+                                isSuccess: false,
                               );
                             }
                           },
@@ -289,11 +297,9 @@ class SettingsScreen extends StatelessWidget {
                               bool success = await settingsController
                                   .changeBiometric(context, val);
                               if (!success && context.mounted) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text(UiDict.biometricFailed),
-                                    backgroundColor: AppColors.error,
-                                  ),
+                                GlobalMessenger.swowMessage(
+                                  message: UiDict.biometricFailed,
+                                  isSuccess: false,
                                 );
                               }
                             },
@@ -345,13 +351,19 @@ class SettingsScreen extends StatelessWidget {
                     onChanged: (val) async {
                       bool success = await settingsController
                           .changeNotification(context, val);
-                      if (!success && context.mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text(UiDict.setNotificationsFiled),
-                            backgroundColor: AppColors.error,
-                          ),
-                        );
+                      if (context.mounted) {
+                        if (!success) {
+                          GlobalMessenger.swowMessage(
+                            message: UiDict.setNotificationsFiled,
+                            isSuccess: false,
+                          );
+                        } else {
+                          if (val) {
+                            await context
+                                .read<BillController>()
+                                .checAndCreateNotification();
+                          }
+                        }
                       }
                     },
                   ),
@@ -413,8 +425,16 @@ class SettingsScreen extends StatelessWidget {
                     Icons.chevron_right,
                     color: AppColors.textSecondary,
                   ),
-                  onTap: () {
-                    /* TODO: Export Data */
+                  onTap: () async {
+                    bool success = await settingsController.handleExportData();
+                    if (context.mounted) {
+                      GlobalMessenger.swowMessage(
+                        message: success
+                            ? 'Catatan petualangan berhasil dikemas!'
+                            : 'Gagal mengekstrak data!',
+                        isSuccess: success,
+                      );
+                    }
                   },
                 ),
                 const Divider(color: Colors.white10, height: 1, indent: 56),
@@ -429,9 +449,20 @@ class SettingsScreen extends StatelessWidget {
                     Icons.chevron_right,
                     color: AppColors.textSecondary,
                   ),
-                  onTap: () {
-                    /* TODO: Import Data */
-                  },
+                  onTap: () => _showWarningDialog(
+                    context,
+                    title: 'Peringatan Migrasi Data!',
+                    desc:
+                        'Melakukan import akan menghapus seluruh data Anda saat ini dan menimpanya dengan data dari file JSON. Lanjutkan?',
+                    yesTitle: 'Ya, Timpa Data',
+                    onYes: () => _handleAction(
+                      context,
+                      settingsController.handleImportData,
+                      onSuccess:
+                          'Harta dan catatan petualangan berhasil dipulihkan!',
+                      onFailed: 'Struktur file JSON rusak atau tidak valid!',
+                    ),
+                  ),
                 ),
                 const Divider(color: Colors.white10, height: 1, indent: 56),
                 ListTile(

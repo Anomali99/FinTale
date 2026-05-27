@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 import '../../../controllers/history_controller.dart';
 import '../../../controllers/settings_controller.dart';
 import '../../../controllers/transaction_controller.dart';
+import '../../../controllers/user_controller.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/ui_dict.dart';
 import '../../../models/transaction_model.dart';
@@ -64,6 +65,7 @@ class HistoryScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final userController = context.watch<UserController>();
     final settingsController = context.watch<SettingsController>();
     final transactionController = context.watch<TransactionController>();
     final historyController = context.watch<HistoryController>();
@@ -93,7 +95,11 @@ class HistoryScreen extends StatelessWidget {
               size: 20,
               color: AppColors.primary,
             ),
-            onPressed: () => Navigator.pushNamed(context, '/analytics'),
+            onPressed: () async {
+              await userController.processMonthlyReview();
+              await userController.loadData();
+              Navigator.pushNamed(context, '/analytics');
+            },
             tooltip: UiDict.menuAnalytics.get(isRpg),
           ),
           const SizedBox(width: 8),

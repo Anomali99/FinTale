@@ -22,6 +22,11 @@ class PrefService {
     await _prefs.setString(_keyUserProfile, jsonString);
   }
 
+  Future<void> saveRawUser(Map<String, dynamic> user) async {
+    String jsonString = jsonEncode(user);
+    await _prefs.setString(_keyUserProfile, jsonString);
+  }
+
   UserModel? getUser() {
     String? jsonString = _prefs.getString(_keyUserProfile);
     if (jsonString == null) return null;

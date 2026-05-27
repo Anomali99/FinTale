@@ -76,7 +76,11 @@ void main() async {
   );
   final historyController = HistoryController(transactionController);
   final analyticsController = AnalyticsController(transactionController);
-  final settingsController = SettingsController(prefService, authController);
+  final settingsController = SettingsController(
+    prefService,
+    authController,
+    userController,
+  );
 
   runApp(
     MultiProvider(
