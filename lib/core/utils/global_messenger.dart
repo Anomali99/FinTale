@@ -100,6 +100,7 @@ class GlobalMessenger {
           children: [
             const FaIcon(FontAwesomeIcons.crown, color: Colors.amber, size: 28),
             const SizedBox(height: 12),
+            /* TODO */
             Text(
               'LEVEL UP!',
               style: GoogleFonts.poppins(
@@ -110,6 +111,7 @@ class GlobalMessenger {
               ),
             ),
             const SizedBox(height: 4),
+            /* TODO */
             Text(
               'You reached Level $newLevel',
               style: GoogleFonts.poppins(

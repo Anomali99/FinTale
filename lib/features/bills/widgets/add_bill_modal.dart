@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import '../../../controllers/settings_controller.dart';
@@ -23,6 +24,7 @@ class _AddBillModalState extends State<AddBillModal> {
   final _titleController = TextEditingController();
   final _amountController = TextEditingController();
 
+  DateTime? _currentNextDueDate;
   TimeType _selectedType = TimeType.monthly;
   DayName _selectedDayName = DayName.monday;
   int _selectedDay = 1;
@@ -40,6 +42,7 @@ class _AddBillModalState extends State<AddBillModal> {
       _selectedMonth = initialValue.month ?? 1;
       _selectedDay = initialValue.day ?? 1;
       _isLockActive = !initialValue.isActive;
+      _currentNextDueDate = initialValue.targetDate;
 
       String formattedText = initialValue.amount.toString().replaceAllMapped(
         RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
@@ -59,6 +62,45 @@ class _AddBillModalState extends State<AddBillModal> {
     super.dispose();
   }
 
+  void _shiftDate(int step) {
+    if (_currentNextDueDate == null) return;
+    DateTime cur = _currentNextDueDate!;
+
+    setState(() {
+      if (_selectedType == TimeType.daily) {
+        _currentNextDueDate = cur.add(Duration(days: step));
+      } else if (_selectedType == TimeType.weekly) {
+        _currentNextDueDate = cur.add(Duration(days: 7 * step));
+      } else if (_selectedType == TimeType.monthly) {
+        _currentNextDueDate = DateTime(cur.year, cur.month + step, cur.day);
+      } else if (_selectedType == TimeType.annual) {
+        _currentNextDueDate = DateTime(cur.year + step, cur.month, cur.day);
+      }
+    });
+  }
+
+  bool _canGoPrev() {
+    if (_currentNextDueDate == null) return false;
+
+    DateTime cur = _currentNextDueDate!;
+    DateTime nextPrev;
+
+    if (_selectedType == TimeType.daily) {
+      nextPrev = cur.subtract(const Duration(days: 1));
+    } else if (_selectedType == TimeType.weekly) {
+      nextPrev = cur.subtract(const Duration(days: 7));
+    } else if (_selectedType == TimeType.monthly) {
+      nextPrev = DateTime(cur.year, cur.month - 1, cur.day);
+    } else {
+      nextPrev = DateTime(cur.year - 1, cur.month, cur.day);
+    }
+
+    DateTime today = DateTime.now();
+    today = DateTime(today.year, today.month, today.day);
+
+    return !nextPrev.isBefore(today);
+  }
+
   void _submit() {
     if (_formKey.currentState!.validate()) {
       final bill = BillModel(
@@ -74,6 +116,7 @@ class _AddBillModalState extends State<AddBillModal> {
             : null,
         month: _selectedType == TimeType.annual ? _selectedMonth : null,
         dayName: _selectedType == TimeType.weekly ? _selectedDayName : null,
+        nextDueDate: _currentNextDueDate?.millisecondsSinceEpoch,
       );
       Navigator.pop(context, bill);
     }
@@ -237,6 +280,50 @@ class _AddBillModalState extends State<AddBillModal> {
               ],
 
               if (widget.initialBill != null) ...[
+                const SizedBox(height: 16),
+                Text(
+                  ScreenDict.nextBill.get(isRpg),
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 4,
+                    vertical: 8,
+                  ),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.white24),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.chevron_left),
+
+                        onPressed: _canGoPrev() ? () => _shiftDate(-1) : null,
+                        color: _canGoPrev()
+                            ? AppColors.primary
+                            : Colors.grey.withOpacity(0.3),
+                      ),
+                      Text(
+                        DateFormat('dd MMM yyyy').format(_currentNextDueDate!),
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.chevron_right),
+                        onPressed: () => _shiftDate(1),
+                        color: AppColors.primary,
+                      ),
+                    ],
+                  ),
+                ),
                 const SizedBox(height: 16),
                 SwitchListTile(
                   contentPadding: EdgeInsets.zero,

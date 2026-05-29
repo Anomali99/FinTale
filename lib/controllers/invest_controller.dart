@@ -83,7 +83,7 @@ class InvestController with ChangeNotifier {
     await _walletController.loadData();
   }
 
-  Future<void> saveTransaction(
+  Future<bool> saveTransaction(
     TransactionModel transaction,
     AssetsModel asset, {
     bool? useReserved,
@@ -117,8 +117,10 @@ class InvestController with ChangeNotifier {
       await _transactionController.createTransaction(transaction);
       await _userController.processRecordTransaction();
       await loadData();
+      return true;
     } catch (e) {
       debugPrint("[INVEST] Failed to save asset: $e");
+      return false;
     }
   }
 

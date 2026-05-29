@@ -11,6 +11,8 @@ import '../../../controllers/transaction_controller.dart';
 import '../../../controllers/wallet_controller.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/screen_dict.dart';
+import '../../../core/constants/ui_dict.dart';
+import '../../../core/utils/global_messenger.dart';
 import '../../../models/bill_model.dart';
 import '../../../models/debt_model.dart';
 import '../../../models/transaction_model.dart';
@@ -74,14 +76,12 @@ class BillsScreen extends StatelessWidget {
         final success = await context.read<BillController>().generateBillDraft(
           data,
         );
-        if (!success) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Gagal membuat draf karena sudah ada.'),
-              backgroundColor: AppColors.error,
-            ),
-          );
-        }
+        GlobalMessenger.swowMessage(
+          message: success
+              ? UiDict.successGenerateDraft
+              : UiDict.failedGenerateDraft,
+          isSuccess: success,
+        );
       } else if (result == BillActionType.edit) {
         _openAddBillModal(context, initialBill: data);
       }

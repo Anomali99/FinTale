@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/ui_dict.dart';
+import '../../../core/utils/global_messenger.dart';
 import '../../../core/utils/hash_helper.dart';
 import '../../../services/local_auth_service.dart';
 
@@ -71,13 +72,8 @@ class _VerifyPinScreenState extends State<VerifyPinScreen> {
     if (isMatch) {
       Navigator.pop(context, true);
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(UiDict.pinWrong),
-          backgroundColor: AppColors.error,
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
+      GlobalMessenger.swowMessage(message: UiDict.pinWrong, isSuccess: true);
+
       setState(() {
         _pinInput = '';
       });

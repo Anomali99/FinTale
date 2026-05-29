@@ -62,6 +62,9 @@ class NotificationService {
 
       final bool? result = await androidImplementation
           ?.requestNotificationsPermission();
+
+      await androidImplementation?.requestExactAlarmsPermission();
+
       granted = result ?? false;
     } else if (Platform.isIOS) {
       final bool? result = await _notificationsPlugin
@@ -116,9 +119,7 @@ class NotificationService {
     int notificationId = stringId.hashCode;
     tz.TZDateTime scheduledDate = tz.TZDateTime.from(scheduledTime, tz.local);
 
-    if (scheduledDate.isBefore(tz.TZDateTime.now(tz.local))) {
-      return;
-    }
+    if (scheduledDate.isBefore(tz.TZDateTime.now(tz.local))) return;
 
     await _notificationsPlugin.zonedSchedule(
       id: notificationId,
@@ -153,9 +154,7 @@ class NotificationService {
 
     int notificationId = stringId.hashCode;
 
-    if (await isNotificationScheduled(notificationId)) {
-      return;
-    }
+    if (await isNotificationScheduled(notificationId)) return;
 
     await _notificationsPlugin.zonedSchedule(
       id: notificationId,

@@ -80,7 +80,7 @@ class _LockWrapperState extends State<LockWrapper> with WidgetsBindingObserver {
                     "isCancelable": false,
                     "userEmail": userEmail,
                     "isBiometricEnabled": settings.isBiometricActive,
-                    "title": 'Masukkan PIN FinTale',
+                    "title": UiDict.pinInput,
                   },
                 )
                 as bool?;

@@ -9,7 +9,9 @@ import '../controllers/layout_controller.dart';
 import '../controllers/settings_controller.dart';
 import '../controllers/wallet_controller.dart';
 import '../core/constants/app_colors.dart';
+import '../core/constants/screen_dict.dart';
 import '../core/constants/ui_dict.dart';
+import '../core/utils/global_messenger.dart';
 import '../models/bill_model.dart';
 import '../models/debt_model.dart';
 import '../models/transaction_model.dart';
@@ -30,7 +32,7 @@ class MainLayout extends StatelessWidget {
     const HistoryScreen(),
   ];
 
-  void _submitDebtHandle(BuildContext context) async {
+  void _submitDebtHandle(BuildContext context, bool isRpg) async {
     final billController = context.read<BillController>();
     final historyController = context.read<HistoryController>();
     final analyticsController = context.read<AnalyticsController>();
@@ -59,41 +61,58 @@ class MainLayout extends StatelessWidget {
         TransactionModel transaction = result['transaction'];
         bool useReserved = result['use_reserved'];
         bool isBill = result['is_bill'];
+        bool isSuccess = false;
         if (isBill) {
-          await billController.payBill(transaction, useReserved: useReserved);
+          isSuccess = await billController.payBill(
+            transaction,
+            useReserved: useReserved,
+          );
         } else {
-          await billController.payDebt(transaction, useReserved: useReserved);
+          isSuccess = await billController.payDebt(
+            transaction,
+            useReserved: useReserved,
+          );
         }
         historyController.applyFilter();
         analyticsController.applyFilter();
+        GlobalMessenger.swowMessage(
+          message: ScreenDict.getDebtNotif(isSuccess: isSuccess, isRpg: isRpg),
+          isSuccess: isSuccess,
+        );
       }
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Tidak ada hutang'),
-          backgroundColor: AppColors.success,
-        ),
+      GlobalMessenger.swowMessage(
+        message: ScreenDict.debtEmpty.get(isRpg),
+        isSuccess: true,
       );
     }
   }
 
-  void _submitTransactionHandle(BuildContext context) async {
+  void _submitTransactionHandle(BuildContext context, bool isRpg) async {
     final layoutController = context.read<LayoutController>();
     final historyController = context.read<HistoryController>();
     final analyticsController = context.read<AnalyticsController>();
     final result =
         await Navigator.pushNamed(context, '/daily-expense')
             as Map<String, dynamic>?;
+    bool isSuccess = false;
     if (result != null) {
       TransactionModel transaction = result['transaction'];
       bool useReserved = result['use_reserved'];
-      await layoutController.saveTransaction(
+      isSuccess = await layoutController.saveTransaction(
         transaction,
         useReserved: useReserved,
       );
       historyController.applyFilter();
       analyticsController.applyFilter();
     }
+    GlobalMessenger.swowMessage(
+      message: UiDict.getSaveNotif(
+        ScreenDict.historyTransaction.get(isRpg),
+        isSuccess: isSuccess,
+      ),
+      isSuccess: isSuccess,
+    );
   }
 
   void _showActionPopup(BuildContext context, bool isRpg) {
@@ -110,7 +129,7 @@ class MainLayout extends StatelessWidget {
               icon: UiDict.menuPayDebt.icon(isRpg),
               onTap: () {
                 Navigator.pop(con);
-                _submitDebtHandle(context);
+                _submitDebtHandle(context, isRpg);
               },
             ),
             BottomSheetChild(
@@ -120,7 +139,7 @@ class MainLayout extends StatelessWidget {
               icon: UiDict.menuDailyUse.icon(isRpg),
               onTap: () {
                 Navigator.pop(con);
-                _submitTransactionHandle(context);
+                _submitTransactionHandle(context, isRpg);
               },
             ),
           ],

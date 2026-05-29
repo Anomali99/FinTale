@@ -14,7 +14,9 @@ import '../../../controllers/wallet_controller.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/gamification_dict.dart';
 import '../../../core/constants/screen_dict.dart';
+import '../../../core/constants/ui_dict.dart';
 import '../../../core/utils/enum_types.dart';
+import '../../../core/utils/global_messenger.dart';
 import '../../../models/assets_model.dart';
 import '../../../models/bill_model.dart';
 import '../../../models/debt_model.dart';
@@ -57,6 +59,7 @@ class HomeScreen extends StatelessWidget {
     WalletModel wallet,
   ) async {
     final billController = context.read<BillController>();
+    final isRpg = context.read<SettingsController>().isRpgMode;
     List<DebtModel> debts = [];
     List<BillModel> bills = [];
     for (DebtModel debt in billController.debts) {
@@ -81,24 +84,32 @@ class HomeScreen extends StatelessWidget {
           );
         },
       );
-
+      bool isSuccess = false;
       if (result != null && context.mounted) {
         TransactionModel transaction = result['transaction'];
         bool useReserved = result['use_reserved'];
         bool isBill = result['is_bill'];
         if (isBill) {
-          await billController.payBill(transaction, useReserved: useReserved);
+          isSuccess = await billController.payBill(
+            transaction,
+            useReserved: useReserved,
+          );
         } else {
-          await billController.payDebt(transaction, useReserved: useReserved);
+          isSuccess = await billController.payDebt(
+            transaction,
+            useReserved: useReserved,
+          );
         }
         return transaction.amount;
       }
+      GlobalMessenger.swowMessage(
+        message: ScreenDict.getDebtNotif(isSuccess: isSuccess, isRpg: isRpg),
+        isSuccess: isSuccess,
+      );
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Tidak ada hutang'),
-          backgroundColor: AppColors.success,
-        ),
+      GlobalMessenger.swowMessage(
+        message: ScreenDict.debtEmpty.get(isRpg),
+        isSuccess: true,
       );
     }
     return null;
@@ -111,6 +122,7 @@ class HomeScreen extends StatelessWidget {
   ) async {
     final userController = context.read<UserController>();
     final investController = context.read<InvestController>();
+    final isRpg = context.read<SettingsController>().isRpgMode;
     final risk = allocation.subSector?.getRisk() ?? RiskType.low;
     final assets = investController.getAssetsBySector(
       sec: allocation.sector,
@@ -129,6 +141,7 @@ class HomeScreen extends StatelessWidget {
       ),
     );
 
+    bool isSuccess = false;
     if (result != null && context.mounted) {
       TransactionModel transaction = result['transaction'];
       AssetsModel asset = result['asset'];
@@ -136,6 +149,13 @@ class HomeScreen extends StatelessWidget {
       userController.incomeEmergencyTotal(transaction.amount);
       return transaction.amount;
     }
+    GlobalMessenger.swowMessage(
+      message: UiDict.getSaveNotif(
+        ScreenDict.investAssetName.get(isRpg),
+        isSuccess: isSuccess,
+      ),
+      isSuccess: isSuccess,
+    );
     return null;
   }
 
@@ -195,11 +215,15 @@ class HomeScreen extends StatelessWidget {
     }
   }
 
-  void _openAddIncome(BuildContext context) async {
+  void _openAddIncomeOrTransfer(
+    BuildContext context, {
+    bool isTransfer = false,
+  }) async {
     final homeController = context.read<HomeController>();
     final walletController = context.read<WalletController>();
     final historyController = context.read<HistoryController>();
     final analyticsController = context.read<AnalyticsController>();
+    final isRpg = context.read<SettingsController>().isRpgMode;
     final result = await showModalBottomSheet<Map<String, dynamic>?>(
       context: context,
       isScrollControlled: true,
@@ -207,9 +231,11 @@ class HomeScreen extends StatelessWidget {
       builder: (context) => IncomeModal(
         wallets: walletController.wallets,
         allocation: homeController.activeAllocations,
+        isTransfer: isTransfer,
       ),
     );
 
+    bool isSuccess = false;
     if (result != null && context.mounted) {
       TransactionModel transaction = result['transaction'];
       bool autoAllocation = result['auto_allocation'];
@@ -220,31 +246,13 @@ class HomeScreen extends StatelessWidget {
       historyController.applyFilter();
       analyticsController.applyFilter();
     }
-  }
-
-  void _openTransfer(BuildContext context) async {
-    final homeController = context.read<HomeController>();
-    final walletController = context.read<WalletController>();
-    final historyController = context.read<HistoryController>();
-    final analyticsController = context.read<AnalyticsController>();
-    final result = await showModalBottomSheet<Map<String, dynamic>?>(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) =>
-          IncomeModal(wallets: walletController.wallets, isTransfer: true),
+    GlobalMessenger.swowMessage(
+      message: UiDict.getSaveNotif(
+        isTransfer ? UiDict.transfer.get(isRpg) : UiDict.income.get(isRpg),
+        isSuccess: isSuccess,
+      ),
+      isSuccess: isSuccess,
     );
-
-    if (result != null && context.mounted) {
-      TransactionModel transaction = result['transaction'];
-      bool useReserved = result['use_reserved'];
-      await homeController.saveTransaction(
-        transaction,
-        useReserved: useReserved,
-      );
-      historyController.applyFilter();
-      analyticsController.applyFilter();
-    }
   }
 
   @override
@@ -336,8 +344,10 @@ class HomeScreen extends StatelessWidget {
           BalanceCard(
             totalBalance: totalBalance,
             showWallets: () => _showWalletDetails(context, isRpg),
-            openAddIncome: () => _openAddIncome(context),
-            openTransfer: () => _openTransfer(context),
+            openAddIncome: () =>
+                _openAddIncomeOrTransfer(context, isTransfer: false),
+            openTransfer: () =>
+                _openAddIncomeOrTransfer(context, isTransfer: true),
             onToggleHideBalance: homeController.toggleHideBalance,
             isHideBalance: isHideBalance,
             reservedBalance: totalReserved,

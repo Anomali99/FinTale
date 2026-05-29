@@ -5,7 +5,6 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/utils/currency_formatter.dart';
 import '../../../core/utils/enum_types.dart';
-import '../../../core/utils/type_extension.dart';
 
 class TransactionCard extends StatelessWidget {
   final TransactionType type;

@@ -433,7 +433,8 @@ class _IncomeModalState extends State<IncomeModal> {
                         const Divider(height: 1, color: Colors.white24),
                         const SizedBox(height: 12),
 
-                        if (widget.allocation != null) ...[
+                        if (widget.allocation != null &&
+                            !widget.isTransfer) ...[
                           ...widget.allocation!.entries.map(
                             (entry) => Padding(
                               padding: const EdgeInsets.only(bottom: 8.0),

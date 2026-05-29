@@ -255,7 +255,7 @@ class _BuyAssetModalState extends State<BuyAssetModal>
         TransactionDetailModel(
           title: '${assetToReturn.name} $cleanUnit ${assetToReturn.unitName}',
           amount: _amount,
-          category: _selectedRisk!.getTransactionCategory(),
+          category: TransactionCategory.getTransactionCategory(_selectedRisk!),
           flow: FlowType.expense,
         ),
       ];

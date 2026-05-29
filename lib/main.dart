@@ -26,10 +26,12 @@ import 'data/local/pref_service.dart';
 import 'fintale_app.dart';
 import 'firebase_options.dart';
 import 'services/auth_service.dart';
+import 'services/notification_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  await NotificationService().init();
 
   final prefs = await SharedPreferences.getInstance();
   final prefService = PrefService(prefs);

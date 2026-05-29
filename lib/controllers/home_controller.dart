@@ -92,7 +92,7 @@ class HomeController with ChangeNotifier {
     }
   }
 
-  Future<void> saveTransaction(
+  Future<bool> saveTransaction(
     TransactionModel transaction, {
     bool? autoAllocation,
     bool? useReserved,
@@ -239,8 +239,10 @@ class HomeController with ChangeNotifier {
       await _walletController.updateWallet(wallet);
       await _userController.processRecordTransaction();
       await loadData();
+      return true;
     } catch (e) {
       debugPrint("[HOME] Failed to save transaction: $e");
+      return false;
     }
   }
 }

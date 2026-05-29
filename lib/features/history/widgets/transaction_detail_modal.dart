@@ -12,7 +12,6 @@ import '../../../core/constants/ui_dict.dart';
 import '../../../core/utils/currency_formatter.dart';
 import '../../../core/utils/enum_types.dart';
 import '../../../core/utils/time_formatter.dart';
-import '../../../core/utils/type_extension.dart';
 import '../../../models/assets_model.dart';
 import '../../../models/transaction_detail_model.dart';
 import '../../../models/transaction_model.dart';

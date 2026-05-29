@@ -4,23 +4,6 @@ import '../core/constants/category_dict.dart';
 import '../core/models/category_model.dart';
 import '../core/utils/enum_types.dart';
 
-enum AssetsCategory {
-  gold('Emas / Logam Mulia'),
-  deposit('Deposito Bank'),
-  mutualFundMoneyMarket('Reksa Dana Pasar Uang'),
-  mutualFundFixedIncome('Reksa Dana Pendapatan Tetap'),
-  bonds('Obligasi / Surat Berharga'),
-  property('Properti / Real Estat'),
-  mutualFundStock('Reksa Dana Saham'),
-  stocks('Saham / Ekuitas'),
-  crypto('Mata Uang Kripto'),
-  p2pLending('P2P Lending / Urun Dana');
-
-  final String value;
-
-  const AssetsCategory(this.value);
-}
-
 class AssetsModel {
   final int? id;
   final String name;

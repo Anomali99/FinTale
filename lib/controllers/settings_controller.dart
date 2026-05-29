@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../controllers/user_controller.dart';
+import '../core/constants/ui_dict.dart';
 import '../core/utils/starter_pack.dart';
 import '../data/local/app_database.dart';
 import '../data/local/pref_service.dart';
@@ -70,7 +71,7 @@ class SettingsController with ChangeNotifier {
                   "savedPinHash": currentPinHash,
                   "isCancelable": true,
                   "isBiometricEnabled": isBiometricActive,
-                  "title": 'Masukkan PIN FinTale',
+                  "title": UiDict.pinInput,
                   "userEmail": userEmail,
                 },
               )
@@ -102,7 +103,7 @@ class SettingsController with ChangeNotifier {
                   "savedPinHash": currentPinHash,
                   "isCancelable": true,
                   "isBiometricEnabled": isBiometricActive,
-                  "title": 'Masukkan PIN FinTale',
+                  "title": UiDict.pinInput,
                   "userEmail": userEmail,
                 },
               )

@@ -7,6 +7,7 @@ import '../../../controllers/auth_controller.dart';
 import '../../../controllers/skill_controller.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/ui_dict.dart';
+import '../../../core/utils/global_messenger.dart';
 import '../../../widgets/custom_button.dart';
 
 class AuthScreen extends StatelessWidget {
@@ -23,16 +24,6 @@ class AuthScreen extends StatelessWidget {
     await skillController.loadData();
   }
 
-  void _showErrorSnackBar(BuildContext context, String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: AppColors.error,
-        behavior: SnackBarBehavior.floating,
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final screenHeight = MediaQuery.of(context).size.height;
@@ -41,7 +32,10 @@ class AuthScreen extends StatelessWidget {
 
     if (authController.errorMessage != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        _showErrorSnackBar(context, authController.errorMessage!);
+        GlobalMessenger.swowMessage(
+          message: authController.errorMessage!,
+          isSuccess: false,
+        );
         authController.clearError();
       });
     }

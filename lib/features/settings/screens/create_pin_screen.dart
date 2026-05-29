@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import '../../../controllers/settings_controller.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/ui_dict.dart';
+import '../../../core/utils/global_messenger.dart';
 import '../../../core/utils/hash_helper.dart';
 
 enum PinStep { enterOld, enterNew, confirmNew }
@@ -88,12 +89,8 @@ class _CreatePinScreenState extends State<CreatePinScreen> {
         if (mounted) setState(() => _currentStep = PinStep.enterNew);
       });
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(UiDict.pinWrong),
-          backgroundColor: AppColors.error,
-        ),
-      );
+      GlobalMessenger.swowMessage(message: UiDict.pinWrong, isSuccess: false);
+
       setState(() => _oldPinInput = '');
     }
   }
@@ -107,20 +104,17 @@ class _CreatePinScreenState extends State<CreatePinScreen> {
 
       if (mounted) {
         Navigator.pop(context, true);
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text(UiDict.changePinSuccess),
-            backgroundColor: AppColors.success,
-          ),
+        GlobalMessenger.swowMessage(
+          message: UiDict.changePinSuccess,
+          isSuccess: true,
         );
       }
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(UiDict.confirmPinWorng),
-          backgroundColor: AppColors.error,
-        ),
+      GlobalMessenger.swowMessage(
+        message: UiDict.confirmPinWorng,
+        isSuccess: true,
       );
+
       setState(() {
         _confirmPin = '';
         _firstPin = '';

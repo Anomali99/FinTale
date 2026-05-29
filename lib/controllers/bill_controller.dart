@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../controllers/transaction_controller.dart';
 import '../controllers/user_controller.dart';
 import '../controllers/wallet_controller.dart';
+import '../core/constants/ui_dict.dart';
 import '../core/utils/enum_types.dart';
 import '../data/local/dao/bill_dao.dart';
 import '../data/local/dao/debt_dao.dart';
@@ -56,55 +57,62 @@ class BillController with ChangeNotifier {
     return null;
   }
 
-  Future<void> checAndCreateNotification() async {
-    try {
-      DateTime now = DateTime.now();
+  Future<void> autoDraftOrNotification({
+    required BillModel bill,
+    required DateTime today,
+    bool isNotifOnly = false,
+  }) async {
+    DateTime target = bill.targetDate;
+    DateTime targetDate = DateTime(target.year, target.month, target.day);
 
-      DateTime today = DateTime(now.year, now.month, now.day);
+    int diffInDays = targetDate.difference(today).inDays;
 
-      for (BillModel bill in bills) {
-        if (!bill.isActive || bill.nextDueDate == null) continue;
+    if (bill.type == TimeType.daily) {
+      if (diffInDays <= 0 && !isNotifOnly) {
+        await generateBillDraft(bill, status: StatusType.overdue);
+      }
+    } else {
+      int generateThreshold = 3;
+      if (bill.type == TimeType.monthly) generateThreshold = 15;
+      if (bill.type == TimeType.annual) generateThreshold = 30;
 
-        DateTime target = DateTime.fromMillisecondsSinceEpoch(
-          bill.nextDueDate!,
+      if (diffInDays <= 0 && !isNotifOnly) {
+        await generateBillDraft(bill, status: StatusType.overdue);
+      } else if (diffInDays <= generateThreshold && !isNotifOnly) {
+        await generateBillDraft(bill);
+      } else {
+        String notificationId = 'bill_${bill.id}';
+        bool isExist = await NotificationService().isNotificationScheduled(
+          notificationId.hashCode,
         );
-        DateTime targetDate = DateTime(target.year, target.month, target.day);
-
-        int diffInDays = targetDate.difference(today).inDays;
-
-        if (bill.type == TimeType.daily) {
-          if (diffInDays <= 0) {
-            await generateBillDraft(bill, status: StatusType.overdue);
-          }
-          continue;
-        }
-
-        int generateThreshold = 3;
-        if (bill.type == TimeType.monthly) generateThreshold = 15;
-        if (bill.type == TimeType.annual) generateThreshold = 30;
-
-        if (diffInDays <= 0) {
-          await generateBillDraft(bill, status: StatusType.overdue);
-        } else if (diffInDays <= generateThreshold) {
-          await generateBillDraft(bill);
-        } else {
+        if (!isExist) {
           DateTime scheduleDate = targetDate.subtract(
             Duration(days: generateThreshold),
           );
-
           scheduleDate = scheduleDate.add(const Duration(hours: 8));
 
           await NotificationService().scheduleCustomNotification(
-            stringId: 'bill_${bill.id}',
-            title: 'Master Quest Mendekati!',
-            body:
-                'Quest ${bill.title} akan aktif dalam $generateThreshold hari. Persiapkan loot Anda!',
+            stringId: notificationId,
+            title: UiDict.getNotifTitle(bill.title),
+            body: UiDict.getNotifBody(generateThreshold.toString()),
             scheduledTime: scheduleDate,
           );
         }
       }
+    }
+  }
+
+  Future<void> checAndCreateNotification() async {
+    try {
+      DateTime now = DateTime.now();
+      DateTime today = DateTime(now.year, now.month, now.day);
+
+      for (BillModel bill in bills) {
+        if (!bill.isActive) continue;
+        await autoDraftOrNotification(bill: bill, today: today);
+      }
     } catch (e) {
-      debugPrint("[BILL] An error occurred while create bills notif: $e");
+      debugPrint("[BILL] An error occurred while chec notification bill: $e");
     }
   }
 
@@ -112,7 +120,9 @@ class BillController with ChangeNotifier {
     try {
       final existingPendingTransaction = getActiveTransaction(bill.id);
 
-      if (existingPendingTransaction != null && status == null) return false;
+      if (existingPendingTransaction != null && status == null) {
+        return false;
+      }
 
       if (status == StatusType.overdue) {
         if (existingPendingTransaction != null) {
@@ -142,14 +152,14 @@ class BillController with ChangeNotifier {
       await _transactionController.loadBillTransaction();
       return true;
     } catch (e) {
-      debugPrint("[BILL] An error occurred while generate bills: $e");
+      debugPrint("[BILL] An error occurred while generate bill: $e");
       return false;
     } finally {
       notifyListeners();
     }
   }
 
-  Future<void> payBill(
+  Future<bool> payBill(
     TransactionModel transaction, {
     bool useReserved = false,
     bool checkExisting = true,
@@ -195,14 +205,16 @@ class BillController with ChangeNotifier {
       await _walletController.loadData();
       await _userController.loadData();
       await _transactionController.loadBillTransaction();
+      return true;
     } catch (e) {
       debugPrint("[BILL] An error occurred while pay bill: $e");
+      return false;
     } finally {
       notifyListeners();
     }
   }
 
-  Future<void> payDebt(
+  Future<bool> payDebt(
     TransactionModel transaction, {
     bool useReserved = false,
   }) async {
@@ -230,8 +242,10 @@ class BillController with ChangeNotifier {
       await _userController.saveUser();
       await _walletController.loadData();
       await _userController.loadData();
+      return true;
     } catch (e) {
       debugPrint("[BILL] An error occurred while pay debt: $e");
+      return false;
     } finally {
       notifyListeners();
     }
@@ -243,6 +257,22 @@ class BillController with ChangeNotifier {
         await _billDao.create(bill);
       } else {
         await _billDao.update(bill);
+      }
+      if (bill.isActive) {
+        if (_userController.isNotification && bill.type != TimeType.daily) {
+          DateTime now = DateTime.now();
+          DateTime today = DateTime(now.year, now.month, now.day);
+
+          await autoDraftOrNotification(
+            bill: bill,
+            today: today,
+            isNotifOnly: true,
+          );
+        }
+      } else {
+        await NotificationService().cancelNotificationByStringId(
+          'bill_${bill.id}',
+        );
       }
       if (bill.debtId == null) {
         await loadBillData();

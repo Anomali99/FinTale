@@ -122,7 +122,7 @@ class ActiveBillsTab extends StatelessWidget {
           ),
         ] else ...[
           for (TransactionModel item in paid)
-            ActiveBillCard(data: item, isRpg: isRpg, isCleared: true),
+            ActiveBillCard(data: item, isRpg: isRpg),
         ],
 
         const SizedBox(height: 100),

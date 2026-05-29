@@ -335,7 +335,7 @@ class _PayBillModalState extends State<PayBillModal> {
                     ),
                     const SizedBox(height: 16),
                     CustomButton(
-                      title: 'Bayar',
+                      title: ScreenDict.getPayBill(isRpg: isRpg),
                       color: AppColors.primary,
                       onTap: _submit,
                     ),

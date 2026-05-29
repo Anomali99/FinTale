@@ -2,35 +2,32 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import '../../../core/constants/app_colors.dart';
-import '../../../core/constants/category_dict.dart';
+import '../../../core/utils/enum_types.dart';
 import '../../../core/utils/time_formatter.dart';
-import '../../../core/utils/type_extension.dart';
 import '../../../models/transaction_model.dart';
 
 class ActiveBillCard extends StatelessWidget {
   final bool isRpg;
   final TransactionModel data;
   final VoidCallback? onTap;
-  final bool isCleared;
-
   const ActiveBillCard({
     super.key,
     required this.data,
     required this.isRpg,
     this.onTap,
-    this.isCleared = false,
   });
 
   @override
   Widget build(BuildContext context) {
+    final isCleared = data.status == StatusType.paid;
+    final color = data.status.accentColor;
+
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
         color: data.status.cardColor,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: data.status.accentColor.withOpacity(isCleared ? 0.2 : 0.5),
-        ),
+        border: Border.all(color: color.withOpacity(isCleared ? 0.2 : 0.5)),
       ),
       child: InkWell(
         borderRadius: BorderRadius.circular(16),
@@ -40,11 +37,9 @@ class ActiveBillCard extends StatelessWidget {
           child: Row(
             children: [
               CircleAvatar(
-                backgroundColor: data.status.accentColor.withOpacity(0.2),
+                backgroundColor: color.withOpacity(0.2),
                 child: FaIcon(
-                  CategoryDict.getByTransactionCategory(
-                    data.detailTransaction[0].category,
-                  ).icon(isRpg),
+                  data.detailTransaction[0].category.categoryDict.icon(isRpg),
                   color: data.status.accentColor,
                   size: 20,
                 ),
@@ -79,9 +74,7 @@ class ActiveBillCard extends StatelessWidget {
                       TimeFormatter.formatShort(data.dateTimestamp),
                       style: TextStyle(
                         fontSize: 12,
-                        color: isCleared
-                            ? AppColors.textSecondary
-                            : data.status.accentColor,
+                        color: isCleared ? AppColors.textSecondary : color,
                       ),
                     ),
                   ],
@@ -90,13 +83,11 @@ class ActiveBillCard extends StatelessWidget {
 
               const SizedBox(width: 12),
 
-              if (isCleared) ...[
-                FaIcon(
-                  CategoryDict.statusPaid.icon(isRpg),
-                  color: AppColors.success,
-                  size: 28,
-                ),
-              ],
+              FaIcon(
+                data.status.categoryDict.icon(isRpg),
+                color: color,
+                size: 28,
+              ),
             ],
           ),
         ),

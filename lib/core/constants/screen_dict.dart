@@ -142,7 +142,7 @@ class ScreenDict {
   );
   static const TermModel debtPayAmount = TermModel(
     normal: 'Sudah Dibayar',
-    rpg: 'Sudah Diserang',
+    rpg: 'Total Damage',
   );
   static const TermModel debtType = TermModel(
     normal: 'Tipe Pinjaman',
@@ -170,6 +170,11 @@ class ScreenDict {
     rpg: 'Silakan pilih boss.',
   );
 
+  static const TermModel debtEmpty = TermModel(
+    normal: 'Anda tidak memiliki catatan hutang.',
+    rpg: 'Tidak ada boss raid terdeteksi.',
+  );
+
   static const TermModel generatBill = TermModel(
     normal: 'Generate Tagihan (Draf)',
     rpg: 'Aktifkan Quest (Draf)',
@@ -186,6 +191,10 @@ class ScreenDict {
   static const TermModel investValue = TermModel(
     normal: 'Nilai Saat Ini',
     rpg: 'Power Saat Ini',
+  );
+  static const TermModel investAssetName = TermModel(
+    normal: 'Aset',
+    rpg: 'Pasukan',
   );
   static const TermModel investNewAsset = TermModel(
     normal: 'Aset Baru',
@@ -229,6 +238,10 @@ class ScreenDict {
     rpg: 'Silakan pilih jenis pasukan.',
   );
 
+  static const TermModel historyTransaction = TermModel(
+    normal: 'Transaksi',
+    rpg: 'Petualangan',
+  );
   static const TermModel historyTime = TermModel(
     normal: 'Waktu Transaksi',
     rpg: 'Waktu Petualangan',
@@ -385,19 +398,30 @@ class ScreenDict {
       'Sebagai ${GamificationDict.skillEmergency.get(isRpg)}?';
 
   static String getEmergencyCheckDesc({bool isRpg = false}) =>
-      'Aktifkan jika ${isRpg ? 'pasukan' : 'aset'} ini disiapkan sebagai ${GamificationDict.skillEmergency.get(isRpg).toLowerCase()}.';
+      'Aktifkan jika ${investAssetName.get(isRpg).toLowerCase()} ini disiapkan sebagai ${GamificationDict.skillEmergency.get(isRpg).toLowerCase()}.';
 
   static String getDevidenCheck({bool isRpg = false}) =>
-      '${isRpg ? 'Pasukan' : 'Aset'} Menghasilkan Dividen/Bunga?';
+      '${investAssetName.get(isRpg)} Menghasilkan Dividen/Bunga?';
 
   static String getDevidenCheckDesc({bool isRpg = false}) =>
-      'Aktifkan jika ${isRpg ? 'pasukan' : 'aset'} ini memberikan imbal hasil rutin (seperti dividen saham atau kupon obligasi) yang nantinya dapat Anda klaim ke dompet.';
+      'Aktifkan jika ${investAssetName.get(isRpg).toLowerCase()} ini memberikan imbal hasil rutin (seperti dividen saham atau kupon obligasi) yang nantinya dapat Anda klaim ke dompet.';
+
+  static String getBillPay(String amount, {bool isRpg = false}) =>
+      '${isRpg ? 'Damage' : 'Dibayar'} $amount';
 
   static String getBillLockCheck({bool isRpg = false}) =>
       'Nonaktifkan ${billsMaster.get(isRpg)}?';
 
   static String getBillLockCheckDesc({bool isRpg = false}) =>
       'Aktifkan jika ${billsMaster.get(isRpg).toLowerCase()} ini sudah tidak dibutuhkan. Sistem notifikasi dan pembayaran akan dinonaktifkan hingga anda  mengaktifkanya lagi di kemudian hari.';
+
+  static String getDebtNotif({bool isSuccess = false, bool isRpg = false}) {
+    if (isRpg) {
+      return 'Boss Raid ${isSuccess ? 'berhasil' : 'gagal'} diserang.';
+    } else {
+      return 'Pembayaran hutang ${isSuccess ? 'berhasil' : 'gagal'} dicatat.';
+    }
+  }
 
   static String getFeeCheckDesc({bool isIncome = false, bool isRpg = false}) =>
       'Jika biaya tersebut aktif, nominal ${isIncome ? UiDict.income.get(isRpg).toLowerCase() : UiDict.expense.get(isRpg).toLowerCase()} akan ${isIncome ? 'dikurangi' : 'ditambah'} biaya tersebut${isIncome ? ' sebelum ditambahkan ke dompet Anda' : ''}.';

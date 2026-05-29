@@ -31,29 +31,35 @@ class LayoutController extends ChangeNotifier with WidgetsBindingObserver {
     super.dispose();
   }
 
-  Future<void> saveTransaction(
+  Future<bool> saveTransaction(
     TransactionModel transaction, {
     bool excludeDaily = false,
     bool useReserved = false,
   }) async {
-    final wallet = _walletController.getWalletById(transaction.walletId ?? 1);
-    await _transactionController.createTransaction(transaction);
-    BigInt deductedFromReserved = wallet.autoExpanse(
-      transaction.amount,
-      useReserved: useReserved,
-    );
+    try {
+      final wallet = _walletController.getWalletById(transaction.walletId ?? 1);
+      await _transactionController.createTransaction(transaction);
+      BigInt deductedFromReserved = wallet.autoExpanse(
+        transaction.amount,
+        useReserved: useReserved,
+      );
 
-    await _walletController.updateWallet(wallet);
-    await _walletController.loadData();
+      await _walletController.updateWallet(wallet);
+      await _walletController.loadData();
 
-    BigInt deductedFromRegular = transaction.amount - deductedFromReserved;
+      BigInt deductedFromRegular = transaction.amount - deductedFromReserved;
 
-    if (deductedFromRegular > BigInt.zero && !excludeDaily) {
-      _userController.useDaily(deductedFromRegular);
+      if (deductedFromRegular > BigInt.zero && !excludeDaily) {
+        _userController.useDaily(deductedFromRegular);
+      }
+
+      await _userController.processRecordTransaction();
+      await _userController.saveUser();
+      await _userController.loadData();
+      return true;
+    } catch (e) {
+      debugPrint("[LAYOUT] An error occurred while save transaction: $e");
+      return false;
     }
-
-    await _userController.processRecordTransaction();
-    await _userController.saveUser();
-    await _userController.loadData();
   }
 }

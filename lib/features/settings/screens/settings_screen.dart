@@ -259,10 +259,12 @@ class SettingsScreen extends StatelessWidget {
                           onTap: () async {
                             bool success = await settingsController
                                 .handleResetPin(context);
-                            if (!success && context.mounted) {
+                            if (context.mounted) {
                               GlobalMessenger.swowMessage(
-                                message: UiDict.changePinCancel,
-                                isSuccess: false,
+                                message: success
+                                    ? UiDict.changePinSuccess
+                                    : UiDict.changePinCancel,
+                                isSuccess: success,
                               );
                             }
                           },
@@ -430,8 +432,8 @@ class SettingsScreen extends StatelessWidget {
                     if (context.mounted) {
                       GlobalMessenger.swowMessage(
                         message: success
-                            ? 'Catatan petualangan berhasil dikemas!'
-                            : 'Gagal mengekstrak data!',
+                            ? UiDict.setSuccessExport
+                            : UiDict.setFailedExport,
                         isSuccess: success,
                       );
                     }
@@ -451,16 +453,14 @@ class SettingsScreen extends StatelessWidget {
                   ),
                   onTap: () => _showWarningDialog(
                     context,
-                    title: 'Peringatan Migrasi Data!',
-                    desc:
-                        'Melakukan import akan menghapus seluruh data Anda saat ini dan menimpanya dengan data dari file JSON. Lanjutkan?',
-                    yesTitle: 'Ya, Timpa Data',
+                    title: UiDict.setImportWarning,
+                    desc: UiDict.setImportDesc,
+                    yesTitle: UiDict.setImportBtn,
                     onYes: () => _handleAction(
                       context,
                       settingsController.handleImportData,
-                      onSuccess:
-                          'Harta dan catatan petualangan berhasil dipulihkan!',
-                      onFailed: 'Struktur file JSON rusak atau tidak valid!',
+                      onSuccess: UiDict.setSuccessImport,
+                      onFailed: UiDict.setFailedImport,
                     ),
                   ),
                 ),

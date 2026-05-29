@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/category_dict.dart';
 import '../../../core/constants/screen_dict.dart';
+import '../../../core/constants/ui_dict.dart';
 import '../../../core/utils/currency_formatter.dart';
 import '../../../models/debt_model.dart';
 
@@ -121,16 +122,17 @@ class DebtsCard extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'Total: ${CurrencyFormatter.convertToIdr(data.amount)}',
+                  UiDict.getTotal(CurrencyFormatter.convertToIdr(data.amount)),
                   style: const TextStyle(
                     fontSize: 12,
                     color: AppColors.textSecondary,
                   ),
                 ),
                 Text(
-                  isRpg
-                      ? 'DMG: ${CurrencyFormatter.convertToIdr(data.paidAmount)}'
-                      : 'Paid: ${CurrencyFormatter.convertToIdr(data.paidAmount)}',
+                  ScreenDict.getBillPay(
+                    CurrencyFormatter.convertToIdr(data.paidAmount),
+                    isRpg: isRpg,
+                  ),
                   style: const TextStyle(
                     fontSize: 12,
                     color: Colors.green,

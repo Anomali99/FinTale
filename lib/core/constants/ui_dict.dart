@@ -101,11 +101,22 @@ class UiDict {
   static const String setImport = 'Import Data';
   static const String setDataReset = 'Reset Data';
   static const String setDataResetBtn = 'Ya, Reset';
+  static const String setImportWarning = 'Peringatan Migrasi Data!';
+  static const String setImportBtn = 'Ya, Timpa Data';
   static const String setDataResetDesc =
       'Tindakan ini akan menghapus seluruh data dan mengulang progress Anda dari awal. Anda yakin ingin melakukan reset?';
+  static const String setImportDesc =
+      'Melakukan import akan menghapus seluruh data Anda saat ini dan menimpanya dengan data dari file JSON. Lanjutkan?';
   static const String setNotificationsFiled =
       'Izin notifikasi ditolak oleh sistem.';
 
+  static const String successGenerateDraft = 'Berhasil membuat draf.';
+  static const String failedGenerateDraft =
+      'Gagal membuat draf karena sudah ada.';
+  static const String setSuccessExport = 'Berhasil mengexport data.';
+  static const String setFailedExport = 'Gagal mengexport data!';
+  static const String setSuccessImport = 'Berhasil mengimport data.';
+  static const String setFailedImport = 'Gagal mengimport data!';
   static const String transactionMethode = 'Metode transaksi';
   static const String transactionType = 'Tipe transaksi';
   static const String transactionFilter = 'Filter Transaksi';
@@ -219,6 +230,14 @@ class UiDict {
       rpg: FontAwesomeIcons.flask,
     ),
   );
+
+  static String getNotifTitle(String title) => 'Quest $title Mendekati!';
+
+  static String getNotifBody(String threshold) =>
+      'Quest akan aktif dalam $threshold hari. Persiapkan loot Anda!';
+
+  static String getSaveNotif(String name, {bool isSuccess = false}) =>
+      '$name ${isSuccess ? 'berhasil' : 'gagal'} disimpan';
 
   static String getEmptyDesc(String item, {bool isRpg = false}) =>
       isRpg ? 'Tidak ada jejak $item ditemukan.' : 'Tidak ada data $item.';

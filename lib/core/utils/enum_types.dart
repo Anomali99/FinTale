@@ -1,3 +1,6 @@
+import 'package:flutter/material.dart';
+
+import '../constants/app_colors.dart';
 import '../constants/category_dict.dart';
 import '../models/category_model.dart';
 
@@ -111,9 +114,48 @@ enum TransactionCategory {
     mediumRisk,
     highRisk,
   ];
+
+  static TransactionCategory getTransactionCategory(RiskType risk) {
+    switch (risk) {
+      case RiskType.low:
+        return TransactionCategory.lowRisk;
+      case RiskType.medium:
+        return TransactionCategory.mediumRisk;
+      case RiskType.high:
+        return TransactionCategory.highRisk;
+    }
+  }
 }
 
-enum FlowType { expense, income, transfer }
+enum FlowType {
+  expense,
+  income,
+  transfer;
+
+  Color get ggColor => color.withOpacity(0.2);
+
+  Color get color {
+    switch (this) {
+      case FlowType.income:
+        return AppColors.success;
+      case FlowType.expense:
+        return AppColors.error;
+      case FlowType.transfer:
+        return Colors.blueGrey;
+    }
+  }
+
+  String get prefix {
+    switch (this) {
+      case FlowType.income:
+        return '+ ';
+      case FlowType.expense:
+        return '- ';
+      case FlowType.transfer:
+        return '';
+    }
+  }
+}
 
 enum TransactionType {
   income('Pemasukan'),
@@ -123,9 +165,73 @@ enum TransactionType {
 
   final String value;
   const TransactionType(this.value);
+
+  Color get color {
+    switch (this) {
+      case TransactionType.income:
+        return AppColors.success;
+      case TransactionType.expense:
+        return AppColors.error;
+      case TransactionType.transfer:
+        return Colors.blueGrey;
+      case TransactionType.debt:
+        return AppColors.warning;
+    }
+  }
+
+  Color get bgColor => color.withOpacity(0.2);
+
+  String get prefix {
+    switch (this) {
+      case TransactionType.income:
+        return '+ ';
+      case TransactionType.expense:
+      case TransactionType.debt:
+        return '- ';
+      case TransactionType.transfer:
+        return '';
+    }
+  }
 }
 
-enum StatusType { pending, overdue, paid }
+enum StatusType {
+  pending,
+  overdue,
+  paid;
+
+  CategoryModel get categoryDict => CategoryDict.getStatusByEnum(this);
+
+  Color get cardColor {
+    switch (this) {
+      case StatusType.paid:
+        return AppColors.surfaceVariant.withOpacity(0.5);
+      case StatusType.pending:
+      case StatusType.overdue:
+        return AppColors.surfaceVariant;
+    }
+  }
+
+  Color get textColor {
+    switch (this) {
+      case StatusType.paid:
+        return AppColors.textSecondary;
+      case StatusType.pending:
+      case StatusType.overdue:
+        return AppColors.textPrimary;
+    }
+  }
+
+  Color get accentColor {
+    switch (this) {
+      case StatusType.paid:
+        return AppColors.success;
+      case StatusType.pending:
+        return AppColors.primary;
+      case StatusType.overdue:
+        return AppColors.error;
+    }
+  }
+}
 
 enum TitleType {
   noviceSaver,
@@ -156,6 +262,23 @@ enum SubSectorType {
         return null;
     }
   }
+}
+
+enum AssetsCategory {
+  gold('Emas / Logam Mulia'),
+  deposit('Deposito Bank'),
+  mutualFundMoneyMarket('Reksa Dana Pasar Uang'),
+  mutualFundFixedIncome('Reksa Dana Pendapatan Tetap'),
+  bonds('Obligasi / Surat Berharga'),
+  property('Properti / Real Estat'),
+  mutualFundStock('Reksa Dana Saham'),
+  stocks('Saham / Ekuitas'),
+  crypto('Mata Uang Kripto'),
+  p2pLending('P2P Lending / Urun Dana');
+
+  final String value;
+
+  const AssetsCategory(this.value);
 }
 
 enum WalletType { cash, bank, eWallet, platform }
