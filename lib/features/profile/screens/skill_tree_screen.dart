@@ -10,6 +10,7 @@ import '../../../core/constants/gamification_dict.dart';
 import '../../../core/constants/ui_dict.dart';
 import '../../../core/models/category_model.dart';
 import '../../../core/utils/enum_types.dart';
+import '../../../core/utils/global_messenger.dart';
 
 class SkillTreeScreen extends StatefulWidget {
   const SkillTreeScreen({super.key});
@@ -89,7 +90,13 @@ class _SkillTreeScreenState extends State<SkillTreeScreen> {
         title: Text(GamificationDict.allocationTree.get(isRpg)),
         actions: [
           IconButton(
-            onPressed: () => skillController.resetAllocation(),
+            onPressed: () async {
+              await skillController.resetAllocation();
+              GlobalMessenger.showMessage(
+                message: UiDict.resetSkill,
+                isSuccess: true,
+              );
+            },
             icon: const FaIcon(
               FontAwesomeIcons.arrowRotateRight,
               size: 20,

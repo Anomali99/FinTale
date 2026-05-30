@@ -8,30 +8,36 @@ class ProfileController with ChangeNotifier {
 
   ProfileController(this._userController);
 
-  Future<void> saveName(String name) async {
+  Future<bool> saveName(String name) async {
     try {
       _userController.updateName(name);
       await _userController.saveUser();
+      return true;
     } catch (e) {
       debugPrint("[PROFILE] Failed to save name: $e");
+      return false;
     }
   }
 
-  Future<void> saveBaseDailyLimit(BigInt amount) async {
+  Future<bool> saveBaseDailyLimit(BigInt amount) async {
     try {
       _userController.updateBaseDailyLimit(amount);
       await _userController.saveUser();
+      return true;
     } catch (e) {
       debugPrint("[PROFILE] Failed to save base daily limit: $e");
+      return false;
     }
   }
 
-  Future<void> saveEmergencyAmount(BigInt amount) async {
+  Future<bool> saveEmergencyAmount(BigInt amount) async {
     try {
       _userController.updateEmergencyAmount(amount);
       await _userController.saveUser();
+      return true;
     } catch (e) {
       debugPrint("[PROFILE] Failed to save emergency amount: $e");
+      return false;
     }
   }
 }

@@ -31,6 +31,7 @@ class UiDict {
   static const String reset = 'Reset';
   static const String cancel = 'Batal';
   static const String applyFilter = 'Terapkan Filter';
+  static const String applyFilterNotif = 'Filter diterapkan.';
 
   static const String requiredTitle = 'Judul tidak boleh kosong.';
   static const String requiredName = 'Nama tidak boleh kosong.';
@@ -52,7 +53,7 @@ class UiDict {
   static const String authWelcome = 'Selamat Datang Para Petualang!';
   static const String authSignIn = 'Masuk dengan Google';
   static const String authSetup = 'Menyiapkan profil karakter Anda...';
-  static const String authSkip = 'Lewati';
+  static const String authSkip = 'Mulai';
   static const String authDesc =
       'Siap mengalahkan monster hutang dan membangun kerajaan finansial Anda? Mulailah sekarang.';
   static const String authRequired =
@@ -100,13 +101,16 @@ class UiDict {
   static const String setExport = 'Export Data (Json)';
   static const String setImport = 'Import Data';
   static const String setDataReset = 'Reset Data';
+  static const String setWarning = 'Peringatan!';
   static const String setDataResetBtn = 'Ya, Reset';
-  static const String setImportWarning = 'Peringatan Migrasi Data!';
   static const String setImportBtn = 'Ya, Timpa Data';
+  static const String setLogOutBtn = 'Ya, Keluar';
   static const String setDataResetDesc =
       'Tindakan ini akan menghapus seluruh data dan mengulang progress Anda dari awal. Anda yakin ingin melakukan reset?';
   static const String setImportDesc =
-      'Melakukan import akan menghapus seluruh data Anda saat ini dan menimpanya dengan data dari file JSON. Lanjutkan?';
+      'Melakukan migrasi akan menghapus seluruh data Anda saat ini dan menimpanya dengan data yang direstore. Lanjutkan?';
+  static const String setLogOutDesc =
+      'Keluar akan menghapus seluruh data Anda saat ini, pastikan andah telah melakukan backup baik cloud maupun export. Lanjutkan?';
   static const String setNotificationsFiled =
       'Izin notifikasi ditolak oleh sistem.';
 
@@ -118,6 +122,7 @@ class UiDict {
   static const String setSuccessImport = 'Berhasil mengimport data.';
   static const String setFailedImport = 'Gagal mengimport data!';
   static const String transactionMethode = 'Metode transaksi';
+  static const String resetSkill = 'Mereset skill sesuai level.';
   static const String transactionType = 'Tipe transaksi';
   static const String transactionFilter = 'Filter Transaksi';
   static const String setDate = 'Pilih tanggal awal dan akhir';
@@ -236,8 +241,12 @@ class UiDict {
   static String getNotifBody(String threshold) =>
       'Quest akan aktif dalam $threshold hari. Persiapkan loot Anda!';
 
-  static String getSaveNotif(String name, {bool isSuccess = false}) =>
-      '$name ${isSuccess ? 'berhasil' : 'gagal'} disimpan';
+  static String getSaveNotif(
+    String name, {
+    bool isSuccess = false,
+    bool isUpdate = false,
+  }) =>
+      '$name ${isSuccess ? 'berhasil' : 'gagal'} ${isUpdate ? 'diperbarui' : 'disimpan'}.';
 
   static String getEmptyDesc(String item, {bool isRpg = false}) =>
       isRpg ? 'Tidak ada jejak $item ditemukan.' : 'Tidak ada data $item.';

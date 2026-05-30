@@ -78,7 +78,7 @@ class HomeController with ChangeNotifier {
     }
   }
 
-  Future<void> saveWallet(WalletModel wallet) async {
+  Future<bool> saveWallet(WalletModel wallet) async {
     try {
       if (wallet.id == null) {
         await _walletController.createWallet(wallet);
@@ -87,8 +87,10 @@ class HomeController with ChangeNotifier {
         await _walletController.updateWallet(wallet);
       }
       await _walletController.loadData();
+      return true;
     } catch (e) {
       debugPrint("[HOME] Failed to save wallet: $e");
+      return false;
     }
   }
 

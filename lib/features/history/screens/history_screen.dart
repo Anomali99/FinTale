@@ -10,6 +10,7 @@ import '../../../controllers/transaction_controller.dart';
 import '../../../controllers/user_controller.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/ui_dict.dart';
+import '../../../core/utils/global_messenger.dart';
 import '../../../models/transaction_model.dart';
 import '../../../widgets/filter_bottom_sheet.dart';
 import '../../../widgets/month_filter.dart';
@@ -38,11 +39,20 @@ class HistoryScreen extends StatelessWidget {
     );
 
     if (result != null && context.mounted) {
-      historyController.updateFilter(
-        result['startDate'],
-        result['endDate'],
-        result['selectedTypes'],
-        result['selectedWallets'],
+      if (result['isReset']) {
+        historyController.resetFilter();
+      } else {
+        historyController.updateFilter(
+          result['startDate'],
+          result['endDate'],
+          result['selectedTypes'],
+          result['selectedWallets'],
+        );
+      }
+      historyController.applyFilter();
+      GlobalMessenger.showMessage(
+        message: UiDict.applyFilterNotif,
+        isSuccess: true,
       );
     }
   }
@@ -63,6 +73,23 @@ class HistoryScreen extends StatelessWidget {
     }
   }
 
+  String getTitleMonth({
+    required DateTime selectedMonth,
+    DateTime? customStartDate,
+    DateTime? customEndDate,
+  }) {
+    if (customStartDate == null && customEndDate == null) {
+      return DateFormat('MMMM yyyy').format(selectedMonth);
+    } else {
+      String result = DateFormat('dd MMMM yyyy').format(customStartDate!);
+      if (customEndDate != null && customStartDate != customEndDate) {
+        result += ' - ';
+        result += DateFormat('dd MMMM yyyy').format(customEndDate);
+      }
+      return result;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final userController = context.watch<UserController>();
@@ -77,6 +104,8 @@ class HistoryScreen extends StatelessWidget {
 
     final selectedMonth = historyController.selectedMonth;
     final groupedTransactions = historyController.groupedTransactions;
+    final customStartDate = historyController.customStartDate;
+    final customEndDate = historyController.customEndDate;
 
     return Scaffold(
       appBar: AppBar(
@@ -113,9 +142,14 @@ class HistoryScreen extends StatelessWidget {
               child: Column(
                 children: [
                   MonthFilter(
-                    selected: DateFormat('MMMM yyyy').format(selectedMonth),
+                    selected: getTitleMonth(
+                      selectedMonth: selectedMonth,
+                      customStartDate: customStartDate,
+                      customEndDate: customEndDate,
+                    ),
                     onPrev: historyController.onPrev,
                     onNext: historyController.onNext,
+                    enabled: customStartDate == null && customEndDate == null,
                   ),
 
                   const SizedBox(height: 16),

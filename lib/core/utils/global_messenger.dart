@@ -6,16 +6,38 @@ class GlobalMessenger {
   static final GlobalKey<ScaffoldMessengerState> globalMessengerKey =
       GlobalKey<ScaffoldMessengerState>();
 
-  static void swowMessage({required String message, bool isSuccess = true}) {
-    final snackBar = SnackBar(
-      content: Text(message),
-      backgroundColor: isSuccess ? Color(0xFF4CAF50) : Color(0xFFEF5350),
-      behavior: SnackBarBehavior.floating,
+  static void showMessage({required String message, bool isSuccess = true}) {
+    final banner = MaterialBanner(
+      content: Text(
+        message,
+        style: const TextStyle(
+          color: Colors.white,
+          fontWeight: FontWeight.w500,
+        ),
+      ),
+      backgroundColor: isSuccess
+          ? const Color(0xFF4CAF50)
+          : const Color(0xFFEF5350),
+      elevation: 3,
+      dividerColor: Colors.transparent,
+
+      actions: [
+        IconButton(
+          icon: const Icon(Icons.close, color: Colors.white),
+          onPressed: () {
+            globalMessengerKey.currentState?.hideCurrentMaterialBanner();
+          },
+        ),
+      ],
     );
 
     globalMessengerKey.currentState
-      ?..hideCurrentSnackBar()
-      ..showSnackBar(snackBar);
+      ?..hideCurrentMaterialBanner()
+      ..showMaterialBanner(banner);
+
+    Future.delayed(const Duration(seconds: 3), () {
+      globalMessengerKey.currentState?.hideCurrentMaterialBanner();
+    });
   }
 
   static void showSleekXpNotification(int xpReward) {

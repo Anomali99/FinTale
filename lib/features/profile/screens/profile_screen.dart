@@ -12,6 +12,7 @@ import '../../../core/constants/screen_dict.dart';
 import '../../../core/constants/ui_dict.dart';
 import '../../../core/utils/currency_formatter.dart';
 import '../../../core/utils/enum_types.dart';
+import '../../../core/utils/global_messenger.dart';
 import '../widgets/allocation_card.dart';
 import '../widgets/daily_missions.dart';
 import '../widgets/edit_modal.dart';
@@ -30,14 +31,24 @@ class ProfileScreen extends StatelessWidget {
         defaultValue: defaultValue,
       ),
     );
+
     if (result != null && context.mounted) {
-      context.read<ProfileController>().saveName(result);
+      bool isSuccess = await context.read<ProfileController>().saveName(result);
+      GlobalMessenger.showMessage(
+        message: UiDict.getSaveNotif(
+          UiDict.name,
+          isSuccess: isSuccess,
+          isUpdate: true,
+        ),
+        isSuccess: isSuccess,
+      );
     }
   }
 
-  Future<BigInt?> _openEditNum(
-    BuildContext context,
-    String title, {
+  Future<void> _openEditNum(
+    BuildContext context, {
+    required String title,
+    required Future<bool> Function(BigInt) function,
     String? defaultValue,
   }) async {
     final result = await showModalBottomSheet<String?>(
@@ -52,10 +63,16 @@ class ProfileScreen extends StatelessWidget {
     );
 
     if (result != null && context.mounted) {
-      return BigInt.parse(result);
+      bool isSuccess = await function(BigInt.parse(result));
+      GlobalMessenger.showMessage(
+        message: UiDict.getSaveNotif(
+          title,
+          isSuccess: isSuccess,
+          isUpdate: true,
+        ),
+        isSuccess: isSuccess,
+      );
     }
-
-    return null;
   }
 
   @override
@@ -114,14 +131,12 @@ class ProfileScreen extends StatelessWidget {
             ScreenDict.homeDailyLimit.icon(isRpg),
             ScreenDict.homeDailyLimit.get(isRpg),
             '${CurrencyFormatter.convertToIdr(baseDailyLimit)} / day',
-            onTap: () async {
-              BigInt? result = await _openEditNum(
-                context,
-                ScreenDict.homeDailyLimit.get(isRpg),
-                defaultValue: baseDailyLimit.toString(),
-              );
-              if (result != null) profileController.saveBaseDailyLimit(result);
-            },
+            onTap: () => _openEditNum(
+              context,
+              title: ScreenDict.homeDailyLimit.get(isRpg),
+              function: profileController.saveBaseDailyLimit,
+              defaultValue: baseDailyLimit.toString(),
+            ),
           ),
           const SizedBox(height: 24),
           _buildSettingCard(
@@ -130,14 +145,12 @@ class ProfileScreen extends StatelessWidget {
             '${CurrencyFormatter.convertToIdr(emergencyTotal)} / ${CurrencyFormatter.convertToIdr(emergencyAmount)}',
             currentProgress: emergencyTotal,
             maxProgress: emergencyAmount,
-            onTap: () async {
-              BigInt? result = await _openEditNum(
-                context,
-                GamificationDict.skillEmergency.get(isRpg),
-                defaultValue: emergencyAmount.toString(),
-              );
-              if (result != null) profileController.saveEmergencyAmount(result);
-            },
+            onTap: () => _openEditNum(
+              context,
+              title: GamificationDict.skillEmergency.get(isRpg),
+              defaultValue: emergencyAmount.toString(),
+              function: profileController.saveEmergencyAmount,
+            ),
           ),
           const SizedBox(height: 32),
           DailyMissions(progress: progress, isRpg: isRpg),

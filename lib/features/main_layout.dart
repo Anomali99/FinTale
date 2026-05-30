@@ -75,13 +75,13 @@ class MainLayout extends StatelessWidget {
         }
         historyController.applyFilter();
         analyticsController.applyFilter();
-        GlobalMessenger.swowMessage(
+        GlobalMessenger.showMessage(
           message: ScreenDict.getDebtNotif(isSuccess: isSuccess, isRpg: isRpg),
           isSuccess: isSuccess,
         );
       }
     } else {
-      GlobalMessenger.swowMessage(
+      GlobalMessenger.showMessage(
         message: ScreenDict.debtEmpty.get(isRpg),
         isSuccess: true,
       );
@@ -95,24 +95,24 @@ class MainLayout extends StatelessWidget {
     final result =
         await Navigator.pushNamed(context, '/daily-expense')
             as Map<String, dynamic>?;
-    bool isSuccess = false;
+
     if (result != null) {
       TransactionModel transaction = result['transaction'];
       bool useReserved = result['use_reserved'];
-      isSuccess = await layoutController.saveTransaction(
+      bool isSuccess = await layoutController.saveTransaction(
         transaction,
         useReserved: useReserved,
       );
       historyController.applyFilter();
       analyticsController.applyFilter();
-    }
-    GlobalMessenger.swowMessage(
-      message: UiDict.getSaveNotif(
-        ScreenDict.historyTransaction.get(isRpg),
+      GlobalMessenger.showMessage(
+        message: UiDict.getSaveNotif(
+          ScreenDict.historyTransaction.get(isRpg),
+          isSuccess: isSuccess,
+        ),
         isSuccess: isSuccess,
-      ),
-      isSuccess: isSuccess,
-    );
+      );
+    }
   }
 
   void _showActionPopup(BuildContext context, bool isRpg) {

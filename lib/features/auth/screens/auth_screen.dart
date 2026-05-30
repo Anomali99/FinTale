@@ -13,14 +13,10 @@ import '../../../widgets/custom_button.dart';
 class AuthScreen extends StatelessWidget {
   const AuthScreen({super.key});
 
-  void _loginHandle(BuildContext context, {bool anonym = false}) async {
+  void _loginHandle(BuildContext context) async {
     final authController = context.read<AuthController>();
     final skillController = context.read<SkillController>();
-    if (anonym) {
-      await authController.loginAnonymously();
-    } else {
-      await authController.loginWithGoogle();
-    }
+    await authController.loginAnonymously();
     await skillController.loadData();
   }
 
@@ -31,8 +27,9 @@ class AuthScreen extends StatelessWidget {
     final authController = context.watch<AuthController>();
 
     if (authController.errorMessage != null) {
+      debugPrint(authController.errorMessage);
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        GlobalMessenger.swowMessage(
+        GlobalMessenger.showMessage(
           message: authController.errorMessage!,
           isSuccess: false,
         );
@@ -95,24 +92,13 @@ class AuthScreen extends StatelessWidget {
                 const Center(
                   child: CircularProgressIndicator(color: AppColors.primary),
                 )
-              else ...[
-                ElevatedButton.icon(
-                  onPressed: () => _loginHandle(context, anonym: false),
-                  icon: const FaIcon(FontAwesomeIcons.google, size: 20),
-                  label: Text(UiDict.authSignIn),
-                  style: ElevatedButton.styleFrom(
-                    minimumSize: const Size(double.infinity, 56),
-                    elevation: 4,
-                    shadowColor: AppColors.primary.withOpacity(0.3),
-                  ),
-                ),
-                const SizedBox(height: 16),
+              else
                 CustomButton(
                   title: UiDict.authSkip,
                   color: AppColors.primary,
-                  onTap: () => _loginHandle(context, anonym: true),
+                  icon: FontAwesomeIcons.khanda,
+                  onTap: () => _loginHandle(context),
                 ),
-              ],
               const SizedBox(height: 16),
             ],
           ),

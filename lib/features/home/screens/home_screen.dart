@@ -84,8 +84,8 @@ class HomeScreen extends StatelessWidget {
           );
         },
       );
-      bool isSuccess = false;
       if (result != null && context.mounted) {
+        bool isSuccess = false;
         TransactionModel transaction = result['transaction'];
         bool useReserved = result['use_reserved'];
         bool isBill = result['is_bill'];
@@ -100,14 +100,14 @@ class HomeScreen extends StatelessWidget {
             useReserved: useReserved,
           );
         }
+        GlobalMessenger.showMessage(
+          message: ScreenDict.getDebtNotif(isSuccess: isSuccess, isRpg: isRpg),
+          isSuccess: isSuccess,
+        );
         return transaction.amount;
       }
-      GlobalMessenger.swowMessage(
-        message: ScreenDict.getDebtNotif(isSuccess: isSuccess, isRpg: isRpg),
-        isSuccess: isSuccess,
-      );
     } else {
-      GlobalMessenger.swowMessage(
+      GlobalMessenger.showMessage(
         message: ScreenDict.debtEmpty.get(isRpg),
         isSuccess: true,
       );
@@ -141,21 +141,23 @@ class HomeScreen extends StatelessWidget {
       ),
     );
 
-    bool isSuccess = false;
     if (result != null && context.mounted) {
       TransactionModel transaction = result['transaction'];
       AssetsModel asset = result['asset'];
-      await investController.saveTransaction(transaction, asset);
+      bool isSuccess = await investController.saveTransaction(
+        transaction,
+        asset,
+      );
       userController.incomeEmergencyTotal(transaction.amount);
+      GlobalMessenger.showMessage(
+        message: UiDict.getSaveNotif(
+          ScreenDict.investAssetName.get(isRpg),
+          isSuccess: isSuccess,
+        ),
+        isSuccess: isSuccess,
+      );
       return transaction.amount;
     }
-    GlobalMessenger.swowMessage(
-      message: UiDict.getSaveNotif(
-        ScreenDict.investAssetName.get(isRpg),
-        isSuccess: isSuccess,
-      ),
-      isSuccess: isSuccess,
-    );
     return null;
   }
 
@@ -211,7 +213,15 @@ class HomeScreen extends StatelessWidget {
     );
 
     if (result != null && context.mounted) {
-      context.read<HomeController>().saveWallet(result);
+      bool isSuccess = await context.read<HomeController>().saveWallet(result);
+      GlobalMessenger.showMessage(
+        message: UiDict.getSaveNotif(
+          UiDict.wallet,
+          isSuccess: isSuccess,
+          isUpdate: wallet != null,
+        ),
+        isSuccess: isSuccess,
+      );
     }
   }
 
@@ -235,24 +245,23 @@ class HomeScreen extends StatelessWidget {
       ),
     );
 
-    bool isSuccess = false;
     if (result != null && context.mounted) {
       TransactionModel transaction = result['transaction'];
       bool autoAllocation = result['auto_allocation'];
-      await homeController.saveTransaction(
+      bool isSuccess = await homeController.saveTransaction(
         transaction,
         autoAllocation: autoAllocation,
       );
       historyController.applyFilter();
       analyticsController.applyFilter();
-    }
-    GlobalMessenger.swowMessage(
-      message: UiDict.getSaveNotif(
-        isTransfer ? UiDict.transfer.get(isRpg) : UiDict.income.get(isRpg),
+      GlobalMessenger.showMessage(
+        message: UiDict.getSaveNotif(
+          isTransfer ? UiDict.transfer.get(isRpg) : UiDict.income.get(isRpg),
+          isSuccess: isSuccess,
+        ),
         isSuccess: isSuccess,
-      ),
-      isSuccess: isSuccess,
-    );
+      );
+    }
   }
 
   @override

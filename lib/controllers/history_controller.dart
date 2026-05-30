@@ -34,7 +34,7 @@ class HistoryController with ChangeNotifier {
   }
 
   void updateFilter(
-    DateTime startDate,
+    DateTime? startDate,
     DateTime? endDate,
     List<TransactionType> types,
     List<int> wallets,
@@ -48,8 +48,10 @@ class HistoryController with ChangeNotifier {
   void applyFilter() {
     DateTime start;
     DateTime end;
+    bool filtered = false;
 
     if (customStartDate != null && customEndDate != null) {
+      filtered = true;
       start = customStartDate!;
       end = DateTime(
         customEndDate!.year,
@@ -76,6 +78,7 @@ class HistoryController with ChangeNotifier {
       endDate: end,
       types: selectedTypes.isNotEmpty ? selectedTypes : null,
       walletIds: selectedWallets.isNotEmpty ? selectedWallets : null,
+      filtered: filtered,
     );
     notifyListeners();
   }

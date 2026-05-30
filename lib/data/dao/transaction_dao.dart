@@ -1,8 +1,8 @@
 import 'package:sqflite/sqflite.dart';
 
-import '../../../core/utils/enum_types.dart';
-import '../../../models/transaction_detail_model.dart';
-import '../../../models/transaction_model.dart';
+import '../../core/utils/enum_types.dart';
+import '../../models/transaction_detail_model.dart';
+import '../../models/transaction_model.dart';
 import '../app_database.dart';
 
 class TransactionDao {

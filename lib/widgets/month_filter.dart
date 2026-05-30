@@ -6,10 +6,12 @@ class MonthFilter extends StatelessWidget {
   final String selected;
   final VoidCallback? onPrev;
   final VoidCallback? onNext;
+  final bool enabled;
 
   const MonthFilter({
     super.key,
     required this.selected,
+    this.enabled = true,
     this.onPrev,
     this.onNext,
   });
@@ -19,15 +21,18 @@ class MonthFilter extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        IconButton(
-          icon: Icon(
-            Icons.chevron_left,
-            color: onPrev == null
-                ? AppColors.textSecondary.withOpacity(0.3)
-                : AppColors.textSecondary,
-          ),
-          onPressed: onPrev,
-        ),
+        if (enabled)
+          IconButton(
+            icon: Icon(
+              Icons.chevron_left,
+              color: onPrev == null
+                  ? AppColors.textSecondary.withOpacity(0.3)
+                  : AppColors.textSecondary,
+            ),
+            onPressed: onPrev,
+          )
+        else
+          SizedBox(),
         Text(
           selected,
           style: const TextStyle(
@@ -36,15 +41,18 @@ class MonthFilter extends StatelessWidget {
             color: AppColors.textPrimary,
           ),
         ),
-        IconButton(
-          icon: Icon(
-            Icons.chevron_right,
-            color: onNext == null
-                ? AppColors.textSecondary.withOpacity(0.3)
-                : AppColors.textSecondary,
-          ),
-          onPressed: onNext,
-        ),
+        if (enabled)
+          IconButton(
+            icon: Icon(
+              Icons.chevron_right,
+              color: onNext == null
+                  ? AppColors.textSecondary.withOpacity(0.3)
+                  : AppColors.textSecondary,
+            ),
+            onPressed: onNext,
+          )
+        else
+          SizedBox(),
       ],
     );
   }

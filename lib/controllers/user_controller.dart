@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../core/utils/enum_types.dart';
 import '../core/utils/leveling_extension.dart';
 import '../core/utils/mission_extension.dart';
-import '../data/local/pref_service.dart';
+import '../data/pref_service.dart';
 import '../models/user_model.dart';
 
 class UserController with ChangeNotifier {
@@ -185,8 +185,16 @@ class UserController with ChangeNotifier {
     try {
       if (currentUser != null || newUser != null) {
         await _prefService.saveUser(newUser ?? currentUser!);
-        notifyListeners();
+        await loadData();
       }
+    } catch (e) {
+      debugPrint("[USER] An error occurred while saving profile: $e");
+    }
+  }
+
+  Future<void> saveRawUser(Map<String, dynamic> user) async {
+    try {
+      await _prefService.saveRawUser(user);
     } catch (e) {
       debugPrint("[USER] An error occurred while saving profile: $e");
     }
@@ -194,7 +202,7 @@ class UserController with ChangeNotifier {
 
   Future<void> loadData() async {
     try {
-      currentUser = _prefService.getUser();
+      currentUser = _prefService.user;
     } catch (e) {
       debugPrint("[USER] An error occurred while loading profile: $e");
     } finally {

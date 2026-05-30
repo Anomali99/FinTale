@@ -1,6 +1,6 @@
 import 'package:sqflite/sqflite.dart';
 
-import '../../../models/wallet_model.dart';
+import '../../models/wallet_model.dart';
 import '../app_database.dart';
 
 class WalletDao {

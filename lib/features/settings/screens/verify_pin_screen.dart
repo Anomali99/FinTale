@@ -72,7 +72,7 @@ class _VerifyPinScreenState extends State<VerifyPinScreen> {
     if (isMatch) {
       Navigator.pop(context, true);
     } else {
-      GlobalMessenger.swowMessage(message: UiDict.pinWrong, isSuccess: true);
+      GlobalMessenger.showMessage(message: UiDict.pinWrong, isSuccess: true);
 
       setState(() {
         _pinInput = '';

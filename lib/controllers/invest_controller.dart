@@ -4,7 +4,7 @@ import '../controllers/transaction_controller.dart';
 import '../controllers/user_controller.dart';
 import '../controllers/wallet_controller.dart';
 import '../core/utils/enum_types.dart';
-import '../data/local/dao/asset_dao.dart';
+import '../data/dao/asset_dao.dart';
 import '../models/assets_model.dart';
 import '../models/transaction_model.dart';
 import '../models/wallet_model.dart';
@@ -68,19 +68,30 @@ class InvestController with ChangeNotifier {
     }
   }
 
-  Future<void> updateAsset(AssetsModel asset) async {
-    if (asset.id != null) {
-      await _assetDao.update(asset);
-      await loadData();
+  Future<bool> updateAsset(AssetsModel asset) async {
+    try {
+      if (asset.id != null) {
+        await _assetDao.update(asset);
+        await loadData();
+        return true;
+      }
+      return false;
+    } catch (e) {
+      return false;
     }
   }
 
-  Future<void> claimDeviden(TransactionModel transaction) async {
-    await _transactionController.createTransaction(transaction);
-    final wallet = _walletController.getWalletById(transaction.walletId);
-    wallet.addAmount(transaction.amount, isIncome: true);
-    await _walletController.updateWallet(wallet);
-    await _walletController.loadData();
+  Future<bool> claimDeviden(TransactionModel transaction) async {
+    try {
+      await _transactionController.createTransaction(transaction);
+      final wallet = _walletController.getWalletById(transaction.walletId);
+      wallet.addAmount(transaction.amount, isIncome: true);
+      await _walletController.updateWallet(wallet);
+      await _walletController.loadData();
+      return true;
+    } catch (e) {
+      return false;
+    }
   }
 
   Future<bool> saveTransaction(

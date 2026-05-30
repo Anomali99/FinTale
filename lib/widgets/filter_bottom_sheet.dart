@@ -82,6 +82,7 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
 
   void _applyFilter() {
     Navigator.pop(context, {
+      "isReset": false,
       "startDate": _startDate,
       "endDate": _endDate,
       "selectedTypes": _selectedTypes,
@@ -96,6 +97,7 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
       _selectedTypes.clear();
       _selectedWallets.clear();
     });
+    Navigator.pop(context, {"isReset": true});
   }
 
   @override

@@ -415,12 +415,27 @@ class ScreenDict {
   static String getBillLockCheckDesc({bool isRpg = false}) =>
       'Aktifkan jika ${billsMaster.get(isRpg).toLowerCase()} ini sudah tidak dibutuhkan. Sistem notifikasi dan pembayaran akan dinonaktifkan hingga anda  mengaktifkanya lagi di kemudian hari.';
 
+  static String getBillNotif({bool isSuccess = false, bool isRpg = false}) {
+    if (isRpg) {
+      return 'Quest ${isSuccess ? 'berhasil' : 'gagal'} dijalankan.';
+    } else {
+      return 'Tagihan ${isSuccess ? 'berhasil' : 'gagal'} dibayar.';
+    }
+  }
+
   static String getDebtNotif({bool isSuccess = false, bool isRpg = false}) {
     if (isRpg) {
       return 'Boss Raid ${isSuccess ? 'berhasil' : 'gagal'} diserang.';
     } else {
       return 'Pembayaran hutang ${isSuccess ? 'berhasil' : 'gagal'} dicatat.';
     }
+  }
+
+  static String getInvestModalNotif({
+    bool isSuccess = false,
+    bool isRpg = false,
+  }) {
+    return '${isRpg ? 'Power' : 'Modal'} ${isSuccess ? 'berhasil' : 'gagal'} ditambah.';
   }
 
   static String getFeeCheckDesc({bool isIncome = false, bool isRpg = false}) =>

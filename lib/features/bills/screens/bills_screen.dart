@@ -73,14 +73,14 @@ class BillsScreen extends StatelessWidget {
           title: ScreenDict.getPayBill(isRpg: isRpg),
         );
       } else if (result == BillActionType.generateDraft) {
-        final success = await context.read<BillController>().generateBillDraft(
+        bool isSuccess = await context.read<BillController>().generateBillDraft(
           data,
         );
-        GlobalMessenger.swowMessage(
-          message: success
+        GlobalMessenger.showMessage(
+          message: isSuccess
               ? UiDict.successGenerateDraft
               : UiDict.failedGenerateDraft,
-          isSuccess: success,
+          isSuccess: isSuccess,
         );
       } else if (result == BillActionType.edit) {
         _openAddBillModal(context, initialBill: data);
@@ -89,6 +89,7 @@ class BillsScreen extends StatelessWidget {
   }
 
   void _openAddBillModal(BuildContext context, {BillModel? initialBill}) async {
+    final isRpg = context.read<SettingsController>().isRpgMode;
     final result = await showModalBottomSheet<BillModel>(
       context: context,
       isScrollControlled: true,
@@ -99,11 +100,20 @@ class BillsScreen extends StatelessWidget {
     );
 
     if (result != null && context.mounted) {
-      context.read<BillController>().createBill(result);
+      bool isSuccess = await context.read<BillController>().createBill(result);
+      GlobalMessenger.showMessage(
+        message: UiDict.getSaveNotif(
+          ScreenDict.billsMaster.get(isRpg),
+          isSuccess: isSuccess,
+          isUpdate: initialBill != null,
+        ),
+        isSuccess: isSuccess,
+      );
     }
   }
 
   void _openAddDebtModal(BuildContext context, {DebtModel? initialDebt}) async {
+    final isRpg = context.read<SettingsController>().isRpgMode;
     final result = await showModalBottomSheet<DebtModel>(
       context: context,
       isScrollControlled: true,
@@ -114,7 +124,15 @@ class BillsScreen extends StatelessWidget {
     );
 
     if (result != null && context.mounted) {
-      context.read<BillController>().createDebt(result);
+      bool isSuccess = await context.read<BillController>().createDebt(result);
+      GlobalMessenger.showMessage(
+        message: UiDict.getSaveNotif(
+          ScreenDict.debtsMaster.get(isRpg),
+          isSuccess: isSuccess,
+          isUpdate: initialDebt != null,
+        ),
+        isSuccess: isSuccess,
+      );
     }
   }
 
@@ -127,6 +145,7 @@ class BillsScreen extends StatelessWidget {
     final billController = context.read<BillController>();
     final historyController = context.read<HistoryController>();
     final analyticsController = context.read<AnalyticsController>();
+    final isRpg = context.read<SettingsController>().isRpgMode;
     final wallets = context.read<WalletController>().wallets;
     List<DebtModel> debts = initialDebt != null ? [initialDebt] : [];
     List<BillModel> bills = initialBill != null ? [initialBill] : [];
@@ -148,13 +167,24 @@ class BillsScreen extends StatelessWidget {
       TransactionModel transaction = result['transaction'];
       bool useReserved = result['use_reserved'];
       bool isBill = result['is_bill'];
+      bool isSuccess = false;
+      String message = '';
       if (isBill) {
-        await billController.payBill(transaction, useReserved: useReserved);
+        isSuccess = await billController.payBill(
+          transaction,
+          useReserved: useReserved,
+        );
+        message = ScreenDict.getBillNotif(isSuccess: isSuccess, isRpg: isRpg);
       } else {
-        await billController.payDebt(transaction, useReserved: useReserved);
+        isSuccess = await billController.payDebt(
+          transaction,
+          useReserved: useReserved,
+        );
+        message = ScreenDict.getDebtNotif(isSuccess: isSuccess, isRpg: isRpg);
       }
       historyController.applyFilter();
       analyticsController.applyFilter();
+      GlobalMessenger.showMessage(message: message, isSuccess: isSuccess);
     }
   }
 

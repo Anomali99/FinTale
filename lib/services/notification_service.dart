@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_timezone/flutter_timezone.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 
@@ -62,10 +63,13 @@ class NotificationService {
 
       final bool? result = await androidImplementation
           ?.requestNotificationsPermission();
+      granted = result ?? false;
 
       await androidImplementation?.requestExactAlarmsPermission();
 
-      granted = result ?? false;
+      if (await Permission.ignoreBatteryOptimizations.isDenied) {
+        await Permission.ignoreBatteryOptimizations.request();
+      }
     } else if (Platform.isIOS) {
       final bool? result = await _notificationsPlugin
           .resolvePlatformSpecificImplementation<
@@ -93,7 +97,7 @@ class NotificationService {
         importance: Importance.max,
         priority: Priority.high,
         icon: '@drawable/ic_notification',
-        largeIcon: DrawableResourceAndroidBitmap('fintale_logo'),
+        // largeIcon: DrawableResourceAndroidBitmap('fintale_logo'),
       ),
       iOS: DarwinNotificationDetails(),
     );
@@ -133,7 +137,7 @@ class NotificationService {
           importance: Importance.max,
           priority: Priority.high,
           icon: '@drawable/ic_notification',
-          largeIcon: DrawableResourceAndroidBitmap('fintale_logo'),
+          // largeIcon: DrawableResourceAndroidBitmap('fintale_logo'),
         ),
         iOS: DarwinNotificationDetails(),
       ),
@@ -168,7 +172,7 @@ class NotificationService {
           importance: Importance.max,
           priority: Priority.high,
           icon: '@drawable/ic_notification',
-          largeIcon: DrawableResourceAndroidBitmap('fintale_logo'),
+          // largeIcon: DrawableResourceAndroidBitmap('fintale_logo'),
         ),
         iOS: DarwinNotificationDetails(),
       ),

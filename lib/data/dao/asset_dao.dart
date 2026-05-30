@@ -1,6 +1,6 @@
 import 'package:sqflite/sqflite.dart';
 
-import '../../../models/assets_model.dart';
+import '../../models/assets_model.dart';
 import '../app_database.dart';
 
 class AssetDao {

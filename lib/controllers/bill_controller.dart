@@ -5,8 +5,8 @@ import '../controllers/user_controller.dart';
 import '../controllers/wallet_controller.dart';
 import '../core/constants/ui_dict.dart';
 import '../core/utils/enum_types.dart';
-import '../data/local/dao/bill_dao.dart';
-import '../data/local/dao/debt_dao.dart';
+import '../data/dao/bill_dao.dart';
+import '../data/dao/debt_dao.dart';
 import '../models/bill_model.dart';
 import '../models/debt_model.dart';
 import '../models/transaction_model.dart';
@@ -251,7 +251,7 @@ class BillController with ChangeNotifier {
     }
   }
 
-  Future<void> createBill(BillModel bill) async {
+  Future<bool> createBill(BillModel bill) async {
     try {
       if (bill.id == null) {
         await _billDao.create(bill);
@@ -279,14 +279,16 @@ class BillController with ChangeNotifier {
       } else {
         await loadDebtData();
       }
+      return true;
     } catch (e) {
       debugPrint("[BILL] An error occurred while create bills: $e");
+      return false;
     } finally {
       notifyListeners();
     }
   }
 
-  Future<void> createDebt(DebtModel debt) async {
+  Future<bool> createDebt(DebtModel debt) async {
     try {
       if (debt.id == null) {
         await _debtDao.create(debt);
@@ -298,8 +300,10 @@ class BillController with ChangeNotifier {
       if (debt.bill != null) {
         loadBillData();
       }
+      return true;
     } catch (e) {
       debugPrint("[BILL] An error occurred while create debt: $e");
+      return false;
     } finally {
       notifyListeners();
     }

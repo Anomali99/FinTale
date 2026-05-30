@@ -1,28 +1,22 @@
 import 'package:flutter/material.dart';
 
-import '../controllers/user_controller.dart';
 import '../core/constants/ui_dict.dart';
 import '../core/utils/starter_pack.dart';
-import '../data/local/app_database.dart';
-import '../data/local/pref_service.dart';
+import '../data/app_database.dart';
+import '../data/pref_service.dart';
 import '../models/user_model.dart';
 import '../models/wallet_model.dart';
+import '../services/auth_service.dart';
 import '../services/backup_service.dart';
 import '../services/local_auth_service.dart';
 import '../services/notification_service.dart';
-import 'auth_controller.dart';
 
 class SettingsController with ChangeNotifier {
   final PrefService _prefService;
-  final AuthController _authController;
-  final UserController _userController;
+  final AuthService _authService;
   bool _isHardwareBiometricSupported = false;
 
-  SettingsController(
-    this._prefService,
-    this._authController,
-    this._userController,
-  ) {
+  SettingsController(this._prefService, this._authService) {
     _initHardwareCheck();
   }
 
@@ -47,7 +41,7 @@ class SettingsController with ChangeNotifier {
   }
 
   Future<bool> changeAppLock(BuildContext context, bool value) async {
-    String? userEmail = _prefService.getUser()?.email;
+    String? userEmail = _prefService.rawUser?['email'];
     if (value == true) {
       final result =
           await Navigator.pushNamed(
@@ -94,7 +88,7 @@ class SettingsController with ChangeNotifier {
     if (value) {
       isAuthorized = await LocalAuthService.authenticateBiometricOnly();
     } else {
-      String? userEmail = _prefService.getUser()?.email;
+      String? userEmail = _prefService.rawUser?['email'];
       final result =
           await Navigator.pushNamed(
                 context,
@@ -150,13 +144,14 @@ class SettingsController with ChangeNotifier {
   }
 
   Future<bool> handleResetPin(BuildContext context) async {
+    String? userEmail = _prefService.rawUser?['email'];
     final result =
         await Navigator.pushNamed(
               context,
               '/create-pin',
               arguments: {
                 "currentPinHash": currentPinHash,
-                "userEmail": _prefService.getUser()?.email,
+                "userEmail": userEmail,
               },
             )
             as bool?;
@@ -170,7 +165,8 @@ class SettingsController with ChangeNotifier {
   Future<Map<String, dynamic>> handleSignOut() async {
     try {
       await NotificationService().cancelAllNotifications();
-      await _authController.logoutAndClearData();
+      await _prefService.clearAll();
+      await AppDatabase.instance.deleteDB();
       return {"success": true};
     } catch (e) {
       return {"success": false, "error": 'Connection failed:  $e'};
@@ -179,7 +175,7 @@ class SettingsController with ChangeNotifier {
 
   Future<Map<String, dynamic>> handleResetData() async {
     try {
-      UserModel? oldUser = _prefService.getUser();
+      UserModel? oldUser = _prefService.user;
       if (oldUser != null) {
         UserModel newUser = StarterPack.generateUser(
           uid: oldUser.uid,
@@ -207,8 +203,7 @@ class SettingsController with ChangeNotifier {
       final Map<String, dynamic> dbData = await AppDatabase.instance
           .exportAllData();
 
-      final Map<String, dynamic> userData =
-          _userController.currentUser?.toJson() ?? {};
+      final Map<String, dynamic> userData = _prefService.rawUser ?? {};
 
       final bool isSuccess = await BackupService().exportData(userData, dbData);
 
@@ -219,25 +214,87 @@ class SettingsController with ChangeNotifier {
   }
 
   Future<Map<String, dynamic>> handleImportData() async {
-    final Map<String, dynamic>? backupData = await BackupService().importData();
+    try {
+      final Map<String, dynamic>? backupData = await BackupService()
+          .importData();
 
-    if (backupData != null) {
-      try {
+      if (backupData != null) {
         final Map<String, dynamic> dbData = backupData['database'];
         final Map<String, dynamic> userData = backupData['user'];
 
         await NotificationService().cancelAllNotifications();
 
+        Map<String, dynamic>? currentUser = _prefService.rawUser;
+        if (currentUser != null) {
+          userData['uid'] = currentUser['uid'];
+          userData['email'] = currentUser['email'];
+        }
+
         await _prefService.saveRawUser(userData);
         bool isDbSuccess = await AppDatabase.instance.importDatabase(dbData);
-
         if (isDbSuccess) {
           return {"success": true, "load": true};
         }
-      } catch (e) {
-        return {"success": false, "load": false, "error": 'Error:  $e'};
       }
+      return {"success": false, "load": false};
+    } catch (e) {
+      return {"success": false, "load": false, "error": 'Error:  $e'};
     }
-    return {"success": false, "load": false};
+  }
+
+  Future<bool> handleBackupData() async {
+    try {
+      final Map<String, dynamic> dbData = await AppDatabase.instance
+          .exportAllData();
+
+      final Map<String, dynamic> userData = _prefService.rawUser ?? {};
+      final client = await _authService.getDriveClient();
+      bool isSuccess = false;
+
+      if (client != null) {
+        isSuccess = await BackupService().uploadToDrive(
+          client,
+          userData,
+          dbData,
+        );
+      }
+
+      return isSuccess;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  Future<Map<String, dynamic>> handleRestoreData() async {
+    try {
+      final client = await _authService.getDriveClient();
+      if (client != null) {
+        final Map<String, dynamic>? backupData = await BackupService()
+            .downloadFromDrive(client);
+
+        if (backupData != null) {
+          final Map<String, dynamic> dbData = backupData['database'];
+          final Map<String, dynamic> userData = backupData['user'];
+
+          await NotificationService().cancelAllNotifications();
+
+          Map<String, dynamic>? currentUser = _prefService.rawUser;
+          if (currentUser != null) {
+            userData['uid'] = currentUser['uid'];
+            userData['email'] = currentUser['email'];
+          }
+
+          await _prefService.saveRawUser(userData);
+
+          bool isDbSuccess = await AppDatabase.instance.importDatabase(dbData);
+          if (isDbSuccess) {
+            return {"success": true, "load": true};
+          }
+        }
+      }
+      return {"success": false, "load": false};
+    } catch (e) {
+      return {"success": false, "load": false, "error": 'Error:  $e'};
+    }
   }
 }

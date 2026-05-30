@@ -12,6 +12,7 @@ import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/category_dict.dart';
 import '../../../core/constants/screen_dict.dart';
 import '../../../core/constants/ui_dict.dart';
+import '../../../core/utils/global_messenger.dart';
 import '../../../models/assets_model.dart';
 import '../../../models/transaction_model.dart';
 import '../widgets/asset_tab.dart';
@@ -37,14 +38,22 @@ class InvestScreen extends StatelessWidget {
     );
 
     if (result != null && context.mounted) {
-      await investController.claimDeviden(result);
+      bool isSuccess = await investController.claimDeviden(result);
       historyController.applyFilter();
       analyticsController.applyFilter();
+      GlobalMessenger.showMessage(
+        message: UiDict.getSaveNotif(
+          ScreenDict.investClaim,
+          isSuccess: isSuccess,
+        ),
+        isSuccess: isSuccess,
+      );
     }
   }
 
   void _openUpdateAsset(BuildContext context, AssetsModel asset) async {
     final investController = context.read<InvestController>();
+    final isRpg = context.read<SettingsController>().isRpgMode;
     final result = await showModalBottomSheet<AssetsModel?>(
       context: context,
       isScrollControlled: true,
@@ -52,7 +61,15 @@ class InvestScreen extends StatelessWidget {
       builder: (context) => UpdateAssetModal(asset: asset),
     );
     if (result != null && context.mounted) {
-      await investController.updateAsset(result);
+      bool isSuccess = await investController.updateAsset(result);
+      GlobalMessenger.showMessage(
+        message: UiDict.getSaveNotif(
+          ScreenDict.investAssetName.get(isRpg),
+          isSuccess: isSuccess,
+          isUpdate: true,
+        ),
+        isSuccess: isSuccess,
+      );
     }
   }
 
@@ -61,6 +78,7 @@ class InvestScreen extends StatelessWidget {
     final walletController = context.read<WalletController>();
     final historyController = context.read<HistoryController>();
     final analyticsController = context.read<AnalyticsController>();
+    final isRpg = context.read<SettingsController>().isRpgMode;
     final result = await showModalBottomSheet<Map<String, dynamic>?>(
       context: context,
       isScrollControlled: true,
@@ -75,13 +93,20 @@ class InvestScreen extends StatelessWidget {
       TransactionModel transaction = result['transaction'];
       AssetsModel asset = result['asset'];
       bool useReserved = result['use_reserved'];
-      await investController.saveTransaction(
+      bool isSuccess = await investController.saveTransaction(
         transaction,
         asset,
         useReserved: useReserved,
       );
       historyController.applyFilter();
       analyticsController.applyFilter();
+      GlobalMessenger.showMessage(
+        message: UiDict.getSaveNotif(
+          ScreenDict.investAssetName.get(isRpg),
+          isSuccess: isSuccess,
+        ),
+        isSuccess: isSuccess,
+      );
     }
   }
 
@@ -90,6 +115,7 @@ class InvestScreen extends StatelessWidget {
     final walletController = context.read<WalletController>();
     final historyController = context.read<HistoryController>();
     final analyticsController = context.read<AnalyticsController>();
+    final isRpg = context.read<SettingsController>().isRpgMode;
     final result = await showModalBottomSheet<Map<String, dynamic>?>(
       context: context,
       isScrollControlled: true,
@@ -104,9 +130,19 @@ class InvestScreen extends StatelessWidget {
     if (result != null && context.mounted) {
       TransactionModel transaction = result['transaction'];
       AssetsModel asset = result['asset'];
-      await investController.saveTransaction(transaction, asset);
+      bool isSuccess = await investController.saveTransaction(
+        transaction,
+        asset,
+      );
       historyController.applyFilter();
       analyticsController.applyFilter();
+      GlobalMessenger.showMessage(
+        message: ScreenDict.getInvestModalNotif(
+          isSuccess: isSuccess,
+          isRpg: isRpg,
+        ),
+        isSuccess: isSuccess,
+      );
     }
   }
 

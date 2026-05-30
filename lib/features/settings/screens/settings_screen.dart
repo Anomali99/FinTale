@@ -31,11 +31,17 @@ class SettingsScreen extends StatelessWidget {
       context: context,
       barrierDismissible: false,
       builder: (_) {
-        return const PopScope(
+        return PopScope(
           canPop: false,
-          child: AlertDialog(
-            backgroundColor: AppColors.surfaceVariant,
-            content: CircularProgressIndicator(color: AppColors.primary),
+          child: Center(
+            child: Container(
+              padding: const EdgeInsets.all(24),
+              decoration: const BoxDecoration(
+                color: AppColors.surfaceVariant,
+                shape: BoxShape.circle,
+              ),
+              child: const CircularProgressIndicator(color: AppColors.primary),
+            ),
           ),
         );
       },
@@ -73,13 +79,13 @@ class SettingsScreen extends StatelessWidget {
       }
 
       if (onSuccess != null) {
-        GlobalMessenger.swowMessage(message: onSuccess, isSuccess: true);
+        GlobalMessenger.showMessage(message: onSuccess, isSuccess: true);
       }
       Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
     } else {
       String? failed = onFailed ?? result["error"];
       if (failed != null) {
-        GlobalMessenger.swowMessage(message: failed, isSuccess: false);
+        GlobalMessenger.showMessage(message: failed, isSuccess: false);
       }
     }
   }
@@ -217,7 +223,7 @@ class SettingsScreen extends StatelessWidget {
                         val,
                       );
                       if (!success && context.mounted) {
-                        GlobalMessenger.swowMessage(
+                        GlobalMessenger.showMessage(
                           message: UiDict.authRequired,
                           isSuccess: false,
                         );
@@ -260,7 +266,7 @@ class SettingsScreen extends StatelessWidget {
                             bool success = await settingsController
                                 .handleResetPin(context);
                             if (context.mounted) {
-                              GlobalMessenger.swowMessage(
+                              GlobalMessenger.showMessage(
                                 message: success
                                     ? UiDict.changePinSuccess
                                     : UiDict.changePinCancel,
@@ -299,7 +305,7 @@ class SettingsScreen extends StatelessWidget {
                               bool success = await settingsController
                                   .changeBiometric(context, val);
                               if (!success && context.mounted) {
-                                GlobalMessenger.swowMessage(
+                                GlobalMessenger.showMessage(
                                   message: UiDict.biometricFailed,
                                   isSuccess: false,
                                 );
@@ -355,7 +361,7 @@ class SettingsScreen extends StatelessWidget {
                           .changeNotification(context, val);
                       if (context.mounted) {
                         if (!success) {
-                          GlobalMessenger.swowMessage(
+                          GlobalMessenger.showMessage(
                             message: UiDict.setNotificationsFiled,
                             isSuccess: false,
                           );
@@ -430,7 +436,7 @@ class SettingsScreen extends StatelessWidget {
                   onTap: () async {
                     bool success = await settingsController.handleExportData();
                     if (context.mounted) {
-                      GlobalMessenger.swowMessage(
+                      GlobalMessenger.showMessage(
                         message: success
                             ? UiDict.setSuccessExport
                             : UiDict.setFailedExport,
@@ -453,7 +459,7 @@ class SettingsScreen extends StatelessWidget {
                   ),
                   onTap: () => _showWarningDialog(
                     context,
-                    title: UiDict.setImportWarning,
+                    title: UiDict.setWarning,
                     desc: UiDict.setImportDesc,
                     yesTitle: UiDict.setImportBtn,
                     onYes: () => _handleAction(
@@ -493,20 +499,52 @@ class SettingsScreen extends StatelessWidget {
           const SizedBox(height: 32),
 
           CustomButton(
-            icon: FontAwesomeIcons.arrowsRotate,
-            title: UiDict.setSync,
-            color: Colors.blueAccent,
-            onTap: () {
-              /* TODO: Sync Data */
+            icon: FontAwesomeIcons.upload,
+            title: 'Backup ke Cloud',
+            color: Colors.greenAccent,
+            onTap: () async {
+              bool success = await settingsController.handleBackupData();
+              if (context.mounted) {
+                GlobalMessenger.showMessage(
+                  message: success
+                      ? UiDict.setSuccessExport
+                      : UiDict.setFailedExport,
+                  isSuccess: success,
+                );
+              }
             },
+          ),
+          const SizedBox(height: 16),
+          CustomButton(
+            icon: FontAwesomeIcons.download,
+            title: 'Restore dari Cloud',
+            color: Colors.blueAccent,
+            onTap: () => _showWarningDialog(
+              context,
+              title: UiDict.setWarning,
+              desc: UiDict.setImportDesc,
+              yesTitle: UiDict.setImportBtn,
+              onYes: () => _handleAction(
+                context,
+                settingsController.handleRestoreData,
+                onSuccess: UiDict.setSuccessImport,
+                onFailed: UiDict.setFailedImport,
+              ),
+            ),
           ),
           const SizedBox(height: 16),
           CustomButton(
             icon: FontAwesomeIcons.arrowRightFromBracket,
             title: UiDict.setSignOut,
             color: AppColors.error,
-            onTap: () =>
-                _handleAction(context, settingsController.handleSignOut),
+            onTap: () => _showWarningDialog(
+              context,
+              title: UiDict.setWarning,
+              desc: UiDict.setLogOutDesc,
+              yesTitle: UiDict.setLogOutBtn,
+              onYes: () =>
+                  _handleAction(context, settingsController.handleSignOut),
+            ),
           ),
 
           const SizedBox(height: 48),

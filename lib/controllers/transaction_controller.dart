@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../core/models/analytic_model.dart';
 import '../core/utils/enum_types.dart';
-import '../data/local/dao/transaction_dao.dart';
+import '../data/dao/transaction_dao.dart';
 import '../models/transaction_detail_model.dart';
 import '../models/transaction_model.dart';
 
@@ -150,6 +150,7 @@ class TransactionController extends ChangeNotifier {
     DateTime? endDate,
     List<int>? walletIds,
     List<TransactionType>? types,
+    bool filtered = false,
   }) async {
     try {
       DateTime now = DateTime.now();
@@ -161,7 +162,8 @@ class TransactionController extends ChangeNotifier {
 
       bool isCustomFilter =
           (walletIds != null && walletIds.isNotEmpty) ||
-          (types != null && types.isNotEmpty);
+          (types != null && types.isNotEmpty) ||
+          filtered;
 
       if (!isCustomFilter && _monthlyCache.containsKey(cacheKey)) {
         transactions = List.from(_monthlyCache[cacheKey]!);

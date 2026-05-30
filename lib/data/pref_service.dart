@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../../models/user_model.dart';
+import '../models/user_model.dart';
 
 class PrefService {
   final SharedPreferences _prefs;
@@ -27,11 +27,18 @@ class PrefService {
     await _prefs.setString(_keyUserProfile, jsonString);
   }
 
-  UserModel? getUser() {
+  UserModel? get user {
     String? jsonString = _prefs.getString(_keyUserProfile);
     if (jsonString == null) return null;
 
     return UserModel.fromJson(jsonDecode(jsonString));
+  }
+
+  Map<String, dynamic>? get rawUser {
+    String? jsonString = _prefs.getString(_keyUserProfile);
+    if (jsonString == null) return null;
+
+    return jsonDecode(jsonString);
   }
 
   bool get isHideBalance => _prefs.getBool(_keyHideBalance) ?? false;

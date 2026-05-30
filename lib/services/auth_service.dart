@@ -1,77 +1,45 @@
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:extension_google_sign_in_as_googleapis_auth/extension_google_sign_in_as_googleapis_auth.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:googleapis_auth/googleapis_auth.dart' as auth;
 
 class AuthService {
-  final FirebaseAuth _auth = FirebaseAuth.instance;
   final GoogleSignIn _googleSignIn = GoogleSignIn.instance;
+  GoogleSignInAccount? userAccount;
+
+  static const List<String> _scopes = [
+    'email',
+    'profile',
+    'https://www.googleapis.com/auth/drive.file',
+  ];
 
   bool _isInitialized = false;
 
-  Stream<User?> get userStream => _auth.authStateChanges();
-
   Future<void> _ensureInitialized() async {
     if (!_isInitialized) {
-      await _googleSignIn.initialize();
+      await _googleSignIn.initialize(
+        serverClientId: dotenv.env['SERVER_CLIENT_ID'],
+      );
       _isInitialized = true;
     }
   }
 
-  Future<UserCredential> signInWithGoogle() async {
-    try {
-      await _ensureInitialized();
-
-      final GoogleSignInAccount googleUser = await _googleSignIn.authenticate();
-
-      final GoogleSignInAuthentication googleAuth = googleUser.authentication;
-
-      const List<String> scopes = ['email', 'profile'];
-
-      var clientAuth = await googleUser.authorizationClient
-          .authorizationForScopes(scopes);
-
-      clientAuth ??= await googleUser.authorizationClient.authorizeScopes(
-        scopes,
-      );
-
-      final AuthCredential credential = GoogleAuthProvider.credential(
-        accessToken: clientAuth.accessToken,
-        idToken: googleAuth.idToken,
-      );
-
-      UserCredential userCredential = await _auth.signInWithCredential(
-        credential,
-      );
-
-      if (userCredential.user != null &&
-          userCredential.user!.displayName == null) {
-        final String realName = googleUser.displayName ?? 'Adventurer';
-
-        await userCredential.user!.updateDisplayName(realName);
-
-        await userCredential.user!.reload();
-      }
-
-      return userCredential;
-    } catch (e) {
-      throw Exception('Failed to sign in with Google: $e');
-    }
-  }
-
-  Future<UserCredential> signInAnonymously() async {
-    try {
-      return await _auth.signInAnonymously();
-    } catch (e) {
-      throw Exception('Failed to sign in anonymously: $e');
-    }
-  }
-
-  bool get isAnonymousUser {
-    return _auth.currentUser?.isAnonymous ?? false;
-  }
-
-  Future<void> signOut() async {
+  Future<auth.AuthClient?> getDriveClient() async {
     await _ensureInitialized();
-    await _googleSignIn.signOut();
-    await _auth.signOut();
+    userAccount ??= await _googleSignIn.authenticate();
+    if (userAccount == null) return null;
+
+    try {
+      var authorization = await userAccount!.authorizationClient
+          .authorizationForScopes(_scopes);
+
+      authorization ??= await userAccount!.authorizationClient.authorizeScopes(
+        _scopes,
+      );
+
+      return authorization.authClient(scopes: _scopes);
+    } catch (e) {
+      return null;
+    }
   }
 }

@@ -1,5 +1,5 @@
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -17,20 +17,19 @@ import 'controllers/transaction_controller.dart';
 import 'controllers/user_controller.dart';
 import 'controllers/wallet_controller.dart';
 import 'core/theme/mode_provider.dart';
-import 'data/local/dao/asset_dao.dart';
-import 'data/local/dao/bill_dao.dart';
-import 'data/local/dao/debt_dao.dart';
-import 'data/local/dao/transaction_dao.dart';
-import 'data/local/dao/wallet_dao.dart';
-import 'data/local/pref_service.dart';
+import 'data/dao/asset_dao.dart';
+import 'data/dao/bill_dao.dart';
+import 'data/dao/debt_dao.dart';
+import 'data/dao/transaction_dao.dart';
+import 'data/dao/wallet_dao.dart';
+import 'data/pref_service.dart';
 import 'fintale_app.dart';
-import 'firebase_options.dart';
 import 'services/auth_service.dart';
 import 'services/notification_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  await dotenv.load(fileName: ".env");
   await NotificationService().init();
 
   final prefs = await SharedPreferences.getInstance();
@@ -46,11 +45,7 @@ void main() async {
   final userController = UserController(prefService);
   final walletController = WalletController(walletDao);
   final transactionController = TransactionController(transactionDao);
-  final authController = AuthController(
-    authService,
-    userController,
-    walletController,
-  );
+  final authController = AuthController(userController, walletController);
   final layoutController = LayoutController(
     userController,
     walletController,
@@ -78,11 +73,7 @@ void main() async {
   );
   final historyController = HistoryController(transactionController);
   final analyticsController = AnalyticsController(transactionController);
-  final settingsController = SettingsController(
-    prefService,
-    authController,
-    userController,
-  );
+  final settingsController = SettingsController(prefService, authService);
 
   runApp(
     MultiProvider(

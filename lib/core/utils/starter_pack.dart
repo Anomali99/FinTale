@@ -6,11 +6,11 @@ import 'leveling_extension.dart';
 class StarterPack {
   static UserModel generateUser({
     required String uid,
-    required String name,
+    String? name,
     String? email,
   }) => UserModel(
     uid: uid,
-    name: name.isEmpty ? 'Adventurer' : name,
+    name: name ?? 'Adventurer',
     email: email,
     title: TitleType.noviceSaver,
     level: 1,

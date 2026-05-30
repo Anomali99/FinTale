@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../models/wallet_model.dart';
 import '../core/utils/enum_types.dart';
-import '../data/local/dao/wallet_dao.dart';
+import '../data/dao/wallet_dao.dart';
 
 class WalletController extends ChangeNotifier with WidgetsBindingObserver {
   final WalletDao _walletDao;
