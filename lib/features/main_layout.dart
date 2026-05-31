@@ -99,9 +99,11 @@ class MainLayout extends StatelessWidget {
     if (result != null) {
       TransactionModel transaction = result['transaction'];
       bool useReserved = result['use_reserved'];
+      bool excludeDaily = result['exclude_daily'];
       bool isSuccess = await layoutController.saveTransaction(
         transaction,
         useReserved: useReserved,
+        excludeDaily: excludeDaily,
       );
       historyController.applyFilter();
       analyticsController.applyFilter();

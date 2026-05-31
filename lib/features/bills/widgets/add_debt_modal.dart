@@ -232,7 +232,13 @@ class _AddDebtModalState extends State<AddDebtModal> {
                   ScreenDict.debtBillCheck.get(isRpg),
                   style: TextStyle(fontWeight: FontWeight.bold),
                 ),
-                subtitle: Text(ScreenDict.getDebtBillDesc(isRpg: isRpg)),
+                subtitle: Text(
+                  ScreenDict.getDebtBillDesc(isRpg: isRpg),
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: AppColors.textSecondary,
+                  ),
+                ),
                 value: _createBill,
                 onChanged: (val) => setState(() => _createBill = val),
               ),

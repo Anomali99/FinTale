@@ -14,6 +14,7 @@ class AssetTab extends StatelessWidget {
   final Function(AssetsModel) updateAsset;
   final Function(AssetsModel) addInvest;
   final Function(AssetsModel) claimDeviden;
+  final Function(AssetsModel) sellAsset;
 
   const AssetTab({
     super.key,
@@ -22,6 +23,7 @@ class AssetTab extends StatelessWidget {
     required this.updateAsset,
     required this.addInvest,
     required this.claimDeviden,
+    required this.sellAsset,
   });
 
   @override
@@ -61,6 +63,7 @@ class AssetTab extends StatelessWidget {
           updateAsset: () => updateAsset(assets[index]),
           addInvest: () => addInvest(assets[index]),
           claimDeviden: () => claimDeviden(assets[index]),
+          sellAsset: () => sellAsset(assets[index]),
           icon: icon,
         );
       },

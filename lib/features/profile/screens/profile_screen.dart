@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 
 import '../../../controllers/profile_controller.dart';
 import '../../../controllers/settings_controller.dart';
+import '../../../controllers/skill_controller.dart';
 import '../../../controllers/user_controller.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/gamification_dict.dart';
@@ -51,6 +52,7 @@ class ProfileScreen extends StatelessWidget {
     required Future<bool> Function(BigInt) function,
     String? defaultValue,
   }) async {
+    final skillController = context.read<SkillController>();
     final result = await showModalBottomSheet<String?>(
       context: context,
       isScrollControlled: true,
@@ -64,6 +66,11 @@ class ProfileScreen extends StatelessWidget {
 
     if (result != null && context.mounted) {
       bool isSuccess = await function(BigInt.parse(result));
+
+      if (isSuccess) {
+        await skillController.loadData();
+      }
+
       GlobalMessenger.showMessage(
         message: UiDict.getSaveNotif(
           title,

@@ -21,17 +21,37 @@ extension LevelingExtension on UserModel {
   }
 
   void addEmergencyTotal(BigInt amount, {bool isIncome = true}) {
-    bool tempMax = budget.tempEmergencyMax(amount, isIncome: isIncome);
-    if (tempMax != budget.isEmergencyMax) {
+    bool lastStatus = budget.isEmergencyMax;
+    budget.addEmergencyTotal(amount, isIncome: isIncome);
+    if (lastStatus != budget.isEmergencyMax) {
       allocation.updateSkill(
         AllocationMap.getAllocationByLevel(
           level,
-          maxEmergency: tempMax,
+          maxEmergency: budget.isEmergencyMax,
           noDebt: budget.isFreeDebt,
         ),
       );
+      GlobalMessenger.showSleekNotification(
+        message: 'Status dana darurat berubah, skill disesuikan',
+      );
     }
-    budget.addEmergencyTotal(amount, isIncome: isIncome);
+  }
+
+  void updateEmergencyAmount(BigInt amount) {
+    bool lastStatus = budget.isEmergencyMax;
+    budget.updateEmergencyAmount(amount);
+    if (lastStatus != budget.isEmergencyMax) {
+      allocation.updateSkill(
+        AllocationMap.getAllocationByLevel(
+          level,
+          maxEmergency: budget.isEmergencyMax,
+          noDebt: budget.isFreeDebt,
+        ),
+      );
+      GlobalMessenger.showSleekNotification(
+        message: 'Status dana darurat berubah, skill disesuikan',
+      );
+    }
   }
 
   void updateFreeDebt(bool value) {
@@ -42,6 +62,10 @@ extension LevelingExtension on UserModel {
           maxEmergency: budget.isEmergencyMax,
           noDebt: value,
         ),
+      );
+
+      GlobalMessenger.showSleekNotification(
+        message: 'Status hutang berubah, skill disesuikan',
       );
     }
     budget.updateFreeDebt(value);

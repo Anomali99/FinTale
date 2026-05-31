@@ -241,7 +241,6 @@ class BillController with ChangeNotifier {
       await _userController.processDebtPayment();
       await _userController.saveUser();
       await _walletController.loadData();
-      await _userController.loadData();
       return true;
     } catch (e) {
       debugPrint("[BILL] An error occurred while pay debt: $e");

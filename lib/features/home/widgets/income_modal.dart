@@ -339,8 +339,20 @@ class _IncomeModalState extends State<IncomeModal> {
 
               SwitchListTile(
                 contentPadding: EdgeInsets.zero,
-                title: const Text(UiDict.feeCheck),
-                subtitle: const Text(UiDict.feeCheckDesc),
+                title: const Text(
+                  UiDict.feeCheck,
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                subtitle: Text(
+                  ScreenDict.getFeeCheckDesc(
+                    isIncome: !widget.isTransfer,
+                    isRpg: isRpg,
+                  ),
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: AppColors.textSecondary,
+                  ),
+                ),
                 value: _isFeeActive,
                 onChanged: (val) => setState(() => _isFeeActive = val),
               ),
@@ -379,8 +391,17 @@ class _IncomeModalState extends State<IncomeModal> {
               if (widget.isTransfer) ...[
                 SwitchListTile(
                   contentPadding: EdgeInsets.zero,
-                  title: Text(ScreenDict.getReservedCheck(isRpg: isRpg)),
-                  subtitle: Text(ScreenDict.getReservedCheckDesc(isRpg: isRpg)),
+                  title: Text(
+                    ScreenDict.getReservedCheck(isRpg: isRpg),
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  subtitle: Text(
+                    ScreenDict.getReservedCheckDesc(isRpg: isRpg),
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
                   value: _isReservedActive,
                   onChanged: (val) => setState(() {
                     if (_selectedWallet != null) {
@@ -401,8 +422,17 @@ class _IncomeModalState extends State<IncomeModal> {
               ] else ...[
                 SwitchListTile(
                   contentPadding: EdgeInsets.zero,
-                  title: Text(UiDict.autoCheck),
-                  subtitle: Text(UiDict.autoCheckDesc),
+                  title: Text(
+                    UiDict.autoCheck,
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  subtitle: Text(
+                    UiDict.autoCheckDesc,
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
                   value: _isAllocationActive,
                   onChanged: (val) => setState(() => _isAllocationActive = val),
                 ),

@@ -235,8 +235,20 @@ class _PayBillModalState extends State<PayBillModal> {
 
               SwitchListTile(
                 contentPadding: EdgeInsets.zero,
-                title: const Text(UiDict.feeCheck),
-                subtitle: const Text(UiDict.feeCheckDesc),
+                title: const Text(
+                  UiDict.feeCheck,
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+                subtitle: Text(
+                  ScreenDict.getFeeCheckDesc(isRpg: isRpg),
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: AppColors.textSecondary,
+                  ),
+                ),
                 value: _isFeeActive,
                 onChanged: (val) => setState(() => _isFeeActive = val),
               ),
@@ -270,8 +282,17 @@ class _PayBillModalState extends State<PayBillModal> {
 
               SwitchListTile(
                 contentPadding: EdgeInsets.zero,
-                title: Text(ScreenDict.getReservedCheck(isRpg: isRpg)),
-                subtitle: Text(ScreenDict.getReservedCheckDesc(isRpg: isRpg)),
+                title: Text(
+                  ScreenDict.getReservedCheck(isRpg: isRpg),
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+                subtitle: Text(
+                  ScreenDict.getReservedCheckDesc(isRpg: isRpg),
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
                 value: _isReservedActive,
                 onChanged: (val) => setState(() {
                   if (_selectedWallet != null) {

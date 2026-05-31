@@ -58,6 +58,7 @@ class UserModel {
 class UserBudgetModel {
   BigInt baseDailyLimit;
   BigInt dailyPenalty;
+  BigInt currentPenalty;
   BigInt todayUsage;
   BigInt emergencyAmount;
   BigInt emergencyTotal;
@@ -69,11 +70,13 @@ class UserBudgetModel {
     this.lastActiveDate = 0,
     BigInt? baseDailyLimit,
     BigInt? dailyPenalty,
+    BigInt? currentPenalty,
     BigInt? todayUsage,
     BigInt? emergencyAmount,
     BigInt? emergencyTotal,
   }) : baseDailyLimit = baseDailyLimit ?? BigInt.zero,
        dailyPenalty = dailyPenalty ?? BigInt.zero,
+       currentPenalty = currentPenalty ?? BigInt.zero,
        todayUsage = todayUsage ?? BigInt.zero,
        emergencyAmount = emergencyAmount ?? BigInt.zero,
        emergencyTotal = emergencyTotal ?? BigInt.zero;
@@ -81,6 +84,7 @@ class UserBudgetModel {
   Map<String, dynamic> toJson() => {
     "base_daily_limit": baseDailyLimit.toString(),
     "daily_penalty": dailyPenalty.toString(),
+    "current_penalty": currentPenalty.toString(),
     "today_usage": todayUsage.toString(),
     "emergency_amount": emergencyAmount.toString(),
     "emergency_total": emergencyTotal.toString(),
@@ -92,6 +96,7 @@ class UserBudgetModel {
       UserBudgetModel(
         baseDailyLimit: BigInt.parse(json['base_daily_limit'] ?? '0'),
         dailyPenalty: BigInt.parse(json['daily_penalty'] ?? '0'),
+        currentPenalty: BigInt.parse(json['current_penalty'] ?? '0'),
         todayUsage: BigInt.parse(json['today_usage'] ?? '0'),
         emergencyAmount: BigInt.parse(json['emergency_amount'] ?? '0'),
         emergencyTotal: BigInt.parse(json['emergency_total'] ?? '0'),
@@ -110,7 +115,6 @@ class UserProgressModel {
   int weeklyBudgetDays;
   bool isWeeklyCheckInClaimed;
   bool isWeeklyBudgetClaimed;
-  bool isMonthlySavingsClaimed;
   bool isMonthlyDebtClaimed;
   bool isMonthlyReviewClaimed;
   bool isFirstTransactionClaimed;
@@ -127,7 +131,6 @@ class UserProgressModel {
     this.weeklyBudgetDays = 0,
     this.isWeeklyCheckInClaimed = false,
     this.isWeeklyBudgetClaimed = false,
-    this.isMonthlySavingsClaimed = false,
     this.isMonthlyDebtClaimed = false,
     this.isMonthlyReviewClaimed = false,
     this.isFirstTransactionClaimed = false,
@@ -145,7 +148,6 @@ class UserProgressModel {
     "weekly_budget_days": weeklyBudgetDays,
     "is_weekly_checkIn_claimed": isWeeklyCheckInClaimed,
     "is_weekly_budget_claimed": isWeeklyBudgetClaimed,
-    "is_monthly_savings_claimed": isMonthlySavingsClaimed,
     "is_monthly_debt_claimed": isMonthlyDebtClaimed,
     "is_monthly_review_claimed": isMonthlyReviewClaimed,
     "is_first_transaction_claimed": isFirstTransactionClaimed,
@@ -164,7 +166,6 @@ class UserProgressModel {
         weeklyBudgetDays: json['weekly_budget_days'],
         isWeeklyCheckInClaimed: json['is_weekly_checkIn_claimed'],
         isWeeklyBudgetClaimed: json['is_weekly_budget_claimed'],
-        isMonthlySavingsClaimed: json['is_monthly_savings_claimed'],
         isMonthlyDebtClaimed: json['is_monthly_debt_claimed'],
         isMonthlyReviewClaimed: json['is_monthly_review_claimed'],
         isFirstTransactionClaimed: json['is_first_transaction_claimed'],
@@ -295,14 +296,7 @@ extension UserBudgetExtension on UserBudgetModel {
   }
 
   bool get isEmergencyMax =>
-      BigInt.zero > emergencyAmount && emergencyTotal >= emergencyAmount;
-
-  bool tempEmergencyMax(BigInt amount, {bool isIncome = true}) {
-    BigInt tempTotal = isIncome
-        ? emergencyTotal + amount
-        : emergencyTotal - amount;
-    return BigInt.zero > emergencyAmount && tempTotal >= emergencyAmount;
-  }
+      BigInt.zero < emergencyAmount && emergencyTotal >= emergencyAmount;
 
   void updateBaseDailyLimit(BigInt limit) {
     baseDailyLimit = limit;
@@ -331,7 +325,7 @@ extension UserBudgetExtension on UserBudgetModel {
     } else {
       todayUsage += remaining;
       BigInt excess = amount - remaining;
-      dailyPenalty += excess;
+      currentPenalty += excess;
     }
   }
 
@@ -346,6 +340,8 @@ extension UserBudgetExtension on UserBudgetModel {
 
     if (todayInt > lastActiveDate) {
       todayUsage = BigInt.zero;
+      dailyPenalty = currentPenalty;
+      currentPenalty = BigInt.zero;
       lastActiveDate = todayInt;
       return true;
     }

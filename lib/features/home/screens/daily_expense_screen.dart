@@ -45,6 +45,7 @@ class _DailyExpenseScreenState extends State<DailyExpenseScreen> {
   DateTime _selectedDate = DateTime.now();
   WalletModel? _selectedWallet;
 
+  bool _isExcludeActive = false;
   bool _isReservedActive = false;
   bool _isFeeActive = false;
 
@@ -174,6 +175,7 @@ class _DailyExpenseScreenState extends State<DailyExpenseScreen> {
       Navigator.pop(context, {
         "transaction": transaction,
         'use_reserved': _isReservedActive,
+        'exclude_daily': _isExcludeActive,
       });
     }
   }
@@ -323,8 +325,14 @@ class _DailyExpenseScreenState extends State<DailyExpenseScreen> {
             const SizedBox(height: 16),
             SwitchListTile(
               contentPadding: EdgeInsets.zero,
-              title: const Text(UiDict.feeCheck),
-              subtitle: const Text(UiDict.feeCheckDesc),
+              title: const Text(
+                UiDict.feeCheck,
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              subtitle: Text(
+                ScreenDict.getFeeCheckDesc(isRpg: isRpg),
+                style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
+              ),
               value: _isFeeActive,
               onChanged: (val) => setState(() => _isFeeActive = val),
             ),
@@ -355,16 +363,37 @@ class _DailyExpenseScreenState extends State<DailyExpenseScreen> {
                 color: Colors.grey,
               ),
             ],
+
             SwitchListTile(
               contentPadding: EdgeInsets.zero,
-              title: Text(ScreenDict.getReservedCheck(isRpg: isRpg)),
-              subtitle: Text(ScreenDict.getReservedCheckDesc(isRpg: isRpg)),
+              title: Text(
+                ScreenDict.getReservedCheck(isRpg: isRpg),
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              subtitle: Text(
+                ScreenDict.getReservedCheckDesc(isRpg: isRpg),
+                style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
+              ),
               value: _isReservedActive,
               onChanged: (val) => setState(() {
                 if (_selectedWallet != null) {
                   _isReservedActive = val;
+                  _isExcludeActive = val;
                 }
               }),
+            ),
+            SwitchListTile(
+              contentPadding: EdgeInsets.zero,
+              title: Text(
+                ScreenDict.getExcludeDailyCheck(isRpg: isRpg),
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              subtitle: Text(
+                ScreenDict.getExcludeDailyCheckDesc(isRpg: isRpg),
+                style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
+              ),
+              value: _isExcludeActive,
+              onChanged: (val) => setState(() => _isExcludeActive = val),
             ),
 
             const Divider(height: 1, color: Colors.white24),

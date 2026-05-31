@@ -183,22 +183,6 @@ class GamificationDict {
     limit: '1x',
   );
 
-  static MissionModel missionMonthlySavingsGoal = MissionModel(
-    terminology: TermModel(
-      normal: 'Target Tabungan Bulanan',
-      rpg: 'Target Timbunan Harta',
-    ),
-    icons: IconModel(
-      normal: FontAwesomeIcons.piggyBank,
-      rpg: FontAwesomeIcons.piggyBank,
-    ),
-    description: 'Berhasil mencapai target tabungan bulananmu.',
-    color: Colors.amber,
-    xp: '+500 XP',
-    frequency: 'Bulanan',
-    limit: '1x',
-  );
-
   static MissionModel missionDebtPayment = MissionModel(
     terminology: TermModel(
       normal: 'Pembayaran Hutang',
@@ -331,7 +315,6 @@ class GamificationDict {
     missionDailyBudgetCap,
     missionWeeklyCheckin,
     missionConsistentBudgeting,
-    missionMonthlySavingsGoal,
     missionDebtPayment,
     missionMonthlyReview,
     missionFirstTransaction,

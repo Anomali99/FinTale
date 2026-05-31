@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../../../core/constants/app_colors.dart';
-import '../../../core/constants/category_dict.dart';
 import '../../../core/constants/screen_dict.dart';
 import '../../../core/constants/ui_dict.dart';
 import '../../../core/utils/enum_types.dart';
@@ -102,14 +101,14 @@ class _DividendModalState extends State<DividendModal> {
 
       TransactionModel transaction = TransactionModel(
         type: TransactionType.income,
-        title: '${ScreenDict.investClaimDeviden} ${widget.asset.name}',
+        title: ScreenDict.investClaimDeviden,
         amount: totalAmount,
         status: StatusType.paid,
         walletId: _selectedWallet?.id,
         assetsId: widget.asset.id,
         detailTransaction: [
           TransactionDetailModel(
-            title: CategoryDict.dividend.get(false),
+            title: '${ScreenDict.investClaim} ${widget.asset.name}',
             amount: totalAmount,
             category: TransactionCategory.dividend,
             flow: FlowType.income,

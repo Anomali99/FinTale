@@ -18,6 +18,7 @@ class InvestCard extends StatelessWidget {
   final VoidCallback updateAsset;
   final VoidCallback addInvest;
   final VoidCallback claimDeviden;
+  final VoidCallback sellAsset;
 
   const InvestCard({
     super.key,
@@ -26,6 +27,7 @@ class InvestCard extends StatelessWidget {
     required this.updateAsset,
     required this.addInvest,
     required this.claimDeviden,
+    required this.sellAsset,
   });
 
   void _showAssetOptions(BuildContext context) {
@@ -66,6 +68,15 @@ class InvestCard extends StatelessWidget {
                   claimDeviden();
                 },
               ),
+            BottomSheetChild(
+              title: ScreenDict.investSellAsset.get(isRpg),
+              color: AppColors.error,
+              icon: FontAwesomeIcons.moneyBillTransfer,
+              onTap: () {
+                Navigator.pop(context);
+                sellAsset();
+              },
+            ),
           ],
         );
       },

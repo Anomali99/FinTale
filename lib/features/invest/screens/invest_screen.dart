@@ -7,6 +7,7 @@ import '../../../controllers/analytics_controller.dart';
 import '../../../controllers/history_controller.dart';
 import '../../../controllers/invest_controller.dart';
 import '../../../controllers/settings_controller.dart';
+import '../../../controllers/skill_controller.dart';
 import '../../../controllers/wallet_controller.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/category_dict.dart';
@@ -18,11 +19,54 @@ import '../../../models/transaction_model.dart';
 import '../widgets/asset_tab.dart';
 import '../widgets/buy_asset_modal.dart';
 import '../widgets/dividend_modal.dart';
+import '../widgets/sell_asset_modal.dart';
 import '../widgets/total_card.dart';
 import '../widgets/update_asset_modal.dart';
 
 class InvestScreen extends StatelessWidget {
   const InvestScreen({super.key});
+
+  void _openSellAsset(BuildContext context, AssetsModel asset) async {
+    final investController = context.read<InvestController>();
+    final walletController = context.read<WalletController>();
+    final skillController = context.read<SkillController>();
+    final historyController = context.read<HistoryController>();
+    final analyticsController = context.read<AnalyticsController>();
+    final isRpg = context.read<SettingsController>().isRpgMode;
+
+    final result = await showModalBottomSheet<Map<String, dynamic>?>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) =>
+          SellAssetModal(asset: asset, wallets: walletController.wallets),
+    );
+
+    if (result != null && context.mounted) {
+      TransactionModel transaction = result['transaction'];
+      AssetsModel updatedAsset = result['asset'];
+      BigInt emergencyDeduction = result['emergency_deduction'];
+
+      bool isSuccess = await investController.sellAsset(
+        transaction,
+        updatedAsset,
+        emergencyDeduction,
+      );
+
+      if (isSuccess) {
+        await skillController.loadData();
+      }
+      historyController.applyFilter();
+      analyticsController.applyFilter();
+      GlobalMessenger.showMessage(
+        message: ScreenDict.getInvestSellNotif(
+          isSuccess: isSuccess,
+          isRpg: isRpg,
+        ),
+        isSuccess: isSuccess,
+      );
+    }
+  }
 
   void _openDevidendAsset(BuildContext context, AssetsModel asset) async {
     final investController = context.read<InvestController>();
@@ -53,6 +97,7 @@ class InvestScreen extends StatelessWidget {
 
   void _openUpdateAsset(BuildContext context, AssetsModel asset) async {
     final investController = context.read<InvestController>();
+    final skillController = context.read<SkillController>();
     final isRpg = context.read<SettingsController>().isRpgMode;
     final result = await showModalBottomSheet<AssetsModel?>(
       context: context,
@@ -62,6 +107,9 @@ class InvestScreen extends StatelessWidget {
     );
     if (result != null && context.mounted) {
       bool isSuccess = await investController.updateAsset(result);
+      if (isSuccess) {
+        await skillController.loadData();
+      }
       GlobalMessenger.showMessage(
         message: UiDict.getSaveNotif(
           ScreenDict.investAssetName.get(isRpg),
@@ -76,6 +124,7 @@ class InvestScreen extends StatelessWidget {
   void _openAddAsset(BuildContext context) async {
     final investController = context.read<InvestController>();
     final walletController = context.read<WalletController>();
+    final skillController = context.read<SkillController>();
     final historyController = context.read<HistoryController>();
     final analyticsController = context.read<AnalyticsController>();
     final isRpg = context.read<SettingsController>().isRpgMode;
@@ -98,6 +147,10 @@ class InvestScreen extends StatelessWidget {
         asset,
         useReserved: useReserved,
       );
+
+      if (isSuccess) {
+        await skillController.loadData();
+      }
       historyController.applyFilter();
       analyticsController.applyFilter();
       GlobalMessenger.showMessage(
@@ -218,6 +271,7 @@ class InvestScreen extends StatelessWidget {
                     addInvest: (value) => _openAddInvest(context, value),
                     updateAsset: (value) => _openUpdateAsset(context, value),
                     claimDeviden: (value) => _openDevidendAsset(context, value),
+                    sellAsset: (value) => _openSellAsset(context, value),
                     assets: lowRisk,
                   ),
                   AssetTab(
@@ -225,6 +279,7 @@ class InvestScreen extends StatelessWidget {
                     addInvest: (value) => _openAddInvest(context, value),
                     updateAsset: (value) => _openUpdateAsset(context, value),
                     claimDeviden: (value) => _openDevidendAsset(context, value),
+                    sellAsset: (value) => _openSellAsset(context, value),
                     assets: mediumRisk,
                   ),
                   AssetTab(
@@ -232,6 +287,7 @@ class InvestScreen extends StatelessWidget {
                     addInvest: (value) => _openAddInvest(context, value),
                     updateAsset: (value) => _openUpdateAsset(context, value),
                     claimDeviden: (value) => _openDevidendAsset(context, value),
+                    sellAsset: (value) => _openSellAsset(context, value),
                     assets: highRisk,
                   ),
                 ],

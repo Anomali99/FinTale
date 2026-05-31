@@ -8,7 +8,7 @@ import 'app_colors.dart';
 class UiDict {
   static const String title = 'Judul';
   static const String name = 'Nama';
-  static const String amount = 'Nominal';
+  static const String amount = 'Jumlah';
   static const String price = 'Harga';
   static const String date = 'Tanggal';
   static const String initialAmount = 'Nominal Awal';
@@ -35,7 +35,7 @@ class UiDict {
 
   static const String requiredTitle = 'Judul tidak boleh kosong.';
   static const String requiredName = 'Nama tidak boleh kosong.';
-  static const String requiredAmount = 'Nominal tidak boleh kosong.';
+  static const String requiredAmount = 'Jumlah tidak boleh kosong.';
   static const String requiredPrice = 'Harga tidak boleh kosong.';
   static const String requiredWallet = 'Silakan pilih sumber dana.';
   static const String requiredWalletDest = 'Silakan pilih dompet tujuan.';
@@ -43,8 +43,6 @@ class UiDict {
   static const String requiredFee = 'Biaya admin tidak boleh kosong.';
 
   static const String feeCheck = 'Apakah ada biaya administrasi?';
-  static const String feeCheckDesc =
-      'Aktifkan ini jika penghasilan tersebut dikenakan biaya potongan.';
   static const String autoCheck = 'Alokasi Otomatis?';
   static const String autoCheckDesc =
       'Secara otomatis, distribusikan pendapatan ini ke sektor Anda berdasarkan skill Anda.';

@@ -212,11 +212,13 @@ class _BuyAssetModalState extends State<BuyAssetModal>
 
       AssetsModel assetToReturn;
       String transactionTitle;
+      RiskType riskType;
 
       if (_isNewAssetTab) {
+        riskType = _selectedRisk!;
         assetToReturn = AssetsModel(
           name: _nameController.text,
-          type: _selectedRisk!,
+          type: riskType,
           category: _selectedCategory!,
           unitName: _unitNameController.text,
           hasDividend: _isDevidenActive,
@@ -234,15 +236,16 @@ class _BuyAssetModalState extends State<BuyAssetModal>
         BigInt newTotalValue = BigInt.from(
           (newTotalUnit.toDouble() * cleanPrice.toDouble()).round(),
         );
-
+        riskType = _selectedAsset!.type;
         assetToReturn = AssetsModel(
           id: _selectedAsset?.id,
           name: _selectedAsset!.name,
-          type: _selectedAsset!.type,
+          type: riskType,
           category: _selectedAsset!.category,
           unitName: _selectedAsset!.unitName,
           invested: _selectedAsset!.invested + cleanAssetAmount,
           hasDividend: _selectedAsset!.hasDividend,
+          isEmergency: _selectedAsset!.isEmergency,
           value: newTotalValue,
           unit: newTotalUnit,
         );
@@ -255,7 +258,7 @@ class _BuyAssetModalState extends State<BuyAssetModal>
         TransactionDetailModel(
           title: '${assetToReturn.name} $cleanUnit ${assetToReturn.unitName}',
           amount: _amount,
-          category: TransactionCategory.getTransactionCategory(_selectedRisk!),
+          category: TransactionCategory.getTransactionCategory(riskType),
           flow: FlowType.expense,
         ),
       ];
@@ -534,16 +537,32 @@ class _BuyAssetModalState extends State<BuyAssetModal>
               if (_isNewAssetTab) ...[
                 SwitchListTile(
                   contentPadding: EdgeInsets.zero,
-                  title: Text(ScreenDict.getDevidenCheck(isRpg: isRpg)),
-                  subtitle: Text(ScreenDict.getDevidenCheckDesc(isRpg: isRpg)),
+                  title: Text(
+                    ScreenDict.getDevidenCheck(isRpg: isRpg),
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  subtitle: Text(
+                    ScreenDict.getDevidenCheckDesc(isRpg: isRpg),
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
                   value: _isDevidenActive,
                   onChanged: (val) => setState(() => _isDevidenActive = val),
                 ),
                 SwitchListTile(
                   contentPadding: EdgeInsets.zero,
-                  title: Text(ScreenDict.getEmergencyCheck(isRpg: isRpg)),
+                  title: Text(
+                    ScreenDict.getEmergencyCheck(isRpg: isRpg),
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
                   subtitle: Text(
                     ScreenDict.getEmergencyCheckDesc(isRpg: isRpg),
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: AppColors.textSecondary,
+                    ),
                   ),
                   value: _isEmergencyActive,
                   onChanged: (val) => setState(
@@ -554,8 +573,17 @@ class _BuyAssetModalState extends State<BuyAssetModal>
 
               SwitchListTile(
                 contentPadding: EdgeInsets.zero,
-                title: const Text(UiDict.feeCheck),
-                subtitle: const Text(UiDict.feeCheckDesc),
+                title: const Text(
+                  UiDict.feeCheck,
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                subtitle: Text(
+                  ScreenDict.getFeeCheckDesc(isRpg: isRpg),
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: AppColors.textSecondary,
+                  ),
+                ),
                 value: _isFeeActive,
                 onChanged: (val) => setState(() => _isFeeActive = val),
               ),
@@ -590,8 +618,17 @@ class _BuyAssetModalState extends State<BuyAssetModal>
               if (widget.pendingAllocation == null)
                 SwitchListTile(
                   contentPadding: EdgeInsets.zero,
-                  title: Text(ScreenDict.getReservedCheck(isRpg: isRpg)),
-                  subtitle: Text(ScreenDict.getReservedCheckDesc(isRpg: isRpg)),
+                  title: Text(
+                    ScreenDict.getReservedCheck(isRpg: isRpg),
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  subtitle: Text(
+                    ScreenDict.getReservedCheckDesc(isRpg: isRpg),
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
                   value: _isReservedActive,
                   onChanged: (val) => setState(() {
                     if (_selectedWallet != null) {

@@ -54,7 +54,6 @@ extension MissionExtension on UserProgressModel {
     }
 
     if (currentMonthId != monthId) {
-      isMonthlySavingsClaimed = false;
       isMonthlyDebtClaimed = false;
       isMonthlyReviewClaimed = false;
       currentMonthId = monthId;
@@ -114,13 +113,6 @@ extension MissionExtension on UserProgressModel {
     }
 
     return MissionResult(progressUpdated: true);
-  }
-
-  MissionResult processMonthlySavings(bool isTargetMet) {
-    if (!isTargetMet || isMonthlySavingsClaimed) return MissionResult();
-
-    isMonthlySavingsClaimed = true;
-    return MissionResult(progressUpdated: true, xpGranted: true, xpReward: 500);
   }
 
   MissionResult processDebtPayment() {

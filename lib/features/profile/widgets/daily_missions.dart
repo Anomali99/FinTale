@@ -46,13 +46,6 @@ class DailyMissions extends StatelessWidget {
     ];
     final List<Map<String, dynamic>> monthlyMissions = [
       {
-        "icon": GamificationDict.missionMonthlySavingsGoal.icon(isRpg),
-        "title": GamificationDict.missionMonthlySavingsGoal.get(isRpg),
-        "xp": GamificationDict.missionMonthlySavingsGoal.xp,
-        "subtitle": 'Limit: 1x',
-        "isDone": progress.isMonthlySavingsClaimed,
-      },
-      {
         "icon": GamificationDict.missionDebtPayment.icon(isRpg),
         "title": GamificationDict.missionDebtPayment.get(isRpg),
         "xp": GamificationDict.missionDebtPayment.xp,

@@ -9,6 +9,7 @@ import '../../../controllers/history_controller.dart';
 import '../../../controllers/home_controller.dart';
 import '../../../controllers/invest_controller.dart';
 import '../../../controllers/settings_controller.dart';
+import '../../../controllers/skill_controller.dart';
 import '../../../controllers/user_controller.dart';
 import '../../../controllers/wallet_controller.dart';
 import '../../../core/constants/app_colors.dart';
@@ -120,8 +121,8 @@ class HomeScreen extends StatelessWidget {
     AllocationModel allocation,
     WalletModel wallet,
   ) async {
-    final userController = context.read<UserController>();
     final investController = context.read<InvestController>();
+    final skillController = context.read<SkillController>();
     final isRpg = context.read<SettingsController>().isRpgMode;
     final risk = allocation.subSector?.getRisk() ?? RiskType.low;
     final assets = investController.getAssetsBySector(
@@ -148,7 +149,10 @@ class HomeScreen extends StatelessWidget {
         transaction,
         asset,
       );
-      userController.incomeEmergencyTotal(transaction.amount);
+
+      if (isSuccess) {
+        await skillController.loadData();
+      }
       GlobalMessenger.showMessage(
         message: UiDict.getSaveNotif(
           ScreenDict.investAssetName.get(isRpg),

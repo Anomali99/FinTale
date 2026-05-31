@@ -40,7 +40,10 @@ class GlobalMessenger {
     });
   }
 
-  static void showSleekXpNotification(int xpReward) {
+  static void showSleekNotification({
+    required String message,
+    FaIconData? icon,
+  }) {
     final snackBar = SnackBar(
       elevation: 0,
       behavior: SnackBarBehavior.floating,
@@ -67,18 +70,21 @@ class GlobalMessenger {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const FaIcon(
-                FontAwesomeIcons.arrowUpRightDots,
-                color: Colors.greenAccent,
-                size: 14,
-              ),
-              const SizedBox(width: 8),
-              Text(
-                '+$xpReward XP',
-                style: GoogleFonts.poppins(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w600,
-                  fontSize: 13,
+              if (icon != null) ...[
+                FaIcon(icon, color: Colors.greenAccent, size: 14),
+                const SizedBox(width: 8),
+              ],
+              Flexible(
+                child: Text(
+                  message,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.poppins(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w600,
+                    fontSize: 13,
+                  ),
                 ),
               ),
             ],
@@ -90,6 +96,13 @@ class GlobalMessenger {
     globalMessengerKey.currentState
       ?..hideCurrentSnackBar()
       ..showSnackBar(snackBar);
+  }
+
+  static void showSleekXpNotification(int xpReward) {
+    showSleekNotification(
+      message: '+$xpReward XP',
+      icon: FontAwesomeIcons.arrowUpRightDots,
+    );
   }
 
   static void showLevelUpNotification(int newLevel, {String? description}) {

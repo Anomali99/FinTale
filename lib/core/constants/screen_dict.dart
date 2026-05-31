@@ -12,11 +12,14 @@ class ScreenDict {
 
   static const String investClaim = 'Klaim';
   static const String investClaimDeviden = 'Klaim Dividen / Bunga';
+  static const String investSellTitle = 'Penarikan Dana Investasi';
   static const String investTotalDeviden = 'Total Deviden';
   static const String investTotalDevidenRequired =
       'Total dividen tidak boleh kosong.';
   static const String investDevidenDesc =
       'Klaim dividen akan langsung ditambahkan sebagai saldo (Pemasukan) ke dompet pilihan Anda tanpa mengubah nilai buku investasi awal Anda.';
+  static const String investInvalidUnitSell =
+      'Unit yang dijual melebihi unit yang dimiliki.';
 
   static const String historyInformation = 'Informasi Dasar';
   static const String breakdownDetail = 'Rincian Item';
@@ -192,6 +195,7 @@ class ScreenDict {
     normal: 'Nilai Saat Ini',
     rpg: 'Power Saat Ini',
   );
+  static const TermModel investSell = TermModel(normal: 'Jual', rpg: 'Tarik');
   static const TermModel investAssetName = TermModel(
     normal: 'Aset',
     rpg: 'Pasukan',
@@ -211,6 +215,10 @@ class ScreenDict {
   static const TermModel investUpdatePrice = TermModel(
     normal: 'Perbarui Harga Pasar',
     rpg: 'Perbarui Power Pasukan',
+  );
+  static const TermModel investSellAsset = TermModel(
+    normal: 'Tarik Modal / Jual',
+    rpg: 'Tarik / Bubarkan Pasukan',
   );
   static const TermModel investUpdateAsset = TermModel(
     normal: 'Perbarui Data Aset',
@@ -340,8 +348,14 @@ class ScreenDict {
   static String getReservedCheck({bool isRpg = false}) =>
       'Menggunakan ${homeSavings.get(isRpg)}?';
 
+  static String getExcludeDailyCheck({bool isRpg = false}) =>
+      'Kecualikan ${historyTransaction.get(isRpg)}?';
+
   static String getReservedCheckDesc({bool isRpg = false}) =>
       'Kurangi jumlah ini dari alokasi ${homeSavings.get(isRpg).toLowerCase()} Anda, bukan dari saldo aktif Anda.';
+
+  static String getExcludeDailyCheckDesc({bool isRpg = false}) =>
+      'Kecualikan ${historyTransaction.get(isRpg).toLowerCase()} agar tidak mengurangi ${homeDailyLimit.get(isRpg).toLowerCase()} anda.';
 
   static String getDebtBillTitle(String title) => 'Cicilan: $title';
 
@@ -436,6 +450,13 @@ class ScreenDict {
     bool isRpg = false,
   }) {
     return '${isRpg ? 'Power' : 'Modal'} ${isSuccess ? 'berhasil' : 'gagal'} ditambah.';
+  }
+
+  static String getInvestSellNotif({
+    bool isSuccess = false,
+    bool isRpg = false,
+  }) {
+    return '${investAssetName.get(isRpg)} ${isSuccess ? 'berhasil' : 'gagal'} ditarik.';
   }
 
   static String getFeeCheckDesc({bool isIncome = false, bool isRpg = false}) =>

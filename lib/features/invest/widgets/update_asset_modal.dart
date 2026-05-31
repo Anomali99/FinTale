@@ -26,6 +26,7 @@ class _UpdateAssetModalState extends State<UpdateAssetModal> {
   final _unitNameController = TextEditingController();
   final _valueController = TextEditingController();
   bool _isDevidenActive = false;
+  bool _isEmergencyActive = false;
   @override
   void initState() {
     super.initState();
@@ -42,7 +43,7 @@ class _UpdateAssetModalState extends State<UpdateAssetModal> {
 
     _valueController.text = _formatNumber(pricePerUnit.toString());
     _isDevidenActive = widget.asset.hasDividend;
-    _isDevidenActive = widget.asset.hasDividend;
+    _isEmergencyActive = widget.asset.isEmergency;
   }
 
   @override
@@ -98,6 +99,7 @@ class _UpdateAssetModalState extends State<UpdateAssetModal> {
         unitName: _unitNameController.text.trim(),
         invested: widget.asset.invested,
         hasDividend: _isDevidenActive,
+        isEmergency: _isEmergencyActive,
         value: total,
         unit: widget.asset.unit,
       );
@@ -220,6 +222,22 @@ class _UpdateAssetModalState extends State<UpdateAssetModal> {
                 ),
                 value: _isDevidenActive,
                 onChanged: (val) => setState(() => _isDevidenActive = val),
+              ),
+              SwitchListTile(
+                contentPadding: EdgeInsets.zero,
+                title: Text(
+                  ScreenDict.getEmergencyCheck(isRpg: isRpg),
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                subtitle: Text(
+                  ScreenDict.getEmergencyCheckDesc(isRpg: isRpg),
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+                value: _isEmergencyActive,
+                onChanged: (val) => setState(() => _isEmergencyActive = val),
               ),
 
               const SizedBox(height: 16),

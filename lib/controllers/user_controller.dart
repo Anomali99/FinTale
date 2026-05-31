@@ -52,14 +52,12 @@ class UserController with ChangeNotifier {
     }
   }
 
-  void incomeEmergencyTotal(BigInt amount) =>
-      currentUser?.addEmergencyTotal(amount, isIncome: true);
-  void expenseEmergencyTotal(BigInt amount) =>
-      currentUser?.addEmergencyTotal(amount, isIncome: false);
+  void addEmergencyTotal(BigInt amount, {required bool isIncome}) =>
+      currentUser?.addEmergencyTotal(amount, isIncome: isIncome);
+  void updateEmergencyAmount(BigInt amount) =>
+      currentUser?.updateEmergencyAmount(amount);
   void updateFreeDebt(bool value) => currentUser?.updateFreeDebt(value);
 
-  void updateEmergencyAmount(BigInt amount) =>
-      budget.updateEmergencyAmount(amount);
   void updateBaseDailyLimit(BigInt amount) =>
       budget.updateBaseDailyLimit(amount);
   void useDaily(BigInt amount) => budget.useDaily(amount);
@@ -132,40 +130,37 @@ class UserController with ChangeNotifier {
         (budget.lastActiveDate != 0) && (todayInt > budget.lastActiveDate);
 
     if (isNewDay) {
-      bool wasBudgetSafe = budget.todayUsage <= budget.currentDailyLimit;
+      progress.checkAndReset();
+      budget.checkAndResetDaily();
+
+      bool wasBudgetSafe = budget.todayUsage <= budget.dailyPenalty;
+      MissionResult result = progress.processWeeklyCheckIn();
 
       if (wasBudgetSafe) {
         MissionResult dailyResult = progress.processDailyBudgetCap(true);
-        if (dailyResult.xpGranted) {
-          currentUser!.addXp(dailyResult.xpReward);
-        }
-
         MissionResult weeklyResult = progress.processConsistentBudgeting();
-        if (weeklyResult.progressUpdated && weeklyResult.xpGranted) {
-          currentUser!.addXp(weeklyResult.xpReward);
-        }
+        result = MissionResult(
+          progressUpdated:
+              dailyResult.progressUpdated ||
+              weeklyResult.progressUpdated ||
+              result.progressUpdated,
+          xpGranted:
+              dailyResult.xpGranted ||
+              weeklyResult.xpGranted ||
+              result.xpGranted,
+          xpReward:
+              dailyResult.xpReward + weeklyResult.xpReward + result.xpReward,
+        );
       } else {
         progress.updatWeeklyBudget(0, false);
       }
-    }
 
-    bool isResetProgress = progress.checkAndReset();
-    bool isResetBudget = budget.checkAndResetDaily();
-
-    if (isResetProgress || isResetBudget) {
-      await processDailyCheckIn();
-      await saveUser();
-    }
-    notifyListeners();
-  }
-
-  Future<void> processDailyCheckIn() async {
-    MissionResult result = progress.processWeeklyCheckIn();
-
-    if (result.progressUpdated) {
       if (result.xpGranted) {
-        currentUser?.addXp(result.xpReward);
+        currentUser!.addXp(result.xpReward);
       }
+
+      await saveUser();
+      notifyListeners();
     }
   }
 

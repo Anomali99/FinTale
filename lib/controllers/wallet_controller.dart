@@ -48,6 +48,10 @@ class WalletController extends ChangeNotifier with WidgetsBindingObserver {
     try {
       wallets = await _walletDao.readAllActiveData();
 
+      bank = [];
+      eWallet = [];
+      platform = [];
+
       totalBalance = BigInt.zero;
       totalReserved = BigInt.zero;
 

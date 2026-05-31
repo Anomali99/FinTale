@@ -71,6 +71,13 @@ class InvestController with ChangeNotifier {
   Future<bool> updateAsset(AssetsModel asset) async {
     try {
       if (asset.id != null) {
+        final oldAsset = getAssetById(asset.id!);
+        if (oldAsset.isEmergency != asset.isEmergency) {
+          _userController.addEmergencyTotal(
+            asset.invested,
+            isIncome: asset.isEmergency,
+          );
+        }
         await _assetDao.update(asset);
         await loadData();
         return true;
@@ -94,10 +101,39 @@ class InvestController with ChangeNotifier {
     }
   }
 
+  Future<bool> sellAsset(
+    TransactionModel transaction,
+    AssetsModel asset,
+    BigInt emergencyDeduction,
+  ) async {
+    try {
+      await _assetDao.update(asset);
+
+      final wallet = _walletController.getWalletById(transaction.walletId);
+      wallet.addAmount(transaction.amount, isIncome: true);
+
+      if (asset.isEmergency) {
+        _userController.addEmergencyTotal(emergencyDeduction, isIncome: false);
+      }
+
+      await _walletController.updateWallet(wallet);
+      await _walletController.loadData();
+      await _transactionController.createTransaction(transaction);
+      await _userController.processRecordTransaction();
+      await _userController.saveUser();
+      await loadData();
+
+      return true;
+    } catch (e) {
+      debugPrint("[INVEST] Failed to sell asset: $e");
+      return false;
+    }
+  }
+
   Future<bool> saveTransaction(
     TransactionModel transaction,
     AssetsModel asset, {
-    bool? useReserved,
+    bool useReserved = false,
   }) async {
     try {
       if (asset.id == null) {
@@ -108,25 +144,20 @@ class InvestController with ChangeNotifier {
       }
 
       final wallet = _walletController.getWalletById(transaction.walletId);
+      wallet.autoExpanse(transaction.amount, useReserved: useReserved);
 
-      BigInt expenseAmount = transaction.detailTransaction.isNotEmpty
-          ? transaction.detailTransaction[0].amount
-          : transaction.amount;
-
-      BigInt availableAmount = wallet.amount - wallet.reservedAmount;
-
-      if (useReserved == true) {
-        wallet.addReserved(expenseAmount, isIncome: false);
-      } else if (expenseAmount > availableAmount) {
-        BigInt overflowAmount = expenseAmount - availableAmount;
-        wallet.addReserved(overflowAmount, isIncome: false);
+      if (asset.isEmergency) {
+        _userController.addEmergencyTotal(
+          transaction.detailTransaction[0].amount,
+          isIncome: true,
+        );
       }
-      wallet.addAmount(transaction.amount, isIncome: false);
+
       await _walletController.updateWallet(wallet);
       await _walletController.loadData();
-
       await _transactionController.createTransaction(transaction);
       await _userController.processRecordTransaction();
+      await _userController.saveUser();
       await loadData();
       return true;
     } catch (e) {
@@ -141,7 +172,8 @@ class InvestController with ChangeNotifier {
 
       totalInvested = BigInt.zero;
       totalValue = BigInt.zero;
-      lowRisk.clear();
+      lowEmergency.clear();
+      lowNotEmergency.clear();
       mediumRisk.clear();
       highRisk.clear();
 
