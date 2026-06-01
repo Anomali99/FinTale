@@ -319,13 +319,10 @@ extension UserBudgetExtension on UserBudgetModel {
   }
 
   void useDaily(BigInt amount) {
-    BigInt remaining = remainingLimitToday;
-    if (amount <= remaining) {
-      todayUsage += amount;
-    } else {
-      todayUsage += remaining;
-      BigInt excess = amount - remaining;
-      currentPenalty += excess;
+    todayUsage += amount;
+
+    if (todayUsage > currentDailyLimit) {
+      currentPenalty = todayUsage - currentDailyLimit;
     }
   }
 
@@ -339,8 +336,9 @@ extension UserBudgetExtension on UserBudgetModel {
     }
 
     if (todayInt > lastActiveDate) {
-      todayUsage = BigInt.zero;
       dailyPenalty = currentPenalty;
+
+      todayUsage = BigInt.zero;
       currentPenalty = BigInt.zero;
       lastActiveDate = todayInt;
       return true;

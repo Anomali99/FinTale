@@ -9,6 +9,7 @@ import 'ui_dict.dart';
 class ScreenDict {
   static const String walletName = 'Nama Dompet';
   static const String walletType = 'Jenis Dompet';
+  static const String homePenalty = 'Penalti Kemarin';
 
   static const String investClaim = 'Klaim';
   static const String investClaimDeviden = 'Klaim Dividen / Bunga';
@@ -47,6 +48,10 @@ class ScreenDict {
   static const TermModel homeRegular = TermModel(
     normal: 'Dana Utama',
     rpg: 'Reguler',
+  );
+  static const TermModel homeLimitOver = TermModel(
+    normal: 'Melebihi Batas',
+    rpg: 'Mana Habis',
   );
 
   static const TermModel walletCash = TermModel(
@@ -338,7 +343,8 @@ class ScreenDict {
   static String getHomeSpent(String spent, String limit) =>
       'Dihabiskan: $spent / $limit';
 
-  static String getHomePenalty(String amount) => '- $amount dari kemarin';
+  static String getHomeLimitOver(String formattedOverage) =>
+      'Offset Hari Ini: $formattedOverage';
 
   static String getHomeNote(String name, String amount, {bool isRpg = false}) {
     final tabungan = homeSavings.get(isRpg).toLowerCase();
