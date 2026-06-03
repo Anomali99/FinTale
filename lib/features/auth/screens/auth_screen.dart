@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
 import '../../../controllers/auth_controller.dart';
@@ -46,8 +45,8 @@ class AuthScreen extends StatelessWidget {
             children: [
               Text(
                 'FinTale',
-                style: GoogleFonts.montserrat(
-                  textStyle: Theme.of(context).textTheme.headlineLarge,
+                style: TextStyle(
+                  fontFamily: 'Montserrat',
                   color: AppColors.primary,
                   fontWeight: FontWeight.w900,
                   letterSpacing: 2.0,

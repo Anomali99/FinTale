@@ -1,7 +1,6 @@
 import 'package:decimal/decimal.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
 import '../../../controllers/settings_controller.dart';
@@ -379,7 +378,8 @@ class _SellAssetModalState extends State<SellAssetModal> {
                     ),
                     Text(
                       CurrencyFormatter.convertToIdr(_netAmount),
-                      style: GoogleFonts.poppins(
+                      style: const TextStyle(
+                        fontFamily: 'Poppins',
                         fontWeight: FontWeight.bold,
                         fontSize: 20,
                         color: AppColors.success,

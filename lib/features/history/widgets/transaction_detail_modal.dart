@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
 import '../../../controllers/invest_controller.dart';
@@ -93,7 +92,8 @@ class TransactionDetailModal extends StatelessWidget {
 
             Text(
               '${transaction.type.prefix} ${CurrencyFormatter.convertToIdr(transaction.amount)}',
-              style: GoogleFonts.poppins(
+              style: TextStyle(
+                fontFamily: 'Poppins',
                 fontSize: 28,
                 fontWeight: FontWeight.bold,
                 color: transaction.type.color,
@@ -294,7 +294,8 @@ class TransactionDetailModal extends StatelessWidget {
           ),
           Text(
             '${detail.flow.prefix} ${CurrencyFormatter.convertToIdr(detail.amount)}',
-            style: GoogleFonts.poppins(
+            style: TextStyle(
+              fontFamily: 'Poppins',
               fontWeight: FontWeight.bold,
               fontSize: 14,
               color: detail.flow.color,

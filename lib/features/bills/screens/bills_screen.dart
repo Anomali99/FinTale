@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
 import '../../../controllers/analytics_controller.dart';
@@ -266,7 +265,10 @@ class BillsScreen extends StatelessWidget {
         appBar: AppBar(
           title: Text(
             ScreenDict.billsMaster.get(isRpg),
-            style: GoogleFonts.poppins(fontWeight: FontWeight.bold),
+            style: const TextStyle(
+              fontFamily: 'Poppins',
+              fontWeight: FontWeight.bold,
+            ),
           ),
           actions: [
             IconButton(

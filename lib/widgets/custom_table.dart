@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import '../core/constants/app_colors.dart';
 
@@ -91,7 +90,8 @@ class CustomRowTable extends StatelessWidget {
             textAlign: valueAlign ?? TextAlign.right,
             style:
                 valueStyle ??
-                GoogleFonts.poppins(
+                TextStyle(
+                  fontFamily: 'Poppins',
                   fontSize: boldValue ? 16 : 14,
                   fontWeight: boldValue ? FontWeight.bold : FontWeight.normal,
                   color: valueColor ?? AppColors.textPrimary,

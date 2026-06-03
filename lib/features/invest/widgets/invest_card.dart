@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
 import '../../../controllers/settings_controller.dart';
@@ -233,7 +232,8 @@ class InvestCard extends StatelessWidget {
                     ),
                     Text(
                       CurrencyFormatter.convertToIdr(asset.value),
-                      style: GoogleFonts.poppins(
+                      style: TextStyle(
+                        fontFamily: 'Poppins',
                         fontWeight: FontWeight.bold,
                         color: asset.isProfit
                             ? AppColors.success

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 class GlobalMessenger {
   static final GlobalKey<ScaffoldMessengerState> globalMessengerKey =
@@ -80,8 +79,8 @@ class GlobalMessenger {
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                   textAlign: TextAlign.center,
-                  style: GoogleFonts.poppins(
-                    color: Colors.white,
+                  style: const TextStyle(
+                    fontFamily: 'Poppins',
                     fontWeight: FontWeight.w600,
                     fontSize: 13,
                   ),
@@ -138,7 +137,8 @@ class GlobalMessenger {
             /* TODO */
             Text(
               'LEVEL UP!',
-              style: GoogleFonts.poppins(
+              style: const TextStyle(
+                fontFamily: 'Poppins',
                 color: Colors.white,
                 fontWeight: FontWeight.w800,
                 fontSize: 18,
@@ -149,7 +149,8 @@ class GlobalMessenger {
             /* TODO */
             Text(
               'You reached Level $newLevel',
-              style: GoogleFonts.poppins(
+              style: const TextStyle(
+                fontFamily: 'Poppins',
                 color: Colors.blueAccent,
                 fontWeight: FontWeight.w600,
                 fontSize: 14,
@@ -164,7 +165,8 @@ class GlobalMessenger {
               Text(
                 description,
                 textAlign: TextAlign.center,
-                style: GoogleFonts.poppins(
+                style: const TextStyle(
+                  fontFamily: 'Poppins',
                   color: Colors.white70,
                   fontWeight: FontWeight.w500,
                   fontSize: 13,

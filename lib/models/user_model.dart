@@ -330,14 +330,16 @@ extension UserBudgetExtension on UserBudgetModel {
     DateTime now = DateTime.now();
     int todayInt = now.year * 10000 + now.month * 100 + now.day;
 
-    if (lastActiveDate == 0) {
+    if (lastActiveDate == 0 || lastActiveDate > 99991231) {
       lastActiveDate = todayInt;
+      todayUsage = BigInt.zero;
+      currentPenalty = BigInt.zero;
+      dailyPenalty = BigInt.zero;
       return true;
     }
 
     if (todayInt > lastActiveDate) {
       dailyPenalty = currentPenalty;
-
       todayUsage = BigInt.zero;
       currentPenalty = BigInt.zero;
       lastActiveDate = todayInt;

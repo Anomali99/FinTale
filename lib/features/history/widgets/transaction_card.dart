@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import '../../../core/constants/app_colors.dart';
 import '../../../core/utils/currency_formatter.dart';
@@ -72,7 +71,8 @@ class TransactionCard extends StatelessWidget {
                 children: [
                   Text(
                     '${type.prefix} ${CurrencyFormatter.convertToIdr(amount)}',
-                    style: GoogleFonts.poppins(
+                    style: TextStyle(
+                      fontFamily: 'Poppins',
                       fontWeight: FontWeight.bold,
                       color: type.color,
                       fontSize: 14,

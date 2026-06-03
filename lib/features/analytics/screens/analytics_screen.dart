@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
@@ -45,7 +44,10 @@ class AnalyticsScreen extends StatelessWidget {
       appBar: AppBar(
         title: Text(
           UiDict.menuAnalytics.get(isRpg),
-          style: GoogleFonts.poppins(fontWeight: FontWeight.bold),
+          style: const TextStyle(
+            fontFamily: 'Poppins',
+            fontWeight: FontWeight.bold,
+          ),
         ),
       ),
       body: ListView(

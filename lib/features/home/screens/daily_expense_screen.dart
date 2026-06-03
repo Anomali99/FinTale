@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
@@ -239,7 +238,11 @@ class _DailyExpenseScreenState extends State<DailyExpenseScreen> {
         elevation: 0,
         title: Text(
           ScreenDict.recordExpense.get(isRpg),
-          style: GoogleFonts.poppins(fontWeight: FontWeight.bold, fontSize: 18),
+          style: const TextStyle(
+            fontFamily: 'Poppins',
+            fontWeight: FontWeight.bold,
+            fontSize: 18,
+          ),
         ),
         centerTitle: true,
       ),
@@ -594,7 +597,8 @@ class _DailyExpenseScreenState extends State<DailyExpenseScreen> {
               ),
               Text(
                 CurrencyFormatter.convertToIdr(_totalAmount),
-                style: GoogleFonts.poppins(
+                style: const TextStyle(
+                  fontFamily: 'Poppins',
                   fontWeight: FontWeight.bold,
                   fontSize: 22,
                   color: AppColors.error,

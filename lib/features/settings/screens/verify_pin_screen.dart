@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/ui_dict.dart';
@@ -107,7 +106,8 @@ class _VerifyPinScreenState extends State<VerifyPinScreen> {
 
               Text(
                 widget.title ?? UiDict.pinInput,
-                style: GoogleFonts.poppins(
+                style: const TextStyle(
+                  fontFamily: 'Poppins',
                   fontSize: 22,
                   fontWeight: FontWeight.bold,
                   color: AppColors.textPrimary,
@@ -249,7 +249,8 @@ class _VerifyPinScreenState extends State<VerifyPinScreen> {
         child: Center(
           child: Text(
             number,
-            style: GoogleFonts.poppins(
+            style: const TextStyle(
+              fontFamily: 'Poppins',
               fontSize: 28,
               fontWeight: FontWeight.w600,
               color: AppColors.textPrimary,

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/screen_dict.dart';
@@ -101,7 +100,8 @@ class BalanceCard extends StatelessWidget {
 
                   Text(
                     _formatBalance(totalBalance),
-                    style: GoogleFonts.montserrat(
+                    style: const TextStyle(
+                      fontFamily: 'Poppins',
                       fontSize: 30,
                       fontWeight: FontWeight.bold,
                       color: AppColors.textPrimary,

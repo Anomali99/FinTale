@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/category_dict.dart';
@@ -19,7 +18,10 @@ class InfoScreen extends StatelessWidget {
       appBar: AppBar(
         title: Text(
           UiDict.information,
-          style: GoogleFonts.poppins(fontWeight: FontWeight.bold),
+          style: const TextStyle(
+            fontFamily: 'Poppins',
+            fontWeight: FontWeight.bold,
+          ),
         ),
       ),
       body: ListView(
@@ -233,7 +235,8 @@ class InfoScreen extends StatelessWidget {
   Widget _buildSectionHeader(String title) {
     return Text(
       title,
-      style: GoogleFonts.poppins(
+      style: const TextStyle(
+        fontFamily: 'Poppins',
         fontSize: 18,
         fontWeight: FontWeight.bold,
         color: AppColors.primary,

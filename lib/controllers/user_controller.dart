@@ -11,6 +11,7 @@ class UserController with ChangeNotifier {
   UserModel? currentUser;
 
   UserController(this._prefService) {
+    debugPrint("[DEBUG-RESET] UserController Constructor Dipanggil");
     evaluateAndResetDaily();
   }
 
@@ -120,46 +121,61 @@ class UserController with ChangeNotifier {
   }
 
   Future<void> evaluateAndResetDaily() async {
-    await loadData();
-    if (currentUser == null) return;
+    try {
+      await loadData();
 
-    DateTime now = DateTime.now();
-    int todayInt = now.year * 10000 + now.month * 100 + now.day;
-
-    bool isNewDay =
-        (budget.lastActiveDate != 0) && (todayInt > budget.lastActiveDate);
-
-    if (isNewDay) {
-      progress.checkAndReset();
-      budget.checkAndResetDaily();
-
-      bool wasBudgetSafe = budget.todayUsage <= budget.dailyPenalty;
-      MissionResult result = progress.processWeeklyCheckIn();
-
-      if (wasBudgetSafe) {
-        MissionResult dailyResult = progress.processDailyBudgetCap(true);
-        MissionResult weeklyResult = progress.processConsistentBudgeting();
-        result = MissionResult(
-          progressUpdated:
-              dailyResult.progressUpdated ||
-              weeklyResult.progressUpdated ||
-              result.progressUpdated,
-          xpGranted:
-              dailyResult.xpGranted ||
-              weeklyResult.xpGranted ||
-              result.xpGranted,
-          xpReward:
-              dailyResult.xpReward + weeklyResult.xpReward + result.xpReward,
-        );
-      } else {
-        progress.updatWeeklyBudget(0, false);
+      if (currentUser == null) {
+        return;
       }
 
-      if (result.xpGranted) {
-        currentUser!.addXp(result.xpReward);
+      DateTime now = DateTime.now();
+      int todayInt = now.year * 10000 + now.month * 100 + now.day;
+
+      if (budget.lastActiveDate == 0 || budget.lastActiveDate > 99991231) {
+        budget.checkAndResetDaily();
+        progress.checkAndReset();
+        await saveUser();
+        return;
       }
 
-      await saveUser();
+      bool isNewDay = todayInt > budget.lastActiveDate;
+
+      if (isNewDay) {
+        bool wasBudgetSafe = budget.todayUsage <= budget.currentDailyLimit;
+
+        progress.checkAndReset();
+        budget.checkAndResetDaily();
+
+        MissionResult result = progress.processWeeklyCheckIn();
+
+        if (wasBudgetSafe) {
+          MissionResult dailyResult = progress.processDailyBudgetCap(true);
+          MissionResult weeklyResult = progress.processConsistentBudgeting();
+          result = MissionResult(
+            progressUpdated:
+                dailyResult.progressUpdated ||
+                weeklyResult.progressUpdated ||
+                result.progressUpdated,
+            xpGranted:
+                dailyResult.xpGranted ||
+                weeklyResult.xpGranted ||
+                result.xpGranted,
+            xpReward:
+                dailyResult.xpReward + weeklyResult.xpReward + result.xpReward,
+          );
+        } else {
+          progress.updatWeeklyBudget(0, false);
+        }
+
+        if (result.xpGranted) {
+          currentUser!.addXp(result.xpReward);
+        }
+
+        await saveUser();
+      }
+    } catch (e) {
+      debugPrint("[USER] An error occurred while loading evaluate daily: $e");
+    } finally {
       notifyListeners();
     }
   }

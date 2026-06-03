@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import '../../../core/constants/app_colors.dart';
 import '../../../core/models/analytic_model.dart';
@@ -52,7 +51,10 @@ class DetailCard extends StatelessWidget {
               ),
               Text(
                 CurrencyFormatter.convertToIdr(data.amount),
-                style: GoogleFonts.poppins(fontWeight: FontWeight.bold),
+                style: const TextStyle(
+                  fontFamily: 'Poppins',
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ],
           ),

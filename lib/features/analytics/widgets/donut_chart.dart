@@ -1,6 +1,5 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/ui_dict.dart';
@@ -96,7 +95,8 @@ class DonutChart extends StatelessWidget {
               const SizedBox(height: 4),
               Text(
                 CurrencyFormatter.convertToIdr(activeTotal),
-                style: GoogleFonts.poppins(
+                style: TextStyle(
+                  fontFamily: 'Poppins',
                   fontWeight: FontWeight.bold,
                   fontSize: 16,
                   color: activeColor,

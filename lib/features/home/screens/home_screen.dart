@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
 import '../../../controllers/analytics_controller.dart';
@@ -303,7 +302,8 @@ class HomeScreen extends StatelessWidget {
               children: [
                 Text(
                   'Lv. $userLevel - $userName',
-                  style: GoogleFonts.poppins(
+                  style: const TextStyle(
+                    fontFamily: 'Poppins',
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
                     color: AppColors.primary,

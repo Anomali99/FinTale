@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/category_dict.dart';
@@ -68,7 +67,8 @@ class BillCard extends StatelessWidget {
                 children: [
                   Text(
                     data.title,
-                    style: GoogleFonts.poppins(
+                    style: TextStyle(
+                      fontFamily: 'Poppins',
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
                       color: data.isActive
@@ -111,7 +111,8 @@ class BillCard extends StatelessWidget {
               children: [
                 Text(
                   CurrencyFormatter.convertToIdr(data.amount),
-                  style: GoogleFonts.poppins(
+                  style: TextStyle(
+                    fontFamily: 'Poppins',
                     fontWeight: FontWeight.bold,
                     fontSize: 14,
                     color: data.isActive

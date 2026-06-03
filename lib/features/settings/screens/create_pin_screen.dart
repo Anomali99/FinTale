@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
 import '../../../controllers/settings_controller.dart';
@@ -174,7 +173,8 @@ class _CreatePinScreenState extends State<CreatePinScreen> {
             const SizedBox(height: 24),
             Text(
               _currentTitle,
-              style: GoogleFonts.poppins(
+              style: const TextStyle(
+                fontFamily: 'Poppins',
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
                 color: AppColors.textPrimary,
@@ -286,7 +286,8 @@ class _CreatePinScreenState extends State<CreatePinScreen> {
         child: Center(
           child: Text(
             number,
-            style: GoogleFonts.poppins(
+            style: const TextStyle(
+              fontFamily: 'Poppins',
               fontSize: 24,
               fontWeight: FontWeight.bold,
               color: AppColors.textPrimary,

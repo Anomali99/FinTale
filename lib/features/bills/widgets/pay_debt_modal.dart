@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
 import '../../../controllers/settings_controller.dart';
@@ -269,7 +268,8 @@ class _PayDebtModalState extends State<PayDebtModal>
                       ),
                     ),
                     labelColor: AppColors.primary,
-                    labelStyle: GoogleFonts.poppins(
+                    labelStyle: const TextStyle(
+                      fontFamily: 'Poppins',
                       fontWeight: FontWeight.bold,
                       fontSize: 13,
                     ),
@@ -494,7 +494,8 @@ class _PayDebtModalState extends State<PayDebtModal>
                         ),
                         Text(
                           CurrencyFormatter.convertToIdr(_amount),
-                          style: GoogleFonts.poppins(
+                          style: const TextStyle(
+                            fontFamily: 'Poppins',
                             fontWeight: FontWeight.bold,
                             fontSize: 22,
                             color: AppColors.primary,

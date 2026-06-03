@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
 import '../../../controllers/settings_controller.dart';
@@ -53,7 +52,8 @@ class TotalCard extends StatelessWidget {
           const SizedBox(height: 8),
           Text(
             CurrencyFormatter.convertToIdr(totalCurrent),
-            style: GoogleFonts.montserrat(
+            style: TextStyle(
+              fontFamily: 'Poppins',
               fontSize: 32,
               fontWeight: FontWeight.bold,
               color: isProvit ? AppColors.success : AppColors.error,

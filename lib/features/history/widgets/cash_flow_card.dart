@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/ui_dict.dart';
@@ -76,7 +75,8 @@ class CashFlowCard extends StatelessWidget {
               alignment: Alignment.centerLeft,
               child: Text(
                 CurrencyFormatter.convertToIdr(amount),
-                style: GoogleFonts.poppins(
+                style: TextStyle(
+                  fontFamily: 'Poppins',
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
                   color: color,

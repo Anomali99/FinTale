@@ -15,10 +15,7 @@ class StarterPack {
     title: TitleType.noviceSaver,
     level: 1,
     xp: 0,
-    budget: UserBudgetModel(
-      lastActiveDate: DateTime.now().millisecondsSinceEpoch,
-      isFreeDebt: true,
-    ),
+    budget: UserBudgetModel(lastActiveDate: 0, isFreeDebt: true),
     allocation: UserAllocationModel(
       skills: AllocationMap.getAllocationByLevel(1, noDebt: true),
     ),

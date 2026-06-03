@@ -19,7 +19,9 @@ class HomeController with ChangeNotifier {
     this._userController,
     this._walletController,
     this._transactionController,
-  );
+  ) {
+    loadData();
+  }
 
   Map<Enum, double> get activeAllocations {
     return {
