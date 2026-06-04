@@ -47,6 +47,6 @@ app.*.map.json
 /android/app/google-services.json
 
 android/key.properties
-android/app/Overt.jks
+android/app/*.jks
 lib/firebase_options.dart
 .env

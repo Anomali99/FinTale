@@ -74,7 +74,7 @@ Untuk membuat APK yang siap didistribusikan (Production), Anda harus mengatur Ke
 1. Buat _Keystore_ Anda sendiri menggunakan Java Keytool:
 
 ```bash
-keytool -genkey -v -keystore ~/key.jks -keyalg RSA -keysize 2048 -validity 10000 -alias fintale
+keytool -genkey -v -keystore android/app/fintale.jks -keyalg RSA -keysize 2048 -validity 10000 -alias fintale
 ```
 
 2. Buat file `android/key.properties` dan masukkan kredensial Keystore Anda:
@@ -83,13 +83,19 @@ keytool -genkey -v -keystore ~/key.jks -keyalg RSA -keysize 2048 -validity 10000
 storePassword=password_keystore_anda
 keyPassword=password_alias_anda
 keyAlias=fintale
-storeFile=/lokasi/absolut/ke/key.jks
+storeFile=fintale.jks
 ```
 
 3. Lakukan Build APK:
 
 ```bash
 flutter build apk --release
+```
+
+atau
+
+```bash
+flutter build apk --split-per-abi
 ```
 
 ## 📄 Lisensi
