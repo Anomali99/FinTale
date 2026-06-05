@@ -31,7 +31,7 @@ class NotificationService {
     }
 
     const AndroidInitializationSettings initSettingsAndroid =
-        AndroidInitializationSettings('@mipmap/ic_launcher');
+        AndroidInitializationSettings('ic_notification');
 
     const DarwinInitializationSettings initSettingsIOS =
         DarwinInitializationSettings(
@@ -96,7 +96,7 @@ class NotificationService {
         'Instant Notifications',
         importance: Importance.max,
         priority: Priority.high,
-        icon: '@drawable/ic_notification',
+        // icon: '@drawable/ic_notification',
         // largeIcon: DrawableResourceAndroidBitmap('fintale_logo'),
       ),
       iOS: DarwinNotificationDetails(),
@@ -136,7 +136,7 @@ class NotificationService {
           'Scheduled Notifications',
           importance: Importance.max,
           priority: Priority.high,
-          icon: '@drawable/ic_notification',
+          // icon: '@drawable/ic_notification',
           // largeIcon: DrawableResourceAndroidBitmap('fintale_logo'),
         ),
         iOS: DarwinNotificationDetails(),
@@ -171,7 +171,7 @@ class NotificationService {
           'Routine Notifications',
           importance: Importance.max,
           priority: Priority.high,
-          icon: '@drawable/ic_notification',
+          // icon: '@drawable/ic_notification',
           // largeIcon: DrawableResourceAndroidBitmap('fintale_logo'),
         ),
         iOS: DarwinNotificationDetails(),
