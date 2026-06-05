@@ -48,9 +48,37 @@ cd FinTale
 flutter pub get
 ```
 
-### 2. Konfigurasi Lingkungan (.env)
+### 2. Konfigurasi Google Cloud & Lingkungan (.env)
 
-Buat file bernama `.env` di root directory proyek, dan tambahkan `Client ID `berjenis Web application dari Google Cloud Console Anda:
+Agar fitur _Cloud Sync_ (Google Drive) dapat berjalan, Anda wajib mendaftarkan SHA-1 dan mengatur kredensial di Google Cloud Console.
+
+#### A. Dapatkan SHA-1 Fingerprint
+
+Jalankan perintah ini di terminal untuk melihat daftar SHA-1 dari Keystore Anda (baik mode Debug maupun Release):
+
+```bash
+cd android
+./gradlew signingReport
+cd ..
+```
+
+#### B. Pengaturan Google Cloud Console
+
+1. Buka [Google Cloud Console](https://console.cloud.google.com/) dan buat/pilih proyek Anda.
+
+2. Pergi ke menu **Library**, cari **Google Drive API**, lalu klik **Enable**.
+
+3. Pergi ke menu **OAuth consent screen**. Jika status aplikasi Anda masih _Testing_, pastikan Anda menambahkan alamat email Google Drive Anda sendiri ke dalam daftar **Test users**.
+
+4. Pergi ke menu **Credentials** > **Create Credentials** > **OAuth client ID**.
+
+5. **Buat Kredensial Android:** Pilih _Application type: Android_. Masukkan _Package Name_ (`id.my.anomali99.fintale`) dan masukkan **SHA-1** yang didapat dari langkah A. _(Buat kredensial ini dua kali jika Anda memiliki SHA-1 Debug dan SHA-1 Release)_.
+
+6. **Buat Kredensial Web (Untuk file .env):** Buat kredensial baru dengan tipe _Application type: Web application_. Salin _Client ID_ yang dihasilkan.
+
+#### C. Buat File `.env`
+
+Buat file bernama `.env` di root directory proyek, dan tempelkan Client ID dari tipe Web application tadi ke dalamnya:
 
 ```env
 # Wajib menggunakan tipe Web Client, bukan Android Client
@@ -71,13 +99,13 @@ flutter run
 
 Untuk membuat APK yang siap didistribusikan (Production), Anda harus mengatur Keystore Android terlebih dahulu.
 
-1. Buat _Keystore_ Anda sendiri menggunakan Java Keytool:
+1. **Buat Keystore:** Buat _Keystore_ Anda sendiri menggunakan Java Keytool:
 
 ```bash
 keytool -genkey -v -keystore android/app/fintale.jks -keyalg RSA -keysize 2048 -validity 10000 -alias fintale
 ```
 
-2. Buat file `android/key.properties` dan masukkan kredensial Keystore Anda:
+2. **Konfigurasi Kredensial Lokal:** Buat file `android/key.properties` dan masukkan kredensial Keystore Anda:
 
 ```properties
 storePassword=password_keystore_anda
@@ -86,7 +114,27 @@ keyAlias=fintale
 storeFile=fintale.jks
 ```
 
-3. Lakukan Build APK:
+3. **Ambil SHA-1 Release (Wajib untuk Cloud Sync):** Jalankan perintah ini untuk mengekstrak sidik jari SHA-1 dari file `fintale.jks` yang baru saja Anda buat:
+
+```bash
+keytool -list -v -keystore android/app/fintale.jks -alias fintale
+```
+
+_Salin kode **SHA-1** yang muncul di terminal._
+
+4. Daftarkan ke Google Cloud Console:
+
+- Buka [Google Cloud Console](https://console.cloud.google.com/) dan pilih proyek Anda sebelumnya.
+
+- Buka menu **Credentials** > **+ CREATE CREDENTIALS** > **OAuth client ID**.
+
+- Pilih **Application type: Android**.
+
+- Masukkan _Package Name_ (`id.my.anomali99.fintale`) dan tempelkan kode **SHA-1 Release** yang didapat dari langkah nomor 3.
+
+- Klik **Create** dan tunggu proses propagasi Google sekitar 5 menit.
+
+5. Lakukan Build APK:
 
 ```bash
 flutter build apk --release

@@ -11,7 +11,6 @@ class UserController with ChangeNotifier {
   UserModel? currentUser;
 
   UserController(this._prefService) {
-    debugPrint("[DEBUG-RESET] UserController Constructor Dipanggil");
     evaluateAndResetDaily();
   }
 
