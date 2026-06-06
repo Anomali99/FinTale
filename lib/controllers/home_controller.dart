@@ -1,3 +1,4 @@
+import 'package:decimal/decimal.dart';
 import 'package:flutter/material.dart';
 
 import '../core/utils/enum_types.dart';
@@ -12,7 +13,7 @@ class HomeController with ChangeNotifier {
   final UserController _userController;
   final WalletController _walletController;
   final TransactionController _transactionController;
-  BigInt totalUnallocated = BigInt.zero;
+  Decimal totalUnallocated = Decimal.zero;
   bool isHideBalance = false;
 
   HomeController(
@@ -49,7 +50,7 @@ class HomeController with ChangeNotifier {
       await _walletController.loadData();
       isHideBalance = _userController.isHideBalance;
 
-      totalUnallocated = BigInt.zero;
+      totalUnallocated = Decimal.zero;
 
       for (AllocationModel all in pendingAllocations) {
         totalUnallocated += all.amount;
@@ -70,7 +71,7 @@ class HomeController with ChangeNotifier {
     );
 
     if (index != -1) {
-      if (all.amount <= BigInt.zero) {
+      if (all.amount <= Decimal.zero) {
         _userController.removePending(index);
       } else {
         _userController.updatePending(index, all);
@@ -132,7 +133,7 @@ class HomeController with ChangeNotifier {
 
           if (dreamFund > 0.0) {
             wallet.addReserved(
-              BigInt.from(onePercentageAmount * dreamFund),
+              Decimal.parse((onePercentageAmount * dreamFund).toString()),
               isIncome: true,
             );
           }
@@ -144,8 +145,8 @@ class HomeController with ChangeNotifier {
           ) {
             if (percentage <= 0.0) return;
 
-            BigInt allocatedAmount = BigInt.from(
-              onePercentageAmount * percentage,
+            Decimal allocatedAmount = Decimal.parse(
+              (onePercentageAmount * percentage).toString(),
             );
 
             int index = pendingAllocations.indexWhere(
@@ -204,30 +205,30 @@ class HomeController with ChangeNotifier {
           transaction.targetId,
         );
 
-        BigInt expenseAmount = transaction.detailTransaction.isNotEmpty
+        Decimal expenseAmount = transaction.detailTransaction.isNotEmpty
             ? transaction.detailTransaction[0].amount
             : transaction.amount;
 
-        BigInt feeAmount = expenseAmount - transaction.amount;
+        Decimal feeAmount = expenseAmount - transaction.amount;
 
-        BigInt availableAmount = wallet.amount - wallet.reservedAmount;
+        Decimal availableAmount = wallet.amount - wallet.reservedAmount;
 
         if (useReserved == true) {
-          BigInt deductedFromReserved = expenseAmount > wallet.reservedAmount
+          Decimal deductedFromReserved = expenseAmount > wallet.reservedAmount
               ? wallet.reservedAmount
               : expenseAmount;
 
           wallet.addReserved(deductedFromReserved, isIncome: false);
 
-          BigInt arrivingReserved = deductedFromReserved > feeAmount
+          Decimal arrivingReserved = deductedFromReserved > feeAmount
               ? deductedFromReserved - feeAmount
-              : BigInt.zero;
+              : Decimal.zero;
 
           walletTarget.addReserved(arrivingReserved, isIncome: true);
         } else if (expenseAmount > availableAmount) {
-          BigInt overflowAmount = expenseAmount - availableAmount;
+          Decimal overflowAmount = expenseAmount - availableAmount;
 
-          BigInt deductedFromReserved = overflowAmount > wallet.reservedAmount
+          Decimal deductedFromReserved = overflowAmount > wallet.reservedAmount
               ? wallet.reservedAmount
               : overflowAmount;
 

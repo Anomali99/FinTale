@@ -1,3 +1,4 @@
+import 'package:decimal/decimal.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -6,8 +7,8 @@ import '../../../controllers/settings_controller.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/screen_dict.dart';
 import '../../../core/constants/ui_dict.dart';
-import '../../../core/utils/currency_formatter.dart';
 import '../../../core/utils/enum_types.dart';
+import '../../../core/utils/number_utils.dart';
 import '../../../models/bill_model.dart';
 import '../../../models/debt_model.dart';
 import '../../../models/transaction_detail_model.dart';
@@ -21,7 +22,7 @@ class PayDebtModal extends StatefulWidget {
   final List<WalletModel> wallets;
   final List<DebtModel>? debts;
   final List<BillModel>? bils;
-  final BigInt? pendingAllocation;
+  final Decimal? pendingAllocation;
   const PayDebtModal({
     super.key,
     required this.wallets,
@@ -46,21 +47,13 @@ class _PayDebtModalState extends State<PayDebtModal>
   WalletModel? _selectedWallet;
   DebtModel? _selectedDebt;
   BillModel? _selectedBill;
-  BigInt _amount = BigInt.zero;
+  Decimal _amount = Decimal.zero;
   bool _isReservedActive = false;
   bool _isFeeActive = false;
 
   bool _isBillTab = true;
   bool _isHideTab = false;
   bool _isLockWallet = false;
-
-  BigInt get _cleanAmount => _amountController.text.isNotEmpty
-      ? BigInt.parse(_amountController.text.replaceAll('.', ''))
-      : BigInt.zero;
-
-  BigInt get _cleanFeeAmount => _feeController.text.isNotEmpty
-      ? BigInt.parse(_feeController.text.replaceAll('.', ''))
-      : BigInt.zero;
 
   @override
   void initState() {
@@ -77,9 +70,10 @@ class _PayDebtModalState extends State<PayDebtModal>
     }
     if (widget.bils != null && widget.bils!.isNotEmpty) {
       _selectedBill = widget.bils?[0];
-      _onNumberChanged(
+      NumberUtils.formatInput(
         _amountController,
         _selectedBill?.amount.toString() ?? '0',
+        onCalculated: _calculateTotal,
       );
     }
     if (widget.debts != null && widget.debts!.isNotEmpty) {
@@ -122,50 +116,31 @@ class _PayDebtModalState extends State<PayDebtModal>
     _isReservedActive = false;
     _isFeeActive = false;
     if (_isBillTab) {
-      _onNumberChanged(
+      NumberUtils.formatInput(
         _amountController,
         _selectedBill?.amount.toString() ?? '0',
+        onCalculated: _calculateTotal,
       );
     } else {
-      _onNumberChanged(_amountController, '0');
-    }
-  }
-
-  void _onNumberChanged(TextEditingController controller, String value) {
-    String cleanText = value.replaceAll('.', '');
-
-    if (cleanText.isEmpty) {
-      controller.text = '';
-      _calculateTotal();
-      return;
-    }
-
-    BigInt currentValue = BigInt.tryParse(cleanText) ?? BigInt.zero;
-    String formattedText = currentValue.toString().replaceAllMapped(
-      RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
-      (Match m) => '${m[1]}.',
-    );
-
-    if (controller.text != formattedText) {
-      controller.value = TextEditingValue(
-        text: formattedText,
-        selection: TextSelection.collapsed(offset: formattedText.length),
+      NumberUtils.formatInput(
+        _amountController,
+        '0',
+        onCalculated: _calculateTotal,
       );
     }
-    _calculateTotal();
   }
 
   void _calculateTotal() {
     try {
-      BigInt total = _cleanAmount;
+      Decimal total = NumberUtils.parseToDecimal(_amountController.text);
       if (_isFeeActive) {
-        total += _cleanFeeAmount;
+        total += NumberUtils.parseToDecimal(_feeController.text);
       }
       setState(() {
         _amount = total;
       });
     } catch (e) {
-      _amount = BigInt.zero;
+      _amount = Decimal.zero;
     }
   }
 
@@ -177,13 +152,13 @@ class _PayDebtModalState extends State<PayDebtModal>
           status: StatusType.paid,
           walletId: _selectedWallet?.id,
           totalAmount: _amount,
-          detailAmount: _cleanAmount,
+          detailAmount: NumberUtils.parseToDecimal(_amountController.text),
         );
       } else {
         transaction = _selectedDebt!.generateTransaction(
           walletId: _selectedWallet?.id,
           totalAmount: _amount,
-          detailAmount: _cleanAmount,
+          detailAmount: NumberUtils.parseToDecimal(_amountController.text),
         );
       }
 
@@ -191,7 +166,7 @@ class _PayDebtModalState extends State<PayDebtModal>
         transaction.detailTransaction.add(
           TransactionDetailModel(
             title: 'Fee',
-            amount: _cleanFeeAmount,
+            amount: NumberUtils.parseToDecimal(_feeController.text),
             category: TransactionCategory.utilities,
             flow: FlowType.expense,
           ),
@@ -307,14 +282,15 @@ class _PayDebtModalState extends State<PayDebtModal>
                   onChanged: widget.bils != null && widget.bils!.length > 1
                       ? (val) => setState(() {
                           _selectedBill = val;
-                          _onNumberChanged(
+                          NumberUtils.formatInput(
                             _amountController,
                             val!.amount.toString(),
+                            onCalculated: _calculateTotal,
                           );
                         })
                       : null,
                   validator: (val) => val == null && !_isBillTab
-                      ? ScreenDict.billAmount.get(isRpg)
+                      ? ScreenDict.billRequired.get(isRpg)
                       : null,
                 )
               else
@@ -349,7 +325,11 @@ class _PayDebtModalState extends State<PayDebtModal>
                   prefixText: 'Rp ',
                   border: OutlineInputBorder(),
                 ),
-                onChanged: (val) => _onNumberChanged(_amountController, val),
+                onChanged: (val) => NumberUtils.formatInput(
+                  _amountController,
+                  val,
+                  onCalculated: _calculateTotal,
+                ),
                 validator: (val) =>
                     val == null || val.isEmpty ? UiDict.requiredPrice : null,
               ),
@@ -411,7 +391,11 @@ class _PayDebtModalState extends State<PayDebtModal>
                     }
                     return null;
                   },
-                  onChanged: (value) => _onNumberChanged(_feeController, value),
+                  onChanged: (value) => NumberUtils.formatInput(
+                    _feeController,
+                    value,
+                    onCalculated: _calculateTotal,
+                  ),
                 ),
                 const SizedBox(height: 12),
                 NoteContainer(
@@ -460,23 +444,19 @@ class _PayDebtModalState extends State<PayDebtModal>
                         text: widget.pendingAllocation != null
                             ? ScreenDict.getInvestNote(
                                 _selectedWallet?.name ?? '',
-                                CurrencyFormatter.convertToIdr(
-                                  widget.pendingAllocation,
-                                ),
+                                NumberUtils.toIdr(widget.pendingAllocation),
                               )
                             : _isReservedActive
                             ? ScreenDict.getHomeNote(
                                 _selectedWallet?.name ?? '',
-                                CurrencyFormatter.convertToIdr(
+                                NumberUtils.toIdr(
                                   _selectedWallet?.reservedAmount,
                                 ),
                                 isRpg: isRpg,
                               )
                             : ScreenDict.getHistoryNote(
                                 _selectedWallet?.name ?? '',
-                                CurrencyFormatter.convertToIdr(
-                                  _selectedWallet?.amount,
-                                ),
+                                NumberUtils.toIdr(_selectedWallet?.amount),
                               ),
                         color: Colors.grey,
                       ),
@@ -493,7 +473,7 @@ class _PayDebtModalState extends State<PayDebtModal>
                           ),
                         ),
                         Text(
-                          CurrencyFormatter.convertToIdr(_amount),
+                          NumberUtils.toIdr(_amount),
                           style: const TextStyle(
                             fontFamily: 'Poppins',
                             fontWeight: FontWeight.bold,

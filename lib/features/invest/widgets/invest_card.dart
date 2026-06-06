@@ -7,7 +7,7 @@ import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/category_dict.dart';
 import '../../../core/constants/gamification_dict.dart';
 import '../../../core/constants/screen_dict.dart';
-import '../../../core/utils/currency_formatter.dart';
+import '../../../core/utils/number_utils.dart';
 import '../../../models/assets_model.dart';
 import '../../../widgets/custom_bottom_sheet.dart';
 
@@ -114,11 +114,15 @@ class InvestCard extends StatelessWidget {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text(
-                            asset.name,
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
+                          Expanded(
+                            child: Text(
+                              asset.name,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                           ),
 
@@ -215,7 +219,7 @@ class InvestCard extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      CurrencyFormatter.convertToIdr(asset.invested),
+                      NumberUtils.toIdr(asset.invested),
                       style: const TextStyle(fontWeight: FontWeight.bold),
                     ),
                   ],
@@ -231,7 +235,7 @@ class InvestCard extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      CurrencyFormatter.convertToIdr(asset.value),
+                      NumberUtils.toIdr(asset.value),
                       style: TextStyle(
                         fontFamily: 'Poppins',
                         fontWeight: FontWeight.bold,

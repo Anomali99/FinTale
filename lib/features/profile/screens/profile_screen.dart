@@ -1,3 +1,4 @@
+import 'package:decimal/decimal.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
@@ -10,9 +11,9 @@ import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/gamification_dict.dart';
 import '../../../core/constants/screen_dict.dart';
 import '../../../core/constants/ui_dict.dart';
-import '../../../core/utils/currency_formatter.dart';
 import '../../../core/utils/enum_types.dart';
 import '../../../core/utils/global_messenger.dart';
+import '../../../core/utils/number_utils.dart';
 import '../widgets/allocation_card.dart';
 import '../widgets/daily_missions.dart';
 import '../widgets/edit_modal.dart';
@@ -48,7 +49,7 @@ class ProfileScreen extends StatelessWidget {
   Future<void> _openEditNum(
     BuildContext context, {
     required String title,
-    required Future<bool> Function(BigInt) function,
+    required Future<bool> Function(Decimal) function,
     String? defaultValue,
   }) async {
     final skillController = context.read<SkillController>();
@@ -64,7 +65,7 @@ class ProfileScreen extends StatelessWidget {
     );
 
     if (result != null && context.mounted) {
-      bool isSuccess = await function(BigInt.parse(result));
+      bool isSuccess = await function(NumberUtils.parseToDecimal(result));
 
       if (isSuccess) {
         await skillController.loadData();
@@ -139,7 +140,7 @@ class ProfileScreen extends StatelessWidget {
           _buildSettingCard(
             ScreenDict.homeDailyLimit.icon(isRpg),
             ScreenDict.homeDailyLimit.get(isRpg),
-            '${CurrencyFormatter.convertToIdr(baseDailyLimit)} / day',
+            '${NumberUtils.toIdr(baseDailyLimit)} / day',
             onTap: () => _openEditNum(
               context,
               title: ScreenDict.homeDailyLimit.get(isRpg),
@@ -151,7 +152,7 @@ class ProfileScreen extends StatelessWidget {
           _buildSettingCard(
             GamificationDict.skillEmergency.icon(isRpg),
             GamificationDict.skillEmergency.get(isRpg),
-            '${CurrencyFormatter.convertToIdr(emergencyTotal)} / ${CurrencyFormatter.convertToIdr(emergencyAmount)}',
+            '${NumberUtils.toIdr(emergencyTotal)} / ${NumberUtils.toIdr(emergencyAmount)}',
             currentProgress: emergencyTotal,
             maxProgress: emergencyAmount,
             onTap: () => _openEditNum(
@@ -172,8 +173,8 @@ class ProfileScreen extends StatelessWidget {
     FaIconData icon,
     String title,
     String subtitle, {
-    BigInt? currentProgress,
-    BigInt? maxProgress,
+    Decimal? currentProgress,
+    Decimal? maxProgress,
     VoidCallback? onTap,
   }) {
     return GestureDetector(

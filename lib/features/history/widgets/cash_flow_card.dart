@@ -1,14 +1,15 @@
+import 'package:decimal/decimal.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/ui_dict.dart';
-import '../../../core/utils/currency_formatter.dart';
+import '../../../core/utils/number_utils.dart';
 
 class CashFlowCard extends StatelessWidget {
   final bool isRpg;
-  final BigInt totalIncome;
-  final BigInt totalExpense;
+  final Decimal totalIncome;
+  final Decimal totalExpense;
 
   const CashFlowCard({
     super.key,
@@ -47,7 +48,7 @@ class CashFlowCard extends StatelessWidget {
   }
 
   Widget _buildFlowBlock({
-    required BigInt amount,
+    required Decimal amount,
     required FaIconData icon,
     required Color color,
   }) {
@@ -74,7 +75,7 @@ class CashFlowCard extends StatelessWidget {
               fit: BoxFit.scaleDown,
               alignment: Alignment.centerLeft,
               child: Text(
-                CurrencyFormatter.convertToIdr(amount),
+                NumberUtils.toIdr(amount),
                 style: TextStyle(
                   fontFamily: 'Poppins',
                   fontSize: 18,

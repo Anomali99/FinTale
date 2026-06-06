@@ -549,7 +549,21 @@ class SettingsScreen extends StatelessWidget {
             ),
           ),
 
-          const SizedBox(height: 48),
+          const SizedBox(height: 24),
+
+          Center(
+            child: Text(
+              'FinTale ${settingsController.appVersion}  •  Created by Anomali99',
+              style: const TextStyle(
+                fontSize: 12,
+                color: AppColors.textSecondary,
+                fontWeight: FontWeight.w500,
+                letterSpacing: 0.5,
+              ),
+            ),
+          ),
+
+          const SizedBox(height: 12),
         ],
       ),
     );

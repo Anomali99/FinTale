@@ -1,3 +1,4 @@
+import 'package:decimal/decimal.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import '../core/utils/enum_types.dart';
@@ -6,8 +7,8 @@ class WalletModel {
   final int? id;
   final String name;
   final WalletType type;
-  BigInt amount;
-  BigInt reservedAmount;
+  Decimal amount;
+  Decimal reservedAmount;
 
   WalletModel({
     required this.name,
@@ -15,8 +16,8 @@ class WalletModel {
     required this.amount,
 
     this.id,
-    BigInt? reservedAmount,
-  }) : reservedAmount = reservedAmount ?? BigInt.zero;
+    Decimal? reservedAmount,
+  }) : reservedAmount = reservedAmount ?? Decimal.zero;
 
   Map<String, dynamic> toMap() {
     return {
@@ -36,17 +37,17 @@ class WalletModel {
         (e) => e.name == map['type'],
         orElse: () => WalletType.cash,
       ),
-      amount: BigInt.parse(map['amount'] ?? '0'),
-      reservedAmount: BigInt.parse(map['reserved_amount'] ?? '0'),
+      amount: Decimal.parse(map['amount'] ?? '0'),
+      reservedAmount: Decimal.parse(map['reserved_amount'] ?? '0'),
     );
   }
 }
 
 extension WalletExtension on WalletModel {
-  BigInt get regularAmount =>
-      amount > BigInt.zero ? amount - reservedAmount : BigInt.zero;
+  Decimal get regularAmount =>
+      amount > Decimal.zero ? amount - reservedAmount : Decimal.zero;
 
-  void addAmount(BigInt amount, {bool isIncome = true}) {
+  void addAmount(Decimal amount, {bool isIncome = true}) {
     if (isIncome) {
       this.amount += amount;
     } else {
@@ -54,7 +55,7 @@ extension WalletExtension on WalletModel {
     }
   }
 
-  void addReserved(BigInt amount, {bool isIncome = true}) {
+  void addReserved(Decimal amount, {bool isIncome = true}) {
     if (isIncome) {
       reservedAmount += amount;
     } else {
@@ -62,16 +63,16 @@ extension WalletExtension on WalletModel {
     }
   }
 
-  BigInt autoExpanse(BigInt amount, {bool useReserved = false}) {
-    BigInt availableAmount = this.amount - reservedAmount;
-    BigInt deductedFromReserved = BigInt.zero;
+  Decimal autoExpanse(Decimal amount, {bool useReserved = false}) {
+    Decimal availableAmount = this.amount - reservedAmount;
+    Decimal deductedFromReserved = Decimal.zero;
 
     if (useReserved) {
       deductedFromReserved = amount > reservedAmount ? reservedAmount : amount;
 
       addReserved(deductedFromReserved, isIncome: false);
     } else if (amount > availableAmount) {
-      BigInt overflowAmount = amount - availableAmount;
+      Decimal overflowAmount = amount - availableAmount;
 
       deductedFromReserved = overflowAmount > reservedAmount
           ? reservedAmount

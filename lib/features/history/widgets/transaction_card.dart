@@ -1,15 +1,16 @@
+import 'package:decimal/decimal.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import '../../../core/constants/app_colors.dart';
-import '../../../core/utils/currency_formatter.dart';
 import '../../../core/utils/enum_types.dart';
+import '../../../core/utils/number_utils.dart';
 
 class TransactionCard extends StatelessWidget {
   final TransactionType type;
   final String title;
   final String subtitle;
-  final BigInt amount;
+  final Decimal amount;
   final FaIconData icon;
   final VoidCallback onTap;
 
@@ -70,7 +71,7 @@ class TransactionCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Text(
-                    '${type.prefix} ${CurrencyFormatter.convertToIdr(amount)}',
+                    '${type.prefix} ${NumberUtils.toIdr(amount)}',
                     style: TextStyle(
                       fontFamily: 'Poppins',
                       fontWeight: FontWeight.bold,

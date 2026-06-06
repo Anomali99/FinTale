@@ -1,3 +1,4 @@
+import 'package:decimal/decimal.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
@@ -5,12 +6,12 @@ import 'package:provider/provider.dart';
 import '../../../controllers/settings_controller.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/screen_dict.dart';
-import '../../../core/utils/currency_formatter.dart';
+import '../../../core/utils/number_utils.dart';
 
 class TotalCard extends StatelessWidget {
   final bool isProvit;
-  final BigInt totalCapital;
-  final BigInt totalCurrent;
+  final Decimal totalCapital;
+  final Decimal totalCurrent;
   final double percentage;
 
   const TotalCard({
@@ -51,7 +52,7 @@ class TotalCard extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            CurrencyFormatter.convertToIdr(totalCurrent),
+            NumberUtils.toIdr(totalCurrent),
             style: TextStyle(
               fontFamily: 'Poppins',
               fontSize: 32,
@@ -74,7 +75,7 @@ class TotalCard extends StatelessWidget {
                     ),
                   ),
                   Text(
-                    CurrencyFormatter.convertToIdr(totalCapital),
+                    NumberUtils.toIdr(totalCapital),
                     style: const TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 16,

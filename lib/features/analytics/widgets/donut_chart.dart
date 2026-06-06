@@ -1,14 +1,15 @@
+import 'package:decimal/decimal.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/ui_dict.dart';
 import '../../../core/models/analytic_model.dart';
-import '../../../core/utils/currency_formatter.dart';
+import '../../../core/utils/number_utils.dart';
 
 class DonutChart extends StatelessWidget {
   final Map<int, AnalyticModel> activeData;
-  final BigInt activeTotal;
+  final Decimal activeTotal;
   final bool showExpense;
   final bool isRpg;
   final int touchedIndex;
@@ -36,7 +37,11 @@ class DonutChart extends StatelessWidget {
 
       final data = dataList[i];
 
-      final percentage = (data.amount / activeTotal * 100).toStringAsFixed(0);
+      final percentage = NumberUtils.calculateStrPercentage(
+        data.amount,
+        activeTotal,
+        fractionDigits: 0,
+      );
 
       return PieChartSectionData(
         color: data.color,
@@ -94,7 +99,7 @@ class DonutChart extends StatelessWidget {
               ),
               const SizedBox(height: 4),
               Text(
-                CurrencyFormatter.convertToIdr(activeTotal),
+                NumberUtils.toIdr(activeTotal),
                 style: TextStyle(
                   fontFamily: 'Poppins',
                   fontWeight: FontWeight.bold,

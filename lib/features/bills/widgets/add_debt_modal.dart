@@ -7,6 +7,7 @@ import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/screen_dict.dart';
 import '../../../core/constants/ui_dict.dart';
 import '../../../core/utils/enum_types.dart';
+import '../../../core/utils/number_utils.dart';
 import '../../../models/bill_model.dart';
 import '../../../models/debt_model.dart';
 import '../../../widgets/custom_button.dart';
@@ -40,8 +41,11 @@ class _AddDebtModalState extends State<AddDebtModal> {
     if (initialValue != null) {
       _titleController.text = initialValue.title;
       _selectedType = initialValue.type;
-      _onNumberChanged(_totalAmountController, initialValue.amount.toString());
-      _onNumberChanged(
+      NumberUtils.formatInput(
+        _totalAmountController,
+        initialValue.amount.toString(),
+      );
+      NumberUtils.formatInput(
         _paidAmountController,
         initialValue.paidAmount.toString(),
       );
@@ -51,7 +55,10 @@ class _AddDebtModalState extends State<AddDebtModal> {
         _createBill = initialBill.isActive;
         _billDay = initialBill.day ?? initialBill.dayName?.intValue ?? 1;
         _billFrequency = initialBill.type;
-        _onNumberChanged(_installmentController, initialBill.amount.toString());
+        NumberUtils.formatInput(
+          _installmentController,
+          initialBill.amount.toString(),
+        );
       }
     }
   }
@@ -65,25 +72,6 @@ class _AddDebtModalState extends State<AddDebtModal> {
     super.dispose();
   }
 
-  void _onNumberChanged(TextEditingController controller, String value) {
-    String cleanText = value.replaceAll('.', '');
-    if (cleanText.isEmpty) {
-      controller.text = '';
-      return;
-    }
-    BigInt currentValue = BigInt.tryParse(cleanText) ?? BigInt.zero;
-    String formattedText = currentValue.toString().replaceAllMapped(
-      RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
-      (Match m) => '${m[1]}.',
-    );
-    if (controller.text != formattedText) {
-      controller.value = TextEditingValue(
-        text: formattedText,
-        selection: TextSelection.collapsed(offset: formattedText.length),
-      );
-    }
-  }
-
   void _submit() {
     if (_formKey.currentState!.validate()) {
       BillModel? bill;
@@ -91,7 +79,7 @@ class _AddDebtModalState extends State<AddDebtModal> {
         bill = BillModel(
           id: widget.initialDebt?.bill?.id,
           title: ScreenDict.getDebtBillTitle(_titleController.text.trim()),
-          amount: BigInt.parse(_installmentController.text.replaceAll('.', '')),
+          amount: NumberUtils.parseToDecimal(_installmentController.text),
           type: _billFrequency,
           isActive: _createBill,
           dayName: _billFrequency == TimeType.weekly
@@ -104,10 +92,8 @@ class _AddDebtModalState extends State<AddDebtModal> {
       DebtModel debt = DebtModel(
         id: widget.initialDebt?.id,
         title: _titleController.text.trim(),
-        amount: BigInt.parse(_totalAmountController.text.replaceAll('.', '')),
-        paidAmount: BigInt.parse(
-          _paidAmountController.text.replaceAll('.', ''),
-        ),
+        amount: NumberUtils.parseToDecimal(_totalAmountController.text),
+        paidAmount: NumberUtils.parseToDecimal(_paidAmountController.text),
         type: _selectedType,
         bill: bill,
       );
@@ -198,11 +184,9 @@ class _AddDebtModalState extends State<AddDebtModal> {
                         border: OutlineInputBorder(),
                       ),
                       onChanged: (val) =>
-                          _onNumberChanged(_totalAmountController, val),
+                          NumberUtils.formatInput(_totalAmountController, val),
                       validator: (val) =>
-                          val == null ||
-                              val.replaceAll('.', '').isEmpty ||
-                              val.replaceAll('.', '') == '0'
+                          val == null || !NumberUtils.isValidAmount(val)
                           ? ScreenDict.debtAmountRequired.get(isRpg)
                           : null,
                     ),
@@ -219,7 +203,7 @@ class _AddDebtModalState extends State<AddDebtModal> {
                         border: OutlineInputBorder(),
                       ),
                       onChanged: (val) =>
-                          _onNumberChanged(_paidAmountController, val),
+                          NumberUtils.formatInput(_paidAmountController, val),
                     ),
                   ),
                 ],
@@ -255,12 +239,10 @@ class _AddDebtModalState extends State<AddDebtModal> {
                     border: OutlineInputBorder(),
                   ),
                   onChanged: (val) =>
-                      _onNumberChanged(_installmentController, val),
+                      NumberUtils.formatInput(_installmentController, val),
                   validator: (val) =>
                       _createBill &&
-                          (val == null ||
-                              val.replaceAll('.', '').isEmpty ||
-                              val.replaceAll('.', '') == '0')
+                          (val == null || !NumberUtils.isValidAmount(val))
                       ? UiDict.requiredAmount
                       : null,
                 ),

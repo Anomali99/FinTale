@@ -1,11 +1,11 @@
 import 'package:decimal/decimal.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/screen_dict.dart';
 import '../../../core/constants/ui_dict.dart';
 import '../../../core/utils/enum_types.dart';
+import '../../../core/utils/number_utils.dart';
 import '../../../models/assets_model.dart';
 import '../../../models/transaction_detail_model.dart';
 import '../../../models/transaction_model.dart';
@@ -37,67 +37,32 @@ class _DividendModalState extends State<DividendModal> {
     super.dispose();
   }
 
-  String _formatNumber(BigInt value) {
-    return value.toString().replaceAllMapped(
-      RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
-      (Match m) => '${m[1]}.',
-    );
-  }
-
-  String _cleanNumber(String value) {
-    return value.replaceAll('.', '');
-  }
-
-  void _onPerUnitChanged(String value) {
-    String cleanText = _cleanNumber(value);
-
-    if (cleanText.isEmpty) {
-      _perUnitController.text = '';
+  void _calculateTotalFromPerUnit() {
+    Decimal perUnit = NumberUtils.parseToDecimal(_perUnitController.text);
+    if (perUnit > Decimal.zero) {
+      Decimal total = perUnit * widget.asset.unit;
+      _totalController.text = NumberUtils.formatNumber(total, decimalDigits: 0);
+    } else {
       _totalController.text = '';
-      return;
     }
-
-    BigInt perUnit = BigInt.tryParse(cleanText) ?? BigInt.zero;
-    _perUnitController.value = TextEditingValue(
-      text: _formatNumber(perUnit),
-      selection: TextSelection.collapsed(offset: _formatNumber(perUnit).length),
-    );
-
-    Decimal unitAset = widget.asset.unit;
-    BigInt total = BigInt.from(
-      (perUnit.toDouble() * unitAset.toDouble()).round(),
-    );
-    _totalController.text = _formatNumber(total);
   }
 
-  void _onTotalChanged(String value) {
-    String cleanText = _cleanNumber(value);
-
-    if (cleanText.isEmpty) {
-      _totalController.text = '';
-      _perUnitController.text = '';
-      return;
-    }
-
-    BigInt total = BigInt.tryParse(cleanText) ?? BigInt.zero;
-    _totalController.value = TextEditingValue(
-      text: _formatNumber(total),
-      selection: TextSelection.collapsed(offset: _formatNumber(total).length),
-    );
-
-    Decimal unitAset = widget.asset.unit;
-    if (unitAset > Decimal.zero) {
-      BigInt perUnit = BigInt.from(
-        (total.toDouble() / unitAset.toDouble()).round(),
+  void _calculatePerUnitFromTotal() {
+    Decimal total = NumberUtils.parseToDecimal(_totalController.text);
+    if (total > Decimal.zero && widget.asset.unit > Decimal.zero) {
+      double perUnit = total.toDouble() / widget.asset.unit.toDouble();
+      _perUnitController.text = NumberUtils.formatNumber(
+        perUnit,
+        decimalDigits: 0,
       );
-
-      _perUnitController.text = _formatNumber(perUnit);
+    } else {
+      _perUnitController.text = '';
     }
   }
 
   void _submit() {
     if (_formKey.currentState!.validate()) {
-      BigInt totalAmount = BigInt.parse(_cleanNumber(_totalController.text));
+      Decimal totalAmount = NumberUtils.parseToDecimal(_totalController.text);
 
       TransactionModel transaction = TransactionModel(
         type: TransactionType.income,
@@ -154,16 +119,18 @@ class _DividendModalState extends State<DividendModal> {
                   ),
                 ),
               ),
-
               Text(
                 ScreenDict.investClaimDeviden,
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                style: const TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               const SizedBox(height: 8),
               Text(
                 ScreenDict.getClaimTitle(
                   name: widget.asset.name,
-                  unit: widget.asset.unit.toString(),
+                  unit: NumberUtils.formatNumber(widget.asset.unit),
                   unitName: widget.asset.unitName,
                 ),
                 style: const TextStyle(color: AppColors.textSecondary),
@@ -173,29 +140,40 @@ class _DividendModalState extends State<DividendModal> {
               TextFormField(
                 controller: _perUnitController,
                 keyboardType: TextInputType.number,
-                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                 decoration: InputDecoration(
                   labelText: ScreenDict.getInvestDevidenPerUnit(
                     widget.asset.unitName,
                   ),
                   prefixText: 'Rp ',
-                  border: OutlineInputBorder(),
+                  border: const OutlineInputBorder(),
                 ),
-                onChanged: _onPerUnitChanged,
+
+                onChanged: (val) => NumberUtils.formatInput(
+                  _perUnitController,
+                  val,
+                  isDecimal: true,
+                  onCalculated: _calculateTotalFromPerUnit,
+                ),
               ),
               const SizedBox(height: 16),
 
               TextFormField(
                 controller: _totalController,
                 keyboardType: TextInputType.number,
-                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: ScreenDict.investTotalDeviden,
                   prefixText: 'Rp ',
                   border: OutlineInputBorder(),
                 ),
-                onChanged: _onTotalChanged,
-                validator: (val) => val == null || val.isEmpty
+
+                onChanged: (val) => NumberUtils.formatInput(
+                  _totalController,
+                  val,
+                  isDecimal: true,
+                  onCalculated: _calculatePerUnitFromTotal,
+                ),
+                validator: (val) =>
+                    val == null || !NumberUtils.isValidAmount(val)
                     ? ScreenDict.investTotalDevidenRequired
                     : null,
               ),
@@ -203,7 +181,7 @@ class _DividendModalState extends State<DividendModal> {
 
               DropdownButtonFormField<WalletModel>(
                 initialValue: _selectedWallet,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: UiDict.destinationWallet,
                   border: OutlineInputBorder(),
                 ),
@@ -219,7 +197,7 @@ class _DividendModalState extends State<DividendModal> {
               ),
               const SizedBox(height: 16),
 
-              NoteContainer(
+              const NoteContainer(
                 text: ScreenDict.investDevidenDesc,
                 color: Colors.grey,
               ),

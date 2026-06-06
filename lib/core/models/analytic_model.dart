@@ -1,3 +1,4 @@
+import 'package:decimal/decimal.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
@@ -8,12 +9,12 @@ import 'category_model.dart';
 class AnalyticModel {
   final TransactionCategory id;
   final CategoryModel category;
-  BigInt amount;
+  Decimal amount;
 
   AnalyticModel({required this.id, required this.amount})
     : category = CategoryDict.getByTransactionCategory(id);
 
-  void addAmount(BigInt amount) {
+  void addAmount(Decimal amount) {
     this.amount += amount;
   }
 

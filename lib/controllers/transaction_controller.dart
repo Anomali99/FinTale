@@ -1,3 +1,4 @@
+import 'package:decimal/decimal.dart';
 import 'package:flutter/material.dart';
 
 import '../core/models/analytic_model.dart';
@@ -12,12 +13,12 @@ class TransactionController extends ChangeNotifier {
   List<TransactionModel> billTransaction = [];
   Map<int, AnalyticModel> detailExpense = {};
   Map<int, AnalyticModel> detailInvest = {};
-  BigInt income = BigInt.zero;
-  BigInt expense = BigInt.zero;
+  Decimal income = Decimal.zero;
+  Decimal expense = Decimal.zero;
 
-  BigInt totalIncome = BigInt.zero;
-  BigInt totalExpense = BigInt.zero;
-  BigInt totalInvest = BigInt.zero;
+  Decimal totalIncome = Decimal.zero;
+  Decimal totalExpense = Decimal.zero;
+  Decimal totalInvest = Decimal.zero;
 
   final Map<String, List<TransactionModel>> _monthlyCache = {};
 
@@ -25,7 +26,7 @@ class TransactionController extends ChangeNotifier {
     loadData();
   }
 
-  BigInt get totalIdle => totalIncome - (totalExpense + totalInvest);
+  Decimal get totalIdle => totalIncome - (totalExpense + totalInvest);
 
   Future<void> createTransaction(
     TransactionModel transaction, {
@@ -83,9 +84,9 @@ class TransactionController extends ChangeNotifier {
         _monthlyCache[cacheKey] = List.from(transaction);
       }
 
-      totalIncome = BigInt.zero;
-      totalExpense = BigInt.zero;
-      totalInvest = BigInt.zero;
+      totalIncome = Decimal.zero;
+      totalExpense = Decimal.zero;
+      totalInvest = Decimal.zero;
 
       Map<TransactionCategory, AnalyticModel> expenseTemp = {};
       Map<TransactionCategory, AnalyticModel> investTemp = {};
@@ -181,8 +182,8 @@ class TransactionController extends ChangeNotifier {
         }
       }
 
-      income = BigInt.zero;
-      expense = BigInt.zero;
+      income = Decimal.zero;
+      expense = Decimal.zero;
 
       for (TransactionModel transaction in transactions) {
         for (TransactionDetailModel detail in transaction.detailTransaction) {

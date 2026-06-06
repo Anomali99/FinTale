@@ -1,3 +1,4 @@
+import 'package:decimal/decimal.dart';
 import 'package:intl/intl.dart';
 
 import '../core/constants/screen_dict.dart';
@@ -10,7 +11,7 @@ class BillModel {
   final int? id;
   final int? debtId;
   final String title;
-  final BigInt amount;
+  final Decimal amount;
   final TimeType type;
   final int? day;
   final int? month;
@@ -52,7 +53,7 @@ class BillModel {
       id: map['id'],
       debtId: map['debt_id'],
       title: map['title'],
-      amount: BigInt.parse(map['amount'] ?? '0'),
+      amount: Decimal.parse(map['amount'] ?? '0'),
       type: TimeType.values.firstWhere(
         (e) => e.name == map['type'],
         orElse: () => TimeType.annual,
@@ -70,7 +71,8 @@ class BillModel {
 }
 
 extension BillExtension on BillModel {
-  BillTier get tier => TierAnalyzer.calculateBillTier(amount, type);
+  BillTier get tier =>
+      TierAnalyzer.calculateBillTier(BigInt.parse(amount.toString()), type);
 
   void toggleActive(bool value) {
     isActive = value;
@@ -110,8 +112,8 @@ extension BillExtension on BillModel {
   TransactionModel generateTransaction({
     StatusType? status,
     int? walletId,
-    BigInt? totalAmount,
-    BigInt? detailAmount,
+    Decimal? totalAmount,
+    Decimal? detailAmount,
     bool autoAdvance = false,
   }) {
     DateTime now = DateTime.now();

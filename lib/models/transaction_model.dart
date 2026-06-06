@@ -1,3 +1,5 @@
+import 'package:decimal/decimal.dart';
+
 import '../core/utils/enum_types.dart';
 import 'transaction_detail_model.dart';
 
@@ -9,7 +11,7 @@ class TransactionModel {
   int? assetsId;
   final int? targetId;
   final String title;
-  final BigInt amount;
+  final Decimal amount;
   final int dateTimestamp;
   StatusType status;
   final TransactionType type;
@@ -75,7 +77,7 @@ class TransactionModel {
       assetsId: map['assets_id'],
       targetId: map['target_id'],
       title: map['title'],
-      amount: BigInt.parse(map['amount'] ?? '0'),
+      amount: Decimal.parse(map['amount'] ?? '0'),
       dateTimestamp: map['date_timestamp'],
       status: StatusType.values.firstWhere(
         (e) => e.name == map['status'],

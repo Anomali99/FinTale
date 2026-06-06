@@ -8,6 +8,7 @@ import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/screen_dict.dart';
 import '../../../core/constants/ui_dict.dart';
 import '../../../core/utils/enum_types.dart';
+import '../../../core/utils/number_utils.dart';
 import '../../../models/bill_model.dart';
 import '../../../widgets/custom_button.dart';
 
@@ -106,7 +107,7 @@ class _AddBillModalState extends State<AddBillModal> {
       final bill = BillModel(
         id: widget.initialBill?.id,
         title: _titleController.text.trim(),
-        amount: BigInt.parse(_amountController.text.replaceAll('.', '')),
+        amount: NumberUtils.parseToDecimal(_amountController.text),
         isActive: !_isLockActive,
         type: _selectedType,
         day:
@@ -184,28 +185,14 @@ class _AddBillModalState extends State<AddBillModal> {
                   prefixText: 'Rp ',
                   border: OutlineInputBorder(),
                 ),
-                onChanged: (val) {
-                  String cleanText = val.replaceAll('.', '');
-                  if (cleanText.isEmpty) return;
-                  BigInt currentValue =
-                      BigInt.tryParse(cleanText) ?? BigInt.zero;
-                  String formattedText = currentValue
-                      .toString()
-                      .replaceAllMapped(
-                        RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
-                        (Match m) => '${m[1]}.',
-                      );
-                  _amountController.value = TextEditingValue(
-                    text: formattedText,
-                    selection: TextSelection.collapsed(
-                      offset: formattedText.length,
-                    ),
-                  );
-                },
+                onChanged: (val) =>
+                    NumberUtils.formatInput(_amountController, val),
                 validator: (val) =>
                     val == null ||
-                        val.replaceAll('.', '').isEmpty ||
-                        val.replaceAll('.', '') == '0'
+                        !NumberUtils.isValidAmount(
+                          _amountController.text,
+                          allowZero: false,
+                        )
                     ? UiDict.requiredAmount
                     : null,
               ),

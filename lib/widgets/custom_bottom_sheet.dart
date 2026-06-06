@@ -52,9 +52,15 @@ class CustomBottomSheet extends StatelessWidget {
           ),
           if (title != null) ...[
             const SizedBox(height: 16),
-            Text(
-              title ?? '',
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12.0),
+              child: Text(
+                title ?? '',
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
             ),
           ] else
             const SizedBox(height: 24),

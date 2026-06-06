@@ -6,8 +6,8 @@ import '../../../controllers/settings_controller.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/screen_dict.dart';
 import '../../../core/constants/ui_dict.dart';
-import '../../../core/utils/currency_formatter.dart';
 import '../../../core/utils/enum_types.dart';
+import '../../../core/utils/number_utils.dart';
 import '../../../models/wallet_model.dart';
 import '../../../widgets/custom_button.dart';
 import '../../../widgets/custom_table.dart';
@@ -32,7 +32,10 @@ class _WalletModalState extends State<WalletModal> {
     super.initState();
     _nameController.text = widget.wallet?.name ?? '';
     _selectedType = widget.wallet?.type ?? WalletType.bank;
-    _onChanged(widget.wallet?.amount.toString() ?? '0');
+    NumberUtils.formatInput(
+      _amountController,
+      widget.wallet?.amount.toString() ?? '0',
+    );
   }
 
   @override
@@ -44,41 +47,16 @@ class _WalletModalState extends State<WalletModal> {
 
   void _submit() {
     if (_formKey.currentState!.validate()) {
-      final String cleanAmount = _amountController.text.replaceAll('.', '');
-
       final result = WalletModel(
         id: widget.wallet?.id,
         name: _nameController.text.trim(),
         type: _selectedType,
         amount:
             widget.wallet?.amount ??
-            BigInt.parse(cleanAmount.isEmpty ? '0' : cleanAmount),
+            NumberUtils.parseToDecimal(_amountController.text),
       );
 
       Navigator.pop(context, result);
-    }
-  }
-
-  void _onChanged(String value) {
-    String cleanText = value.replaceAll('.', '');
-
-    if (cleanText.isEmpty) {
-      _amountController.text = '';
-      return;
-    }
-
-    BigInt currentValue = BigInt.tryParse(cleanText) ?? BigInt.zero;
-
-    String formattedText = currentValue.toString().replaceAllMapped(
-      RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
-      (Match m) => '${m[1]}.',
-    );
-
-    if (_amountController.text != formattedText) {
-      _amountController.value = TextEditingValue(
-        text: formattedText,
-        selection: TextSelection.collapsed(offset: formattedText.length),
-      );
     }
   }
 
@@ -156,7 +134,8 @@ class _WalletModalState extends State<WalletModal> {
                   prefixText: 'Rp ',
                   border: OutlineInputBorder(),
                 ),
-                onChanged: _onChanged,
+                onChanged: (val) =>
+                    NumberUtils.formatInput(_amountController, val),
               ),
             ] else ...[
               const SizedBox(height: 24),
@@ -166,7 +145,7 @@ class _WalletModalState extends State<WalletModal> {
                 children: [
                   CustomRowTable(
                     label: ScreenDict.homeTotalBalance.get(false),
-                    value: CurrencyFormatter.convertToIdr(
+                    value: NumberUtils.toIdr(
                       widget.wallet?.amount ?? BigInt.zero,
                     ),
                     valueColor: AppColors.textPrimary,
@@ -178,14 +157,14 @@ class _WalletModalState extends State<WalletModal> {
                   ),
                   CustomRowTable(
                     label: ScreenDict.homeRegular.get(isRpg),
-                    value: CurrencyFormatter.convertToIdr(
+                    value: NumberUtils.toIdr(
                       widget.wallet?.regularAmount ?? BigInt.zero,
                     ),
                   ),
                   const SizedBox(height: 12),
                   CustomRowTable(
                     label: ScreenDict.homeSavings.get(isRpg),
-                    value: CurrencyFormatter.convertToIdr(
+                    value: NumberUtils.toIdr(
                       widget.wallet?.reservedAmount ?? BigInt.zero,
                     ),
                   ),

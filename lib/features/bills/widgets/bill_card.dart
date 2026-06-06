@@ -3,7 +3,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/category_dict.dart';
-import '../../../core/utils/currency_formatter.dart';
+import '../../../core/utils/number_utils.dart';
 import '../../../models/bill_model.dart';
 
 class BillCard extends StatelessWidget {
@@ -110,7 +110,7 @@ class BillCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 Text(
-                  CurrencyFormatter.convertToIdr(data.amount),
+                  NumberUtils.toIdr(data.amount),
                   style: TextStyle(
                     fontFamily: 'Poppins',
                     fontWeight: FontWeight.bold,

@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/ui_dict.dart';
+import '../../../core/utils/number_utils.dart';
 import '../../../widgets/custom_button.dart';
 
 class EditModal extends StatefulWidget {
@@ -26,12 +27,6 @@ class _EditModalState extends State<EditModal> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _controller = TextEditingController();
 
-  String get _cleanText {
-    String text = _controller.text.trim();
-    if (!widget.isCurrency) return text;
-    return text.replaceAll('.', '');
-  }
-
   @override
   void initState() {
     super.initState();
@@ -53,7 +48,7 @@ class _EditModalState extends State<EditModal> {
 
   void _submit() {
     if (_formKey.currentState!.validate()) {
-      Navigator.pop(context, _cleanText);
+      Navigator.pop(context, _controller.text.trim());
     }
   }
 
@@ -65,23 +60,7 @@ class _EditModalState extends State<EditModal> {
       );
     }
 
-    String cleanText = value.replaceAll('.', '');
-    if (cleanText.isEmpty) {
-      _controller.text = '';
-      return;
-    }
-
-    String formattedText = BigInt.parse(cleanText).toString().replaceAllMapped(
-      RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
-      (Match m) => '${m[1]}.',
-    );
-
-    if (_controller.text != formattedText) {
-      _controller.value = TextEditingValue(
-        text: formattedText,
-        selection: TextSelection.collapsed(offset: formattedText.length),
-      );
-    }
+    NumberUtils.formatInput(_controller, value);
   }
 
   @override
@@ -126,7 +105,7 @@ class _EditModalState extends State<EditModal> {
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
                     if (widget.isCurrency &&
-                        value!.trim().replaceAll('.', '').isEmpty) {
+                        !NumberUtils.isValidAmount(value ?? '')) {
                       return UiDict.requiredAmount;
                     } else {
                       return UiDict.requiredName;

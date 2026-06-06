@@ -1,3 +1,4 @@
+import 'package:decimal/decimal.dart';
 import 'package:flutter/material.dart';
 
 import '../../models/wallet_model.dart';
@@ -12,11 +13,11 @@ class WalletController extends ChangeNotifier with WidgetsBindingObserver {
   List<WalletModel> bank = [];
   List<WalletModel> eWallet = [];
   List<WalletModel> platform = [];
-  BigInt totalBank = BigInt.zero;
-  BigInt totalEWallet = BigInt.zero;
-  BigInt totalPlatform = BigInt.zero;
-  BigInt totalBalance = BigInt.zero;
-  BigInt totalReserved = BigInt.zero;
+  Decimal totalBank = Decimal.zero;
+  Decimal totalEWallet = Decimal.zero;
+  Decimal totalPlatform = Decimal.zero;
+  Decimal totalBalance = Decimal.zero;
+  Decimal totalReserved = Decimal.zero;
 
   WalletController(this._walletDao) {
     loadData();
@@ -52,8 +53,11 @@ class WalletController extends ChangeNotifier with WidgetsBindingObserver {
       eWallet = [];
       platform = [];
 
-      totalBalance = BigInt.zero;
-      totalReserved = BigInt.zero;
+      totalBalance = Decimal.zero;
+      totalReserved = Decimal.zero;
+      totalBank = Decimal.zero;
+      totalEWallet = Decimal.zero;
+      totalPlatform = Decimal.zero;
 
       for (WalletModel wallet in wallets) {
         totalBalance += wallet.amount;

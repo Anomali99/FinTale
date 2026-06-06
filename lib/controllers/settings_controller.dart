@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 import '../core/constants/ui_dict.dart';
 import '../core/utils/starter_pack.dart';
@@ -20,6 +21,8 @@ class SettingsController with ChangeNotifier {
     _initHardwareCheck();
   }
 
+  String appVersion = 'v1.0.0';
+
   bool get isHideBalance => _prefService.isHideBalance;
   bool get isAppLock => _prefService.isAppLock;
   bool get isRpgMode => _prefService.isRpgMode;
@@ -30,6 +33,9 @@ class SettingsController with ChangeNotifier {
   bool get isHardwareBiometricSupported => _isHardwareBiometricSupported;
 
   Future<void> _initHardwareCheck() async {
+    final PackageInfo packageInfo = await PackageInfo.fromPlatform();
+    appVersion = packageInfo.version;
+
     _isHardwareBiometricSupported =
         await LocalAuthService.isBiometricSupported();
     notifyListeners();

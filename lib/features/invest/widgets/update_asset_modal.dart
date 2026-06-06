@@ -1,11 +1,12 @@
+import 'package:decimal/decimal.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../../../controllers/settings_controller.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/screen_dict.dart';
 import '../../../core/constants/ui_dict.dart';
+import '../../../core/utils/number_utils.dart';
 import '../../../models/assets_model.dart';
 import '../../../widgets/custom_button.dart';
 import '../../../widgets/note_container.dart';
@@ -27,6 +28,7 @@ class _UpdateAssetModalState extends State<UpdateAssetModal> {
   final _valueController = TextEditingController();
   bool _isDevidenActive = false;
   bool _isEmergencyActive = false;
+
   @override
   void initState() {
     super.initState();
@@ -34,14 +36,17 @@ class _UpdateAssetModalState extends State<UpdateAssetModal> {
     _nameController.text = widget.asset.name;
     _unitNameController.text = widget.asset.unitName;
 
-    BigInt pricePerUnit = BigInt.zero;
-    if (widget.asset.unit.toDouble() > 0) {
-      pricePerUnit = BigInt.from(
-        (widget.asset.value.toDouble() / widget.asset.unit.toDouble()).round(),
-      );
+    Decimal pricePerUnit = Decimal.zero;
+    if (widget.asset.unit > Decimal.zero) {
+      double priceDouble =
+          widget.asset.value.toDouble() / widget.asset.unit.toDouble();
+      pricePerUnit = Decimal.parse(priceDouble.toStringAsFixed(0));
     }
 
-    _valueController.text = _formatNumber(pricePerUnit.toString());
+    _valueController.text = NumberUtils.formatNumber(
+      pricePerUnit,
+      decimalDigits: 0,
+    );
     _isDevidenActive = widget.asset.hasDividend;
     _isEmergencyActive = widget.asset.isEmergency;
   }
@@ -54,42 +59,10 @@ class _UpdateAssetModalState extends State<UpdateAssetModal> {
     super.dispose();
   }
 
-  String _formatNumber(String value) {
-    BigInt currentValue = BigInt.tryParse(value) ?? BigInt.zero;
-    return currentValue.toString().replaceAllMapped(
-      RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
-      (Match m) => '${m[1]}.',
-    );
-  }
-
-  void _onNumberChanged(String value) {
-    String cleanText = value.replaceAll('.', '');
-
-    if (cleanText.isEmpty) {
-      _valueController.text = '';
-      return;
-    }
-
-    BigInt currentValue = BigInt.tryParse(cleanText) ?? BigInt.zero;
-    String formattedText = currentValue.toString().replaceAllMapped(
-      RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
-      (Match m) => '${m[1]}.',
-    );
-
-    if (_valueController.text != formattedText) {
-      _valueController.value = TextEditingValue(
-        text: formattedText,
-        selection: TextSelection.collapsed(offset: formattedText.length),
-      );
-    }
-  }
-
   void _submit() {
     if (_formKey.currentState!.validate()) {
-      BigInt price = BigInt.parse(_valueController.text.replaceAll('.', ''));
-      BigInt total = BigInt.from(
-        (widget.asset.unit.toDouble() * price.toDouble()).round(),
-      );
+      Decimal price = NumberUtils.parseToDecimal(_valueController.text);
+      Decimal total = widget.asset.unit * price;
 
       AssetsModel updatedAsset = AssetsModel(
         id: widget.asset.id,
@@ -142,16 +115,18 @@ class _UpdateAssetModalState extends State<UpdateAssetModal> {
                   ),
                 ),
               ),
-
               Text(
                 ScreenDict.investUpdateAsset.get(isRpg),
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                style: const TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               const SizedBox(height: 24),
 
               TextFormField(
                 controller: _nameController,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: UiDict.name,
                   border: OutlineInputBorder(),
                 ),
@@ -168,16 +143,21 @@ class _UpdateAssetModalState extends State<UpdateAssetModal> {
                     child: TextFormField(
                       controller: _valueController,
                       keyboardType: TextInputType.number,
-                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                       decoration: InputDecoration(
                         labelText: ScreenDict.getInvestPricePerUnit(
                           _unitNameController.text,
                         ),
                         prefixText: 'Rp ',
-                        border: OutlineInputBorder(),
+                        border: const OutlineInputBorder(),
                       ),
-                      onChanged: _onNumberChanged,
-                      validator: (val) => val == null || val.isEmpty
+
+                      onChanged: (val) => NumberUtils.formatInput(
+                        _valueController,
+                        val,
+                        isDecimal: true,
+                      ),
+                      validator: (val) =>
+                          val == null || !NumberUtils.isValidAmount(val)
                           ? UiDict.requiredPrice
                           : null,
                     ),
@@ -189,7 +169,7 @@ class _UpdateAssetModalState extends State<UpdateAssetModal> {
                       controller: _unitNameController,
                       decoration: InputDecoration(
                         labelText: ScreenDict.investUnit.get(isRpg),
-                        border: OutlineInputBorder(),
+                        border: const OutlineInputBorder(),
                       ),
                       onChanged: (val) => setState(() {}),
                       validator: (val) => val == null || val.trim().isEmpty
@@ -199,7 +179,6 @@ class _UpdateAssetModalState extends State<UpdateAssetModal> {
                   ),
                 ],
               ),
-
               const SizedBox(height: 16),
 
               NoteContainer(
@@ -207,15 +186,16 @@ class _UpdateAssetModalState extends State<UpdateAssetModal> {
                 color: Colors.grey,
               ),
               const SizedBox(height: 16),
+
               SwitchListTile(
                 contentPadding: EdgeInsets.zero,
                 title: Text(
                   ScreenDict.getDevidenCheck(isRpg: isRpg),
-                  style: TextStyle(fontWeight: FontWeight.bold),
+                  style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
                 subtitle: Text(
                   ScreenDict.getDevidenCheckDesc(isRpg: isRpg),
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 12,
                     color: AppColors.textSecondary,
                   ),
@@ -227,11 +207,11 @@ class _UpdateAssetModalState extends State<UpdateAssetModal> {
                 contentPadding: EdgeInsets.zero,
                 title: Text(
                   ScreenDict.getEmergencyCheck(isRpg: isRpg),
-                  style: TextStyle(fontWeight: FontWeight.bold),
+                  style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
                 subtitle: Text(
                   ScreenDict.getEmergencyCheckDesc(isRpg: isRpg),
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 12,
                     color: AppColors.textSecondary,
                   ),
@@ -239,7 +219,6 @@ class _UpdateAssetModalState extends State<UpdateAssetModal> {
                 value: _isEmergencyActive,
                 onChanged: (val) => setState(() => _isEmergencyActive = val),
               ),
-
               const SizedBox(height: 16),
 
               CustomButton(

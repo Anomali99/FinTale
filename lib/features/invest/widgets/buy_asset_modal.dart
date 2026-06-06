@@ -1,6 +1,5 @@
 import 'package:decimal/decimal.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../../../controllers/settings_controller.dart';
@@ -8,8 +7,8 @@ import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/category_dict.dart';
 import '../../../core/constants/screen_dict.dart';
 import '../../../core/constants/ui_dict.dart';
-import '../../../core/utils/currency_formatter.dart';
 import '../../../core/utils/enum_types.dart';
+import '../../../core/utils/number_utils.dart';
 import '../../../models/assets_model.dart';
 import '../../../models/transaction_detail_model.dart';
 import '../../../models/transaction_model.dart';
@@ -22,7 +21,7 @@ class BuyAssetModal extends StatefulWidget {
   final AssetsModel? initialAsset;
   final RiskType? initialRisk;
   final List<AssetsModel> assets;
-  final BigInt? pendingAllocation;
+  final Decimal? pendingAllocation;
   final bool isEmergency;
 
   const BuyAssetModal({
@@ -54,7 +53,7 @@ class _BuyAssetModalState extends State<BuyAssetModal>
   WalletModel? _selectedWallet;
   AssetsCategory? _selectedCategory;
   RiskType? _selectedRisk;
-  BigInt _amount = BigInt.zero;
+  Decimal _amount = Decimal.zero;
   bool _isReservedActive = false;
   bool _isDevidenActive = false;
   bool _isEmergencyActive = false;
@@ -65,27 +64,17 @@ class _BuyAssetModalState extends State<BuyAssetModal>
   bool _isLockRisk = false;
   bool _isLockWallet = false;
 
-  Decimal get _cleanAssetUnit => _unitAmountController.text.isNotEmpty
-      ? Decimal.parse(_unitAmountController.text.replaceAll(',', '.'))
-      : Decimal.zero;
+  Decimal get _cleanAssetAmount {
+    Decimal cleanUnit = NumberUtils.parseToDecimal(_unitAmountController.text);
+    Decimal cleanPrice = NumberUtils.parseToDecimal(_priceController.text);
 
-  BigInt get _cleanAssetPriceUnit => _priceController.text.isNotEmpty
-      ? BigInt.parse(_priceController.text.replaceAll('.', ''))
-      : BigInt.zero;
-
-  BigInt get _cleanFeeAmount => _feeController.text.isNotEmpty
-      ? BigInt.parse(_feeController.text.replaceAll('.', ''))
-      : BigInt.zero;
-
-  BigInt get _cleanAssetAmount {
-    Decimal cleanUnit = _cleanAssetUnit;
-    BigInt cleanPrice = _cleanAssetPriceUnit;
-
-    if (cleanUnit == Decimal.zero || cleanPrice == BigInt.zero) {
-      return BigInt.zero;
+    if (cleanUnit == Decimal.zero || cleanPrice == Decimal.zero) {
+      return Decimal.zero;
     }
 
-    return BigInt.from((cleanUnit.toDouble() * cleanPrice.toDouble()).round());
+    return Decimal.parse(
+      (cleanUnit.toDouble() * cleanPrice.toDouble()).toString(),
+    );
   }
 
   @override
@@ -147,7 +136,7 @@ class _BuyAssetModalState extends State<BuyAssetModal>
     _unitAmountController.text = '0';
     _priceController.text = '0';
     _feeController.text = '0';
-    _amount = BigInt.zero;
+    _amount = Decimal.zero;
     _isReservedActive = false;
     _isFeeActive = false;
     _isDevidenActive = false;
@@ -158,56 +147,26 @@ class _BuyAssetModalState extends State<BuyAssetModal>
     }
   }
 
-  void _onNumberChanged(
-    TextEditingController controller,
-    String value, {
-    bool isDecimal = false,
-  }) {
-    String cleanText = isDecimal
-        ? value.replaceAll(',', '.')
-        : value.replaceAll('.', '');
-
-    if (cleanText.isEmpty) {
-      controller.text = '';
-      _calculateTotal();
-      return;
-    }
-
-    if (!isDecimal) {
-      BigInt currentValue = BigInt.tryParse(cleanText) ?? BigInt.zero;
-      String formattedText = currentValue.toString().replaceAllMapped(
-        RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
-        (Match m) => '${m[1]}.',
-      );
-
-      if (controller.text != formattedText) {
-        controller.value = TextEditingValue(
-          text: formattedText,
-          selection: TextSelection.collapsed(offset: formattedText.length),
-        );
-      }
-    }
-    _calculateTotal();
-  }
-
   void _calculateTotal() {
     try {
-      BigInt total = _cleanAssetAmount;
+      Decimal total = _cleanAssetAmount;
       if (_isFeeActive) {
-        total += _cleanFeeAmount;
+        total += NumberUtils.parseToDecimal(_feeController.text);
       }
       setState(() {
         _amount = total;
       });
     } catch (e) {
-      _amount = BigInt.zero;
+      _amount = Decimal.zero;
     }
   }
 
   void _submit() {
     if (_formKey.currentState!.validate()) {
-      Decimal cleanUnit = _cleanAssetUnit;
-      BigInt cleanAssetAmount = _cleanAssetAmount;
+      Decimal cleanUnit = NumberUtils.parseToDecimal(
+        _unitAmountController.text,
+      );
+      Decimal cleanAssetAmount = _cleanAssetAmount;
 
       AssetsModel assetToReturn;
       String transactionTitle;
@@ -230,10 +189,10 @@ class _BuyAssetModalState extends State<BuyAssetModal>
         transactionTitle =
             '${ScreenDict.investBuyAsset.normal} ${assetToReturn.name}';
       } else {
-        BigInt cleanPrice = _cleanAssetPriceUnit;
+        Decimal cleanPrice = NumberUtils.parseToDecimal(_priceController.text);
         Decimal newTotalUnit = _selectedAsset!.unit + cleanUnit;
-        BigInt newTotalValue = BigInt.from(
-          (newTotalUnit.toDouble() * cleanPrice.toDouble()).round(),
+        Decimal newTotalValue = Decimal.parse(
+          (newTotalUnit.toDouble() * cleanPrice.toDouble()).toString(),
         );
         riskType = _selectedAsset!.type;
         assetToReturn = AssetsModel(
@@ -266,7 +225,7 @@ class _BuyAssetModalState extends State<BuyAssetModal>
         details.add(
           TransactionDetailModel(
             title: 'Fee',
-            amount: _cleanFeeAmount,
+            amount: NumberUtils.parseToDecimal(_feeController.text),
             category: TransactionCategory.utilities,
             flow: FlowType.expense,
           ),
@@ -429,6 +388,8 @@ class _BuyAssetModalState extends State<BuyAssetModal>
                 const SizedBox(height: 16),
               ] else ...[
                 DropdownButtonFormField<AssetsModel>(
+                  isExpanded: true,
+                  menuMaxHeight: 300,
                   initialValue: _selectedAsset,
                   decoration: InputDecoration(
                     labelText: ScreenDict.investAsset.get(isRpg),
@@ -436,7 +397,10 @@ class _BuyAssetModalState extends State<BuyAssetModal>
                   ),
                   items: widget.assets
                       .map(
-                        (a) => DropdownMenuItem(value: a, child: Text(a.name)),
+                        (a) => DropdownMenuItem(
+                          value: a,
+                          child: Text(a.name, overflow: TextOverflow.ellipsis),
+                        ),
                       )
                       .toList(),
                   onChanged: widget.initialAsset == null
@@ -466,12 +430,14 @@ class _BuyAssetModalState extends State<BuyAssetModal>
                         labelText: UiDict.amount,
                         border: OutlineInputBorder(),
                       ),
-                      onChanged: (val) => _onNumberChanged(
+                      onChanged: (val) => NumberUtils.formatInput(
                         _unitAmountController,
                         val,
                         isDecimal: true,
+                        onCalculated: _calculateTotal,
                       ),
-                      validator: (val) => val == null || val.isEmpty
+                      validator: (val) =>
+                          val == null || !NumberUtils.isValidAmount(val)
                           ? UiDict.requiredAmount
                           : null,
                     ),
@@ -499,7 +465,6 @@ class _BuyAssetModalState extends State<BuyAssetModal>
               TextFormField(
                 controller: _priceController,
                 keyboardType: TextInputType.number,
-                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                 decoration: InputDecoration(
                   labelText: ScreenDict.getInvestPricePerUnit(
                     _unitNameController.text,
@@ -507,8 +472,12 @@ class _BuyAssetModalState extends State<BuyAssetModal>
                   prefixText: 'Rp ',
                   border: OutlineInputBorder(),
                 ),
-                onChanged: (val) =>
-                    _onNumberChanged(_priceController, val, isDecimal: false),
+                onChanged: (val) => NumberUtils.formatInput(
+                  _priceController,
+                  val,
+                  isDecimal: true,
+                  onCalculated: _calculateTotal,
+                ),
                 validator: (val) =>
                     val == null || val.isEmpty ? UiDict.requiredPrice : null,
               ),
@@ -593,7 +562,6 @@ class _BuyAssetModalState extends State<BuyAssetModal>
                 TextFormField(
                   controller: _feeController,
                   keyboardType: TextInputType.number,
-                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                   decoration: InputDecoration(
                     labelText: UiDict.feeAmount,
                     prefixText: 'Rp ',
@@ -606,7 +574,12 @@ class _BuyAssetModalState extends State<BuyAssetModal>
                     }
                     return null;
                   },
-                  onChanged: (value) => _onNumberChanged(_feeController, value),
+                  onChanged: (value) => NumberUtils.formatInput(
+                    _feeController,
+                    value,
+                    isDecimal: true,
+                    onCalculated: _calculateTotal,
+                  ),
                 ),
                 const SizedBox(height: 12),
                 NoteContainer(
@@ -655,23 +628,19 @@ class _BuyAssetModalState extends State<BuyAssetModal>
                         text: widget.pendingAllocation != null
                             ? ScreenDict.getInvestNote(
                                 _selectedWallet?.name ?? '',
-                                CurrencyFormatter.convertToIdr(
-                                  widget.pendingAllocation,
-                                ),
+                                NumberUtils.toIdr(widget.pendingAllocation),
                               )
                             : _isReservedActive
                             ? ScreenDict.getHomeNote(
                                 _selectedWallet?.name ?? '',
-                                CurrencyFormatter.convertToIdr(
+                                NumberUtils.toIdr(
                                   _selectedWallet?.reservedAmount,
                                 ),
                                 isRpg: isRpg,
                               )
                             : ScreenDict.getHistoryNote(
                                 _selectedWallet?.name ?? '',
-                                CurrencyFormatter.convertToIdr(
-                                  _selectedWallet?.amount,
-                                ),
+                                NumberUtils.toIdr(_selectedWallet?.amount),
                               ),
                         color: Colors.grey,
                       ),
@@ -688,7 +657,7 @@ class _BuyAssetModalState extends State<BuyAssetModal>
                           ),
                         ),
                         Text(
-                          CurrencyFormatter.convertToIdr(_amount),
+                          NumberUtils.toIdr(_amount),
                           style: const TextStyle(
                             fontFamily: 'Poppins',
                             fontWeight: FontWeight.bold,

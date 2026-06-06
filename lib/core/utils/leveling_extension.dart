@@ -1,3 +1,5 @@
+import 'package:decimal/decimal.dart';
+
 import '../../models/user_model.dart';
 import 'enum_types.dart';
 import 'global_messenger.dart';
@@ -20,7 +22,7 @@ extension LevelingExtension on UserModel {
     return (xp / requiredXp).clamp(0.0, 1.0);
   }
 
-  void addEmergencyTotal(BigInt amount, {bool isIncome = true}) {
+  void addEmergencyTotal(Decimal amount, {bool isIncome = true}) {
     bool lastStatus = budget.isEmergencyMax;
     budget.addEmergencyTotal(amount, isIncome: isIncome);
     if (lastStatus != budget.isEmergencyMax) {
@@ -37,7 +39,7 @@ extension LevelingExtension on UserModel {
     }
   }
 
-  void updateEmergencyAmount(BigInt amount) {
+  void updateEmergencyAmount(Decimal amount) {
     bool lastStatus = budget.isEmergencyMax;
     budget.updateEmergencyAmount(amount);
     if (lastStatus != budget.isEmergencyMax) {

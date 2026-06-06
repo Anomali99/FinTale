@@ -1,3 +1,5 @@
+import 'package:decimal/decimal.dart';
+
 import '../core/constants/screen_dict.dart';
 import '../core/constants/ui_dict.dart';
 import '../core/utils/enum_types.dart';
@@ -9,10 +11,10 @@ import 'bill_model.dart';
 class DebtModel {
   final int? id;
   final String title;
-  final BigInt amount;
+  final Decimal amount;
   final DebtType type;
   BillModel? bill;
-  BigInt paidAmount;
+  Decimal paidAmount;
 
   DebtModel({
     required this.title,
@@ -22,8 +24,8 @@ class DebtModel {
     this.id,
     this.bill,
 
-    BigInt? paidAmount,
-  }) : paidAmount = paidAmount ?? BigInt.from(0);
+    Decimal? paidAmount,
+  }) : paidAmount = paidAmount ?? Decimal.zero;
 
   Map<String, dynamic> toMap() {
     return {
@@ -39,8 +41,8 @@ class DebtModel {
     return DebtModel(
       id: map['id'],
       title: map['title'],
-      amount: BigInt.parse(map['amount'] ?? '0'),
-      paidAmount: BigInt.parse(map['paid_amount'] ?? '0'),
+      amount: Decimal.parse(map['amount'] ?? '0'),
+      paidAmount: Decimal.parse(map['paid_amount'] ?? '0'),
       type: DebtType.values.firstWhere(
         (e) => e.name == map['type'],
         orElse: () => DebtType.other,
@@ -53,12 +55,13 @@ class DebtModel {
 extension DebtExtension on DebtModel {
   bool get isFinished => paidAmount >= amount;
 
-  int get level => TierAnalyzer.calculateDebtLevel(amount);
+  int get level =>
+      TierAnalyzer.calculateDebtLevel(BigInt.parse(amount.toString()));
 
-  BigInt get currentDebt => amount - paidAmount;
+  Decimal get currentDebt => amount - paidAmount;
 
   double debtPercentage(bool isRpg) {
-    if (amount > BigInt.zero) {
+    if (amount > Decimal.zero) {
       if (isRpg) {
         return (currentDebt.toDouble() / amount.toDouble()).clamp(0.0, 1.0);
       } else {
@@ -73,15 +76,15 @@ extension DebtExtension on DebtModel {
     this.bill = bill;
   }
 
-  void addPayment(BigInt pay) {
+  void addPayment(Decimal pay) {
     paidAmount += pay;
   }
 
   TransactionModel generateTransaction({
     StatusType? status,
     int? walletId,
-    BigInt? totalAmount,
-    BigInt? detailAmount,
+    Decimal? totalAmount,
+    Decimal? detailAmount,
   }) {
     DateTime now = DateTime.now();
     return TransactionModel(

@@ -1,3 +1,4 @@
+import 'package:decimal/decimal.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
@@ -53,7 +54,7 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  Future<BigInt?> _openPayDebt(
+  Future<Decimal?> _openPayDebt(
     BuildContext context,
     AllocationModel allocation,
     WalletModel wallet,
@@ -115,7 +116,7 @@ class HomeScreen extends StatelessWidget {
     return null;
   }
 
-  Future<BigInt?> _openAddAsset(
+  Future<Decimal?> _openAddAsset(
     BuildContext context,
     AllocationModel allocation,
     WalletModel wallet,
@@ -174,7 +175,7 @@ class HomeScreen extends StatelessWidget {
     final billController = context.read<BillController>();
     final analyticsController = context.read<AnalyticsController>();
     final wallet = walletController.getWalletById(allocation.walletId);
-    BigInt? allocationUse;
+    Decimal? allocationUse;
     switch (allocation.sector) {
       case SectorType.living:
         break;

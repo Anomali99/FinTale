@@ -1,3 +1,5 @@
+import 'package:decimal/decimal.dart';
+
 import '../core/utils/enum_types.dart';
 
 class UserModel {
@@ -56,30 +58,30 @@ class UserModel {
 }
 
 class UserBudgetModel {
-  BigInt baseDailyLimit;
-  BigInt dailyPenalty;
-  BigInt currentPenalty;
-  BigInt todayUsage;
-  BigInt emergencyAmount;
-  BigInt emergencyTotal;
+  Decimal baseDailyLimit;
+  Decimal dailyPenalty;
+  Decimal currentPenalty;
+  Decimal todayUsage;
+  Decimal emergencyAmount;
+  Decimal emergencyTotal;
   bool isFreeDebt;
   int lastActiveDate;
 
   UserBudgetModel({
     this.isFreeDebt = true,
     this.lastActiveDate = 0,
-    BigInt? baseDailyLimit,
-    BigInt? dailyPenalty,
-    BigInt? currentPenalty,
-    BigInt? todayUsage,
-    BigInt? emergencyAmount,
-    BigInt? emergencyTotal,
-  }) : baseDailyLimit = baseDailyLimit ?? BigInt.zero,
-       dailyPenalty = dailyPenalty ?? BigInt.zero,
-       currentPenalty = currentPenalty ?? BigInt.zero,
-       todayUsage = todayUsage ?? BigInt.zero,
-       emergencyAmount = emergencyAmount ?? BigInt.zero,
-       emergencyTotal = emergencyTotal ?? BigInt.zero;
+    Decimal? baseDailyLimit,
+    Decimal? dailyPenalty,
+    Decimal? currentPenalty,
+    Decimal? todayUsage,
+    Decimal? emergencyAmount,
+    Decimal? emergencyTotal,
+  }) : baseDailyLimit = baseDailyLimit ?? Decimal.zero,
+       dailyPenalty = dailyPenalty ?? Decimal.zero,
+       currentPenalty = currentPenalty ?? Decimal.zero,
+       todayUsage = todayUsage ?? Decimal.zero,
+       emergencyAmount = emergencyAmount ?? Decimal.zero,
+       emergencyTotal = emergencyTotal ?? Decimal.zero;
 
   Map<String, dynamic> toJson() => {
     "base_daily_limit": baseDailyLimit.toString(),
@@ -94,12 +96,12 @@ class UserBudgetModel {
 
   factory UserBudgetModel.fromJson(Map<String, dynamic> json) =>
       UserBudgetModel(
-        baseDailyLimit: BigInt.parse(json['base_daily_limit'] ?? '0'),
-        dailyPenalty: BigInt.parse(json['daily_penalty'] ?? '0'),
-        currentPenalty: BigInt.parse(json['current_penalty'] ?? '0'),
-        todayUsage: BigInt.parse(json['today_usage'] ?? '0'),
-        emergencyAmount: BigInt.parse(json['emergency_amount'] ?? '0'),
-        emergencyTotal: BigInt.parse(json['emergency_total'] ?? '0'),
+        baseDailyLimit: Decimal.parse(json['base_daily_limit'] ?? '0'),
+        dailyPenalty: Decimal.parse(json['daily_penalty'] ?? '0'),
+        currentPenalty: Decimal.parse(json['current_penalty'] ?? '0'),
+        todayUsage: Decimal.parse(json['today_usage'] ?? '0'),
+        emergencyAmount: Decimal.parse(json['emergency_amount'] ?? '0'),
+        emergencyTotal: Decimal.parse(json['emergency_total'] ?? '0'),
         lastActiveDate: json['last_active_date'] ?? 0,
         isFreeDebt: json['is_free_debt'] ?? false,
       );
@@ -178,7 +180,7 @@ class AllocationModel {
   final int walletId;
   final SectorType sector;
   final SubSectorType? subSector;
-  BigInt amount;
+  Decimal amount;
 
   AllocationModel({
     required this.walletId,
@@ -187,7 +189,7 @@ class AllocationModel {
     this.subSector,
   });
 
-  void addAmount(BigInt amount, {bool isIncome = true}) {
+  void addAmount(Decimal amount, {bool isIncome = true}) {
     if (isIncome) {
       this.amount += amount;
     } else {
@@ -207,7 +209,7 @@ class AllocationModel {
   factory AllocationModel.fromJson(Map<String, dynamic> json) {
     return AllocationModel(
       walletId: json['wallet_id'],
-      amount: BigInt.parse(json['amount']),
+      amount: Decimal.parse(json['amount']),
       sector: SectorType.values.firstWhere(
         (e) => e.name == json['sector'],
         orElse: () => SectorType.living,
@@ -285,28 +287,28 @@ extension UserAllocationExtension on UserAllocationModel {
 }
 
 extension UserBudgetExtension on UserBudgetModel {
-  BigInt get currentDailyLimit {
-    BigInt calculatedLimit = baseDailyLimit - dailyPenalty;
-    return calculatedLimit < BigInt.zero ? BigInt.zero : calculatedLimit;
+  Decimal get currentDailyLimit {
+    Decimal calculatedLimit = baseDailyLimit - dailyPenalty;
+    return calculatedLimit < Decimal.zero ? Decimal.zero : calculatedLimit;
   }
 
-  BigInt get remainingLimitToday {
-    BigInt remaining = currentDailyLimit - todayUsage;
-    return remaining < BigInt.zero ? BigInt.zero : remaining;
+  Decimal get remainingLimitToday {
+    Decimal remaining = currentDailyLimit - todayUsage;
+    return remaining < Decimal.zero ? Decimal.zero : remaining;
   }
 
   bool get isEmergencyMax =>
-      BigInt.zero < emergencyAmount && emergencyTotal >= emergencyAmount;
+      Decimal.zero < emergencyAmount && emergencyTotal >= emergencyAmount;
 
-  void updateBaseDailyLimit(BigInt limit) {
+  void updateBaseDailyLimit(Decimal limit) {
     baseDailyLimit = limit;
   }
 
-  void updateEmergencyAmount(BigInt amount) {
+  void updateEmergencyAmount(Decimal amount) {
     emergencyAmount = amount;
   }
 
-  void addEmergencyTotal(BigInt amount, {bool isIncome = true}) {
+  void addEmergencyTotal(Decimal amount, {bool isIncome = true}) {
     if (isIncome) {
       emergencyTotal += amount;
     } else {
@@ -318,7 +320,7 @@ extension UserBudgetExtension on UserBudgetModel {
     isFreeDebt = value;
   }
 
-  void useDaily(BigInt amount) {
+  void useDaily(Decimal amount) {
     todayUsage += amount;
 
     if (todayUsage > currentDailyLimit) {
@@ -332,16 +334,16 @@ extension UserBudgetExtension on UserBudgetModel {
 
     if (lastActiveDate == 0 || lastActiveDate > 99991231) {
       lastActiveDate = todayInt;
-      todayUsage = BigInt.zero;
-      currentPenalty = BigInt.zero;
-      dailyPenalty = BigInt.zero;
+      todayUsage = Decimal.zero;
+      currentPenalty = Decimal.zero;
+      dailyPenalty = Decimal.zero;
       return true;
     }
 
     if (todayInt > lastActiveDate) {
       dailyPenalty = currentPenalty;
-      todayUsage = BigInt.zero;
-      currentPenalty = BigInt.zero;
+      todayUsage = Decimal.zero;
+      currentPenalty = Decimal.zero;
       lastActiveDate = todayInt;
       return true;
     }

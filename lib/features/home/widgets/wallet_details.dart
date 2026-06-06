@@ -1,3 +1,4 @@
+import 'package:decimal/decimal.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
@@ -5,7 +6,7 @@ import 'package:provider/provider.dart';
 import '../../../controllers/wallet_controller.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/screen_dict.dart';
-import '../../../core/utils/currency_formatter.dart';
+import '../../../core/utils/number_utils.dart';
 import '../../../models/wallet_model.dart';
 
 class WalletDetails extends StatelessWidget {
@@ -126,7 +127,7 @@ class WalletDetails extends StatelessWidget {
     required BuildContext context,
     required FaIconData icon,
     required String title,
-    required BigInt totalAmount,
+    required Decimal totalAmount,
     required List<WalletModel> wallet,
   }) {
     return Theme(
@@ -139,7 +140,7 @@ class WalletDetails extends StatelessWidget {
         ),
         title: Text(title, style: const TextStyle(fontSize: 16)),
         trailing: Text(
-          CurrencyFormatter.convertToIdr(totalAmount),
+          NumberUtils.toIdr(totalAmount),
           style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
         ),
         children: [
@@ -171,7 +172,7 @@ class WalletDetails extends StatelessWidget {
             ),
           ),
           Text(
-            CurrencyFormatter.convertToIdr(wallet.amount),
+            NumberUtils.toIdr(wallet.amount),
             style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
           ),
         ],
@@ -197,7 +198,7 @@ class WalletDetails extends StatelessWidget {
           children: [
             Text(wallet.name, style: TextStyle(color: AppColors.textSecondary)),
             Text(
-              CurrencyFormatter.convertToIdr(wallet.amount),
+              NumberUtils.toIdr(wallet.amount),
               style: TextStyle(color: AppColors.textSecondary),
             ),
           ],

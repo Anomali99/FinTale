@@ -12,8 +12,8 @@ class AssetsModel {
   final bool hasDividend;
   final bool isEmergency;
   final String unitName;
-  BigInt invested;
-  BigInt value;
+  Decimal invested;
+  Decimal value;
   Decimal unit;
 
   AssetsModel({
@@ -58,8 +58,8 @@ class AssetsModel {
         orElse: () => AssetsCategory.bonds,
       ),
       unitName: map['unit_name'],
-      invested: BigInt.parse(map['invested'] ?? '0'),
-      value: BigInt.parse(map['value'] ?? '0'),
+      invested: Decimal.parse(map['invested'] ?? '0'),
+      value: Decimal.parse(map['value'] ?? '0'),
       unit: Decimal.parse(map['unit'] ?? '0'),
       hasDividend: map['has_dividend'] == 1,
       isEmergency: map['is_emergency'] == 1,
@@ -68,7 +68,7 @@ class AssetsModel {
 }
 
 extension AssetsExtension on AssetsModel {
-  void addInvested(BigInt addInvested, BigInt newValue, Decimal newUint) {
+  void addInvested(Decimal addInvested, Decimal newValue, Decimal newUint) {
     invested += addInvested;
     value = newValue;
     unit = newUint;

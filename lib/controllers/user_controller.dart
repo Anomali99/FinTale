@@ -1,3 +1,4 @@
+import 'package:decimal/decimal.dart';
 import 'package:flutter/material.dart';
 
 import '../core/utils/enum_types.dart';
@@ -23,12 +24,12 @@ class UserController with ChangeNotifier {
   double get xpPercentage => currentUser?.progressPercentage ?? 0.0;
 
   UserBudgetModel get budget => currentUser?.budget ?? UserBudgetModel();
-  BigInt get baseDailyLimit => budget.baseDailyLimit;
-  BigInt get dailyPenalty => budget.dailyPenalty;
-  BigInt get currentDailyLimit => budget.currentDailyLimit;
-  BigInt get todayUsage => budget.todayUsage;
-  BigInt get emergencyAmount => budget.emergencyAmount;
-  BigInt get emergencyTotal => budget.emergencyTotal;
+  Decimal get baseDailyLimit => budget.baseDailyLimit;
+  Decimal get dailyPenalty => budget.dailyPenalty;
+  Decimal get currentDailyLimit => budget.currentDailyLimit;
+  Decimal get todayUsage => budget.todayUsage;
+  Decimal get emergencyAmount => budget.emergencyAmount;
+  Decimal get emergencyTotal => budget.emergencyTotal;
   bool get isEmergencyMax => budget.isEmergencyMax;
   bool get isFreeDebt => budget.isFreeDebt;
 
@@ -52,15 +53,15 @@ class UserController with ChangeNotifier {
     }
   }
 
-  void addEmergencyTotal(BigInt amount, {required bool isIncome}) =>
+  void addEmergencyTotal(Decimal amount, {required bool isIncome}) =>
       currentUser?.addEmergencyTotal(amount, isIncome: isIncome);
-  void updateEmergencyAmount(BigInt amount) =>
+  void updateEmergencyAmount(Decimal amount) =>
       currentUser?.updateEmergencyAmount(amount);
   void updateFreeDebt(bool value) => currentUser?.updateFreeDebt(value);
 
-  void updateBaseDailyLimit(BigInt amount) =>
+  void updateBaseDailyLimit(Decimal amount) =>
       budget.updateBaseDailyLimit(amount);
-  void useDaily(BigInt amount) => budget.useDaily(amount);
+  void useDaily(Decimal amount) => budget.useDaily(amount);
 
   double? getAllocation(Enum type) => allocation.getSkillPercentage(type);
   void updateSkillByKey(Enum key, double skills) =>

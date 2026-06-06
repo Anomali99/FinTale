@@ -160,11 +160,10 @@ class AnalyticsScreen extends StatelessWidget {
             ...activeData.entries.map((entry) {
               int index = entry.key;
               AnalyticModel data = entry.value;
-              double percentage = data.amount / activeTotal;
 
               return DetailCard(
                 data: data,
-                percentage: percentage,
+                activeTotal: activeTotal,
                 isSelected: touchedIndex == index,
                 isRpg: isRpg,
               );

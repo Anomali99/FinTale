@@ -1,3 +1,4 @@
+import 'package:decimal/decimal.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
@@ -44,7 +45,7 @@ class InvestScreen extends StatelessWidget {
     if (result != null && context.mounted) {
       TransactionModel transaction = result['transaction'];
       AssetsModel updatedAsset = result['asset'];
-      BigInt emergencyDeduction = result['emergency_deduction'];
+      Decimal emergencyDeduction = result['emergency_deduction'];
 
       bool isSuccess = await investController.sellAsset(
         transaction,

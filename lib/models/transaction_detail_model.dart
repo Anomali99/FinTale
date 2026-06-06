@@ -1,9 +1,11 @@
+import 'package:decimal/decimal.dart';
+
 import '../core/utils/enum_types.dart';
 
 class TransactionDetailModel {
   final int? id;
   final String title;
-  final BigInt amount;
+  final Decimal amount;
   final FlowType flow;
   final TransactionCategory category;
 
@@ -30,7 +32,7 @@ class TransactionDetailModel {
     return TransactionDetailModel(
       id: map['id'],
       title: map['title'],
-      amount: BigInt.parse(map['amount'] ?? '0'),
+      amount: Decimal.parse(map['amount'] ?? '0'),
       flow: FlowType.values.firstWhere(
         (e) => e.name == map['flow'],
         orElse: () => FlowType.expense,

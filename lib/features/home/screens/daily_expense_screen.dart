@@ -1,3 +1,4 @@
+import 'package:decimal/decimal.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -9,8 +10,8 @@ import '../../../controllers/wallet_controller.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/screen_dict.dart';
 import '../../../core/constants/ui_dict.dart';
-import '../../../core/utils/currency_formatter.dart';
 import '../../../core/utils/enum_types.dart';
+import '../../../core/utils/number_utils.dart';
 import '../../../models/transaction_detail_model.dart';
 import '../../../models/transaction_model.dart';
 import '../../../models/wallet_model.dart';
@@ -44,6 +45,7 @@ class _DailyExpenseScreenState extends State<DailyExpenseScreen> {
   DateTime _selectedDate = DateTime.now();
   WalletModel? _selectedWallet;
 
+  Decimal _totalAmount = Decimal.zero;
   bool _isExcludeActive = false;
   bool _isReservedActive = false;
   bool _isFeeActive = false;
@@ -88,45 +90,21 @@ class _DailyExpenseScreenState extends State<DailyExpenseScreen> {
     }
   }
 
-  void _onAmountChanged(TextEditingController controller, String value) {
-    String cleanText = value.replaceAll('.', '');
-
-    if (cleanText.isEmpty) {
-      controller.text = '';
-      setState(() {});
-      return;
-    }
-
-    BigInt currentValue = BigInt.tryParse(cleanText) ?? BigInt.zero;
-    String formattedText = currentValue.toString().replaceAllMapped(
-      RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
-      (Match m) => '${m[1]}.',
-    );
-
-    if (controller.text != formattedText) {
-      controller.value = TextEditingValue(
-        text: formattedText,
-        selection: TextSelection.collapsed(offset: formattedText.length),
-      );
-    }
-    setState(() {});
-  }
-
-  BigInt get _totalAmount {
-    BigInt total = BigInt.zero;
-    for (var item in _items) {
-      String cleanText = item.amountController.text.replaceAll('.', '');
-      if (cleanText.isNotEmpty) {
-        total += BigInt.parse(cleanText);
+  void _calculateTotal() {
+    try {
+      Decimal total = Decimal.zero;
+      for (var item in _items) {
+        total += NumberUtils.parseToDecimal(item.amountController.text);
       }
-    }
-    if (_isFeeActive) {
-      String cleanFeee = _feeController.text.replaceAll('.', '');
-      if (cleanFeee.isNotEmpty) {
-        total += BigInt.parse(cleanFeee);
+      if (_isFeeActive) {
+        total += NumberUtils.parseToDecimal(_feeController.text);
       }
+      setState(() {
+        _totalAmount = total;
+      });
+    } catch (e) {
+      _totalAmount = Decimal.zero;
     }
-    return total;
   }
 
   void _submitForm() {
@@ -134,13 +112,10 @@ class _DailyExpenseScreenState extends State<DailyExpenseScreen> {
       List<TransactionDetailModel> details = [];
 
       for (var item in _items) {
-        BigInt amount = BigInt.parse(
-          item.amountController.text.replaceAll('.', ''),
-        );
         details.add(
           TransactionDetailModel(
             title: item.titleController.text.trim(),
-            amount: amount,
+            amount: NumberUtils.parseToDecimal(item.amountController.text),
             category: item.category!,
             flow: FlowType.expense,
           ),
@@ -148,13 +123,10 @@ class _DailyExpenseScreenState extends State<DailyExpenseScreen> {
       }
 
       if (_isFeeActive) {
-        BigInt cleanFeeAmount = BigInt.parse(
-          _feeController.text.replaceAll('.', ''),
-        );
         details.add(
           TransactionDetailModel(
             title: 'Fee',
-            amount: cleanFeeAmount,
+            amount: NumberUtils.parseToDecimal(_feeController.text),
             category: TransactionCategory.utilities,
             flow: FlowType.expense,
           ),
@@ -351,14 +323,18 @@ class _DailyExpenseScreenState extends State<DailyExpenseScreen> {
                   prefixText: 'Rp ',
                   border: OutlineInputBorder(),
                 ),
-                validator: (value) {
+                onChanged: (val) => NumberUtils.formatInput(
+                  _feeController,
+                  val,
+                  onCalculated: _calculateTotal,
+                ),
+                validator: (val) {
                   if (_isFeeActive &&
-                      (value == null || value.isEmpty || value == '0')) {
+                      (val == null || !NumberUtils.isValidAmount(val))) {
                     return UiDict.requiredFee;
                   }
                   return null;
                 },
-                onChanged: (value) => _onAmountChanged(_feeController, value),
               ),
               const SizedBox(height: 12),
               NoteContainer(
@@ -486,10 +462,13 @@ class _DailyExpenseScreenState extends State<DailyExpenseScreen> {
                           prefixText: 'Rp ',
                           border: OutlineInputBorder(),
                         ),
-                        onChanged: (val) =>
-                            _onAmountChanged(item.amountController, val),
+                        onChanged: (val) => NumberUtils.formatInput(
+                          item.amountController,
+                          val,
+                          onCalculated: _calculateTotal,
+                        ),
                         validator: (val) {
-                          if (val == null || val.isEmpty || val == '0') {
+                          if (val == null || !NumberUtils.isValidAmount(val)) {
                             return UiDict.requiredPrice;
                           }
                           return null;
@@ -575,14 +554,12 @@ class _DailyExpenseScreenState extends State<DailyExpenseScreen> {
               text: _isReservedActive
                   ? ScreenDict.getHomeNote(
                       _selectedWallet?.name ?? '',
-                      CurrencyFormatter.convertToIdr(
-                        _selectedWallet?.reservedAmount,
-                      ),
+                      NumberUtils.toIdr(_selectedWallet?.reservedAmount),
                       isRpg: isRpg,
                     )
                   : ScreenDict.getHistoryNote(
                       _selectedWallet?.name ?? '',
-                      CurrencyFormatter.convertToIdr(_selectedWallet?.amount),
+                      NumberUtils.toIdr(_selectedWallet?.amount),
                     ),
               color: Colors.grey,
             ),
@@ -596,7 +573,7 @@ class _DailyExpenseScreenState extends State<DailyExpenseScreen> {
                 style: TextStyle(fontSize: 14, color: AppColors.textSecondary),
               ),
               Text(
-                CurrencyFormatter.convertToIdr(_totalAmount),
+                NumberUtils.toIdr(_totalAmount),
                 style: const TextStyle(
                   fontFamily: 'Poppins',
                   fontWeight: FontWeight.bold,

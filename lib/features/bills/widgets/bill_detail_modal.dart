@@ -6,7 +6,7 @@ import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/category_dict.dart';
 import '../../../core/constants/screen_dict.dart';
 import '../../../core/constants/ui_dict.dart';
-import '../../../core/utils/currency_formatter.dart';
+import '../../../core/utils/number_utils.dart';
 import '../../../models/bill_model.dart';
 import '../../../widgets/custom_button.dart';
 import '../../../widgets/custom_table.dart';
@@ -133,7 +133,7 @@ class BillDetailModal extends StatelessWidget {
               children: [
                 CustomRowTable(
                   label: ScreenDict.billAmount.get(isRpg),
-                  value: CurrencyFormatter.convertToIdr(bill.amount),
+                  value: NumberUtils.toIdr(bill.amount),
                   valueColor: AppColors.textPrimary,
                   boldValue: true,
                 ),

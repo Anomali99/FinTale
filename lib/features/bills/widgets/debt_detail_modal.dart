@@ -6,7 +6,7 @@ import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/category_dict.dart';
 import '../../../core/constants/screen_dict.dart';
 import '../../../core/constants/ui_dict.dart';
-import '../../../core/utils/currency_formatter.dart';
+import '../../../core/utils/number_utils.dart';
 import '../../../models/debt_model.dart';
 import '../../../widgets/custom_button.dart';
 import '../../../widgets/custom_table.dart';
@@ -89,7 +89,7 @@ class DebtDetailModal extends StatelessWidget {
               children: [
                 CustomRowTable(
                   label: ScreenDict.debtRemaining.get(isRpg),
-                  value: CurrencyFormatter.convertToIdr(debt.currentDebt),
+                  value: NumberUtils.toIdr(debt.currentDebt),
                   valueColor: AppColors.error,
                   boldValue: true,
                 ),
@@ -99,12 +99,12 @@ class DebtDetailModal extends StatelessWidget {
                 ),
                 CustomRowTable(
                   label: ScreenDict.debtAmount.get(isRpg),
-                  value: CurrencyFormatter.convertToIdr(debt.amount),
+                  value: NumberUtils.toIdr(debt.amount),
                 ),
                 const SizedBox(height: 8),
                 CustomRowTable(
                   label: ScreenDict.debtPayAmount.get(isRpg),
-                  value: CurrencyFormatter.convertToIdr(debt.paidAmount),
+                  value: NumberUtils.toIdr(debt.paidAmount),
                   valueColor: AppColors.success,
                 ),
                 const SizedBox(height: 16),
@@ -133,7 +133,7 @@ class DebtDetailModal extends StatelessWidget {
                 children: [
                   CustomRowTable(
                     label: ScreenDict.debtBillAmount.get(isRpg),
-                    value: CurrencyFormatter.convertToIdr(debt.bill!.amount),
+                    value: NumberUtils.toIdr(debt.bill!.amount),
                     boldValue: true,
                   ),
                   const SizedBox(height: 8),
@@ -162,7 +162,7 @@ class DebtDetailModal extends StatelessWidget {
               if (debt.bill != null && debt.bill!.isActive) ...[
                 CustomButton(
                   title: ScreenDict.getPayBill(
-                    amount: CurrencyFormatter.convertToIdr(debt.bill!.amount),
+                    amount: NumberUtils.toIdr(debt.bill!.amount),
                     isRpg: isRpg,
                   ),
                   color: AppColors.success,

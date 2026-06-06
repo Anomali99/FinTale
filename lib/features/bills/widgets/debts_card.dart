@@ -5,7 +5,7 @@ import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/category_dict.dart';
 import '../../../core/constants/screen_dict.dart';
 import '../../../core/constants/ui_dict.dart';
-import '../../../core/utils/currency_formatter.dart';
+import '../../../core/utils/number_utils.dart';
 import '../../../models/debt_model.dart';
 
 class DebtsCard extends StatelessWidget {
@@ -96,7 +96,7 @@ class DebtsCard extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  CurrencyFormatter.convertToIdr(data.currentDebt),
+                  NumberUtils.toIdr(data.currentDebt),
                   style: const TextStyle(
                     fontFamily: 'Poppins',
                     fontWeight: FontWeight.bold,
@@ -122,7 +122,7 @@ class DebtsCard extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  UiDict.getTotal(CurrencyFormatter.convertToIdr(data.amount)),
+                  UiDict.getTotal(NumberUtils.toIdr(data.amount)),
                   style: const TextStyle(
                     fontSize: 12,
                     color: AppColors.textSecondary,
@@ -130,7 +130,7 @@ class DebtsCard extends StatelessWidget {
                 ),
                 Text(
                   ScreenDict.getBillPay(
-                    CurrencyFormatter.convertToIdr(data.paidAmount),
+                    NumberUtils.toIdr(data.paidAmount),
                     isRpg: isRpg,
                   ),
                   style: const TextStyle(

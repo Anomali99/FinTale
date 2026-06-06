@@ -1,3 +1,4 @@
+import 'package:decimal/decimal.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -8,8 +9,8 @@ import '../../../core/constants/category_dict.dart';
 import '../../../core/constants/gamification_dict.dart';
 import '../../../core/constants/screen_dict.dart';
 import '../../../core/constants/ui_dict.dart';
-import '../../../core/utils/currency_formatter.dart';
 import '../../../core/utils/enum_types.dart';
+import '../../../core/utils/number_utils.dart';
 import '../../../models/transaction_detail_model.dart';
 import '../../../models/transaction_model.dart';
 import '../../../models/wallet_model.dart';
@@ -45,27 +46,17 @@ class _IncomeModalState extends State<IncomeModal> {
   bool _isAllocationActive = false;
   bool _isReservedActive = false;
 
-  BigInt get _cleanAmount => BigInt.parse(
-    _amountController.text.replaceAll('.', '').isEmpty
-        ? '0'
-        : _amountController.text.replaceAll('.', ''),
-  );
-
-  BigInt get _cleanFeeAmount => BigInt.parse(
-    _feeController.text.replaceAll('.', '').isEmpty
-        ? '0'
-        : _feeController.text.replaceAll('.', ''),
-  );
-
   double get _onePercentageAmount {
-    double amount = _cleanAmount.toDouble();
+    double amount = NumberUtils.parseToDecimal(
+      _amountController.text,
+    ).toDouble();
     if (_isFeeActive) {
-      amount -= _cleanFeeAmount.toDouble();
+      amount -= NumberUtils.parseToDecimal(_feeController.text).toDouble();
     }
     return amount / 100;
   }
 
-  BigInt? get _maxAmount {
+  Decimal? get _maxAmount {
     if (_isReservedActive) return _selectedWallet?.reservedAmount;
 
     if (widget.isTransfer && _selectedWallet != null) {
@@ -85,7 +76,7 @@ class _IncomeModalState extends State<IncomeModal> {
 
   void _submit() {
     if (_formKey.currentState!.validate()) {
-      BigInt amount = _cleanAmount;
+      Decimal amount = NumberUtils.parseToDecimal(_amountController.text);
       int now = DateTime.now().millisecondsSinceEpoch;
 
       List<TransactionDetailModel> details = [
@@ -93,7 +84,7 @@ class _IncomeModalState extends State<IncomeModal> {
           title: widget.isTransfer
               ? UiDict.getNominal(UiDict.transfer.get(false))
               : UiDict.getNominal(UiDict.income.get(false)),
-          amount: _cleanAmount,
+          amount: NumberUtils.parseToDecimal(_amountController.text),
           category: widget.isTransfer
               ? TransactionCategory.transfer
               : (_selectedCategory ?? TransactionCategory.business),
@@ -102,11 +93,11 @@ class _IncomeModalState extends State<IncomeModal> {
       ];
 
       if (_isFeeActive) {
-        amount -= _cleanFeeAmount;
+        amount -= NumberUtils.parseToDecimal(_feeController.text);
         details.add(
           TransactionDetailModel(
             title: 'Fee',
-            amount: _cleanFeeAmount,
+            amount: NumberUtils.parseToDecimal(_feeController.text),
             category: TransactionCategory.utilities,
             flow: FlowType.expense,
           ),
@@ -137,17 +128,10 @@ class _IncomeModalState extends State<IncomeModal> {
   void _onChanged(
     TextEditingController controller,
     String value, {
-    BigInt? max,
-    BigInt? min,
+    Decimal? max,
+    Decimal? min,
   }) {
-    String cleanText = value.replaceAll('.', '');
-
-    if (cleanText.isEmpty) {
-      controller.text = '';
-      return;
-    }
-
-    BigInt currentValue = BigInt.tryParse(cleanText) ?? BigInt.zero;
+    Decimal currentValue = NumberUtils.parseToDecimal(value);
 
     if (max != null && currentValue > max) {
       currentValue = max;
@@ -155,21 +139,11 @@ class _IncomeModalState extends State<IncomeModal> {
 
     if (min != null && currentValue < min) {
       currentValue = min;
-    } else if (currentValue < BigInt.zero) {
-      currentValue = BigInt.zero;
+    } else if (currentValue < Decimal.zero) {
+      currentValue = Decimal.zero;
     }
 
-    String formattedText = currentValue.toString().replaceAllMapped(
-      RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
-      (Match m) => '${m[1]}.',
-    );
-
-    if (controller.text != formattedText) {
-      controller.value = TextEditingValue(
-        text: formattedText,
-        selection: TextSelection.collapsed(offset: formattedText.length),
-      );
-    }
+    NumberUtils.formatInput(controller, currentValue.toString());
   }
 
   @override
@@ -249,7 +223,7 @@ class _IncomeModalState extends State<IncomeModal> {
                   _onChanged(
                     _feeController,
                     _feeController.text,
-                    max: _cleanAmount,
+                    max: NumberUtils.parseToDecimal(_amountController.text),
                   );
                 },
               ),
@@ -303,7 +277,7 @@ class _IncomeModalState extends State<IncomeModal> {
                   _onChanged(
                     _feeController,
                     _feeController.text,
-                    max: _cleanAmount,
+                    max: NumberUtils.parseToDecimal(_amountController.text),
                   );
                 },
               ),
@@ -375,8 +349,11 @@ class _IncomeModalState extends State<IncomeModal> {
                     }
                     return null;
                   },
-                  onChanged: (value) =>
-                      _onChanged(_feeController, value, max: _cleanAmount),
+                  onChanged: (value) => _onChanged(
+                    _feeController,
+                    value,
+                    max: NumberUtils.parseToDecimal(_amountController.text),
+                  ),
                 ),
                 const SizedBox(height: 12),
                 NoteContainer(
@@ -414,7 +391,7 @@ class _IncomeModalState extends State<IncomeModal> {
                       _onChanged(
                         _feeController,
                         _feeController.text,
-                        max: _cleanAmount,
+                        max: NumberUtils.parseToDecimal(_amountController.text),
                       );
                     }
                   }),
@@ -487,16 +464,12 @@ class _IncomeModalState extends State<IncomeModal> {
                   text: _isReservedActive
                       ? ScreenDict.getHomeNote(
                           _selectedWallet?.name ?? '',
-                          CurrencyFormatter.convertToIdr(
-                            _selectedWallet?.reservedAmount,
-                          ),
+                          NumberUtils.toIdr(_selectedWallet?.reservedAmount),
                           isRpg: isRpg,
                         )
                       : ScreenDict.getHistoryNote(
                           _selectedWallet?.name ?? '',
-                          CurrencyFormatter.convertToIdr(
-                            _selectedWallet?.amount,
-                          ),
+                          NumberUtils.toIdr(_selectedWallet?.amount),
                         ),
                   color: Colors.grey,
                 ),
@@ -549,7 +522,7 @@ class _IncomeModalState extends State<IncomeModal> {
         Expanded(
           flex: 2,
           child: Text(
-            CurrencyFormatter.convertToIdr(amount),
+            NumberUtils.toIdr(amount),
             style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
             textAlign: TextAlign.right,
           ),

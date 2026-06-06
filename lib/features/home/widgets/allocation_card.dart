@@ -4,7 +4,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../../../core/constants/gamification_dict.dart';
 import '../../../core/constants/screen_dict.dart';
 import '../../../core/models/category_model.dart';
-import '../../../core/utils/currency_formatter.dart';
+import '../../../core/utils/number_utils.dart';
 import '../../../models/user_model.dart';
 
 class AllocationCard extends StatelessWidget {
@@ -95,7 +95,7 @@ class AllocationCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    CurrencyFormatter.convertToIdr(allocation.amount),
+                    NumberUtils.toIdr(allocation.amount),
                     style: const TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.bold,

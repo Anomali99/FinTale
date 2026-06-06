@@ -1,3 +1,5 @@
+import 'package:decimal/decimal.dart';
+
 import '../../models/user_model.dart';
 import '../../models/wallet_model.dart';
 import 'enum_types.dart';
@@ -23,5 +25,5 @@ class StarterPack {
   );
 
   static WalletModel get defaultWallet =>
-      WalletModel(name: 'Cash', type: WalletType.cash, amount: BigInt.zero);
+      WalletModel(name: 'Cash', type: WalletType.cash, amount: Decimal.zero);
 }

@@ -1,26 +1,32 @@
+import 'package:decimal/decimal.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import '../../../core/constants/app_colors.dart';
 import '../../../core/models/analytic_model.dart';
-import '../../../core/utils/currency_formatter.dart';
+import '../../../core/utils/number_utils.dart';
 
 class DetailCard extends StatelessWidget {
   final AnalyticModel data;
-  final double percentage;
+  final Decimal activeTotal;
   final bool isSelected;
   final bool isRpg;
 
   const DetailCard({
     super.key,
     required this.data,
-    required this.percentage,
+    required this.activeTotal,
     required this.isSelected,
     required this.isRpg,
   });
 
   @override
   Widget build(BuildContext context) {
+    double percentage = NumberUtils.calculatePercentage(
+      data.amount,
+      activeTotal,
+    );
+
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(16),
@@ -50,7 +56,7 @@ class DetailCard extends StatelessWidget {
                 ),
               ),
               Text(
-                CurrencyFormatter.convertToIdr(data.amount),
+                NumberUtils.toIdr(data.amount),
                 style: const TextStyle(
                   fontFamily: 'Poppins',
                   fontWeight: FontWeight.bold,
@@ -64,7 +70,7 @@ class DetailCard extends StatelessWidget {
               SizedBox(
                 width: 40,
                 child: Text(
-                  '${(percentage * 100).toStringAsFixed(1)}%',
+                  '${(percentage).toStringAsFixed(1)}%',
                   style: TextStyle(
                     fontSize: 10,
                     color: data.color,

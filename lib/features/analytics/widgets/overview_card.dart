@@ -1,14 +1,15 @@
+import 'package:decimal/decimal.dart';
 import 'package:flutter/material.dart';
 
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/ui_dict.dart';
-import '../../../core/utils/currency_formatter.dart';
+import '../../../core/utils/number_utils.dart';
 
 class OverviewCard extends StatelessWidget {
   final bool isRpg;
-  final BigInt totalIncome;
-  final BigInt totalExpense;
-  final BigInt totalInvest;
+  final Decimal totalIncome;
+  final Decimal totalExpense;
+  final Decimal totalInvest;
 
   const OverviewCard({
     super.key,
@@ -18,12 +19,12 @@ class OverviewCard extends StatelessWidget {
     required this.isRpg,
   });
 
-  BigInt get unallocated => totalIncome - totalExpense - totalInvest;
+  Decimal get unallocated => totalIncome - totalExpense - totalInvest;
 
   Widget _buildLegendItem({
     required Color color,
     required String label,
-    required BigInt amount,
+    required Decimal amount,
   }) {
     return Column(
       children: [
@@ -46,7 +47,7 @@ class OverviewCard extends StatelessWidget {
         ),
         const SizedBox(height: 4),
         Text(
-          CurrencyFormatter.convertToIdr(amount),
+          NumberUtils.toIdr(amount),
           style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold),
         ),
       ],
@@ -75,7 +76,7 @@ class OverviewCard extends StatelessWidget {
                 ),
               ),
               Text(
-                CurrencyFormatter.convertToIdr(totalIncome),
+                NumberUtils.toIdr(totalIncome),
                 style: const TextStyle(
                   fontWeight: FontWeight.bold,
                   color: AppColors.success,
@@ -93,7 +94,7 @@ class OverviewCard extends StatelessWidget {
                 children: [
                   Expanded(
                     flex:
-                        (totalIncome > BigInt.zero
+                        (totalIncome > Decimal.zero
                                 ? (totalExpense.toDouble() /
                                       totalIncome.toDouble() *
                                       100)
@@ -103,7 +104,7 @@ class OverviewCard extends StatelessWidget {
                   ),
                   Expanded(
                     flex:
-                        (totalIncome > BigInt.zero
+                        (totalIncome > Decimal.zero
                                 ? (totalInvest.toDouble() /
                                       totalIncome.toDouble() *
                                       100)
@@ -113,7 +114,7 @@ class OverviewCard extends StatelessWidget {
                   ),
                   Expanded(
                     flex:
-                        (totalIncome > BigInt.zero
+                        (totalIncome > Decimal.zero
                                 ? (unallocated.toDouble() /
                                       totalIncome.toDouble() *
                                       100)

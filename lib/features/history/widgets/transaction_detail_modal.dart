@@ -8,8 +8,8 @@ import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/category_dict.dart';
 import '../../../core/constants/screen_dict.dart';
 import '../../../core/constants/ui_dict.dart';
-import '../../../core/utils/currency_formatter.dart';
 import '../../../core/utils/enum_types.dart';
+import '../../../core/utils/number_utils.dart';
 import '../../../core/utils/time_formatter.dart';
 import '../../../models/assets_model.dart';
 import '../../../models/transaction_detail_model.dart';
@@ -91,7 +91,7 @@ class TransactionDetailModal extends StatelessWidget {
             const SizedBox(height: 4),
 
             Text(
-              '${transaction.type.prefix} ${CurrencyFormatter.convertToIdr(transaction.amount)}',
+              '${transaction.type.prefix} ${NumberUtils.toIdr(transaction.amount)}',
               style: TextStyle(
                 fontFamily: 'Poppins',
                 fontSize: 28,
@@ -273,27 +273,33 @@ class TransactionDetailModal extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Row(
-            children: [
-              FaIcon(
-                CategoryDict.getByTransactionCategory(
-                  detail.category,
-                ).icon(isRpg),
-                size: 14,
-                color: AppColors.textSecondary,
-              ),
-              const SizedBox(width: 12),
-              Text(
-                detail.title,
-                style: const TextStyle(
+          Expanded(
+            child: Row(
+              children: [
+                FaIcon(
+                  CategoryDict.getByTransactionCategory(
+                    detail.category,
+                  ).icon(isRpg),
+                  size: 14,
                   color: AppColors.textSecondary,
-                  fontSize: 14,
                 ),
-              ),
-            ],
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    detail.title,
+                    maxLines: 3,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      color: AppColors.textSecondary,
+                      fontSize: 14,
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
           Text(
-            '${detail.flow.prefix} ${CurrencyFormatter.convertToIdr(detail.amount)}',
+            '${detail.flow.prefix} ${NumberUtils.toIdr(detail.amount)}',
             style: TextStyle(
               fontFamily: 'Poppins',
               fontWeight: FontWeight.bold,

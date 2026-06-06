@@ -1,16 +1,17 @@
+import 'package:decimal/decimal.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/screen_dict.dart';
 import '../../../core/constants/ui_dict.dart';
-import '../../../core/utils/currency_formatter.dart';
+import '../../../core/utils/number_utils.dart';
 
 class BalanceCard extends StatelessWidget {
   final bool isRpg;
-  final BigInt totalBalance;
-  final BigInt unallocatedBalance;
-  final BigInt reservedBalance;
+  final Decimal totalBalance;
+  final Decimal unallocatedBalance;
+  final Decimal reservedBalance;
 
   final bool isHideBalance;
   final VoidCallback onToggleHideBalance;
@@ -31,9 +32,9 @@ class BalanceCard extends StatelessWidget {
     required this.isRpg,
   });
 
-  String _formatBalance(BigInt amount) {
+  String _formatBalance(Decimal amount) {
     if (isHideBalance) return 'Rp ********';
-    return CurrencyFormatter.convertToIdr(amount);
+    return NumberUtils.toIdr(amount);
   }
 
   @override
@@ -132,7 +133,7 @@ class BalanceCard extends StatelessWidget {
                               style: TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.bold,
-                                color: unallocatedBalance > BigInt.zero
+                                color: unallocatedBalance > Decimal.zero
                                     ? AppColors.success
                                     : AppColors.textPrimary,
                               ),

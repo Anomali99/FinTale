@@ -1,14 +1,15 @@
+import 'package:decimal/decimal.dart';
 import 'package:flutter/material.dart';
 
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/screen_dict.dart';
-import '../../../core/utils/currency_formatter.dart';
+import '../../../core/utils/number_utils.dart';
 
 class DailyLimit extends StatelessWidget {
   final bool isRpg;
-  final BigInt limit;
-  final BigInt spent;
-  final BigInt? penalty;
+  final Decimal limit;
+  final Decimal spent;
+  final Decimal? penalty;
 
   const DailyLimit({
     super.key,
@@ -22,10 +23,10 @@ class DailyLimit extends StatelessWidget {
   Widget build(BuildContext context) {
     final bool isExceeded = spent > limit;
 
-    final BigInt remaining = isExceeded ? BigInt.zero : limit - spent;
-    final BigInt overage = isExceeded ? spent - limit : BigInt.zero;
+    final Decimal remaining = isExceeded ? Decimal.zero : limit - spent;
+    final Decimal overage = isExceeded ? spent - limit : Decimal.zero;
 
-    final double percentage = limit > BigInt.zero
+    final double percentage = limit > Decimal.zero
         ? (isExceeded
               ? 0.0
               : (remaining.toDouble() / limit.toDouble()).clamp(0.0, 1.0))
@@ -35,8 +36,8 @@ class DailyLimit extends StatelessWidget {
         ? AppColors.error
         : (percentage > 0.2 ? Colors.blueAccent : AppColors.error);
 
-    final String formattedRemaining = CurrencyFormatter.convertToIdr(remaining);
-    final String formattedOverage = CurrencyFormatter.convertToIdr(overage);
+    final String formattedRemaining = NumberUtils.toIdr(remaining);
+    final String formattedOverage = NumberUtils.toIdr(overage);
 
     return Container(
       padding: const EdgeInsets.all(20),
@@ -96,8 +97,8 @@ class DailyLimit extends StatelessWidget {
                   children: [
                     Text(
                       ScreenDict.getHomeSpent(
-                        CurrencyFormatter.convertToIdr(spent),
-                        CurrencyFormatter.convertToIdr(limit),
+                        NumberUtils.toIdr(spent),
+                        NumberUtils.toIdr(limit),
                       ),
                       style: const TextStyle(
                         fontSize: 12,
@@ -119,7 +120,7 @@ class DailyLimit extends StatelessWidget {
                 ),
               ),
 
-              if (penalty != null && penalty! > BigInt.zero)
+              if (penalty != null && penalty! > Decimal.zero)
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.end,
@@ -133,7 +134,7 @@ class DailyLimit extends StatelessWidget {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        '- ${CurrencyFormatter.convertToIdr(penalty!)}',
+                        '- ${NumberUtils.toIdr(penalty!)}',
                         style: const TextStyle(
                           fontSize: 11,
                           color: AppColors.error,

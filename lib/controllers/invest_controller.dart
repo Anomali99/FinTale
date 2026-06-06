@@ -1,3 +1,4 @@
+import 'package:decimal/decimal.dart';
 import 'package:flutter/material.dart';
 
 import '../controllers/transaction_controller.dart';
@@ -20,8 +21,8 @@ class InvestController with ChangeNotifier {
   List<AssetsModel> lowNotEmergency = [];
   List<AssetsModel> mediumRisk = [];
   List<AssetsModel> highRisk = [];
-  BigInt totalInvested = BigInt.zero;
-  BigInt totalValue = BigInt.zero;
+  Decimal totalInvested = Decimal.zero;
+  Decimal totalValue = Decimal.zero;
 
   InvestController(
     this._assetDao,
@@ -35,7 +36,7 @@ class InvestController with ChangeNotifier {
   bool get isOverallProfit => totalValue > totalInvested;
 
   double get overallPercentage {
-    if (totalInvested == BigInt.zero) return 0.0;
+    if (totalInvested == Decimal.zero) return 0.0;
     double current = totalValue.toDouble();
     double capital = totalInvested.toDouble();
     return (((current - capital) / capital) * 100).abs();
@@ -104,7 +105,7 @@ class InvestController with ChangeNotifier {
   Future<bool> sellAsset(
     TransactionModel transaction,
     AssetsModel asset,
-    BigInt emergencyDeduction,
+    Decimal emergencyDeduction,
   ) async {
     try {
       await _assetDao.update(asset);
@@ -170,8 +171,8 @@ class InvestController with ChangeNotifier {
     try {
       assets = await _assetDao.readAllActiveData();
 
-      totalInvested = BigInt.zero;
-      totalValue = BigInt.zero;
+      totalInvested = Decimal.zero;
+      totalValue = Decimal.zero;
       lowEmergency.clear();
       lowNotEmergency.clear();
       mediumRisk.clear();
