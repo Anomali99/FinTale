@@ -4,10 +4,10 @@ import 'package:provider/provider.dart';
 
 import '../../../controllers/invest_controller.dart';
 import '../../../controllers/wallet_controller.dart';
-import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/category_dict.dart';
 import '../../../core/constants/screen_dict.dart';
 import '../../../core/constants/ui_dict.dart';
+import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/enum_types.dart';
 import '../../../core/utils/number_utils.dart';
 import '../../../core/utils/time_formatter.dart';

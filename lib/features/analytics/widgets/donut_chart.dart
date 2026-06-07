@@ -2,9 +2,9 @@ import 'package:decimal/decimal.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 
-import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/ui_dict.dart';
 import '../../../core/models/analytic_model.dart';
+import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/number_utils.dart';
 
 class DonutChart extends StatelessWidget {

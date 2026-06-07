@@ -4,8 +4,8 @@ import 'package:provider/provider.dart';
 import '../../controllers/auth_controller.dart';
 import '../../controllers/user_controller.dart';
 import '../../features/auth/screens/auth_screen.dart';
-import '../constants/app_colors.dart';
 import '../constants/ui_dict.dart';
+import '../theme/app_colors.dart';
 
 class AuthWrapper extends StatelessWidget {
   final Widget child;

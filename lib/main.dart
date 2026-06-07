@@ -16,7 +16,6 @@ import 'controllers/skill_controller.dart';
 import 'controllers/transaction_controller.dart';
 import 'controllers/user_controller.dart';
 import 'controllers/wallet_controller.dart';
-import 'core/theme/mode_provider.dart';
 import 'data/dao/asset_dao.dart';
 import 'data/dao/bill_dao.dart';
 import 'data/dao/debt_dao.dart';
@@ -79,7 +78,6 @@ void main() async {
     MultiProvider(
       providers: [
         Provider<AuthService>.value(value: authService),
-        ChangeNotifierProvider<ModeProvider>(create: (_) => ModeProvider()),
         ChangeNotifierProvider(create: (_) => userController),
         ChangeNotifierProvider(create: (_) => walletController),
         ChangeNotifierProvider(create: (_) => transactionController),

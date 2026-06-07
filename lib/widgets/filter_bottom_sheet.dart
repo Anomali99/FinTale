@@ -3,8 +3,8 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import '../controllers/wallet_controller.dart';
-import '../core/constants/app_colors.dart';
 import '../core/constants/ui_dict.dart';
+import '../core/theme/app_colors.dart';
 import '../core/utils/enum_types.dart';
 import 'custom_button.dart';
 

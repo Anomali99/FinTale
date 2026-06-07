@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 
 import '../../../controllers/auth_controller.dart';
 import '../../../controllers/skill_controller.dart';
-import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/ui_dict.dart';
+import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/global_messenger.dart';
 import '../../../widgets/custom_button.dart';
 
@@ -49,6 +50,7 @@ class AuthScreen extends StatelessWidget {
                   fontFamily: 'Montserrat',
                   color: AppColors.primary,
                   fontWeight: FontWeight.w900,
+                  fontSize: 34.0,
                   letterSpacing: 2.0,
                 ),
               ),
@@ -60,16 +62,19 @@ class AuthScreen extends StatelessWidget {
                 ),
               ),
 
-              const Spacer(flex: 2),
+              const Spacer(flex: 1),
               Center(
-                child: Image.asset(
-                  'assets/images/auth_icon.png',
-                  height: screenHeight * 0.35,
-                  fit: BoxFit.contain,
+                child: SizedBox(
+                  width: screenHeight * 0.4,
+                  height: screenHeight * 0.4,
+                  child: SvgPicture.asset(
+                    'assets/images/in_app_icon.svg',
+                    fit: BoxFit.contain,
+                  ),
                 ),
               ),
 
-              const Spacer(flex: 3),
+              const Spacer(flex: 1),
               Text(
                 UiDict.authWelcome,
                 style: Theme.of(context).textTheme.headlineMedium?.copyWith(
@@ -77,7 +82,7 @@ class AuthScreen extends StatelessWidget {
                   color: AppColors.textPrimary,
                 ),
               ),
-              const SizedBox(height: 12),
+              const Spacer(flex: 1),
               Text(
                 UiDict.authDesc,
                 style: Theme.of(context).textTheme.bodyLarge?.copyWith(
@@ -85,7 +90,7 @@ class AuthScreen extends StatelessWidget {
                   height: 1.5,
                 ),
               ),
-              const SizedBox(height: 24),
+              const Spacer(flex: 2),
 
               if (authController.isLoading)
                 const Center(

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
-import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/gamification_dict.dart';
+import '../../../core/theme/app_colors.dart';
 import 'stat_radar.dart';
 
 class AllocationCard extends StatelessWidget {

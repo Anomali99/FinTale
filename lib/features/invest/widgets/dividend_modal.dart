@@ -1,9 +1,9 @@
 import 'package:decimal/decimal.dart';
 import 'package:flutter/material.dart';
 
-import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/screen_dict.dart';
 import '../../../core/constants/ui_dict.dart';
+import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/enum_types.dart';
 import '../../../core/utils/number_utils.dart';
 import '../../../models/assets_model.dart';

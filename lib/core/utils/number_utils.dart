@@ -90,25 +90,41 @@ class NumberUtils {
     return Decimal.zero;
   }
 
-  static String formatNumber(dynamic number, {int? decimalDigits}) {
+  static String formatNumber(
+    dynamic number, {
+    int? decimalDigits,
+    bool showFull = false,
+  }) {
     Decimal dec = _toDecimal(number);
+    double val = dec.toDouble();
 
     if (decimalDigits != null) {
       return NumberFormat.currency(
         locale: 'id_ID',
         symbol: '',
         decimalDigits: decimalDigits,
-      ).format(dec.toDouble()).trim();
+      ).format(val).trim();
     } else {
       NumberFormat formatter = NumberFormat.decimalPattern('id_ID');
-      formatter.minimumFractionDigits = 0;
-      formatter.maximumFractionDigits = 8;
-      return formatter.format(dec.toDouble());
+
+      if (showFull || (val.abs() > 0 && val.abs() < 1)) {
+        formatter.minimumFractionDigits = 0;
+        formatter.maximumFractionDigits = 8;
+      } else {
+        formatter.minimumFractionDigits = 0;
+        formatter.maximumFractionDigits = 0;
+      }
+
+      return formatter.format(val);
     }
   }
 
-  static String toIdr(dynamic number, {int? decimalDigits}) {
-    return 'Rp ${formatNumber(number, decimalDigits: decimalDigits)}';
+  static String toIdr(
+    dynamic number, {
+    int? decimalDigits,
+    bool showFull = false,
+  }) {
+    return 'Rp ${formatNumber(number, decimalDigits: decimalDigits, showFull: showFull)}';
   }
 
   static bool isValidAmount(String value, {bool allowZero = false}) {

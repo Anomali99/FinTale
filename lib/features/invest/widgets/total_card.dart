@@ -4,8 +4,8 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 
 import '../../../controllers/settings_controller.dart';
-import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/screen_dict.dart';
+import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/number_utils.dart';
 
 class TotalCard extends StatelessWidget {

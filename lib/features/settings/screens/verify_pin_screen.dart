@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
-import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/ui_dict.dart';
+import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/global_messenger.dart';
 import '../../../core/utils/hash_helper.dart';
 import '../../../services/local_auth_service.dart';

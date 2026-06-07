@@ -16,6 +16,8 @@ class SettingsController with ChangeNotifier {
   final PrefService _prefService;
   final AuthService _authService;
   bool _isHardwareBiometricSupported = false;
+  bool _isBypassLock = false;
+  bool get isBypassLock => _isBypassLock;
 
   SettingsController(this._prefService, this._authService) {
     _initHardwareCheck();
@@ -47,7 +49,7 @@ class SettingsController with ChangeNotifier {
   }
 
   Future<bool> changeAppLock(BuildContext context, bool value) async {
-    String? userEmail = _prefService.rawUser?['email'];
+    String? username = _prefService.rawUser?['name'];
     if (value == true) {
       final result =
           await Navigator.pushNamed(
@@ -55,7 +57,7 @@ class SettingsController with ChangeNotifier {
                 '/create-pin',
                 arguments: {
                   "currentPinHash": currentPinHash,
-                  "userEmail": userEmail,
+                  "userEmail": username,
                 },
               )
               as bool?;
@@ -72,7 +74,7 @@ class SettingsController with ChangeNotifier {
                   "isCancelable": true,
                   "isBiometricEnabled": isBiometricActive,
                   "title": UiDict.pinInput,
-                  "userEmail": userEmail,
+                  "userEmail": username,
                 },
               )
               as bool?;
@@ -150,14 +152,14 @@ class SettingsController with ChangeNotifier {
   }
 
   Future<bool> handleResetPin(BuildContext context) async {
-    String? userEmail = _prefService.rawUser?['email'];
+    String? username = _prefService.rawUser?['name'];
     final result =
         await Navigator.pushNamed(
               context,
               '/create-pin',
               arguments: {
                 "currentPinHash": currentPinHash,
-                "userEmail": userEmail,
+                "userEmail": username,
               },
             )
             as bool?;
@@ -204,55 +206,59 @@ class SettingsController with ChangeNotifier {
     }
   }
 
+  Future<bool> handleMigrateData(Map<String, dynamic>? backupData) async {
+    if (backupData == null) return false;
+
+    final Map<String, dynamic> dbData = backupData['database'];
+    final Map<String, dynamic> userData = backupData['user'];
+
+    await NotificationService().cancelAllNotifications();
+
+    Map<String, dynamic>? currentUser = _prefService.rawUser;
+    if (currentUser != null) {
+      userData['uid'] = currentUser['uid'];
+      userData['email'] = currentUser['email'];
+    }
+
+    await _prefService.saveRawUser(userData);
+    bool isDbSuccess = await AppDatabase.instance.importDatabase(dbData);
+    return isDbSuccess;
+  }
+
   Future<bool> handleExportData() async {
+    _isBypassLock = true;
     try {
       final Map<String, dynamic> dbData = await AppDatabase.instance
           .exportAllData();
-
       final Map<String, dynamic> userData = _prefService.rawUser ?? {};
-
       final bool isSuccess = await BackupService().exportData(userData, dbData);
-
       return isSuccess;
     } catch (e) {
       return false;
+    } finally {
+      _isBypassLock = false;
     }
   }
 
   Future<Map<String, dynamic>> handleImportData() async {
+    _isBypassLock = true;
     try {
       final Map<String, dynamic>? backupData = await BackupService()
           .importData();
-
-      if (backupData != null) {
-        final Map<String, dynamic> dbData = backupData['database'];
-        final Map<String, dynamic> userData = backupData['user'];
-
-        await NotificationService().cancelAllNotifications();
-
-        Map<String, dynamic>? currentUser = _prefService.rawUser;
-        if (currentUser != null) {
-          userData['uid'] = currentUser['uid'];
-          userData['email'] = currentUser['email'];
-        }
-
-        await _prefService.saveRawUser(userData);
-        bool isDbSuccess = await AppDatabase.instance.importDatabase(dbData);
-        if (isDbSuccess) {
-          return {"success": true, "load": true};
-        }
-      }
-      return {"success": false, "load": false};
+      bool isSuccess = await handleMigrateData(backupData);
+      return {"success": isSuccess, "load": isSuccess};
     } catch (e) {
       return {"success": false, "load": false, "error": 'Error:  $e'};
+    } finally {
+      _isBypassLock = false;
     }
   }
 
   Future<bool> handleBackupData() async {
+    _isBypassLock = true;
     try {
       final Map<String, dynamic> dbData = await AppDatabase.instance
           .exportAllData();
-
       final Map<String, dynamic> userData = _prefService.rawUser ?? {};
       final client = await _authService.getDriveClient();
       bool isSuccess = false;
@@ -264,43 +270,29 @@ class SettingsController with ChangeNotifier {
           dbData,
         );
       }
-
       return isSuccess;
     } catch (e) {
       return false;
+    } finally {
+      _isBypassLock = false;
     }
   }
 
   Future<Map<String, dynamic>> handleRestoreData() async {
+    _isBypassLock = true;
     try {
       final client = await _authService.getDriveClient();
       if (client != null) {
         final Map<String, dynamic>? backupData = await BackupService()
             .downloadFromDrive(client);
-
-        if (backupData != null) {
-          final Map<String, dynamic> dbData = backupData['database'];
-          final Map<String, dynamic> userData = backupData['user'];
-
-          await NotificationService().cancelAllNotifications();
-
-          Map<String, dynamic>? currentUser = _prefService.rawUser;
-          if (currentUser != null) {
-            userData['uid'] = currentUser['uid'];
-            userData['email'] = currentUser['email'];
-          }
-
-          await _prefService.saveRawUser(userData);
-
-          bool isDbSuccess = await AppDatabase.instance.importDatabase(dbData);
-          if (isDbSuccess) {
-            return {"success": true, "load": true};
-          }
-        }
+        bool isSuccess = await handleMigrateData(backupData);
+        return {"success": isSuccess, "load": isSuccess};
       }
       return {"success": false, "load": false};
     } catch (e) {
       return {"success": false, "load": false, "error": 'Error:  $e'};
+    } finally {
+      _isBypassLock = false;
     }
   }
 }

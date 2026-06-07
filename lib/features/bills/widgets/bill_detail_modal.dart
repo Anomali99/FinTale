@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
 
-import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/category_dict.dart';
 import '../../../core/constants/screen_dict.dart';
 import '../../../core/constants/ui_dict.dart';
+import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/number_utils.dart';
 import '../../../models/bill_model.dart';
 import '../../../widgets/custom_button.dart';

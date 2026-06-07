@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
-import '../constants/app_colors.dart';
 import '../constants/category_dict.dart';
 import '../models/category_model.dart';
+import '../theme/app_colors.dart';
 
 enum RiskType {
   low,

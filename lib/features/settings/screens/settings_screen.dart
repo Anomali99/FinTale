@@ -11,8 +11,8 @@ import '../../../controllers/skill_controller.dart';
 import '../../../controllers/transaction_controller.dart';
 import '../../../controllers/user_controller.dart';
 import '../../../controllers/wallet_controller.dart';
-import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/ui_dict.dart';
+import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/global_messenger.dart';
 import '../../../models/wallet_model.dart';
 import '../../../widgets/custom_button.dart';
@@ -399,9 +399,8 @@ class SettingsScreen extends StatelessWidget {
                       fontSize: 14,
                     ),
                     onChanged: settingsController.changeThemeMode,
-                    items: <String>['Dark', 'Light', 'System'].map((
-                      String value,
-                    ) {
+                    /* TODO: 'Dark', 'Light', 'System' */
+                    items: <String>['Dark'].map((String value) {
                       return DropdownMenuItem<String>(
                         value: value.toLowerCase(),
                         child: Text(value),

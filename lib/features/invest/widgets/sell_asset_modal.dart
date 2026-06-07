@@ -3,9 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../controllers/settings_controller.dart';
-import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/screen_dict.dart';
 import '../../../core/constants/ui_dict.dart';
+import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/enum_types.dart';
 import '../../../core/utils/number_utils.dart';
 import '../../../models/assets_model.dart';
@@ -318,13 +318,20 @@ class _SellAssetModalState extends State<SellAssetModal> {
                         color: AppColors.textSecondary,
                       ),
                     ),
-                    Text(
-                      NumberUtils.toIdr(_netAmount),
-                      style: const TextStyle(
-                        fontFamily: 'Poppins',
-                        fontWeight: FontWeight.bold,
-                        fontSize: 20,
-                        color: AppColors.success,
+                    const SizedBox(width: 16),
+                    Flexible(
+                      child: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        alignment: Alignment.centerRight,
+                        child: Text(
+                          NumberUtils.toIdr(_netAmount),
+                          style: const TextStyle(
+                            fontFamily: 'Poppins',
+                            fontWeight: FontWeight.bold,
+                            fontSize: 20,
+                            color: AppColors.success,
+                          ),
+                        ),
                       ),
                     ),
                   ],

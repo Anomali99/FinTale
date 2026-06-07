@@ -4,11 +4,11 @@ import 'package:provider/provider.dart';
 
 import '../../../controllers/settings_controller.dart';
 import '../../../controllers/skill_controller.dart';
-import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/category_dict.dart';
 import '../../../core/constants/gamification_dict.dart';
 import '../../../core/constants/ui_dict.dart';
 import '../../../core/models/category_model.dart';
+import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/enum_types.dart';
 import '../../../core/utils/global_messenger.dart';
 

@@ -4,8 +4,9 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 
 import '../../../controllers/wallet_controller.dart';
-import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/screen_dict.dart';
+import '../../../core/theme/app_colors.dart';
+import '../../../core/utils/enum_types.dart';
 import '../../../core/utils/number_utils.dart';
 import '../../../models/wallet_model.dart';
 
@@ -198,7 +199,10 @@ class WalletDetails extends StatelessWidget {
           children: [
             Text(wallet.name, style: TextStyle(color: AppColors.textSecondary)),
             Text(
-              NumberUtils.toIdr(wallet.amount),
+              NumberUtils.toIdr(
+                wallet.amount,
+                decimalDigits: wallet.type == WalletType.platform ? 3 : null,
+              ),
               style: TextStyle(color: AppColors.textSecondary),
             ),
           ],

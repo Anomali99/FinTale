@@ -37,9 +37,12 @@ class _LockWrapperState extends State<LockWrapper> with WidgetsBindingObserver {
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (LocalAuthService.isAuthenticatingOS) return;
 
+    final settings = context.read<SettingsController>();
+
+    if (settings.isBypassLock) return;
+
     if (state == AppLifecycleState.paused ||
         state == AppLifecycleState.inactive) {
-      final settings = context.read<SettingsController>();
       if (settings.isAppLock && !_isLocked) {
         setState(() => _isLocked = true);
       }
@@ -64,7 +67,7 @@ class _LockWrapperState extends State<LockWrapper> with WidgetsBindingObserver {
     _isPrompting = true;
 
     final settings = context.read<SettingsController>();
-    final userEmail = context.read<UserController>().currentUser?.email;
+    final username = context.read<UserController>().currentUser?.name;
     bool unlocked = false;
 
     if (!unlocked) {
@@ -78,7 +81,7 @@ class _LockWrapperState extends State<LockWrapper> with WidgetsBindingObserver {
                   arguments: {
                     "savedPinHash": savedHash,
                     "isCancelable": false,
-                    "userEmail": userEmail,
+                    "userEmail": username,
                     "isBiometricEnabled": settings.isBiometricActive,
                     "title": UiDict.pinInput,
                   },

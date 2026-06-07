@@ -3,7 +3,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../models/category_model.dart';
 import '../models/icon_model.dart';
 import '../models/term_model.dart';
-import 'app_colors.dart';
+import '../theme/app_colors.dart';
 
 class UiDict {
   static const String title = 'Judul';

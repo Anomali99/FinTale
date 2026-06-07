@@ -80,6 +80,7 @@ class GlobalMessenger {
                   overflow: TextOverflow.ellipsis,
                   textAlign: TextAlign.center,
                   style: const TextStyle(
+                    color: Colors.greenAccent,
                     fontFamily: 'Poppins',
                     fontWeight: FontWeight.w600,
                     fontSize: 13,

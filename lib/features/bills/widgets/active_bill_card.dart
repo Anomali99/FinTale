@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
-import '../../../core/constants/app_colors.dart';
+import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/enum_types.dart';
 import '../../../core/utils/time_formatter.dart';
 import '../../../models/transaction_model.dart';

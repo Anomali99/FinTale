@@ -3,9 +3,9 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../../../controllers/settings_controller.dart';
-import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/screen_dict.dart';
 import '../../../core/constants/ui_dict.dart';
+import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/enum_types.dart';
 import '../../../core/utils/number_utils.dart';
 import '../../../models/wallet_model.dart';
@@ -64,6 +64,7 @@ class _WalletModalState extends State<WalletModal> {
   Widget build(BuildContext context) {
     final bottomInset = MediaQuery.of(context).viewInsets.bottom;
     final isRpg = context.read<SettingsController>().isRpgMode;
+    int? decimalDigits = widget.wallet?.type != WalletType.platform ? null : 3;
 
     return Container(
       padding: EdgeInsets.only(
@@ -147,6 +148,7 @@ class _WalletModalState extends State<WalletModal> {
                     label: ScreenDict.homeTotalBalance.get(false),
                     value: NumberUtils.toIdr(
                       widget.wallet?.amount ?? BigInt.zero,
+                      decimalDigits: decimalDigits,
                     ),
                     valueColor: AppColors.textPrimary,
                     boldValue: true,
@@ -159,6 +161,7 @@ class _WalletModalState extends State<WalletModal> {
                     label: ScreenDict.homeRegular.get(isRpg),
                     value: NumberUtils.toIdr(
                       widget.wallet?.regularAmount ?? BigInt.zero,
+                      decimalDigits: decimalDigits,
                     ),
                   ),
                   const SizedBox(height: 12),
@@ -166,6 +169,7 @@ class _WalletModalState extends State<WalletModal> {
                     label: ScreenDict.homeSavings.get(isRpg),
                     value: NumberUtils.toIdr(
                       widget.wallet?.reservedAmount ?? BigInt.zero,
+                      decimalDigits: decimalDigits,
                     ),
                   ),
                 ],

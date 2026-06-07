@@ -4,9 +4,9 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../../../controllers/settings_controller.dart';
-import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/screen_dict.dart';
 import '../../../core/constants/ui_dict.dart';
+import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/enum_types.dart';
 import '../../../core/utils/number_utils.dart';
 import '../../../models/bill_model.dart';
@@ -472,13 +472,20 @@ class _PayDebtModalState extends State<PayDebtModal>
                             color: AppColors.textSecondary,
                           ),
                         ),
-                        Text(
-                          NumberUtils.toIdr(_amount),
-                          style: const TextStyle(
-                            fontFamily: 'Poppins',
-                            fontWeight: FontWeight.bold,
-                            fontSize: 22,
-                            color: AppColors.primary,
+                        const SizedBox(width: 16),
+                        Flexible(
+                          child: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            alignment: Alignment.centerRight,
+                            child: Text(
+                              NumberUtils.toIdr(_amount),
+                              style: const TextStyle(
+                                fontFamily: 'Poppins',
+                                fontWeight: FontWeight.bold,
+                                fontSize: 22,
+                                color: AppColors.primary,
+                              ),
+                            ),
                           ),
                         ),
                       ],
