@@ -165,7 +165,7 @@ class BillController with ChangeNotifier {
     bool checkExisting = true,
   }) async {
     try {
-      final wallet = _walletController.getWalletById(transaction.walletId ?? 1);
+      final wallet = _walletController.getWalletById(transaction.walletId);
       wallet.autoExpanse(transaction.amount, useReserved: useReserved);
 
       if (transaction.debtId != null) {
@@ -219,7 +219,7 @@ class BillController with ChangeNotifier {
     bool useReserved = false,
   }) async {
     try {
-      final wallet = _walletController.getWalletById(transaction.walletId ?? 1);
+      final wallet = _walletController.getWalletById(transaction.walletId);
       final debt = getDebtById(transaction.debtId ?? 1);
       await _transactionController.createTransaction(transaction);
       wallet.autoExpanse(transaction.amount, useReserved: useReserved);

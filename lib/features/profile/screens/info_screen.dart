@@ -318,10 +318,10 @@ class InfoScreen extends StatelessWidget {
                 const SizedBox(height: 12),
 
                 _buildStatRow(
-                  GamificationDict.skillInvestment.icon(false),
-                  GamificationDict.skillInvestment.get(false),
+                  GamificationDict.skillEmergency.icon(false),
+                  GamificationDict.skillEmergency.get(false),
                   skills[SectorType.emergency]['value'],
-                  GamificationDict.skillInvestment.color ?? Colors.greenAccent,
+                  GamificationDict.skillEmergency.color ?? Colors.greenAccent,
                 ),
                 _buildSubStatRow(
                   '- ${CategoryDict.lowRisk.get(false)}',

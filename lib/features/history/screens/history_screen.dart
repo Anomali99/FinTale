@@ -48,7 +48,7 @@ class HistoryScreen extends StatelessWidget {
           result['selectedWallets'],
         );
       }
-      historyController.applyFilter();
+      await historyController.applyFilter();
       GlobalMessenger.showMessage(
         message: UiDict.applyFilterNotif,
         isSuccess: true,

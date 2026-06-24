@@ -181,8 +181,8 @@ class BillsScreen extends StatelessWidget {
         );
         message = ScreenDict.getDebtNotif(isSuccess: isSuccess, isRpg: isRpg);
       }
-      historyController.applyFilter();
-      analyticsController.applyFilter();
+      await historyController.applyFilter();
+      await analyticsController.applyFilter();
       GlobalMessenger.showMessage(message: message, isSuccess: isSuccess);
     }
   }
@@ -208,8 +208,8 @@ class BillsScreen extends StatelessWidget {
         useReserved: useReserved,
         checkExisting: false,
       );
-      historyController.applyFilter();
-      analyticsController.applyFilter();
+      await historyController.applyFilter();
+      await analyticsController.applyFilter();
     }
   }
 

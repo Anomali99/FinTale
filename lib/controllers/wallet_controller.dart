@@ -23,7 +23,8 @@ class WalletController extends ChangeNotifier with WidgetsBindingObserver {
     loadData();
   }
 
-  WalletModel getWalletById(int? id) => wallets.firstWhere((e) => e.id == id);
+  WalletModel getWalletById(int? id) =>
+      wallets.firstWhere((e) => e.id == id, orElse: () => cash ?? wallets[0]);
 
   Future<void> createWallet(WalletModel newWallet) async {
     try {

@@ -32,14 +32,14 @@ class AnalyticsController with ChangeNotifier {
     applyFilter();
   }
 
-  void applyFilter() {
+  Future<void> applyFilter() async {
     DateTime start;
     DateTime end;
 
     start = DateTime(selectedMonth.year, selectedMonth.month, 1);
     end = DateTime(selectedMonth.year, selectedMonth.month + 1, 0, 23, 59, 59);
 
-    _transactionController.loadDetail(startDate: start, endDate: end);
+    await _transactionController.loadDetail(startDate: start, endDate: end);
     notifyListeners();
   }
 }

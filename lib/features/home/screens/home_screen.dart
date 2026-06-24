@@ -196,8 +196,8 @@ class HomeScreen extends StatelessWidget {
           subSector: allocation.subSector,
         ),
       );
-      historyController.applyFilter();
-      analyticsController.applyFilter();
+      await historyController.applyFilter();
+      await analyticsController.applyFilter();
       if (allocation.sector == SectorType.payDebt) {
         await billController.loadData();
       }
@@ -256,8 +256,8 @@ class HomeScreen extends StatelessWidget {
         transaction,
         autoAllocation: autoAllocation,
       );
-      historyController.applyFilter();
-      analyticsController.applyFilter();
+      await historyController.applyFilter();
+      await analyticsController.applyFilter();
       GlobalMessenger.showMessage(
         message: UiDict.getSaveNotif(
           isTransfer ? UiDict.transfer.get(isRpg) : UiDict.income.get(isRpg),

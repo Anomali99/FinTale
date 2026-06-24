@@ -73,8 +73,8 @@ class MainLayout extends StatelessWidget {
             useReserved: useReserved,
           );
         }
-        historyController.applyFilter();
-        analyticsController.applyFilter();
+        await historyController.applyFilter();
+        await analyticsController.applyFilter();
         GlobalMessenger.showMessage(
           message: ScreenDict.getDebtNotif(isSuccess: isSuccess, isRpg: isRpg),
           isSuccess: isSuccess,
@@ -105,8 +105,8 @@ class MainLayout extends StatelessWidget {
         useReserved: useReserved,
         excludeDaily: excludeDaily,
       );
-      historyController.applyFilter();
-      analyticsController.applyFilter();
+      await historyController.applyFilter();
+      await analyticsController.applyFilter();
       GlobalMessenger.showMessage(
         message: UiDict.getSaveNotif(
           ScreenDict.historyTransaction.get(isRpg),

@@ -98,6 +98,12 @@ class NumberUtils {
     Decimal dec = _toDecimal(number);
     double val = dec.toDouble();
 
+    val = double.parse(val.toStringAsFixed(decimalDigits ?? 5));
+
+    if (val == 0.0 || val == -0.0) {
+      val = 0.0;
+    }
+
     if (decimalDigits != null) {
       return NumberFormat.currency(
         locale: 'id_ID',
@@ -109,7 +115,7 @@ class NumberUtils {
 
       if (showFull || (val.abs() > 0 && val.abs() < 1)) {
         formatter.minimumFractionDigits = 0;
-        formatter.maximumFractionDigits = 8;
+        formatter.maximumFractionDigits = 5;
       } else {
         formatter.minimumFractionDigits = 0;
         formatter.maximumFractionDigits = 0;

@@ -29,14 +29,14 @@ class SectionHistory extends StatelessWidget {
     final walletController = context.read<WalletController>();
     final investController = context.read<InvestController>();
     if (data.type == TransactionType.transfer) {
-      String from = walletController.getWalletById(data.walletId ?? 1).name;
-      String to = walletController.getWalletById(data.targetId ?? 1).name;
+      String from = walletController.getWalletById(data.walletId).name;
+      String to = walletController.getWalletById(data.targetId).name;
       return '$from ➔ $to';
     }
 
     if (data.type == TransactionType.expense ||
         data.type == TransactionType.debt) {
-      String from = walletController.getWalletById(data.walletId ?? 1).name;
+      String from = walletController.getWalletById(data.walletId).name;
       return '${UiDict.sourceFundsShort}: $from';
     }
 
@@ -46,7 +46,7 @@ class SectionHistory extends StatelessWidget {
             investController.assets[(data.assetsId ?? 1) - 1].name;
         return '${UiDict.sourceFundsShort}: $fromAsset';
       }
-      String toWallet = walletController.getWalletById(data.walletId ?? 1).name;
+      String toWallet = walletController.getWalletById(data.walletId).name;
       return '${UiDict.saveToShort}: $toWallet';
     }
 

@@ -30,7 +30,7 @@ class TransactionDetailModal extends StatelessWidget {
   Widget build(BuildContext context) {
     final walletController = context.read<WalletController>();
     final investController = context.read<InvestController>();
-    final wallet = walletController.getWalletById(transaction.walletId!);
+    final wallet = walletController.getWalletById(transaction.walletId);
     final status = CategoryDict.getStatusByEnum(transaction.status);
     WalletModel? walletTarget;
     AssetsModel? asset;

@@ -45,7 +45,7 @@ class HistoryController with ChangeNotifier {
     selectedWallets = wallets;
   }
 
-  void applyFilter() {
+  Future<void> applyFilter() async {
     DateTime start;
     DateTime end;
     bool filtered = false;
@@ -73,7 +73,7 @@ class HistoryController with ChangeNotifier {
       );
     }
 
-    _transactionController.loadTransaction(
+    await _transactionController.loadTransaction(
       startDate: start,
       endDate: end,
       types: selectedTypes.isNotEmpty ? selectedTypes : null,

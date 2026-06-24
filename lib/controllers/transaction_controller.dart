@@ -204,6 +204,8 @@ class TransactionController extends ChangeNotifier {
   }
 
   Future<void> loadData() async {
+    _monthlyCache.clear();
+
     DateTime now = DateTime.now();
     DateTime finalStart = DateTime(now.year, now.month, 1);
     DateTime finalEnd = DateTime(now.year, now.month + 1, 0, 23, 59, 59);

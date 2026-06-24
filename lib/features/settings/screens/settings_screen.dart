@@ -73,8 +73,8 @@ class SettingsScreen extends StatelessWidget {
         await skillController.loadData();
         await billController.loadData();
         await investController.loadData();
-        historyController.applyFilter();
-        analyticsController.applyFilter();
+        await historyController.applyFilter();
+        await analyticsController.applyFilter();
       }
 
       if (onSuccess != null) {
