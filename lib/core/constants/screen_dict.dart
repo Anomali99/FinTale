@@ -21,6 +21,7 @@ class ScreenDict {
       'Klaim dividen akan langsung ditambahkan sebagai saldo (Pemasukan) ke dompet pilihan Anda tanpa mengubah nilai buku investasi awal Anda.';
   static const String investInvalidUnitSell =
       'Unit yang dijual melebihi unit yang dimiliki.';
+  static const String roundedCheck = 'Pembulatan Otomatis?';
 
   static const String historyInformation = 'Informasi Dasar';
   static const String breakdownDetail = 'Rincian Item';
@@ -361,7 +362,10 @@ class ScreenDict {
       'Kurangi jumlah ini dari alokasi ${homeSavings.get(isRpg).toLowerCase()} Anda, bukan dari saldo aktif Anda.';
 
   static String getExcludeDailyCheckDesc({bool isRpg = false}) =>
-      'Kecualikan ${historyTransaction.get(isRpg).toLowerCase()} agar tidak mengurangi ${homeDailyLimit.get(isRpg).toLowerCase()} anda.';
+      'Kurangi jumlah ini dari alokasi ${homeSavings.get(isRpg).toLowerCase()} Anda, bukan dari saldo aktif Anda.';
+
+  static String getRoundedCheckDesc({bool isRpg = false}) =>
+      'Membulatkan ${expenseAmount.get(isRpg).toLowerCase()} ke atas untuk menghilangkan fraksi desimal pada saldo akhir dompet.';
 
   static String getDebtBillTitle(String title) => 'Cicilan: $title';
 

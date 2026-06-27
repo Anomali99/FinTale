@@ -25,7 +25,6 @@ import '../../../models/transaction_model.dart';
 import '../../../models/user_model.dart';
 import '../../../models/wallet_model.dart';
 import '../../bills/widgets/pay_debt_modal.dart';
-import '../../invest/widgets/buy_asset_modal.dart';
 import '../widgets/allocation_card.dart';
 import '../widgets/balance_card.dart';
 import '../widgets/daily_limit.dart';
@@ -129,18 +128,19 @@ class HomeScreen extends StatelessWidget {
       sec: allocation.sector,
       sub: allocation.subSector ?? SubSectorType.lowRisk,
     );
-    final result = await showModalBottomSheet<Map<String, dynamic>?>(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) => BuyAssetModal(
-        wallets: [wallet],
-        assets: assets,
-        initialRisk: risk,
-        pendingAllocation: allocation.amount,
-        isEmergency: allocation.sector == SectorType.emergency,
-      ),
-    );
+    final result =
+        await Navigator.pushNamed(
+              context,
+              '/buy-asset',
+              arguments: {
+                "wallets": [wallet],
+                "assets": assets,
+                "initialRisk": risk,
+                "pendingAllocation": allocation.amount,
+                "isEmergency": allocation.sector == SectorType.emergency,
+              },
+            )
+            as Map<String, dynamic>?;
 
     if (result != null && context.mounted) {
       TransactionModel transaction = result['transaction'];

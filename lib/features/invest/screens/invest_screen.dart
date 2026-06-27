@@ -17,7 +17,6 @@ import '../../../core/utils/global_messenger.dart';
 import '../../../models/assets_model.dart';
 import '../../../models/transaction_model.dart';
 import '../widgets/asset_tab.dart';
-import '../widgets/buy_asset_modal.dart';
 import '../widgets/dividend_modal.dart';
 import '../widgets/sell_asset_modal.dart';
 import '../widgets/total_card.dart';
@@ -128,15 +127,16 @@ class InvestScreen extends StatelessWidget {
     final historyController = context.read<HistoryController>();
     final analyticsController = context.read<AnalyticsController>();
     final isRpg = context.read<SettingsController>().isRpgMode;
-    final result = await showModalBottomSheet<Map<String, dynamic>?>(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) => BuyAssetModal(
-        wallets: walletController.wallets,
-        assets: investController.assets,
-      ),
-    );
+    final result =
+        await Navigator.pushNamed(
+              context,
+              '/buy-asset',
+              arguments: {
+                "wallets": walletController.wallets,
+                "assets": investController.assets,
+              },
+            )
+            as Map<String, dynamic>?;
 
     if (result != null && context.mounted) {
       TransactionModel transaction = result['transaction'];
@@ -169,16 +169,17 @@ class InvestScreen extends StatelessWidget {
     final historyController = context.read<HistoryController>();
     final analyticsController = context.read<AnalyticsController>();
     final isRpg = context.read<SettingsController>().isRpgMode;
-    final result = await showModalBottomSheet<Map<String, dynamic>?>(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) => BuyAssetModal(
-        initialAsset: assets,
-        wallets: walletController.wallets,
-        assets: [assets],
-      ),
-    );
+    final result =
+        await Navigator.pushNamed(
+              context,
+              '/buy-asset',
+              arguments: {
+                "wallets": walletController.wallets,
+                "assets": [assets],
+                "initialAsset": assets,
+              },
+            )
+            as Map<String, dynamic>?;
 
     if (result != null && context.mounted) {
       TransactionModel transaction = result['transaction'];

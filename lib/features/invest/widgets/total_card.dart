@@ -105,7 +105,7 @@ class TotalCard extends StatelessWidget {
                     ),
                     const SizedBox(width: 6),
                     Text(
-                      '${isProvit ? '+' : ''}${(percentage * 100).toStringAsFixed(2)}%',
+                      '${isProvit ? '+' : ''}${percentage.toStringAsFixed(2)}%',
                       style: TextStyle(
                         color: isProvit ? AppColors.success : AppColors.error,
                         fontWeight: FontWeight.bold,
