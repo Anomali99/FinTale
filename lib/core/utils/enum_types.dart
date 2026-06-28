@@ -19,6 +19,17 @@ enum RiskType {
         return TransactionCategory.highRisk;
     }
   }
+
+  SubSectorType getSubSector() {
+    switch (this) {
+      case RiskType.low:
+        return SubSectorType.lowRisk;
+      case RiskType.medium:
+        return SubSectorType.mediumRisk;
+      case RiskType.high:
+        return SubSectorType.highRisk;
+    }
+  }
 }
 
 enum DebtType { creditCard, mortgage, vehicle, personal, business, other }

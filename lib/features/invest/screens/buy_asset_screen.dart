@@ -665,8 +665,7 @@ class _BuyAssetScreenState extends State<BuyAssetScreen>
           if (_selectedWallet != null) ...[
             NoteContainer(
               text: widget.pendingAllocation != null
-                  ? ScreenDict.getInvestNote(
-                      _selectedWallet?.name ?? '',
+                  ? ScreenDict.getPendingNote(
                       NumberUtils.toIdr(widget.pendingAllocation),
                     )
                   : _isReservedActive

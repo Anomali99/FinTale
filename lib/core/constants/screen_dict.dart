@@ -415,8 +415,12 @@ class ScreenDict {
   static String getInvestUpdateDesc({bool isRpg = false}) =>
       'Memperbarui ${isRpg ? 'power pasukan' : 'total harga pasar '} tidak akan mengubah catatan modal awal yang sudah Anda keluarkan. Ini murni untuk memantau ${isRpg ? 'nilai aset' : 'power pasukan'}  Anda saat ini.';
 
-  static String getInvestNote(String name, String amount) =>
-      'Sisa saldo **$name** yang belum dialokasikan adalah **$amount**. Pembelian investasi ini akan memotong saldo tersebut.';
+  static String getPendingNote(
+    String amount, {
+    bool isInvest = true,
+    bool isRpg = false,
+  }) =>
+      'Sisa saldo yang belum dialokasikan adalah **$amount**.  ${isInvest ? "Pembelian investasi" : UiDict.menuPayDebt.get(isRpg)} ini akan memotong saldo tersebut.';
 
   static String getEmergencyCheck({bool isRpg = false}) =>
       'Sebagai ${GamificationDict.skillEmergency.get(isRpg)}?';

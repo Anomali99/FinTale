@@ -64,10 +64,7 @@ class HomeController with ChangeNotifier {
 
   Future<void> updatePending(AllocationModel all) async {
     int index = pendingAllocations.indexWhere(
-      (a) =>
-          a.walletId == all.walletId &&
-          a.sector == all.sector &&
-          a.subSector == all.subSector,
+      (a) => a.sector == all.sector && a.subSector == all.subSector,
     );
 
     if (index != -1) {
@@ -75,6 +72,30 @@ class HomeController with ChangeNotifier {
         _userController.removePending(index);
       } else {
         _userController.updatePending(index, all);
+      }
+      await _userController.saveUser();
+      await _userController.loadData();
+    }
+  }
+
+  Future<void> usePendingBySector({
+    required Decimal amount,
+    required SectorType sector,
+    SubSectorType? subSector,
+  }) async {
+    int index = pendingAllocations.indexWhere(
+      (a) => a.sector == sector && a.subSector == subSector,
+    );
+    if (index != -1) {
+      AllocationModel all = pendingAllocations[index];
+      Decimal total = all.amount - amount;
+      if (total <= Decimal.zero) {
+        _userController.removePending(index);
+      } else {
+        _userController.updatePending(
+          index,
+          AllocationModel(amount: total, sector: sector, subSector: subSector),
+        );
       }
       await _userController.saveUser();
       await _userController.loadData();
@@ -150,10 +171,7 @@ class HomeController with ChangeNotifier {
             );
 
             int index = pendingAllocations.indexWhere(
-              (a) =>
-                  a.walletId == transaction.walletId &&
-                  a.sector == sector &&
-                  a.subSector == subSector,
+              (a) => a.sector == sector && a.subSector == subSector,
             );
 
             if (index != -1) {
@@ -163,7 +181,6 @@ class HomeController with ChangeNotifier {
             } else {
               _userController.addPending(
                 AllocationModel(
-                  walletId: transaction.walletId ?? 1,
                   sector: sector,
                   subSector: subSector,
                   amount: allocatedAmount,

@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 
 import '../../../controllers/analytics_controller.dart';
 import '../../../controllers/history_controller.dart';
+import '../../../controllers/home_controller.dart';
 import '../../../controllers/invest_controller.dart';
 import '../../../controllers/settings_controller.dart';
 import '../../../controllers/skill_controller.dart';
@@ -13,6 +14,7 @@ import '../../../core/constants/category_dict.dart';
 import '../../../core/constants/screen_dict.dart';
 import '../../../core/constants/ui_dict.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/utils/enum_types.dart';
 import '../../../core/utils/global_messenger.dart';
 import '../../../models/assets_model.dart';
 import '../../../models/transaction_model.dart';
@@ -121,6 +123,7 @@ class InvestScreen extends StatelessWidget {
   }
 
   void _openAddAsset(BuildContext context) async {
+    final homeController = context.read<HomeController>();
     final investController = context.read<InvestController>();
     final walletController = context.read<WalletController>();
     final skillController = context.read<SkillController>();
@@ -151,6 +154,13 @@ class InvestScreen extends StatelessWidget {
       if (isSuccess) {
         await skillController.loadData();
       }
+      await homeController.usePendingBySector(
+        amount: transaction.amount,
+        sector: asset.isEmergency
+            ? SectorType.emergency
+            : SectorType.investment,
+        subSector: asset.type.getSubSector(),
+      );
       await historyController.applyFilter();
       await analyticsController.applyFilter();
       GlobalMessenger.showMessage(
@@ -164,6 +174,7 @@ class InvestScreen extends StatelessWidget {
   }
 
   void _openAddInvest(BuildContext context, AssetsModel assets) async {
+    final homeController = context.read<HomeController>();
     final investController = context.read<InvestController>();
     final walletController = context.read<WalletController>();
     final historyController = context.read<HistoryController>();
@@ -187,6 +198,13 @@ class InvestScreen extends StatelessWidget {
       bool isSuccess = await investController.saveTransaction(
         transaction,
         asset,
+      );
+      await homeController.usePendingBySector(
+        amount: transaction.amount,
+        sector: asset.isEmergency
+            ? SectorType.emergency
+            : SectorType.investment,
+        subSector: asset.type.getSubSector(),
       );
       await historyController.applyFilter();
       await analyticsController.applyFilter();

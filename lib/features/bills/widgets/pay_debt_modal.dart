@@ -442,9 +442,10 @@ class _PayDebtModalState extends State<PayDebtModal>
                     if (_selectedWallet != null) ...[
                       NoteContainer(
                         text: widget.pendingAllocation != null
-                            ? ScreenDict.getInvestNote(
-                                _selectedWallet?.name ?? '',
+                            ? ScreenDict.getPendingNote(
                                 NumberUtils.toIdr(widget.pendingAllocation),
+                                isInvest: false,
+                                isRpg: isRpg,
                               )
                             : _isReservedActive
                             ? ScreenDict.getHomeNote(

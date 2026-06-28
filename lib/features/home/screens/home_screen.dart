@@ -56,7 +56,7 @@ class HomeScreen extends StatelessWidget {
   Future<Decimal?> _openPayDebt(
     BuildContext context,
     AllocationModel allocation,
-    WalletModel wallet,
+    List<WalletModel> wallets,
   ) async {
     final billController = context.read<BillController>();
     final isRpg = context.read<SettingsController>().isRpgMode;
@@ -78,7 +78,7 @@ class HomeScreen extends StatelessWidget {
         builder: (context) {
           return PayDebtModal(
             pendingAllocation: allocation.amount,
-            wallets: [wallet],
+            wallets: wallets,
             debts: debts,
             bils: bills,
           );
@@ -118,7 +118,7 @@ class HomeScreen extends StatelessWidget {
   Future<Decimal?> _openAddAsset(
     BuildContext context,
     AllocationModel allocation,
-    WalletModel wallet,
+    List<WalletModel> wallets,
   ) async {
     final investController = context.read<InvestController>();
     final skillController = context.read<SkillController>();
@@ -133,7 +133,7 @@ class HomeScreen extends StatelessWidget {
               context,
               '/buy-asset',
               arguments: {
-                "wallets": [wallet],
+                "wallets": wallets,
                 "assets": assets,
                 "initialRisk": risk,
                 "pendingAllocation": allocation.amount,
@@ -174,24 +174,23 @@ class HomeScreen extends StatelessWidget {
     final historyController = context.read<HistoryController>();
     final billController = context.read<BillController>();
     final analyticsController = context.read<AnalyticsController>();
-    final wallet = walletController.getWalletById(allocation.walletId);
+    final wallets = walletController.wallets;
     Decimal? allocationUse;
     switch (allocation.sector) {
       case SectorType.living:
         break;
       case SectorType.payDebt:
-        allocationUse = await _openPayDebt(context, allocation, wallet);
+        allocationUse = await _openPayDebt(context, allocation, wallets);
         break;
       case SectorType.emergency:
       case SectorType.investment:
-        allocationUse = await _openAddAsset(context, allocation, wallet);
+        allocationUse = await _openAddAsset(context, allocation, wallets);
         break;
     }
     if (allocationUse != null) {
       await homeController.updatePending(
         AllocationModel(
           amount: allocation.amount - allocationUse,
-          walletId: allocation.walletId,
           sector: allocation.sector,
           subSector: allocation.subSector,
         ),

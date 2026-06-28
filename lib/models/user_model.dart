@@ -177,17 +177,11 @@ class UserProgressModel {
 }
 
 class AllocationModel {
-  final int walletId;
   final SectorType sector;
   final SubSectorType? subSector;
   Decimal amount;
 
-  AllocationModel({
-    required this.walletId,
-    required this.amount,
-    required this.sector,
-    this.subSector,
-  });
+  AllocationModel({required this.amount, required this.sector, this.subSector});
 
   void addAmount(Decimal amount, {bool isIncome = true}) {
     if (isIncome) {
@@ -199,7 +193,6 @@ class AllocationModel {
 
   Map<String, dynamic> toJson() {
     return {
-      "wallet_id": walletId,
       "amount": amount.toString(),
       "sector": sector.name,
       "sub_sector": subSector?.name,
@@ -208,7 +201,6 @@ class AllocationModel {
 
   factory AllocationModel.fromJson(Map<String, dynamic> json) {
     return AllocationModel(
-      walletId: json['wallet_id'],
       amount: Decimal.parse(json['amount']),
       sector: SectorType.values.firstWhere(
         (e) => e.name == json['sector'],

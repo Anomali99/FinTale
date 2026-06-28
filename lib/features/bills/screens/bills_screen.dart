@@ -5,12 +5,14 @@ import 'package:provider/provider.dart';
 import '../../../controllers/analytics_controller.dart';
 import '../../../controllers/bill_controller.dart';
 import '../../../controllers/history_controller.dart';
+import '../../../controllers/home_controller.dart';
 import '../../../controllers/settings_controller.dart';
 import '../../../controllers/transaction_controller.dart';
 import '../../../controllers/wallet_controller.dart';
 import '../../../core/constants/screen_dict.dart';
 import '../../../core/constants/ui_dict.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/utils/enum_types.dart';
 import '../../../core/utils/global_messenger.dart';
 import '../../../models/bill_model.dart';
 import '../../../models/debt_model.dart';
@@ -141,6 +143,7 @@ class BillsScreen extends StatelessWidget {
     DebtModel? initialDebt,
     BillModel? initialBill,
   }) async {
+    final homeController = context.read<HomeController>();
     final billController = context.read<BillController>();
     final historyController = context.read<HistoryController>();
     final analyticsController = context.read<AnalyticsController>();
@@ -178,6 +181,10 @@ class BillsScreen extends StatelessWidget {
         isSuccess = await billController.payDebt(
           transaction,
           useReserved: useReserved,
+        );
+        await homeController.usePendingBySector(
+          amount: transaction.amount,
+          sector: SectorType.payDebt,
         );
         message = ScreenDict.getDebtNotif(isSuccess: isSuccess, isRpg: isRpg);
       }
