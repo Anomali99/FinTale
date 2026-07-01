@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import '../../../core/constants/gamification_dict.dart';
-import '../../../core/theme/app_colors.dart';
 import 'stat_radar.dart';
 
 class AllocationCard extends StatelessWidget {
@@ -27,14 +26,16 @@ class AllocationCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return GestureDetector(
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: AppColors.surfaceVariant,
+          color: colorScheme.surfaceContainerHighest,
           borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: AppColors.primary.withOpacity(0.2)),
+          border: Border.all(color: colorScheme.primary.withOpacity(0.2)),
         ),
         child: Column(
           children: [
@@ -45,10 +46,10 @@ class AllocationCard extends StatelessWidget {
                   GamificationDict.statistics.get(isRpg),
                   style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
-                const Icon(
+                Icon(
                   Icons.arrow_forward_ios,
                   size: 14,
-                  color: AppColors.textSecondary,
+                  color: colorScheme.onSurfaceVariant,
                 ),
               ],
             ),
@@ -69,7 +70,7 @@ class AllocationCard extends StatelessWidget {
                             100,
                         investmentPercentage / 100,
                       ],
-                      color: AppColors.primary,
+                      color: colorScheme.primary,
                     ),
 
                     const FaIcon(
@@ -87,21 +88,25 @@ class AllocationCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       _statRow(
+                        context,
                         GamificationDict.skillDaily.get(isRpg),
                         '${livingPercentage.toInt().toString()}%',
                         GamificationDict.skillDaily.color ?? Colors.blue,
                       ),
                       _statRow(
+                        context,
                         GamificationDict.skillDebt.get(isRpg),
                         '${payDebtPercentage.toInt().toString()}%',
                         GamificationDict.skillDebt.color ?? Colors.blue,
                       ),
                       _statRow(
+                        context,
                         GamificationDict.skillEmergency.get(isRpg),
                         '${emergencyPercentage.toInt().toString()}%',
                         GamificationDict.skillEmergency.color ?? Colors.blue,
                       ),
                       _statRow(
+                        context,
                         GamificationDict.skillInvestment.get(isRpg),
                         '${investmentPercentage.toInt().toString()}%',
                         GamificationDict.skillInvestment.color ?? Colors.blue,
@@ -117,7 +122,9 @@ class AllocationCard extends StatelessWidget {
     );
   }
 
-  Widget _statRow(String label, String val, Color col) {
+  Widget _statRow(BuildContext context, String label, String val, Color col) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
@@ -130,10 +137,7 @@ class AllocationCard extends StatelessWidget {
           const SizedBox(width: 8),
           Text(
             label,
-            style: const TextStyle(
-              fontSize: 11,
-              color: AppColors.textSecondary,
-            ),
+            style: TextStyle(fontSize: 11, color: colorScheme.onSurfaceVariant),
           ),
           const Spacer(),
           Text(

@@ -15,7 +15,6 @@ import '../../../controllers/wallet_controller.dart';
 import '../../../core/constants/gamification_dict.dart';
 import '../../../core/constants/screen_dict.dart';
 import '../../../core/constants/ui_dict.dart';
-import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/enum_types.dart';
 import '../../../core/utils/global_messenger.dart';
 import '../../../models/assets_model.dart';
@@ -37,10 +36,12 @@ class HomeScreen extends StatelessWidget {
 
   void _showWalletDetails(BuildContext context, bool isRpg) {
     final walletController = context.read<WalletController>();
+    final colorScheme = Theme.of(context).colorScheme;
+
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: AppColors.surface,
+      backgroundColor: colorScheme.surface,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
@@ -273,6 +274,7 @@ class HomeScreen extends StatelessWidget {
     final userController = context.watch<UserController>();
     final walletController = context.watch<WalletController>();
     final homeController = context.watch<HomeController>();
+    final colorScheme = Theme.of(context).colorScheme;
 
     final isRpg = settingsController.isRpgMode;
     final userName = userController.userName;
@@ -302,20 +304,20 @@ class HomeScreen extends StatelessWidget {
               children: [
                 Text(
                   'Lv. $userLevel - $userName',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontFamily: 'Poppins',
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
-                    color: AppColors.primary,
+                    color: colorScheme.primary,
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
                 Text(
                   GamificationDict.getTitleByEnum(userTitle).get(isRpg),
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 11,
-                    color: AppColors.textSecondary,
+                    color: colorScheme.onSurfaceVariant,
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
@@ -329,7 +331,7 @@ class HomeScreen extends StatelessWidget {
                     borderRadius: BorderRadius.circular(4),
                     child: LinearProgressIndicator(
                       value: xpPercentage,
-                      backgroundColor: AppColors.surfaceVariant,
+                      backgroundColor: colorScheme.surfaceContainerHighest,
                       color: Colors.amber,
                       minHeight: 4,
                     ),

@@ -22,6 +22,8 @@ class ActiveBillsTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     List<TransactionModel> pending = [];
     List<TransactionModel> paid = [];
 
@@ -38,9 +40,9 @@ class ActiveBillsTab extends StatelessWidget {
       children: [
         Text(
           CategoryDict.statusPending.get(isRpg).toUpperCase(),
-          style: const TextStyle(
+          style: TextStyle(
             fontWeight: FontWeight.bold,
-            color: AppColors.textSecondary,
+            color: colorScheme.onSurfaceVariant,
           ),
         ),
         const SizedBox(height: 12),
@@ -55,7 +57,7 @@ class ActiveBillsTab extends StatelessWidget {
                   FaIcon(
                     CategoryDict.statusPending.icon(isRpg),
                     size: 48,
-                    color: AppColors.surfaceVariant,
+                    color: colorScheme.surfaceContainerHighest,
                   ),
                   const SizedBox(height: 16),
                   Text(
@@ -64,7 +66,7 @@ class ActiveBillsTab extends StatelessWidget {
                       isRpg: isRpg,
                     ),
                     textAlign: TextAlign.center,
-                    style: const TextStyle(color: AppColors.textSecondary),
+                    style: TextStyle(color: colorScheme.onSurfaceVariant),
                   ),
                 ],
               ),
@@ -105,7 +107,7 @@ class ActiveBillsTab extends StatelessWidget {
                   FaIcon(
                     CategoryDict.statusPaid.icon(isRpg),
                     size: 48,
-                    color: AppColors.surfaceVariant,
+                    color: colorScheme.surfaceContainerHighest,
                   ),
                   const SizedBox(height: 16),
                   Text(
@@ -114,7 +116,7 @@ class ActiveBillsTab extends StatelessWidget {
                       isRpg: isRpg,
                     ),
                     textAlign: TextAlign.center,
-                    style: const TextStyle(color: AppColors.textSecondary),
+                    style: TextStyle(color: colorScheme.onSurfaceVariant),
                   ),
                 ],
               ),

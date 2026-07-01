@@ -259,6 +259,7 @@ class BillsScreen extends StatelessWidget {
     final settingsController = context.watch<SettingsController>();
     final billController = context.watch<BillController>();
     final transactionController = context.watch<TransactionController>();
+    final colorScheme = Theme.of(context).colorScheme;
 
     final isRpg = settingsController.isRpgMode;
 
@@ -285,9 +286,9 @@ class BillsScreen extends StatelessWidget {
             const SizedBox(width: 8),
           ],
           bottom: TabBar(
-            indicatorColor: AppColors.primary,
-            labelColor: AppColors.primary,
-            unselectedLabelColor: AppColors.textSecondary,
+            indicatorColor: colorScheme.primary,
+            labelColor: colorScheme.primary,
+            unselectedLabelColor: colorScheme.onSurfaceVariant,
             tabs: [
               Tab(text: ScreenDict.billsActive.get(isRpg)),
               Tab(text: ScreenDict.billsMaster.get(isRpg)),

@@ -153,7 +153,7 @@ class UiDict {
 
   static CategoryModel income = CategoryModel(
     terminology: TermModel(normal: 'Pemasukan', rpg: 'Loot'),
-    color: AppColors.primary,
+    color: AppColors.primaryDark,
     icons: IconModel(
       normal: FontAwesomeIcons.arrowTurnDown,
       rpg: FontAwesomeIcons.sackDollar,

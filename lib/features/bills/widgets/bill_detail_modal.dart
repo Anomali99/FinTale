@@ -21,12 +21,13 @@ class BillDetailModal extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     final Color mainColor = bill.tier.color;
 
     return Container(
       padding: const EdgeInsets.all(24),
-      decoration: const BoxDecoration(
-        color: AppColors.surface,
+      decoration: BoxDecoration(
+        color: colorScheme.surface,
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       child: SingleChildScrollView(
@@ -115,10 +116,10 @@ class BillDetailModal extends StatelessWidget {
                       const SizedBox(height: 4),
                       Text(
                         bill.title,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
-                          color: AppColors.textPrimary,
+                          color: colorScheme.onSurface,
                         ),
                       ),
                     ],
@@ -128,13 +129,13 @@ class BillDetailModal extends StatelessWidget {
             ),
             const SizedBox(height: 24),
             CustomTable(
-              color: AppColors.surfaceVariant,
+              color: colorScheme.surfaceContainerHighest,
               borderColor: mainColor,
               children: [
                 CustomRowTable(
                   label: ScreenDict.billAmount.get(isRpg),
                   value: NumberUtils.toIdr(bill.amount),
-                  valueColor: AppColors.textPrimary,
+                  valueColor: colorScheme.onSurface,
                   boldValue: true,
                 ),
                 const Padding(
@@ -155,7 +156,7 @@ class BillDetailModal extends StatelessWidget {
                           ),
                         )
                       : UiDict.noDate,
-                  valueColor: AppColors.primary,
+                  valueColor: colorScheme.primary,
                   boldValue: true,
                 ),
                 const SizedBox(height: 12),
@@ -176,7 +177,7 @@ class BillDetailModal extends StatelessWidget {
             if (bill.isActive) ...[
               CustomButton(
                 title: ScreenDict.getPayBill(isRpg: isRpg),
-                color: AppColors.primary,
+                color: colorScheme.primary,
                 onTap: () {
                   Navigator.pop(context, BillActionType.payDirect);
                 },
@@ -207,7 +208,7 @@ class BillDetailModal extends StatelessWidget {
               child: OutlinedButton(
                 style: OutlinedButton.styleFrom(
                   padding: const EdgeInsets.all(16),
-                  side: const BorderSide(color: AppColors.textSecondary),
+                  side: BorderSide(color: colorScheme.onSurfaceVariant),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
@@ -218,7 +219,7 @@ class BillDetailModal extends StatelessWidget {
                 child: Text(
                   UiDict.getEdit(ScreenDict.billsMaster.get(isRpg)),
                   style: TextStyle(
-                    color: AppColors.textPrimary,
+                    color: colorScheme.onSurface,
                     fontWeight: FontWeight.bold,
                   ),
                 ),

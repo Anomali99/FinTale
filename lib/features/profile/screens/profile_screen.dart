@@ -138,6 +138,7 @@ class ProfileScreen extends StatelessWidget {
           const SizedBox(height: 24),
 
           _buildSettingCard(
+            context,
             ScreenDict.homeDailyLimit.icon(isRpg),
             ScreenDict.homeDailyLimit.get(isRpg),
             '${NumberUtils.toIdr(baseDailyLimit)} / day',
@@ -150,6 +151,7 @@ class ProfileScreen extends StatelessWidget {
           ),
           const SizedBox(height: 24),
           _buildSettingCard(
+            context,
             GamificationDict.skillEmergency.icon(isRpg),
             GamificationDict.skillEmergency.get(isRpg),
             '${NumberUtils.toIdr(emergencyTotal)} / ${NumberUtils.toIdr(emergencyAmount)}',
@@ -170,6 +172,7 @@ class ProfileScreen extends StatelessWidget {
   }
 
   Widget _buildSettingCard(
+    BuildContext context,
     FaIconData icon,
     String title,
     String subtitle, {
@@ -177,12 +180,15 @@ class ProfileScreen extends StatelessWidget {
     Decimal? maxProgress,
     VoidCallback? onTap,
   }) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return GestureDetector(
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: AppColors.surfaceVariant,
+          color: colorScheme.surfaceContainerHighest,
           borderRadius: BorderRadius.circular(24),
         ),
         child: Row(
@@ -190,10 +196,10 @@ class ProfileScreen extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: AppColors.primary.withOpacity(0.1),
+                color: colorScheme.primary.withOpacity(0.1),
                 shape: BoxShape.circle,
               ),
-              child: FaIcon(icon, color: AppColors.primary, size: 20),
+              child: FaIcon(icon, color: colorScheme.primary, size: 20),
             ),
             const SizedBox(width: 16),
             Expanded(
@@ -209,7 +215,7 @@ class ProfileScreen extends StatelessWidget {
                             : (currentProgress.toDouble() /
                                       maxProgress.toDouble())
                                   .clamp(0.0, 1.0),
-                        backgroundColor: AppColors.background,
+                        backgroundColor: theme.scaffoldBackgroundColor,
                         color: AppColors.primaryDark,
                         minHeight: 8,
                       ),
@@ -221,7 +227,7 @@ class ProfileScreen extends StatelessWidget {
                     subtitle,
                     style: TextStyle(
                       fontSize: 12,
-                      color: AppColors.textSecondary,
+                      color: colorScheme.onSurfaceVariant,
                     ),
                   ),
                 ],

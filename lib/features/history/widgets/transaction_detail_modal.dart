@@ -7,7 +7,6 @@ import '../../../controllers/wallet_controller.dart';
 import '../../../core/constants/category_dict.dart';
 import '../../../core/constants/screen_dict.dart';
 import '../../../core/constants/ui_dict.dart';
-import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/enum_types.dart';
 import '../../../core/utils/number_utils.dart';
 import '../../../core/utils/time_formatter.dart';
@@ -30,6 +29,7 @@ class TransactionDetailModal extends StatelessWidget {
   Widget build(BuildContext context) {
     final walletController = context.read<WalletController>();
     final investController = context.read<InvestController>();
+    final colorScheme = Theme.of(context).colorScheme;
     final wallet = walletController.getWalletById(transaction.walletId);
     final status = CategoryDict.getStatusByEnum(transaction.status);
     WalletModel? walletTarget;
@@ -46,8 +46,8 @@ class TransactionDetailModal extends StatelessWidget {
 
     return Container(
       padding: const EdgeInsets.all(24),
-      decoration: const BoxDecoration(
-        color: AppColors.surface,
+      decoration: BoxDecoration(
+        color: colorScheme.surface,
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
 
@@ -81,10 +81,10 @@ class TransactionDetailModal extends StatelessWidget {
 
             Text(
               transaction.title,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
-                color: AppColors.textPrimary,
+                color: colorScheme.onSurface,
               ),
               textAlign: TextAlign.center,
             ),
@@ -105,7 +105,7 @@ class TransactionDetailModal extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: AppColors.surfaceVariant,
+                color: colorScheme.surfaceContainerHighest,
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(color: Colors.white10),
               ),
@@ -121,7 +121,7 @@ class TransactionDetailModal extends StatelessWidget {
                             ScreenDict.historyTime.get(isRpg),
                             style: TextStyle(
                               fontSize: 12,
-                              color: AppColors.textSecondary,
+                              color: colorScheme.onSurfaceVariant,
                             ),
                           ),
                           const SizedBox(height: 4),
@@ -129,9 +129,9 @@ class TransactionDetailModal extends StatelessWidget {
                             TimeFormatter.formatShortWithHour(
                               transaction.dateTimestamp,
                             ),
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontWeight: FontWeight.bold,
-                              color: AppColors.textPrimary,
+                              color: colorScheme.onSurface,
                             ),
                           ),
                         ],
@@ -143,7 +143,7 @@ class TransactionDetailModal extends StatelessWidget {
                             UiDict.status,
                             style: TextStyle(
                               fontSize: 12,
-                              color: AppColors.textSecondary,
+                              color: colorScheme.onSurfaceVariant,
                             ),
                           ),
                           const SizedBox(height: 4),
@@ -179,6 +179,7 @@ class TransactionDetailModal extends StatelessWidget {
                       transaction.type == TransactionType.income &&
                       asset != null) ...[
                     _buildWalletRow(
+                      context,
                       label: UiDict.sourceFunds,
                       value: asset.name,
                       icon: asset.typeDict.icon(isRpg),
@@ -187,6 +188,7 @@ class TransactionDetailModal extends StatelessWidget {
                   ],
 
                   _buildWalletRow(
+                    context,
                     label: transaction.type == TransactionType.income
                         ? UiDict.saveTo
                         : transaction.type == TransactionType.transfer
@@ -200,6 +202,7 @@ class TransactionDetailModal extends StatelessWidget {
                       walletTarget != null) ...[
                     const SizedBox(height: 12),
                     _buildWalletRow(
+                      context,
                       label: UiDict.destinationWallet,
                       value: walletTarget.name,
                       icon: walletTarget.icon,
@@ -218,14 +221,14 @@ class TransactionDetailModal extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.bold,
-                  color: AppColors.textPrimary,
+                  color: colorScheme.onSurface,
                 ),
               ),
             ),
             const SizedBox(height: 12),
 
             ...transaction.detailTransaction.map(
-              (detail) => _buildDetailItem(detail),
+              (detail) => _buildDetailItem(context, detail),
             ),
 
             const SizedBox(height: 24),
@@ -235,39 +238,44 @@ class TransactionDetailModal extends StatelessWidget {
     );
   }
 
-  Widget _buildWalletRow({
+  Widget _buildWalletRow(
+    BuildContext context, {
     required String label,
     required String value,
     required FaIconData icon,
   }) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Row(
           children: [
-            FaIcon(icon, size: 14, color: AppColors.textSecondary),
+            FaIcon(icon, size: 14, color: colorScheme.onSurfaceVariant),
             const SizedBox(width: 8),
             Text(
               label,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 12,
-                color: AppColors.textSecondary,
+                color: colorScheme.onSurfaceVariant,
               ),
             ),
           ],
         ),
         Text(
           value,
-          style: const TextStyle(
+          style: TextStyle(
             fontWeight: FontWeight.bold,
-            color: AppColors.textPrimary,
+            color: colorScheme.onSurface,
           ),
         ),
       ],
     );
   }
 
-  Widget _buildDetailItem(TransactionDetailModel detail) {
+  Widget _buildDetailItem(BuildContext context, TransactionDetailModel detail) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Padding(
       padding: const EdgeInsets.only(bottom: 12.0),
       child: Row(
@@ -281,7 +289,7 @@ class TransactionDetailModal extends StatelessWidget {
                     detail.category,
                   ).icon(isRpg),
                   size: 14,
-                  color: AppColors.textSecondary,
+                  color: colorScheme.onSurfaceVariant,
                 ),
                 const SizedBox(width: 12),
                 Expanded(
@@ -289,8 +297,8 @@ class TransactionDetailModal extends StatelessWidget {
                     detail.title,
                     maxLines: 3,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      color: AppColors.textSecondary,
+                    style: TextStyle(
+                      color: colorScheme.onSurfaceVariant,
                       fontSize: 14,
                     ),
                   ),

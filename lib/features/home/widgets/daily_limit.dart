@@ -21,6 +21,8 @@ class DailyLimit extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
     final bool isExceeded = spent > limit;
 
     final Decimal remaining = isExceeded ? Decimal.zero : limit - spent;
@@ -42,7 +44,7 @@ class DailyLimit extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: AppColors.surfaceVariant,
+        color: colorScheme.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(16),
 
         border: isExceeded
@@ -60,7 +62,7 @@ class DailyLimit extends StatelessWidget {
                     ? ScreenDict.homeLimitOver.get(isRpg)
                     : ScreenDict.homeRemainingToday.get(isRpg),
                 style: TextStyle(
-                  color: isExceeded ? AppColors.error : AppColors.textPrimary,
+                  color: isExceeded ? AppColors.error : colorScheme.onSurface,
                   fontWeight: isExceeded ? FontWeight.bold : FontWeight.normal,
                 ),
               ),
@@ -81,7 +83,7 @@ class DailyLimit extends StatelessWidget {
               value: percentage,
               backgroundColor: isExceeded
                   ? AppColors.error.withOpacity(0.2)
-                  : AppColors.background,
+                  : theme.scaffoldBackgroundColor,
               color: barColor,
               minHeight: 8,
             ),
@@ -100,9 +102,9 @@ class DailyLimit extends StatelessWidget {
                         NumberUtils.toIdr(spent),
                         NumberUtils.toIdr(limit),
                       ),
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 12,
-                        color: AppColors.textSecondary,
+                        color: colorScheme.onSurfaceVariant,
                       ),
                     ),
                     if (isExceeded) ...[
@@ -125,11 +127,11 @@ class DailyLimit extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
-                      const Text(
+                      Text(
                         ScreenDict.homePenalty,
                         style: TextStyle(
                           fontSize: 11,
-                          color: AppColors.textSecondary,
+                          color: colorScheme.onSurfaceVariant,
                         ),
                       ),
                       const SizedBox(height: 4),

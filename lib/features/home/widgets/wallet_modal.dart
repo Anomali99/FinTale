@@ -5,7 +5,6 @@ import 'package:provider/provider.dart';
 import '../../../controllers/settings_controller.dart';
 import '../../../core/constants/screen_dict.dart';
 import '../../../core/constants/ui_dict.dart';
-import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/enum_types.dart';
 import '../../../core/utils/number_utils.dart';
 import '../../../models/wallet_model.dart';
@@ -64,6 +63,7 @@ class _WalletModalState extends State<WalletModal> {
   Widget build(BuildContext context) {
     final bottomInset = MediaQuery.of(context).viewInsets.bottom;
     final isRpg = context.read<SettingsController>().isRpgMode;
+    final colorScheme = Theme.of(context).colorScheme;
     int? decimalDigits = widget.wallet?.type != WalletType.platform ? null : 3;
 
     return Container(
@@ -73,8 +73,8 @@ class _WalletModalState extends State<WalletModal> {
         top: 24,
         bottom: 24 + bottomInset,
       ),
-      decoration: const BoxDecoration(
-        color: AppColors.surface,
+      decoration: BoxDecoration(
+        color: colorScheme.surface,
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       child: Form(
@@ -141,8 +141,8 @@ class _WalletModalState extends State<WalletModal> {
             ] else ...[
               const SizedBox(height: 24),
               CustomTable(
-                color: AppColors.surfaceVariant,
-                borderColor: AppColors.primary,
+                color: colorScheme.surfaceContainerHighest,
+                borderColor: colorScheme.primary,
                 children: [
                   CustomRowTable(
                     label: ScreenDict.homeTotalBalance.get(false),
@@ -150,7 +150,7 @@ class _WalletModalState extends State<WalletModal> {
                       widget.wallet?.amount ?? BigInt.zero,
                       decimalDigits: decimalDigits,
                     ),
-                    valueColor: AppColors.textPrimary,
+                    valueColor: colorScheme.onSurface,
                     boldValue: true,
                   ),
                   const Padding(
@@ -181,7 +181,7 @@ class _WalletModalState extends State<WalletModal> {
                 title: widget.wallet == null
                     ? UiDict.addNew
                     : UiDict.saveChanges,
-                color: AppColors.primary,
+                color: colorScheme.primary,
                 onTap: _submit,
               ),
             ],

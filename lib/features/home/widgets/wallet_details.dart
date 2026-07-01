@@ -5,7 +5,6 @@ import 'package:provider/provider.dart';
 
 import '../../../controllers/wallet_controller.dart';
 import '../../../core/constants/screen_dict.dart';
-import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/enum_types.dart';
 import '../../../core/utils/number_utils.dart';
 import '../../../models/wallet_model.dart';
@@ -25,6 +24,7 @@ class WalletDetails extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final walletController = context.read<WalletController>();
+    final colorScheme = Theme.of(context).colorScheme;
     final cash = walletController.cash;
     final bank = walletController.bank;
     final eWallet = walletController.eWallet;
@@ -103,13 +103,13 @@ class WalletDetails extends StatelessWidget {
                 width: double.infinity,
                 child: OutlinedButton.icon(
                   onPressed: () => {Navigator.pop(context), onTap(null)},
-                  icon: const Icon(Icons.add, color: AppColors.primary),
+                  icon: Icon(Icons.add, color: colorScheme.primary),
                   label: Text(
                     ScreenDict.addWallet.get(isRpg),
-                    style: const TextStyle(color: AppColors.primary),
+                    style: TextStyle(color: colorScheme.primary),
                   ),
                   style: OutlinedButton.styleFrom(
-                    side: const BorderSide(color: AppColors.primary),
+                    side: BorderSide(color: colorScheme.primary),
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
@@ -131,13 +131,15 @@ class WalletDetails extends StatelessWidget {
     required Decimal totalAmount,
     required List<WalletModel> wallet,
   }) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Theme(
       data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
       child: ExpansionTile(
         tilePadding: EdgeInsets.zero,
         leading: CircleAvatar(
-          backgroundColor: AppColors.surfaceVariant,
-          child: FaIcon(icon, size: 16, color: AppColors.textPrimary),
+          backgroundColor: colorScheme.surfaceContainerHighest,
+          child: FaIcon(icon, size: 16, color: colorScheme.onSurface),
         ),
         title: Text(title, style: const TextStyle(fontSize: 16)),
         trailing: Text(
@@ -157,13 +159,15 @@ class WalletDetails extends StatelessWidget {
     required WalletModel wallet,
     required bool isRpg,
   }) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return GestureDetector(
       onTap: () => {Navigator.pop(context), onTap(wallet, lock: true)},
       child: Row(
         children: [
           CircleAvatar(
-            backgroundColor: AppColors.surfaceVariant,
-            child: FaIcon(wallet.icon, size: 16, color: AppColors.textPrimary),
+            backgroundColor: colorScheme.surfaceContainerHighest,
+            child: FaIcon(wallet.icon, size: 16, color: colorScheme.onSurface),
           ),
           const SizedBox(width: 16),
           Expanded(
@@ -185,6 +189,8 @@ class WalletDetails extends StatelessWidget {
     required BuildContext context,
     required WalletModel wallet,
   }) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return GestureDetector(
       onTap: () => {Navigator.pop(context), onTap(wallet)},
       child: Padding(
@@ -197,13 +203,16 @@ class WalletDetails extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(wallet.name, style: TextStyle(color: AppColors.textSecondary)),
+            Text(
+              wallet.name,
+              style: TextStyle(color: colorScheme.onSurfaceVariant),
+            ),
             Text(
               NumberUtils.toIdr(
                 wallet.amount,
                 decimalDigits: wallet.type == WalletType.platform ? 3 : null,
               ),
-              style: TextStyle(color: AppColors.textSecondary),
+              style: TextStyle(color: colorScheme.onSurfaceVariant),
             ),
           ],
         ),

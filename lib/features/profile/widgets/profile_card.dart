@@ -21,6 +21,9 @@ class ProfileCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     final String name = user?.name ?? 'Adventurer';
     final String? email = user?.email;
     final TitleType title = user?.title ?? TitleType.noviceSaver;
@@ -32,9 +35,9 @@ class ProfileCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: AppColors.surfaceVariant,
+        color: colorScheme.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.primary.withOpacity(0.3)),
+        border: Border.all(color: colorScheme.primary.withOpacity(0.3)),
       ),
       child: Column(
         children: [
@@ -42,10 +45,10 @@ class ProfileCard extends StatelessWidget {
             children: [
               CircleAvatar(
                 radius: 30,
-                backgroundColor: AppColors.primary.withOpacity(0.2),
-                child: const FaIcon(
+                backgroundColor: colorScheme.primary.withOpacity(0.2),
+                child: FaIcon(
                   FontAwesomeIcons.userAstronaut,
-                  color: AppColors.primary,
+                  color: colorScheme.primary,
                   size: 28,
                 ),
               ),
@@ -83,7 +86,7 @@ class ProfileCard extends StatelessWidget {
                             child: Icon(
                               Icons.edit,
                               size: 16,
-                              color: AppColors.textSecondary,
+                              color: colorScheme.onSurfaceVariant,
                             ),
                           ),
                         ),
@@ -91,7 +94,7 @@ class ProfileCard extends StatelessWidget {
                     ),
                     Text(
                       'Lv. $level - ${GamificationDict.getTitleByEnum(title).get(isRpg)}',
-                      style: const TextStyle(color: AppColors.textSecondary),
+                      style: TextStyle(color: colorScheme.onSurfaceVariant),
                     ),
                     if (user?.email != null) ...[
                       const SizedBox(height: 2),
@@ -99,7 +102,7 @@ class ProfileCard extends StatelessWidget {
                         email ?? '',
                         style: TextStyle(
                           fontSize: 12,
-                          color: AppColors.textSecondary.withOpacity(0.8),
+                          color: colorScheme.onSurfaceVariant.withOpacity(0.8),
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -125,9 +128,9 @@ class ProfileCard extends StatelessWidget {
               ),
               Text(
                 '$xp / $targetXp',
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 12,
-                  color: AppColors.textSecondary,
+                  color: colorScheme.onSurfaceVariant,
                 ),
               ),
             ],
@@ -137,7 +140,7 @@ class ProfileCard extends StatelessWidget {
             borderRadius: BorderRadius.circular(4),
             child: LinearProgressIndicator(
               value: xpPercentage,
-              backgroundColor: AppColors.background,
+              backgroundColor: theme.scaffoldBackgroundColor,
               color: AppColors.warning,
               minHeight: 8,
             ),

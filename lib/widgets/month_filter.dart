@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../core/theme/app_colors.dart';
-
 class MonthFilter extends StatelessWidget {
   final String selected;
   final VoidCallback? onPrev;
@@ -18,6 +16,8 @@ class MonthFilter extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -26,8 +26,8 @@ class MonthFilter extends StatelessWidget {
             icon: Icon(
               Icons.chevron_left,
               color: onPrev == null
-                  ? AppColors.textSecondary.withOpacity(0.3)
-                  : AppColors.textSecondary,
+                  ? colorScheme.onSurfaceVariant.withOpacity(0.3)
+                  : colorScheme.onSurfaceVariant,
             ),
             onPressed: onPrev,
           )
@@ -35,10 +35,10 @@ class MonthFilter extends StatelessWidget {
           SizedBox(),
         Text(
           selected,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.bold,
-            color: AppColors.textPrimary,
+            color: colorScheme.onSurface,
           ),
         ),
         if (enabled)
@@ -46,8 +46,8 @@ class MonthFilter extends StatelessWidget {
             icon: Icon(
               Icons.chevron_right,
               color: onNext == null
-                  ? AppColors.textSecondary.withOpacity(0.3)
-                  : AppColors.textSecondary,
+                  ? colorScheme.onSurfaceVariant.withOpacity(0.3)
+                  : colorScheme.onSurfaceVariant,
             ),
             onPressed: onNext,
           )

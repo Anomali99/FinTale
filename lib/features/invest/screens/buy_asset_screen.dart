@@ -6,7 +6,6 @@ import '../../../controllers/settings_controller.dart';
 import '../../../core/constants/category_dict.dart';
 import '../../../core/constants/screen_dict.dart';
 import '../../../core/constants/ui_dict.dart';
-import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/enum_types.dart';
 import '../../../core/utils/number_utils.dart';
 import '../../../models/assets_model.dart';
@@ -258,11 +257,12 @@ class _BuyAssetScreenState extends State<BuyAssetScreen>
   @override
   Widget build(BuildContext context) {
     final isRpg = context.read<SettingsController>().isRpgMode;
+    final colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
-      backgroundColor: AppColors.surface,
+      backgroundColor: colorScheme.surface,
       appBar: AppBar(
-        backgroundColor: AppColors.surface,
+        backgroundColor: colorScheme.surface,
         elevation: 0,
         title: Text(
           _isHideTab
@@ -292,7 +292,7 @@ class _BuyAssetScreenState extends State<BuyAssetScreen>
                   Container(
                     height: 45,
                     decoration: BoxDecoration(
-                      color: AppColors.surfaceVariant,
+                      color: colorScheme.surfaceContainerHighest,
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: TabBar(
@@ -300,19 +300,19 @@ class _BuyAssetScreenState extends State<BuyAssetScreen>
                       indicatorSize: TabBarIndicatorSize.tab,
                       dividerColor: Colors.transparent,
                       indicator: BoxDecoration(
-                        color: AppColors.primary.withOpacity(0.2),
+                        color: colorScheme.primary.withOpacity(0.2),
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
-                          color: AppColors.primary.withOpacity(0.5),
+                          color: colorScheme.primary.withOpacity(0.5),
                         ),
                       ),
-                      labelColor: AppColors.primary,
+                      labelColor: colorScheme.primary,
                       labelStyle: const TextStyle(
                         fontFamily: 'Poppins',
                         fontWeight: FontWeight.bold,
                         fontSize: 13,
                       ),
-                      unselectedLabelColor: AppColors.textSecondary,
+                      unselectedLabelColor: colorScheme.onSurfaceVariant,
                       tabs: [
                         Tab(text: ScreenDict.investNewAsset.get(isRpg)),
                         Tab(text: ScreenDict.investAddModal.get(isRpg)),
@@ -515,7 +515,7 @@ class _BuyAssetScreenState extends State<BuyAssetScreen>
                       ScreenDict.getDevidenCheckDesc(isRpg: isRpg),
                       style: TextStyle(
                         fontSize: 12,
-                        color: AppColors.textSecondary,
+                        color: colorScheme.onSurfaceVariant,
                       ),
                     ),
                     value: _isDevidenActive,
@@ -531,7 +531,7 @@ class _BuyAssetScreenState extends State<BuyAssetScreen>
                       ScreenDict.getEmergencyCheckDesc(isRpg: isRpg),
                       style: TextStyle(
                         fontSize: 12,
-                        color: AppColors.textSecondary,
+                        color: colorScheme.onSurfaceVariant,
                       ),
                     ),
                     value: _isEmergencyActive,
@@ -552,7 +552,7 @@ class _BuyAssetScreenState extends State<BuyAssetScreen>
                     ScreenDict.getFeeCheckDesc(isRpg: isRpg),
                     style: TextStyle(
                       fontSize: 12,
-                      color: AppColors.textSecondary,
+                      color: colorScheme.onSurfaceVariant,
                     ),
                   ),
                   value: _isFeeActive,
@@ -601,7 +601,7 @@ class _BuyAssetScreenState extends State<BuyAssetScreen>
                       ScreenDict.getReservedCheckDesc(isRpg: isRpg),
                       style: TextStyle(
                         fontSize: 12,
-                        color: AppColors.textSecondary,
+                        color: colorScheme.onSurfaceVariant,
                       ),
                     ),
                     value: _isReservedActive,
@@ -622,7 +622,7 @@ class _BuyAssetScreenState extends State<BuyAssetScreen>
                     ScreenDict.getRoundedCheckDesc(isRpg: isRpg),
                     style: TextStyle(
                       fontSize: 12,
-                      color: AppColors.textSecondary,
+                      color: colorScheme.onSurfaceVariant,
                     ),
                   ),
                   value: _isRoundedActive,
@@ -642,6 +642,8 @@ class _BuyAssetScreenState extends State<BuyAssetScreen>
   }
 
   Widget _buildBottomBar(bool isRpg) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Container(
       padding: EdgeInsets.only(
         left: 24,
@@ -650,7 +652,7 @@ class _BuyAssetScreenState extends State<BuyAssetScreen>
         bottom: 24 + MediaQuery.of(context).padding.bottom,
       ),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: colorScheme.surface,
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.2),
@@ -687,7 +689,10 @@ class _BuyAssetScreenState extends State<BuyAssetScreen>
             children: [
               Text(
                 ScreenDict.expenseAmount.get(isRpg),
-                style: TextStyle(fontSize: 14, color: AppColors.textSecondary),
+                style: TextStyle(
+                  fontSize: 14,
+                  color: colorScheme.onSurfaceVariant,
+                ),
               ),
               const SizedBox(width: 16),
               Flexible(
@@ -696,11 +701,11 @@ class _BuyAssetScreenState extends State<BuyAssetScreen>
                   alignment: Alignment.centerRight,
                   child: Text(
                     NumberUtils.toIdr(_amount, showFull: true),
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontFamily: 'Poppins',
                       fontWeight: FontWeight.bold,
                       fontSize: 22,
-                      color: AppColors.primary,
+                      color: colorScheme.primary,
                     ),
                   ),
                 ),
@@ -712,7 +717,7 @@ class _BuyAssetScreenState extends State<BuyAssetScreen>
             title: _isNewAssetTab
                 ? ScreenDict.investBuyAsset.get(isRpg)
                 : ScreenDict.investAddModal.get(isRpg),
-            color: AppColors.primary,
+            color: colorScheme.primary,
             onTap: _submit,
           ),
         ],

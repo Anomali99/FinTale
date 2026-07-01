@@ -7,7 +7,6 @@ import '../../../controllers/settings_controller.dart';
 import '../../../controllers/wallet_controller.dart';
 import '../../../core/constants/screen_dict.dart';
 import '../../../core/constants/ui_dict.dart';
-import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/enum_types.dart';
 import '../../../core/utils/number_utils.dart';
 import '../../../models/transaction_detail_model.dart';
@@ -121,6 +120,8 @@ class _PayBillModalState extends State<PayBillModal> {
   @override
   Widget build(BuildContext context) {
     final bottomInset = MediaQuery.of(context).viewInsets.bottom;
+    final colorScheme = Theme.of(context).colorScheme;
+
     final isRpg = context.read<SettingsController>().isRpgMode;
     final wallets = context.read<WalletController>().wallets;
 
@@ -131,8 +132,8 @@ class _PayBillModalState extends State<PayBillModal> {
         top: 16,
         bottom: 24 + bottomInset,
       ),
-      decoration: const BoxDecoration(
-        color: AppColors.surface,
+      decoration: BoxDecoration(
+        color: colorScheme.surface,
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       child: Form(
@@ -213,18 +214,18 @@ class _PayBillModalState extends State<PayBillModal> {
 
               SwitchListTile(
                 contentPadding: EdgeInsets.zero,
-                title: const Text(
+                title: Text(
                   UiDict.feeCheck,
                   style: TextStyle(
                     fontSize: 12,
-                    color: AppColors.textSecondary,
+                    color: colorScheme.onSurfaceVariant,
                   ),
                 ),
                 subtitle: Text(
                   ScreenDict.getFeeCheckDesc(isRpg: isRpg),
                   style: TextStyle(
                     fontSize: 12,
-                    color: AppColors.textSecondary,
+                    color: colorScheme.onSurfaceVariant,
                   ),
                 ),
                 value: _isFeeActive,
@@ -268,7 +269,7 @@ class _PayBillModalState extends State<PayBillModal> {
                   ScreenDict.getReservedCheck(isRpg: isRpg),
                   style: TextStyle(
                     fontSize: 12,
-                    color: AppColors.textSecondary,
+                    color: colorScheme.onSurfaceVariant,
                   ),
                 ),
                 subtitle: Text(
@@ -284,7 +285,7 @@ class _PayBillModalState extends State<PayBillModal> {
               ),
               Container(
                 decoration: BoxDecoration(
-                  color: AppColors.surface,
+                  color: colorScheme.surface,
                   boxShadow: [
                     BoxShadow(
                       color: Colors.black.withOpacity(0.2),
@@ -321,7 +322,7 @@ class _PayBillModalState extends State<PayBillModal> {
                           ScreenDict.expenseAmount.get(isRpg),
                           style: TextStyle(
                             fontSize: 14,
-                            color: AppColors.textSecondary,
+                            color: colorScheme.onSurfaceVariant,
                           ),
                         ),
                         const SizedBox(width: 16),
@@ -331,11 +332,11 @@ class _PayBillModalState extends State<PayBillModal> {
                             alignment: Alignment.centerRight,
                             child: Text(
                               NumberUtils.toIdr(_amount),
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontFamily: 'Poppins',
                                 fontWeight: FontWeight.bold,
                                 fontSize: 22,
-                                color: AppColors.primary,
+                                color: colorScheme.primary,
                               ),
                             ),
                           ),
@@ -345,7 +346,7 @@ class _PayBillModalState extends State<PayBillModal> {
                     const SizedBox(height: 16),
                     CustomButton(
                       title: ScreenDict.getPayBill(isRpg: isRpg),
-                      color: AppColors.primary,
+                      color: colorScheme.primary,
                       onTap: _submit,
                     ),
                   ],

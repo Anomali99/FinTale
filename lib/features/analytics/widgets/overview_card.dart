@@ -21,11 +21,14 @@ class OverviewCard extends StatelessWidget {
 
   Decimal get unallocated => totalIncome - totalExpense - totalInvest;
 
-  Widget _buildLegendItem({
+  Widget _buildLegendItem(
+    BuildContext context, {
     required Color color,
     required String label,
     required Decimal amount,
   }) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Column(
       children: [
         Row(
@@ -38,9 +41,9 @@ class OverviewCard extends StatelessWidget {
             const SizedBox(width: 4),
             Text(
               label,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 10,
-                color: AppColors.textSecondary,
+                color: colorScheme.onSurfaceVariant,
               ),
             ),
           ],
@@ -56,10 +59,12 @@ class OverviewCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.surfaceVariant,
+        color: colorScheme.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
@@ -70,8 +75,8 @@ class OverviewCard extends StatelessWidget {
             children: [
               Text(
                 UiDict.income.get(isRpg),
-                style: const TextStyle(
-                  color: AppColors.textSecondary,
+                style: TextStyle(
+                  color: colorScheme.onSurfaceVariant,
                   fontSize: 12,
                 ),
               ),
@@ -110,7 +115,7 @@ class OverviewCard extends StatelessWidget {
                                       100)
                                 : 0.0)
                             .toInt(),
-                    child: Container(color: AppColors.primary),
+                    child: Container(color: colorScheme.primary),
                   ),
                   Expanded(
                     flex:
@@ -132,16 +137,19 @@ class OverviewCard extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               _buildLegendItem(
+                context,
                 color: AppColors.error,
                 label: UiDict.expense.get(isRpg),
                 amount: totalExpense,
               ),
               _buildLegendItem(
-                color: AppColors.primary,
+                context,
+                color: colorScheme.primary,
                 label: UiDict.menuInvest.get(isRpg),
                 amount: totalInvest,
               ),
               _buildLegendItem(
+                context,
                 color: Colors.white24,
                 label: UiDict.unallocated.get(isRpg),
                 amount: unallocated,

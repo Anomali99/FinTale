@@ -89,6 +89,7 @@ class _DividendModalState extends State<DividendModal> {
   @override
   Widget build(BuildContext context) {
     final bottomInset = MediaQuery.of(context).viewInsets.bottom;
+    final colorScheme = Theme.of(context).colorScheme;
 
     return Container(
       padding: EdgeInsets.only(
@@ -97,8 +98,8 @@ class _DividendModalState extends State<DividendModal> {
         top: 16,
         bottom: 24 + bottomInset,
       ),
-      decoration: const BoxDecoration(
-        color: AppColors.surface,
+      decoration: BoxDecoration(
+        color: colorScheme.surface,
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       child: Form(
@@ -133,7 +134,7 @@ class _DividendModalState extends State<DividendModal> {
                   unit: NumberUtils.formatNumber(widget.asset.unit),
                   unitName: widget.asset.unitName,
                 ),
-                style: const TextStyle(color: AppColors.textSecondary),
+                style: TextStyle(color: colorScheme.onSurfaceVariant),
               ),
               const SizedBox(height: 24),
 

@@ -4,7 +4,6 @@ import 'package:provider/provider.dart';
 
 import '../../../controllers/settings_controller.dart';
 import '../../../core/constants/ui_dict.dart';
-import '../../../core/theme/app_colors.dart';
 import '../../../models/assets_model.dart';
 import 'invest_card.dart';
 
@@ -29,12 +28,14 @@ class AssetTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isRpg = context.read<SettingsController>().isRpgMode;
+    final colorScheme = Theme.of(context).colorScheme;
+
     if (assets.isEmpty) {
       return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            FaIcon(icon, size: 48, color: AppColors.surfaceVariant),
+            FaIcon(icon, size: 48, color: colorScheme.surfaceContainerHighest),
             const SizedBox(height: 16),
             Text(
               UiDict.getEmptyDesc(
@@ -42,7 +43,7 @@ class AssetTab extends StatelessWidget {
                 isRpg: isRpg,
               ),
               textAlign: TextAlign.center,
-              style: const TextStyle(color: AppColors.textSecondary),
+              style: TextStyle(color: colorScheme.onSurfaceVariant),
             ),
           ],
         ),

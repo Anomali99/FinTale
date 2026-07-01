@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 
 import '../../../core/constants/ui_dict.dart';
 import '../../../core/models/analytic_model.dart';
-import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/number_utils.dart';
 
 class DonutChart extends StatelessWidget {
@@ -60,6 +59,8 @@ class DonutChart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Stack(
       children: [
         PieChart(
@@ -92,9 +93,9 @@ class DonutChart extends StatelessWidget {
                 showExpense
                     ? UiDict.getTotal(UiDict.income.get(isRpg))
                     : UiDict.getTotal(UiDict.menuInvest.get(isRpg)),
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 10,
-                  color: AppColors.textSecondary,
+                  color: colorScheme.onSurfaceVariant,
                 ),
               ),
               const SizedBox(height: 4),

@@ -31,6 +31,8 @@ class InvestCard extends StatelessWidget {
 
   void _showAssetOptions(BuildContext context) {
     final isRpg = context.read<SettingsController>().isRpgMode;
+    final colorScheme = Theme.of(context).colorScheme;
+
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
@@ -41,7 +43,7 @@ class InvestCard extends StatelessWidget {
           children: [
             BottomSheetChild(
               title: ScreenDict.investAddModal.get(isRpg),
-              color: AppColors.primary,
+              color: colorScheme.primary,
               icon: FontAwesomeIcons.plus,
               onTap: () {
                 Navigator.pop(context);
@@ -85,6 +87,8 @@ class InvestCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isRpg = context.read<SettingsController>().isRpgMode;
+    final colorScheme = Theme.of(context).colorScheme;
+
     return InkWell(
       onTap: () => _showAssetOptions(context),
       borderRadius: BorderRadius.circular(16),
@@ -92,9 +96,9 @@ class InvestCard extends StatelessWidget {
         margin: const EdgeInsets.only(bottom: 16),
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: AppColors.surfaceVariant,
+          color: colorScheme.surfaceContainerHighest,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: AppColors.primary.withOpacity(0.1)),
+          border: Border.all(color: colorScheme.primary.withOpacity(0.1)),
         ),
         child: Column(
           children: [
@@ -103,8 +107,8 @@ class InvestCard extends StatelessWidget {
               children: [
                 CircleAvatar(
                   radius: 18,
-                  backgroundColor: AppColors.primary.withOpacity(0.2),
-                  child: FaIcon(icon, size: 14, color: AppColors.primary),
+                  backgroundColor: colorScheme.primary.withOpacity(0.2),
+                  child: FaIcon(icon, size: 14, color: colorScheme.primary),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
@@ -192,9 +196,9 @@ class InvestCard extends StatelessWidget {
                       ),
                       Text(
                         '${asset.unit} ${asset.unitName} • ${asset.category.value}',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 11,
-                          color: AppColors.textSecondary,
+                          color: colorScheme.onSurfaceVariant,
                         ),
                       ),
                     ],
@@ -213,9 +217,9 @@ class InvestCard extends StatelessWidget {
                   children: [
                     Text(
                       ScreenDict.investModal.get(isRpg),
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 12,
-                        color: AppColors.textSecondary,
+                        color: colorScheme.onSurfaceVariant,
                       ),
                     ),
                     Text(
@@ -229,9 +233,9 @@ class InvestCard extends StatelessWidget {
                   children: [
                     Text(
                       ScreenDict.investValue.get(isRpg),
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 12,
-                        color: AppColors.textSecondary,
+                        color: colorScheme.onSurfaceVariant,
                       ),
                     ),
                     Text(

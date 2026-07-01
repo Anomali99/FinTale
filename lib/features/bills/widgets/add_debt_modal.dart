@@ -5,7 +5,6 @@ import 'package:provider/provider.dart';
 import '../../../controllers/settings_controller.dart';
 import '../../../core/constants/screen_dict.dart';
 import '../../../core/constants/ui_dict.dart';
-import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/enum_types.dart';
 import '../../../core/utils/number_utils.dart';
 import '../../../models/bill_model.dart';
@@ -106,6 +105,7 @@ class _AddDebtModalState extends State<AddDebtModal> {
   Widget build(BuildContext context) {
     final bottomInset = MediaQuery.of(context).viewInsets.bottom;
     final isRpg = context.read<SettingsController>().isRpgMode;
+    final colorScheme = Theme.of(context).colorScheme;
 
     return Container(
       padding: EdgeInsets.only(
@@ -114,8 +114,8 @@ class _AddDebtModalState extends State<AddDebtModal> {
         top: 16,
         bottom: 24 + bottomInset,
       ),
-      decoration: const BoxDecoration(
-        color: AppColors.surface,
+      decoration: BoxDecoration(
+        color: colorScheme.surface,
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       child: Form(
@@ -220,7 +220,7 @@ class _AddDebtModalState extends State<AddDebtModal> {
                   ScreenDict.getDebtBillDesc(isRpg: isRpg),
                   style: TextStyle(
                     fontSize: 12,
-                    color: AppColors.textSecondary,
+                    color: colorScheme.onSurfaceVariant,
                   ),
                 ),
                 value: _createBill,
@@ -293,7 +293,7 @@ class _AddDebtModalState extends State<AddDebtModal> {
                 title: widget.initialDebt == null
                     ? UiDict.addNew
                     : UiDict.saveChanges,
-                color: AppColors.primary,
+                color: colorScheme.primary,
                 onTap: _submit,
               ),
             ],

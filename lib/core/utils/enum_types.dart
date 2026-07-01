@@ -212,32 +212,38 @@ enum StatusType {
 
   CategoryModel get categoryDict => CategoryDict.getStatusByEnum(this);
 
-  Color get cardColor {
+  Color getCardColor(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     switch (this) {
       case StatusType.paid:
-        return AppColors.surfaceVariant.withOpacity(0.5);
+        return colorScheme.surfaceContainerHighest.withOpacity(0.5);
       case StatusType.pending:
       case StatusType.overdue:
-        return AppColors.surfaceVariant;
+        return colorScheme.surfaceContainerHighest;
     }
   }
 
-  Color get textColor {
+  Color getTextColor(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     switch (this) {
       case StatusType.paid:
-        return AppColors.textSecondary;
+        return Theme.of(context).textTheme.bodySmall?.color ?? Colors.grey;
       case StatusType.pending:
       case StatusType.overdue:
-        return AppColors.textPrimary;
+        return colorScheme.onSurface;
     }
   }
 
-  Color get accentColor {
+  Color getAccentColor(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     switch (this) {
       case StatusType.paid:
         return AppColors.success;
       case StatusType.pending:
-        return AppColors.primary;
+        return colorScheme.primary;
       case StatusType.overdue:
         return AppColors.error;
     }

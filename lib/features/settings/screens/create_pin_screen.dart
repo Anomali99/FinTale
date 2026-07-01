@@ -4,7 +4,6 @@ import 'package:provider/provider.dart';
 
 import '../../../controllers/settings_controller.dart';
 import '../../../core/constants/ui_dict.dart';
-import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/global_messenger.dart';
 import '../../../core/utils/hash_helper.dart';
 
@@ -157,13 +156,16 @@ class _CreatePinScreenState extends State<CreatePinScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: AppColors.textPrimary),
+          icon: Icon(Icons.arrow_back, color: colorScheme.onSurface),
           onPressed: () => Navigator.pop(context, false),
         ),
       ),
@@ -173,20 +175,20 @@ class _CreatePinScreenState extends State<CreatePinScreen> {
             const SizedBox(height: 24),
             Text(
               _currentTitle,
-              style: const TextStyle(
+              style: TextStyle(
                 fontFamily: 'Poppins',
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
-                color: AppColors.textPrimary,
+                color: colorScheme.onSurface,
               ),
             ),
             const SizedBox(height: 8),
             Text(
               _currentSubtitle,
               textAlign: TextAlign.center,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 14,
-                color: AppColors.textSecondary,
+                color: colorScheme.onSurfaceVariant,
               ),
             ),
             const SizedBox(height: 48),
@@ -202,11 +204,11 @@ class _CreatePinScreenState extends State<CreatePinScreen> {
                   height: 16,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: isFilled ? AppColors.primary : Colors.white10,
+                    color: isFilled ? colorScheme.primary : Colors.white10,
                     border: Border.all(
                       color: isFilled
-                          ? AppColors.primary
-                          : AppColors.textSecondary.withOpacity(0.3),
+                          ? colorScheme.primary
+                          : colorScheme.onSurfaceVariant.withOpacity(0.3),
                       width: 1.5,
                     ),
                   ),
@@ -223,10 +225,10 @@ class _CreatePinScreenState extends State<CreatePinScreen> {
                 onPressed: () {
                   /* TODO: Implement Send OTP*/
                 },
-                child: const Text(
+                child: Text(
                   UiDict.forgotPin,
                   style: TextStyle(
-                    color: AppColors.primary,
+                    color: colorScheme.primary,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -273,6 +275,8 @@ class _CreatePinScreenState extends State<CreatePinScreen> {
   }
 
   Widget _buildNumberButton(String number) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return InkWell(
       onTap: () => _onNumberPressed(number),
       borderRadius: BorderRadius.circular(34),
@@ -281,16 +285,16 @@ class _CreatePinScreenState extends State<CreatePinScreen> {
         height: 68,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          color: AppColors.surfaceVariant.withOpacity(0.5),
+          color: colorScheme.surfaceContainerHighest.withOpacity(0.5),
         ),
         child: Center(
           child: Text(
             number,
-            style: const TextStyle(
+            style: TextStyle(
               fontFamily: 'Poppins',
               fontSize: 24,
               fontWeight: FontWeight.bold,
-              color: AppColors.textPrimary,
+              color: colorScheme.onSurface,
             ),
           ),
         ),
@@ -299,6 +303,8 @@ class _CreatePinScreenState extends State<CreatePinScreen> {
   }
 
   Widget _buildBackButton() {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return InkWell(
       onTap: _onBackPressed,
       borderRadius: BorderRadius.circular(34),
@@ -308,7 +314,7 @@ class _CreatePinScreenState extends State<CreatePinScreen> {
         child: Center(
           child: FaIcon(
             FontAwesomeIcons.deleteLeft,
-            color: AppColors.textPrimary.withOpacity(0.8),
+            color: colorScheme.onSurface.withOpacity(0.8),
             size: 22,
           ),
         ),

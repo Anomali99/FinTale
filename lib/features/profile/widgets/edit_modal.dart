@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../../../core/constants/ui_dict.dart';
-import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/number_utils.dart';
 import '../../../widgets/custom_button.dart';
 
@@ -66,6 +65,7 @@ class _EditModalState extends State<EditModal> {
   @override
   Widget build(BuildContext context) {
     final bottomInset = MediaQuery.of(context).viewInsets.bottom;
+    final colorScheme = Theme.of(context).colorScheme;
 
     return Container(
       padding: EdgeInsets.only(
@@ -74,8 +74,8 @@ class _EditModalState extends State<EditModal> {
         top: 24,
         bottom: 24 + bottomInset,
       ),
-      decoration: const BoxDecoration(
-        color: AppColors.surface,
+      decoration: BoxDecoration(
+        color: colorScheme.surface,
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       child: Form(
@@ -120,7 +120,7 @@ class _EditModalState extends State<EditModal> {
 
               CustomButton(
                 title: UiDict.saveChanges,
-                color: AppColors.primary,
+                color: colorScheme.primary,
                 onTap: _submit,
               ),
             ],

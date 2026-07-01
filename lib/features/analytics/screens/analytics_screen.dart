@@ -23,6 +23,7 @@ class AnalyticsScreen extends StatelessWidget {
     final settingsController = context.watch<SettingsController>();
     final transactionController = context.watch<TransactionController>();
     final analyticsController = context.watch<AnalyticsController>();
+    final colorScheme = Theme.of(context).colorScheme;
 
     final isRpg = settingsController.isRpgMode;
 
@@ -38,7 +39,7 @@ class AnalyticsScreen extends StatelessWidget {
         ? transactionController.detailExpense
         : transactionController.detailInvest;
     final activeTotal = showExpense ? totalExpense : totalInvest;
-    final activeColor = showExpense ? AppColors.error : AppColors.primary;
+    final activeColor = showExpense ? AppColors.error : colorScheme.primary;
 
     return Scaffold(
       appBar: AppBar(
@@ -72,7 +73,7 @@ class AnalyticsScreen extends StatelessWidget {
 
           Container(
             decoration: BoxDecoration(
-              color: AppColors.surfaceVariant,
+              color: colorScheme.surfaceContainerHighest,
               borderRadius: BorderRadius.circular(12),
             ),
             child: Row(
@@ -99,7 +100,7 @@ class AnalyticsScreen extends StatelessWidget {
                         style: TextStyle(
                           color: showExpense
                               ? AppColors.error
-                              : AppColors.textSecondary,
+                              : colorScheme.onSurfaceVariant,
                           fontWeight: FontWeight.bold,
                           fontSize: 12,
                         ),
@@ -114,12 +115,12 @@ class AnalyticsScreen extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(vertical: 12),
                       decoration: BoxDecoration(
                         color: !showExpense
-                            ? AppColors.primary.withOpacity(0.2)
+                            ? colorScheme.primary.withOpacity(0.2)
                             : Colors.transparent,
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
                           color: !showExpense
-                              ? AppColors.primary.withOpacity(0.5)
+                              ? colorScheme.primary.withOpacity(0.5)
                               : Colors.transparent,
                         ),
                       ),
@@ -128,8 +129,8 @@ class AnalyticsScreen extends StatelessWidget {
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           color: !showExpense
-                              ? AppColors.primary
-                              : AppColors.textSecondary,
+                              ? colorScheme.primary
+                              : colorScheme.onSurfaceVariant,
                           fontWeight: FontWeight.bold,
                           fontSize: 12,
                         ),
@@ -178,7 +179,7 @@ class AnalyticsScreen extends StatelessWidget {
                     FaIcon(
                       UiDict.menuAnalytics.icon(isRpg),
                       size: 48,
-                      color: AppColors.surfaceVariant,
+                      color: colorScheme.surfaceContainerHighest,
                     ),
                     const SizedBox(height: 16),
                     Text(
@@ -187,7 +188,7 @@ class AnalyticsScreen extends StatelessWidget {
                         isRpg: isRpg,
                       ),
                       textAlign: TextAlign.center,
-                      style: const TextStyle(color: AppColors.textSecondary),
+                      style: TextStyle(color: colorScheme.onSurfaceVariant),
                     ),
                   ],
                 ),

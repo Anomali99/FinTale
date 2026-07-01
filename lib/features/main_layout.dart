@@ -161,6 +161,7 @@ class MainLayout extends StatelessWidget {
   Widget build(BuildContext context) {
     final settingsController = context.watch<SettingsController>();
     final layoutController = context.watch<LayoutController>();
+    final colorScheme = Theme.of(context).colorScheme;
 
     final isRpg = settingsController.isRpgMode;
 
@@ -178,7 +179,7 @@ class MainLayout extends StatelessWidget {
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
 
       bottomNavigationBar: BottomAppBar(
-        color: AppColors.surface,
+        color: colorScheme.surface,
         shape: const CircularNotchedRectangle(),
         notchMargin: 8.0,
         child: SizedBox(
@@ -229,6 +230,7 @@ class MainLayout extends StatelessWidget {
     required int index,
     required LayoutController layoutController,
   }) {
+    final colorScheme = Theme.of(context).colorScheme;
     final isSelected = layoutController.selectedIndex == index;
 
     return InkWell(
@@ -245,14 +247,18 @@ class MainLayout extends StatelessWidget {
             FaIcon(
               icon,
               size: 20,
-              color: isSelected ? AppColors.primary : AppColors.textSecondary,
+              color: isSelected
+                  ? colorScheme.primary
+                  : colorScheme.onSurfaceVariant,
             ),
             const SizedBox(height: 4),
             Text(
               label,
               style: TextStyle(
                 fontSize: 10,
-                color: isSelected ? AppColors.primary : AppColors.textSecondary,
+                color: isSelected
+                    ? colorScheme.primary
+                    : colorScheme.onSurfaceVariant,
                 fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
               ),
               textAlign: TextAlign.center,

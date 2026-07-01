@@ -5,7 +5,6 @@ import 'package:provider/provider.dart';
 import '../../../controllers/settings_controller.dart';
 import '../../../core/constants/screen_dict.dart';
 import '../../../core/constants/ui_dict.dart';
-import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/number_utils.dart';
 import '../../../models/assets_model.dart';
 import '../../../widgets/custom_button.dart';
@@ -85,6 +84,7 @@ class _UpdateAssetModalState extends State<UpdateAssetModal> {
   Widget build(BuildContext context) {
     final bottomInset = MediaQuery.of(context).viewInsets.bottom;
     final isRpg = context.read<SettingsController>().isRpgMode;
+    final colorScheme = Theme.of(context).colorScheme;
 
     return Container(
       padding: EdgeInsets.only(
@@ -93,8 +93,8 @@ class _UpdateAssetModalState extends State<UpdateAssetModal> {
         top: 16,
         bottom: 24 + bottomInset,
       ),
-      decoration: const BoxDecoration(
-        color: AppColors.surface,
+      decoration: BoxDecoration(
+        color: colorScheme.surface,
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       child: Form(
@@ -195,9 +195,9 @@ class _UpdateAssetModalState extends State<UpdateAssetModal> {
                 ),
                 subtitle: Text(
                   ScreenDict.getDevidenCheckDesc(isRpg: isRpg),
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 12,
-                    color: AppColors.textSecondary,
+                    color: colorScheme.onSurfaceVariant,
                   ),
                 ),
                 value: _isDevidenActive,
@@ -211,9 +211,9 @@ class _UpdateAssetModalState extends State<UpdateAssetModal> {
                 ),
                 subtitle: Text(
                   ScreenDict.getEmergencyCheckDesc(isRpg: isRpg),
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 12,
-                    color: AppColors.textSecondary,
+                    color: colorScheme.onSurfaceVariant,
                   ),
                 ),
                 value: _isEmergencyActive,
@@ -223,7 +223,7 @@ class _UpdateAssetModalState extends State<UpdateAssetModal> {
 
               CustomButton(
                 title: UiDict.saveChanges,
-                color: AppColors.primary,
+                color: colorScheme.primary,
                 onTap: _submit,
               ),
             ],

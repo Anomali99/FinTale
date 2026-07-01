@@ -5,56 +5,68 @@ import 'app_colors.dart';
 class AppTheme {
   static ThemeData get darkTheme {
     return ThemeData(
-      useMaterial3: true,
       brightness: Brightness.dark,
-      scaffoldBackgroundColor: AppColors.background,
-      fontFamily: 'Poppins',
-
+      scaffoldBackgroundColor: AppColors.bgDark,
+      primaryColor: AppColors.primaryDark,
       colorScheme: const ColorScheme.dark(
-        primary: AppColors.primary,
+        primary: AppColors.primaryDark,
         onPrimary: Colors.black,
-        surface: AppColors.surface,
-        onSurface: AppColors.textPrimary,
+        surface: AppColors.surfaceDark,
+        onSurface: AppColors.textDark,
+        surfaceContainerHighest: AppColors.surfaceVariantDark,
         error: AppColors.error,
       ),
-
       appBarTheme: const AppBarTheme(
-        backgroundColor: AppColors.background,
+        backgroundColor: AppColors.bgDark,
         elevation: 0,
-        centerTitle: false,
-        iconTheme: IconThemeData(color: AppColors.textPrimary),
+        iconTheme: IconThemeData(color: AppColors.primaryDark),
         titleTextStyle: TextStyle(
-          color: AppColors.textPrimary,
+          color: AppColors.textDark,
           fontSize: 20,
-          fontWeight: FontWeight.w600,
-          letterSpacing: 0.5,
+          fontWeight: FontWeight.bold,
         ),
       ),
-
       cardTheme: CardThemeData(
-        color: AppColors.surface,
+        color: AppColors.surfaceDark,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      ),
+      textTheme: const TextTheme(
+        bodyMedium: TextStyle(color: AppColors.textDark),
+        bodySmall: TextStyle(color: AppColors.textSecondaryDark),
+      ),
+    );
+  }
+
+  static ThemeData get lightTheme {
+    return ThemeData(
+      brightness: Brightness.light,
+      scaffoldBackgroundColor: AppColors.bgLight,
+      primaryColor: AppColors.primaryLight,
+      colorScheme: const ColorScheme.light(
+        primary: AppColors.primaryLight,
+        onPrimary: Colors.white,
+        surface: AppColors.surfaceLight,
+        onSurface: AppColors.textLight,
+        surfaceContainerHighest: AppColors.surfaceVariantLight,
+        error: AppColors.error,
+      ),
+      appBarTheme: const AppBarTheme(
+        backgroundColor: AppColors.bgLight,
         elevation: 0,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-          side: const BorderSide(color: Colors.white10, width: 0.5),
+        iconTheme: IconThemeData(color: AppColors.primaryLight),
+        titleTextStyle: TextStyle(
+          color: AppColors.textLight,
+          fontSize: 20,
+          fontWeight: FontWeight.bold,
         ),
       ),
-
-      elevatedButtonTheme: ElevatedButtonThemeData(
-        style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.primary,
-          foregroundColor: Colors.black,
-          elevation: 0,
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-          textStyle: const TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-            letterSpacing: 0.5,
-          ),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-        ),
+      cardTheme: CardThemeData(
+        color: AppColors.surfaceLight,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      ),
+      textTheme: const TextTheme(
+        bodyMedium: TextStyle(color: AppColors.textLight),
+        bodySmall: TextStyle(color: AppColors.textSecondaryLight),
       ),
     );
   }

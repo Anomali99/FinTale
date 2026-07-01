@@ -25,11 +25,13 @@ class TotalCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isRpg = context.read<SettingsController>().isRpgMode;
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [AppColors.surfaceVariant, AppColors.surface],
+        gradient: LinearGradient(
+          colors: [colorScheme.surfaceContainerHighest, colorScheme.surface],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -45,10 +47,7 @@ class TotalCard extends StatelessWidget {
         children: [
           Text(
             ScreenDict.investTotal.get(isRpg),
-            style: const TextStyle(
-              color: AppColors.textSecondary,
-              fontSize: 14,
-            ),
+            style: TextStyle(color: colorScheme.onSurfaceVariant, fontSize: 14),
           ),
           const SizedBox(height: 8),
           Text(
@@ -69,8 +68,8 @@ class TotalCard extends StatelessWidget {
                 children: [
                   Text(
                     ScreenDict.investModal.get(isRpg),
-                    style: const TextStyle(
-                      color: AppColors.textSecondary,
+                    style: TextStyle(
+                      color: colorScheme.onSurfaceVariant,
                       fontSize: 12,
                     ),
                   ),

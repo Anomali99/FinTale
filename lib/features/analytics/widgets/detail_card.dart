@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import '../../../core/models/analytic_model.dart';
-import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/number_utils.dart';
 
 class DetailCard extends StatelessWidget {
@@ -22,6 +21,8 @@ class DetailCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
     double percentage = NumberUtils.calculatePercentage(
       data.amount,
       activeTotal,
@@ -33,7 +34,7 @@ class DetailCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: isSelected
             ? data.color.withOpacity(0.1)
-            : AppColors.surfaceVariant,
+            : colorScheme.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: isSelected ? data.color.withOpacity(0.5) : Colors.transparent,
@@ -83,7 +84,7 @@ class DetailCard extends StatelessWidget {
                   borderRadius: BorderRadius.circular(4),
                   child: LinearProgressIndicator(
                     value: percentage,
-                    backgroundColor: AppColors.background,
+                    backgroundColor: theme.scaffoldBackgroundColor,
                     color: data.color,
                     minHeight: 6,
                   ),

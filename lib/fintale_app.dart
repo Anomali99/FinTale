@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
+import 'controllers/settings_controller.dart';
 import 'core/theme/app_theme.dart';
 import 'core/utils/global_messenger.dart';
 import 'core/wrappers/auth_wrapper.dart';
@@ -20,9 +22,13 @@ class FinTaleApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final settingsController = context.watch<SettingsController>();
+
     return MaterialApp(
       title: 'FinTale',
-      theme: AppTheme.darkTheme,
+      theme: AppTheme.lightTheme,
+      darkTheme: AppTheme.darkTheme,
+      themeMode: settingsController.themeMode,
       debugShowCheckedModeBanner: false,
       scaffoldMessengerKey: GlobalMessenger.globalMessengerKey,
       initialRoute: '/',

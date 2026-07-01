@@ -3,7 +3,6 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import '../../../core/constants/screen_dict.dart';
 import '../../../core/constants/ui_dict.dart';
-import '../../../core/theme/app_colors.dart';
 import '../../../models/bill_model.dart';
 import 'bill_card.dart';
 
@@ -21,6 +20,8 @@ class BillsTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     if (data.isEmpty) {
       return Center(
         child: Column(
@@ -29,7 +30,7 @@ class BillsTab extends StatelessWidget {
             FaIcon(
               ScreenDict.addBill.icon(isRpg),
               size: 48,
-              color: AppColors.surfaceVariant,
+              color: colorScheme.surfaceContainerHighest,
             ),
             const SizedBox(height: 16),
             Text(
@@ -38,7 +39,7 @@ class BillsTab extends StatelessWidget {
                 isRpg: isRpg,
               ),
               textAlign: TextAlign.center,
-              style: const TextStyle(color: AppColors.textSecondary),
+              style: TextStyle(color: colorScheme.onSurfaceVariant),
             ),
           ],
         ),

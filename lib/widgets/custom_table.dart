@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../core/theme/app_colors.dart';
-
 class CustomTable extends StatelessWidget {
   final List<Widget> children;
   final EdgeInsetsGeometry? padding;
@@ -20,18 +18,21 @@ class CustomTable extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Container(
       padding: padding ?? const EdgeInsets.all(16),
       decoration:
           decoration ??
           BoxDecoration(
-            color: color?.withOpacity(0.05) ?? AppColors.surfaceVariant,
+            color:
+                color?.withOpacity(0.05) ?? colorScheme.surfaceContainerHighest,
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
               color:
                   borderColor?.withOpacity(0.3) ??
                   (color?.withOpacity(0.3) ??
-                      AppColors.primary.withOpacity(0.3)),
+                      colorScheme.primary.withOpacity(0.3)),
             ),
           ),
       child: Column(children: children),
@@ -69,6 +70,8 @@ class CustomRowTable extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Row(
       mainAxisAlignment: mainAxisAlignment ?? MainAxisAlignment.spaceBetween,
       crossAxisAlignment: crossAxisAlignment ?? CrossAxisAlignment.start,
@@ -80,7 +83,7 @@ class CustomRowTable extends StatelessWidget {
               labelStyle ??
               TextStyle(
                 fontSize: 14,
-                color: labelColor ?? AppColors.textSecondary,
+                color: labelColor ?? colorScheme.onSurfaceVariant,
               ),
         ),
         const SizedBox(width: 16),
@@ -94,7 +97,7 @@ class CustomRowTable extends StatelessWidget {
                   fontFamily: 'Poppins',
                   fontSize: boldValue ? 16 : 14,
                   fontWeight: boldValue ? FontWeight.bold : FontWeight.normal,
-                  color: valueColor ?? AppColors.textPrimary,
+                  color: valueColor ?? colorScheme.onSurface,
                 ),
           ),
         ),

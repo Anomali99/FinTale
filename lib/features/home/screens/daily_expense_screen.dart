@@ -200,13 +200,14 @@ class _DailyExpenseScreenState extends State<DailyExpenseScreen> {
   Widget build(BuildContext context) {
     final settingsController = context.read<SettingsController>();
     final walletController = context.read<WalletController>();
+    final colorScheme = Theme.of(context).colorScheme;
     final wallets = walletController.wallets;
     final isRpg = settingsController.isRpgMode;
 
     return Scaffold(
-      backgroundColor: AppColors.surface,
+      backgroundColor: colorScheme.surface,
       appBar: AppBar(
-        backgroundColor: AppColors.surface,
+        backgroundColor: colorScheme.surface,
         elevation: 0,
         title: Text(
           ScreenDict.recordExpense.get(isRpg),
@@ -226,10 +227,10 @@ class _DailyExpenseScreenState extends State<DailyExpenseScreen> {
           children: [
             Text(
               ScreenDict.historyInformation,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
-                color: AppColors.primary,
+                color: colorScheme.primary,
               ),
             ),
             const SizedBox(height: 16),
@@ -274,7 +275,7 @@ class _DailyExpenseScreenState extends State<DailyExpenseScreen> {
                         DateFormat(
                           'dd MMMM yyyy •󠁏󠁏 HH:mm',
                         ).format(_selectedDate),
-                        style: const TextStyle(color: AppColors.textPrimary),
+                        style: TextStyle(color: colorScheme.onSurface),
                       ),
                     ),
                   ),
@@ -288,9 +289,9 @@ class _DailyExpenseScreenState extends State<DailyExpenseScreen> {
                   ),
                   child: IconButton(
                     onPressed: _resetToCurrentTime,
-                    icon: const FaIcon(
+                    icon: FaIcon(
                       FontAwesomeIcons.arrowRotateLeft,
-                      color: AppColors.primary,
+                      color: colorScheme.primary,
                     ),
                   ),
                 ),
@@ -306,7 +307,10 @@ class _DailyExpenseScreenState extends State<DailyExpenseScreen> {
               ),
               subtitle: Text(
                 ScreenDict.getFeeCheckDesc(isRpg: isRpg),
-                style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                style: TextStyle(
+                  fontSize: 12,
+                  color: colorScheme.onSurfaceVariant,
+                ),
               ),
               value: _isFeeActive,
               onChanged: (val) => setState(() => _isFeeActive = val),
@@ -351,7 +355,10 @@ class _DailyExpenseScreenState extends State<DailyExpenseScreen> {
               ),
               subtitle: Text(
                 ScreenDict.getReservedCheckDesc(isRpg: isRpg),
-                style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                style: TextStyle(
+                  fontSize: 12,
+                  color: colorScheme.onSurfaceVariant,
+                ),
               ),
               value: _isReservedActive,
               onChanged: (val) => setState(() {
@@ -369,7 +376,10 @@ class _DailyExpenseScreenState extends State<DailyExpenseScreen> {
               ),
               subtitle: Text(
                 ScreenDict.getExcludeDailyCheckDesc(isRpg: isRpg),
-                style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                style: TextStyle(
+                  fontSize: 12,
+                  color: colorScheme.onSurfaceVariant,
+                ),
               ),
               value: _isExcludeActive,
               onChanged: (val) => setState(() => _isExcludeActive = val),
@@ -380,10 +390,10 @@ class _DailyExpenseScreenState extends State<DailyExpenseScreen> {
 
             Text(
               ScreenDict.breakdownDetail,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
-                color: AppColors.primary,
+                color: colorScheme.primary,
               ),
             ),
             const SizedBox(height: 16),
@@ -394,7 +404,7 @@ class _DailyExpenseScreenState extends State<DailyExpenseScreen> {
 
               return Card(
                 elevation: 0,
-                color: AppColors.surfaceVariant.withOpacity(0.5),
+                color: colorScheme.surfaceContainerHighest.withOpacity(0.5),
                 margin: const EdgeInsets.only(bottom: 24),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16),
@@ -414,14 +424,14 @@ class _DailyExpenseScreenState extends State<DailyExpenseScreen> {
                               vertical: 6,
                             ),
                             decoration: BoxDecoration(
-                              color: AppColors.primary.withOpacity(0.2),
+                              color: colorScheme.primary.withOpacity(0.2),
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: Text(
                               'Item #${index + 1}',
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontWeight: FontWeight.bold,
-                                color: AppColors.primary,
+                                color: colorScheme.primary,
                                 fontSize: 12,
                               ),
                             ),
@@ -504,19 +514,19 @@ class _DailyExpenseScreenState extends State<DailyExpenseScreen> {
                 onPressed: _addNewItem,
                 style: OutlinedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 16),
-                  side: const BorderSide(
-                    color: AppColors.primary,
+                  side: BorderSide(
+                    color: colorScheme.primary,
                     style: BorderStyle.solid,
                   ),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
-                icon: const Icon(Icons.add, color: AppColors.primary),
-                label: const Text(
+                icon: Icon(Icons.add, color: colorScheme.primary),
+                label: Text(
                   UiDict.addItem,
                   style: TextStyle(
-                    color: AppColors.primary,
+                    color: colorScheme.primary,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -529,6 +539,8 @@ class _DailyExpenseScreenState extends State<DailyExpenseScreen> {
   }
 
   Widget _buildBottomBar(bool isRpg) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Container(
       padding: EdgeInsets.only(
         left: 24,
@@ -537,7 +549,7 @@ class _DailyExpenseScreenState extends State<DailyExpenseScreen> {
         bottom: 24 + MediaQuery.of(context).padding.bottom,
       ),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: colorScheme.surface,
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.2),
@@ -570,7 +582,10 @@ class _DailyExpenseScreenState extends State<DailyExpenseScreen> {
             children: [
               Text(
                 ScreenDict.expenseAmount.get(isRpg),
-                style: TextStyle(fontSize: 14, color: AppColors.textSecondary),
+                style: TextStyle(
+                  fontSize: 14,
+                  color: colorScheme.onSurfaceVariant,
+                ),
               ),
               const SizedBox(width: 16),
               Flexible(

@@ -141,6 +141,7 @@ class _SellAssetModalState extends State<SellAssetModal> {
   Widget build(BuildContext context) {
     final bottomInset = MediaQuery.of(context).viewInsets.bottom;
     final isRpg = context.read<SettingsController>().isRpgMode;
+    final colorScheme = Theme.of(context).colorScheme;
 
     return Container(
       padding: EdgeInsets.only(
@@ -149,8 +150,8 @@ class _SellAssetModalState extends State<SellAssetModal> {
         top: 16,
         bottom: 24 + bottomInset,
       ),
-      decoration: const BoxDecoration(
-        color: AppColors.surface,
+      decoration: BoxDecoration(
+        color: colorScheme.surface,
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       child: Form(
@@ -185,7 +186,7 @@ class _SellAssetModalState extends State<SellAssetModal> {
                   unit: NumberUtils.formatNumber(widget.asset.unit),
                   unitName: widget.asset.unitName,
                 ),
-                style: const TextStyle(color: AppColors.textSecondary),
+                style: TextStyle(color: colorScheme.onSurfaceVariant),
               ),
               const SizedBox(height: 24),
 
@@ -264,9 +265,9 @@ class _SellAssetModalState extends State<SellAssetModal> {
                 ),
                 subtitle: Text(
                   ScreenDict.getFeeCheckDesc(isIncome: true, isRpg: isRpg),
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 12,
-                    color: AppColors.textSecondary,
+                    color: colorScheme.onSurfaceVariant,
                   ),
                 ),
                 value: _isFeeActive,
@@ -304,18 +305,20 @@ class _SellAssetModalState extends State<SellAssetModal> {
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: AppColors.surfaceVariant,
+                  color: colorScheme.surfaceContainerHighest,
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: AppColors.primary.withOpacity(0.3)),
+                  border: Border.all(
+                    color: colorScheme.primary.withOpacity(0.3),
+                  ),
                 ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
                       UiDict.income.get(isRpg),
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 14,
-                        color: AppColors.textSecondary,
+                        color: colorScheme.onSurfaceVariant,
                       ),
                     ),
                     const SizedBox(width: 16),
@@ -341,7 +344,7 @@ class _SellAssetModalState extends State<SellAssetModal> {
 
               CustomButton(
                 title: ScreenDict.investSell.get(isRpg),
-                color: AppColors.primary,
+                color: colorScheme.primary,
                 onTap: _submit,
               ),
             ],

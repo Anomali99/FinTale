@@ -8,7 +8,6 @@ import '../../../core/constants/category_dict.dart';
 import '../../../core/constants/gamification_dict.dart';
 import '../../../core/constants/ui_dict.dart';
 import '../../../core/models/category_model.dart';
-import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/enum_types.dart';
 import '../../../core/utils/global_messenger.dart';
 
@@ -115,6 +114,7 @@ class _SkillTreeScreenState extends State<SkillTreeScreen> {
                 Positioned.fill(
                   child: CustomPaint(
                     painter: DynamicSkillTreePainter(
+                      context: context,
                       positions: _nodePositions,
                       radii: _nodeRadii,
                       selectedId: skillController.selectedNode,
@@ -310,6 +310,8 @@ class _SkillTreeScreenState extends State<SkillTreeScreen> {
     SkillController controller,
     Map<Enum, double?> allocs,
   ) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     final selectedNode = controller.selectedNode;
     final int? currentPercent = controller.currentPercentage?.toInt();
 
@@ -387,9 +389,9 @@ class _SkillTreeScreenState extends State<SkillTreeScreen> {
         margin: const EdgeInsets.all(24),
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: AppColors.surfaceVariant,
+          color: colorScheme.surfaceContainerHighest,
           borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: AppColors.primary.withOpacity(0.5)),
+          border: Border.all(color: colorScheme.primary.withOpacity(0.5)),
           boxShadow: const [BoxShadow(color: Colors.black54, blurRadius: 20)],
         ),
         child: Column(
@@ -531,7 +533,7 @@ class _SkillTreeScreenState extends State<SkillTreeScreen> {
                       Icons.remove_circle,
 
                       color: canDecrease
-                          ? AppColors.primary
+                          ? colorScheme.primary
                           : Colors.grey.shade700,
                       size: 32,
                     ),
@@ -554,7 +556,7 @@ class _SkillTreeScreenState extends State<SkillTreeScreen> {
                       Icons.add_circle,
 
                       color: canIncrease
-                          ? AppColors.primary
+                          ? colorScheme.primary
                           : Colors.grey.shade700,
                       size: 32,
                     ),
@@ -573,11 +575,13 @@ class _SkillTreeScreenState extends State<SkillTreeScreen> {
 }
 
 class DynamicSkillTreePainter extends CustomPainter {
+  final BuildContext context;
   final Map<Enum?, Offset> positions;
   final Map<Enum?, double> radii;
   final Enum? selectedId;
 
   DynamicSkillTreePainter({
+    required this.context,
     required this.positions,
     required this.radii,
     required this.selectedId,
@@ -586,14 +590,15 @@ class DynamicSkillTreePainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     if (positions.isEmpty || radii.isEmpty) return;
+    final colorScheme = Theme.of(context).colorScheme;
 
     final paintNormal = Paint()
-      ..color = Colors.white.withOpacity(0.1)
+      ..color = colorScheme.onSurface.withOpacity(0.1)
       ..strokeWidth = 2
       ..style = PaintingStyle.stroke;
 
     final paintHighlight = Paint()
-      ..color = AppColors.primary.withOpacity(0.8)
+      ..color = colorScheme.primary.withOpacity(0.8)
       ..strokeWidth = 3
       ..style = PaintingStyle.stroke
       ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 3);

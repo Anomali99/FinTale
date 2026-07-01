@@ -6,7 +6,6 @@ import 'package:provider/provider.dart';
 import '../../../controllers/auth_controller.dart';
 import '../../../controllers/skill_controller.dart';
 import '../../../core/constants/ui_dict.dart';
-import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/global_messenger.dart';
 import '../../../widgets/custom_button.dart';
 
@@ -23,6 +22,7 @@ class AuthScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final screenHeight = MediaQuery.of(context).size.height;
+    final colorScheme = Theme.of(context).colorScheme;
 
     final authController = context.watch<AuthController>();
 
@@ -48,7 +48,7 @@ class AuthScreen extends StatelessWidget {
                 'FinTale',
                 style: TextStyle(
                   fontFamily: 'Montserrat',
-                  color: AppColors.primary,
+                  color: colorScheme.primary,
                   fontWeight: FontWeight.w900,
                   fontSize: 34.0,
                   letterSpacing: 2.0,
@@ -58,7 +58,7 @@ class AuthScreen extends StatelessWidget {
               Text(
                 UiDict.authJourney,
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: AppColors.textSecondary,
+                  color: colorScheme.onSurfaceVariant,
                 ),
               ),
 
@@ -79,27 +79,27 @@ class AuthScreen extends StatelessWidget {
                 UiDict.authWelcome,
                 style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                   fontWeight: FontWeight.bold,
-                  color: AppColors.textPrimary,
+                  color: colorScheme.onSurface,
                 ),
               ),
               const Spacer(flex: 1),
               Text(
                 UiDict.authDesc,
                 style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                  color: AppColors.textSecondary,
+                  color: colorScheme.onSurfaceVariant,
                   height: 1.5,
                 ),
               ),
               const Spacer(flex: 2),
 
               if (authController.isLoading)
-                const Center(
-                  child: CircularProgressIndicator(color: AppColors.primary),
+                Center(
+                  child: CircularProgressIndicator(color: colorScheme.primary),
                 )
               else
                 CustomButton(
                   title: UiDict.authSkip,
-                  color: AppColors.primary,
+                  color: colorScheme.primary,
                   icon: FontAwesomeIcons.khanda,
                   onTap: () => _loginHandle(context),
                 ),

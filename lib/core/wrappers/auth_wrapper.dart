@@ -5,7 +5,6 @@ import '../../controllers/auth_controller.dart';
 import '../../controllers/user_controller.dart';
 import '../../features/auth/screens/auth_screen.dart';
 import '../constants/ui_dict.dart';
-import '../theme/app_colors.dart';
 
 class AuthWrapper extends StatelessWidget {
   final Widget child;
@@ -14,19 +13,20 @@ class AuthWrapper extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final authController = context.watch<AuthController>();
+    final colorScheme = Theme.of(context).colorScheme;
 
     if (authController.isLoading) {
       return Scaffold(
-        backgroundColor: AppColors.surface,
+        backgroundColor: colorScheme.surface,
         body: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const CircularProgressIndicator(color: AppColors.primary),
+              CircularProgressIndicator(color: colorScheme.primary),
               const SizedBox(height: 16),
               Text(
                 UiDict.authSetup,
-                style: TextStyle(color: AppColors.primary.withOpacity(0.7)),
+                style: TextStyle(color: colorScheme.primary.withOpacity(0.7)),
               ),
             ],
           ),

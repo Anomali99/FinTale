@@ -22,6 +22,9 @@ class DebtsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(20),
@@ -29,7 +32,7 @@ class DebtsCard extends StatelessWidget {
         margin: const EdgeInsets.only(bottom: 24),
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: AppColors.surfaceVariant,
+          color: colorScheme.surfaceContainerHighest,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(color: AppColors.error.withOpacity(0.3)),
           boxShadow: [
@@ -90,9 +93,9 @@ class DebtsCard extends StatelessWidget {
               children: [
                 Text(
                   ScreenDict.debtRemaining.get(isRpg),
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 12,
-                    color: AppColors.textSecondary,
+                    color: colorScheme.onSurfaceVariant,
                   ),
                 ),
                 Text(
@@ -111,7 +114,7 @@ class DebtsCard extends StatelessWidget {
               borderRadius: BorderRadius.circular(8),
               child: LinearProgressIndicator(
                 value: data.debtPercentage(isRpg),
-                backgroundColor: AppColors.background,
+                backgroundColor: theme.scaffoldBackgroundColor,
                 color: AppColors.error,
                 minHeight: 12,
               ),
@@ -123,9 +126,9 @@ class DebtsCard extends StatelessWidget {
               children: [
                 Text(
                   UiDict.getTotal(NumberUtils.toIdr(data.amount)),
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 12,
-                    color: AppColors.textSecondary,
+                    color: colorScheme.onSurfaceVariant,
                   ),
                 ),
                 Text(

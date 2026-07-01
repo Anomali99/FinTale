@@ -6,7 +6,6 @@ import 'package:provider/provider.dart';
 import '../../../controllers/settings_controller.dart';
 import '../../../core/constants/screen_dict.dart';
 import '../../../core/constants/ui_dict.dart';
-import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/enum_types.dart';
 import '../../../core/utils/number_utils.dart';
 import '../../../models/bill_model.dart';
@@ -185,6 +184,7 @@ class _PayDebtModalState extends State<PayDebtModal>
   Widget build(BuildContext context) {
     final bottomInset = MediaQuery.of(context).viewInsets.bottom;
     final isRpg = context.read<SettingsController>().isRpgMode;
+    final colorScheme = Theme.of(context).colorScheme;
 
     return Container(
       padding: EdgeInsets.only(
@@ -193,8 +193,8 @@ class _PayDebtModalState extends State<PayDebtModal>
         top: 16,
         bottom: 24 + bottomInset,
       ),
-      decoration: const BoxDecoration(
-        color: AppColors.surface,
+      decoration: BoxDecoration(
+        color: colorScheme.surface,
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       child: Form(
@@ -228,7 +228,7 @@ class _PayDebtModalState extends State<PayDebtModal>
                 Container(
                   height: 45,
                   decoration: BoxDecoration(
-                    color: AppColors.surfaceVariant,
+                    color: colorScheme.surfaceContainerHighest,
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: TabBar(
@@ -236,19 +236,19 @@ class _PayDebtModalState extends State<PayDebtModal>
                     indicatorSize: TabBarIndicatorSize.tab,
                     dividerColor: Colors.transparent,
                     indicator: BoxDecoration(
-                      color: AppColors.primary.withOpacity(0.2),
+                      color: colorScheme.primary.withOpacity(0.2),
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(
-                        color: AppColors.primary.withOpacity(0.5),
+                        color: colorScheme.primary.withOpacity(0.5),
                       ),
                     ),
-                    labelColor: AppColors.primary,
+                    labelColor: colorScheme.primary,
                     labelStyle: const TextStyle(
                       fontFamily: 'Poppins',
                       fontWeight: FontWeight.bold,
                       fontSize: 13,
                     ),
-                    unselectedLabelColor: AppColors.textSecondary,
+                    unselectedLabelColor: colorScheme.onSurfaceVariant,
                     tabs: [
                       Tab(
                         text: ScreenDict.getBillTypes(
@@ -366,7 +366,7 @@ class _PayDebtModalState extends State<PayDebtModal>
                   ScreenDict.getFeeCheckDesc(isRpg: isRpg),
                   style: TextStyle(
                     fontSize: 12,
-                    color: AppColors.textSecondary,
+                    color: colorScheme.onSurfaceVariant,
                   ),
                 ),
                 value: _isFeeActive,
@@ -415,7 +415,7 @@ class _PayDebtModalState extends State<PayDebtModal>
                     ScreenDict.getReservedCheckDesc(isRpg: isRpg),
                     style: TextStyle(
                       fontSize: 12,
-                      color: AppColors.textSecondary,
+                      color: colorScheme.onSurfaceVariant,
                     ),
                   ),
                   value: _isReservedActive,
@@ -427,7 +427,7 @@ class _PayDebtModalState extends State<PayDebtModal>
                 ),
               Container(
                 decoration: BoxDecoration(
-                  color: AppColors.surface,
+                  color: colorScheme.surface,
                   boxShadow: [
                     BoxShadow(
                       color: Colors.black.withOpacity(0.2),
@@ -470,7 +470,7 @@ class _PayDebtModalState extends State<PayDebtModal>
                           ScreenDict.expenseAmount.get(isRpg),
                           style: TextStyle(
                             fontSize: 14,
-                            color: AppColors.textSecondary,
+                            color: colorScheme.onSurfaceVariant,
                           ),
                         ),
                         const SizedBox(width: 16),
@@ -480,11 +480,11 @@ class _PayDebtModalState extends State<PayDebtModal>
                             alignment: Alignment.centerRight,
                             child: Text(
                               NumberUtils.toIdr(_amount),
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontFamily: 'Poppins',
                                 fontWeight: FontWeight.bold,
                                 fontSize: 22,
-                                color: AppColors.primary,
+                                color: colorScheme.primary,
                               ),
                             ),
                           ),
@@ -499,7 +499,7 @@ class _PayDebtModalState extends State<PayDebtModal>
                               isCustom: false,
                               isRpg: isRpg,
                             ),
-                      color: AppColors.primary,
+                      color: colorScheme.primary,
                       onTap: _submit,
                     ),
                   ],

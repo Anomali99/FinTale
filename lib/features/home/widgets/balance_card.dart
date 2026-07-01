@@ -39,11 +39,13 @@ class BalanceCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.surfaceVariant,
+        color: colorScheme.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppColors.primary.withOpacity(0.3)),
+        border: Border.all(color: colorScheme.primary.withOpacity(0.3)),
       ),
       child: Column(
         children: [
@@ -52,8 +54,11 @@ class BalanceCard extends StatelessWidget {
             child: Container(
               padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 24),
               decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  colors: [AppColors.surfaceVariant, AppColors.surface],
+                gradient: LinearGradient(
+                  colors: [
+                    colorScheme.surfaceContainerHighest,
+                    colorScheme.surface,
+                  ],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
@@ -70,8 +75,8 @@ class BalanceCard extends StatelessWidget {
                     children: [
                       Text(
                         ScreenDict.homeTotalBalance.get(isRpg),
-                        style: const TextStyle(
-                          color: AppColors.textSecondary,
+                        style: TextStyle(
+                          color: colorScheme.onSurfaceVariant,
                           fontSize: 13,
                         ),
                       ),
@@ -92,7 +97,7 @@ class BalanceCard extends StatelessWidget {
                                 ? Icons.visibility_off
                                 : Icons.visibility,
                             size: 20,
-                            color: AppColors.primary,
+                            color: colorScheme.primary,
                           ),
                         ),
                       ),
@@ -101,11 +106,11 @@ class BalanceCard extends StatelessWidget {
 
                   Text(
                     _formatBalance(totalBalance),
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontFamily: 'Poppins',
                       fontSize: 30,
                       fontWeight: FontWeight.bold,
-                      color: AppColors.textPrimary,
+                      color: colorScheme.onSurface,
                     ),
                   ),
 
@@ -122,8 +127,8 @@ class BalanceCard extends StatelessWidget {
                           children: [
                             Text(
                               ScreenDict.homePending.get(isRpg),
-                              style: const TextStyle(
-                                color: AppColors.textSecondary,
+                              style: TextStyle(
+                                color: colorScheme.onSurfaceVariant,
                                 fontSize: 11,
                               ),
                             ),
@@ -135,7 +140,7 @@ class BalanceCard extends StatelessWidget {
                                 fontWeight: FontWeight.bold,
                                 color: unallocatedBalance > Decimal.zero
                                     ? AppColors.success
-                                    : AppColors.textPrimary,
+                                    : colorScheme.onSurface,
                               ),
                             ),
                           ],
@@ -148,8 +153,8 @@ class BalanceCard extends StatelessWidget {
                           children: [
                             Text(
                               ScreenDict.homeSavings.get(isRpg),
-                              style: const TextStyle(
-                                color: AppColors.textSecondary,
+                              style: TextStyle(
+                                color: colorScheme.onSurfaceVariant,
                                 fontSize: 11,
                               ),
                             ),
@@ -175,7 +180,7 @@ class BalanceCard extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(vertical: 14),
             decoration: BoxDecoration(
-              color: AppColors.primary.withOpacity(0.05),
+              color: colorScheme.primary.withOpacity(0.05),
               borderRadius: const BorderRadius.only(
                 bottomLeft: Radius.circular(20),
                 bottomRight: Radius.circular(20),

@@ -26,6 +26,8 @@ class SettingsScreen extends StatelessWidget {
     String? onSuccess,
     String? onFailed,
   }) async {
+    final colorScheme = Theme.of(context).colorScheme;
+
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -35,11 +37,11 @@ class SettingsScreen extends StatelessWidget {
           child: Center(
             child: Container(
               padding: const EdgeInsets.all(24),
-              decoration: const BoxDecoration(
-                color: AppColors.surfaceVariant,
+              decoration: BoxDecoration(
+                color: colorScheme.surfaceContainerHighest,
                 shape: BoxShape.circle,
               ),
-              child: const CircularProgressIndicator(color: AppColors.primary),
+              child: CircularProgressIndicator(color: colorScheme.primary),
             ),
           ),
         );
@@ -97,10 +99,11 @@ class SettingsScreen extends StatelessWidget {
     String yesTitle = 'Yes',
     bool isDanger = true,
   }) {
+    final colorScheme = Theme.of(context).colorScheme;
     showDialog(
       context: context,
       builder: (con) => AlertDialog(
-        backgroundColor: AppColors.surfaceVariant,
+        backgroundColor: colorScheme.surfaceContainerHighest,
         title: Row(
           children: [
             FaIcon(
@@ -122,16 +125,13 @@ class SettingsScreen extends StatelessWidget {
             ),
           ],
         ),
-        content: Text(
-          desc,
-          style: const TextStyle(color: AppColors.textPrimary),
-        ),
+        content: Text(desc, style: TextStyle(color: colorScheme.onSurface)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(con),
             child: Text(
               UiDict.cancel,
-              style: TextStyle(color: AppColors.textSecondary),
+              style: TextStyle(color: colorScheme.onSurfaceVariant),
             ),
           ),
           ElevatedButton(
@@ -149,15 +149,15 @@ class SettingsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildSectionHeader(String title) {
+  Widget _buildSectionHeader(String title, Color color) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12.0, top: 24.0),
       child: Text(
         title,
-        style: const TextStyle(
+        style: TextStyle(
           fontSize: 14,
           fontWeight: FontWeight.bold,
-          color: AppColors.primary,
+          color: color,
         ),
       ),
     );
@@ -167,6 +167,7 @@ class SettingsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final SettingsController settingsController = context
         .watch<SettingsController>();
+    final colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
       appBar: AppBar(
@@ -183,18 +184,19 @@ class SettingsScreen extends StatelessWidget {
         children: [
           _buildSectionHeader(
             UiDict.setSecurityGroup.get(settingsController.isRpgMode),
+            colorScheme.primary,
           ),
           Container(
             decoration: BoxDecoration(
-              color: AppColors.surfaceVariant,
+              color: colorScheme.surfaceContainerHighest,
               borderRadius: BorderRadius.circular(16),
             ),
             child: Column(
               children: [
                 ListTile(
-                  leading: const FaIcon(
+                  leading: FaIcon(
                     FontAwesomeIcons.eyeSlash,
-                    color: AppColors.textPrimary,
+                    color: colorScheme.onSurface,
                     size: 20,
                   ),
                   title: Text(UiDict.setHideBalance),
@@ -203,22 +205,22 @@ class SettingsScreen extends StatelessWidget {
                   ),
                   trailing: Switch(
                     value: settingsController.isHideBalance,
-                    activeThumbColor: AppColors.primary,
+                    activeThumbColor: colorScheme.primary,
                     onChanged: settingsController.changeHideBalance,
                   ),
                 ),
                 const Divider(color: Colors.white10, height: 1, indent: 56),
                 ListTile(
-                  leading: const FaIcon(
+                  leading: FaIcon(
                     FontAwesomeIcons.lock,
-                    color: AppColors.textPrimary,
+                    color: colorScheme.onSurface,
                     size: 20,
                   ),
                   title: Text(UiDict.setAppLock),
                   subtitle: const Text(UiDict.setLockDesc),
                   trailing: Switch(
                     value: settingsController.isAppLock,
-                    activeThumbColor: AppColors.primary,
+                    activeThumbColor: colorScheme.primary,
                     onChanged: (val) async {
                       bool success = await settingsController.changeAppLock(
                         context,
@@ -260,9 +262,9 @@ class SettingsScreen extends StatelessWidget {
                             UiDict.changePin,
                             style: TextStyle(fontSize: 14),
                           ),
-                          trailing: const Icon(
+                          trailing: Icon(
                             Icons.chevron_right,
-                            color: AppColors.textSecondary,
+                            color: colorScheme.onSurfaceVariant,
                           ),
                           onTap: () async {
                             bool success = await settingsController
@@ -298,11 +300,11 @@ class SettingsScreen extends StatelessWidget {
                               UiDict.biometricDesc,
                               style: TextStyle(
                                 fontSize: 12,
-                                color: AppColors.textSecondary,
+                                color: colorScheme.onSurfaceVariant,
                               ),
                             ),
                             value: settingsController.isBiometricActive,
-                            activeThumbColor: AppColors.primary,
+                            activeThumbColor: colorScheme.primary,
                             onChanged: (val) async {
                               bool success = await settingsController
                                   .changeBiometric(context, val);
@@ -325,39 +327,40 @@ class SettingsScreen extends StatelessWidget {
 
           _buildSectionHeader(
             UiDict.setAppGroup.get(settingsController.isRpgMode),
+            colorScheme.primary,
           ),
           Container(
             decoration: BoxDecoration(
-              color: AppColors.surfaceVariant,
+              color: colorScheme.surfaceContainerHighest,
               borderRadius: BorderRadius.circular(16),
             ),
             child: Column(
               children: [
                 ListTile(
-                  leading: const FaIcon(
+                  leading: FaIcon(
                     FontAwesomeIcons.khanda,
-                    color: AppColors.textPrimary,
+                    color: colorScheme.onSurface,
                     size: 20,
                   ),
                   title: Text(UiDict.setRpg),
                   subtitle: const Text(UiDict.setRpgDesc),
                   trailing: Switch(
                     value: settingsController.isRpgMode,
-                    activeThumbColor: AppColors.primary,
+                    activeThumbColor: colorScheme.primary,
                     onChanged: settingsController.changeRpgMode,
                   ),
                 ),
                 const Divider(color: Colors.white10, height: 1, indent: 56),
                 ListTile(
-                  leading: const FaIcon(
+                  leading: FaIcon(
                     FontAwesomeIcons.bell,
-                    color: AppColors.textPrimary,
+                    color: colorScheme.onSurface,
                     size: 20,
                   ),
                   title: Text(UiDict.setNotification),
                   trailing: Switch(
                     value: settingsController.isNotification,
-                    activeThumbColor: AppColors.primary,
+                    activeThumbColor: colorScheme.primary,
                     onChanged: (val) async {
                       bool success = await settingsController
                           .changeNotification(context, val);
@@ -380,30 +383,29 @@ class SettingsScreen extends StatelessWidget {
                 ),
                 const Divider(color: Colors.white10, height: 1, indent: 56),
                 ListTile(
-                  leading: const FaIcon(
+                  leading: FaIcon(
                     FontAwesomeIcons.moon,
-                    color: AppColors.textPrimary,
+                    color: colorScheme.onSurface,
                     size: 20,
                   ),
                   title: Text(UiDict.setTheme),
-                  trailing: DropdownButton<String>(
+                  trailing: DropdownButton<ThemeMode>(
                     value: settingsController.themeMode,
-                    dropdownColor: AppColors.surface,
+                    dropdownColor: colorScheme.surface,
                     underline: const SizedBox(),
-                    icon: const Icon(
+                    icon: Icon(
                       Icons.arrow_drop_down,
-                      color: AppColors.textSecondary,
+                      color: colorScheme.onSurfaceVariant,
                     ),
-                    style: const TextStyle(
-                      color: AppColors.textPrimary,
+                    style: TextStyle(
+                      color: colorScheme.onSurface,
                       fontSize: 14,
                     ),
                     onChanged: settingsController.changeThemeMode,
-                    /* TODO: 'Dark', 'Light', 'System' */
-                    items: <String>['Dark'].map((String value) {
-                      return DropdownMenuItem<String>(
-                        value: value.toLowerCase(),
-                        child: Text(value),
+                    items: ThemeMode.values.map((ThemeMode value) {
+                      return DropdownMenuItem<ThemeMode>(
+                        value: value,
+                        child: Text(value.name),
                       );
                     }).toList(),
                   ),
@@ -414,25 +416,26 @@ class SettingsScreen extends StatelessWidget {
 
           _buildSectionHeader(
             UiDict.setDataGroup.get(settingsController.isRpgMode),
+            colorScheme.primary,
           ),
 
           Container(
             decoration: BoxDecoration(
-              color: AppColors.surfaceVariant,
+              color: colorScheme.surfaceContainerHighest,
               borderRadius: BorderRadius.circular(16),
             ),
             child: Column(
               children: [
                 ListTile(
-                  leading: const FaIcon(
+                  leading: FaIcon(
                     FontAwesomeIcons.fileArrowDown,
-                    color: AppColors.textPrimary,
+                    color: colorScheme.onSurface,
                     size: 20,
                   ),
                   title: Text(UiDict.setExport),
-                  trailing: const Icon(
+                  trailing: Icon(
                     Icons.chevron_right,
-                    color: AppColors.textSecondary,
+                    color: colorScheme.onSurfaceVariant,
                   ),
                   onTap: () async {
                     bool success = await settingsController.handleExportData();
@@ -448,15 +451,15 @@ class SettingsScreen extends StatelessWidget {
                 ),
                 const Divider(color: Colors.white10, height: 1, indent: 56),
                 ListTile(
-                  leading: const FaIcon(
+                  leading: FaIcon(
                     FontAwesomeIcons.fileArrowUp,
-                    color: AppColors.textPrimary,
+                    color: colorScheme.onSurface,
                     size: 20,
                   ),
                   title: Text(UiDict.setImport),
-                  trailing: const Icon(
+                  trailing: Icon(
                     Icons.chevron_right,
-                    color: AppColors.textSecondary,
+                    color: colorScheme.onSurfaceVariant,
                   ),
                   onTap: () => _showWarningDialog(
                     context,
@@ -553,9 +556,9 @@ class SettingsScreen extends StatelessWidget {
           Center(
             child: Text(
               'FinTale ${settingsController.appVersion}  •  Created by Anomali99',
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 12,
-                color: AppColors.textSecondary,
+                color: colorScheme.onSurfaceVariant,
                 fontWeight: FontWeight.w500,
                 letterSpacing: 0.5,
               ),

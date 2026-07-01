@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import '../../../core/constants/ui_dict.dart';
-import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/global_messenger.dart';
 import '../../../core/utils/hash_helper.dart';
 import '../../../services/local_auth_service.dart';
@@ -81,20 +80,20 @@ class _VerifyPinScreenState extends State<VerifyPinScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return PopScope(
       canPop: widget.isCancelable,
       child: Scaffold(
-        backgroundColor: AppColors.background,
+        backgroundColor: theme.scaffoldBackgroundColor,
         appBar: AppBar(
           backgroundColor: Colors.transparent,
           elevation: 0,
           automaticallyImplyLeading: false,
           leading: widget.isCancelable
               ? IconButton(
-                  icon: const Icon(
-                    Icons.arrow_back,
-                    color: AppColors.textPrimary,
-                  ),
+                  icon: Icon(Icons.arrow_back, color: colorScheme.onSurface),
                   onPressed: () => Navigator.pop(context, false),
                 )
               : null,
@@ -106,11 +105,11 @@ class _VerifyPinScreenState extends State<VerifyPinScreen> {
 
               Text(
                 widget.title ?? UiDict.pinInput,
-                style: const TextStyle(
+                style: TextStyle(
                   fontFamily: 'Poppins',
                   fontSize: 22,
                   fontWeight: FontWeight.bold,
-                  color: AppColors.textPrimary,
+                  color: colorScheme.onSurface,
                 ),
               ),
               const SizedBox(height: 16),
@@ -121,21 +120,21 @@ class _VerifyPinScreenState extends State<VerifyPinScreen> {
                   vertical: 8,
                 ),
                 decoration: BoxDecoration(
-                  color: AppColors.surfaceVariant.withOpacity(0.5),
+                  color: colorScheme.surfaceContainerHighest.withOpacity(0.5),
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(
+                    Icon(
                       Icons.account_circle,
                       size: 24,
-                      color: AppColors.primary,
+                      color: colorScheme.primary,
                     ),
                     const SizedBox(width: 8),
                     Text(
                       widget.userEmail ?? 'Anonymous',
-                      style: TextStyle(color: AppColors.textSecondary),
+                      style: TextStyle(color: colorScheme.onSurfaceVariant),
                     ),
                   ],
                 ),
@@ -155,8 +154,8 @@ class _VerifyPinScreenState extends State<VerifyPinScreen> {
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       color: isFilled
-                          ? AppColors.primary
-                          : AppColors.textSecondary.withOpacity(0.3),
+                          ? colorScheme.primary
+                          : colorScheme.onSurfaceVariant.withOpacity(0.3),
                     ),
                   );
                 }),
@@ -209,16 +208,16 @@ class _VerifyPinScreenState extends State<VerifyPinScreen> {
                           onPressed: () {
                             /* TODO: Lupa PIN Logic */
                           },
-                          child: const Text(
+                          child: Text(
                             UiDict.forgotPin,
-                            style: TextStyle(color: AppColors.textPrimary),
+                            style: TextStyle(color: colorScheme.onSurface),
                           ),
                         ),
                       TextButton(
                         onPressed: () {},
-                        child: const Text(
+                        child: Text(
                           UiDict.changeAcount,
-                          style: TextStyle(color: AppColors.textPrimary),
+                          style: TextStyle(color: colorScheme.onSurface),
                         ),
                       ),
                     ],
@@ -239,6 +238,8 @@ class _VerifyPinScreenState extends State<VerifyPinScreen> {
   }
 
   Widget _buildNumberButton(String number) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return InkWell(
       onTap: () => _onNumberPressed(number),
       borderRadius: BorderRadius.circular(34),
@@ -249,11 +250,11 @@ class _VerifyPinScreenState extends State<VerifyPinScreen> {
         child: Center(
           child: Text(
             number,
-            style: const TextStyle(
+            style: TextStyle(
               fontFamily: 'Poppins',
               fontSize: 28,
               fontWeight: FontWeight.w600,
-              color: AppColors.textPrimary,
+              color: colorScheme.onSurface,
             ),
           ),
         ),
@@ -262,17 +263,19 @@ class _VerifyPinScreenState extends State<VerifyPinScreen> {
   }
 
   Widget _buildFingerprintButton() {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return InkWell(
       onTap: _triggerBiometric,
       borderRadius: BorderRadius.circular(34),
-      child: const SizedBox(
+      child: SizedBox(
         width: 68,
         height: 68,
         child: Center(
           child: Icon(
             Icons.fingerprint,
             size: 36,
-            color: AppColors.textPrimary,
+            color: colorScheme.onSurface,
           ),
         ),
       ),
@@ -280,6 +283,8 @@ class _VerifyPinScreenState extends State<VerifyPinScreen> {
   }
 
   Widget _buildBackButton() {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return InkWell(
       onTap: _onBackPressed,
       borderRadius: BorderRadius.circular(34),
@@ -289,7 +294,7 @@ class _VerifyPinScreenState extends State<VerifyPinScreen> {
         child: Center(
           child: FaIcon(
             FontAwesomeIcons.deleteLeft,
-            color: AppColors.textPrimary,
+            color: colorScheme.onSurface,
             size: 24,
           ),
         ),

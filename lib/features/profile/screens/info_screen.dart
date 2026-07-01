@@ -5,7 +5,6 @@ import '../../../core/constants/category_dict.dart';
 import '../../../core/constants/gamification_dict.dart';
 import '../../../core/constants/ui_dict.dart';
 import '../../../core/models/mission_model.dart';
-import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/enum_types.dart';
 import '../../../widgets/markdown_text_parser.dart';
 
@@ -27,23 +26,24 @@ class InfoScreen extends StatelessWidget {
       body: ListView(
         padding: const EdgeInsets.all(24.0),
         children: [
-          _buildSectionHeader(GamificationDict.missionDaily),
+          _buildSectionHeader(context, GamificationDict.missionDaily),
           const SizedBox(height: 16),
           for (MissionModel mission in GamificationDict.allMission)
-            _buildMissionCard(mission: mission),
+            _buildMissionCard(context, mission: mission),
 
           const SizedBox(height: 32),
 
-          _buildSectionHeader(GamificationDict.titleSystem),
+          _buildSectionHeader(context, GamificationDict.titleSystem),
           const SizedBox(height: 16),
-          _buildTitleTable(),
+          _buildTitleTable(context),
 
           const SizedBox(height: 32),
 
-          _buildSectionHeader(GamificationDict.allocationGuide),
+          _buildSectionHeader(context, GamificationDict.allocationGuide),
           const SizedBox(height: 16),
 
           _buildLevelTierCard(
+            context,
             level: '1 - 10',
             title: GamificationDict.titleNovice.get(false),
             skills: {
@@ -71,6 +71,7 @@ class InfoScreen extends StatelessWidget {
           ),
 
           _buildLevelTierCard(
+            context,
             level: '11 - 20',
             title: GamificationDict.titleSmart.get(false),
             skills: {
@@ -98,6 +99,7 @@ class InfoScreen extends StatelessWidget {
           ),
 
           _buildLevelTierCard(
+            context,
             level: '21 - 30',
             title: GamificationDict.titleWise.get(false),
             skills: {
@@ -125,6 +127,7 @@ class InfoScreen extends StatelessWidget {
           ),
 
           _buildLevelTierCard(
+            context,
             level: '31 - 40',
             title: GamificationDict.titleWealth.get(false),
             skills: {
@@ -152,6 +155,7 @@ class InfoScreen extends StatelessWidget {
           ),
 
           _buildLevelTierCard(
+            context,
             level: '41 - 49',
             title: GamificationDict.titleWealth.get(false),
             skills: {
@@ -179,6 +183,7 @@ class InfoScreen extends StatelessWidget {
           ),
 
           _buildLevelTierCard(
+            context,
             level: '50+',
             title: GamificationDict.titleMaster.get(false),
             skills: {
@@ -207,19 +212,22 @@ class InfoScreen extends StatelessWidget {
 
           const SizedBox(height: 24),
 
-          _buildSectionHeader(GamificationDict.allocationRules),
+          _buildSectionHeader(context, GamificationDict.allocationRules),
           const SizedBox(height: 12),
           _buildMechanismCard(
+            context,
             GamificationDict.missionNote1Title,
             GamificationDict.missionNote1,
             icon: FontAwesomeIcons.arrowsDownToLine,
           ),
           _buildMechanismCard(
+            context,
             GamificationDict.missionNote2Title,
             GamificationDict.missionNote2,
             icon: FontAwesomeIcons.handHoldingHeart,
           ),
           _buildMechanismCard(
+            context,
             GamificationDict.missionNote3Title,
             GamificationDict.missionNote3,
             icon: FontAwesomeIcons.fire,
@@ -232,28 +240,33 @@ class InfoScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildSectionHeader(String title) {
+  Widget _buildSectionHeader(BuildContext context, String title) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Text(
       title,
-      style: const TextStyle(
+      style: TextStyle(
         fontFamily: 'Poppins',
         fontSize: 18,
         fontWeight: FontWeight.bold,
-        color: AppColors.primary,
+        color: colorScheme.primary,
         letterSpacing: 1.1,
       ),
     );
   }
 
-  Widget _buildLevelTierCard({
+  Widget _buildLevelTierCard(
+    BuildContext context, {
     required String level,
     required String title,
     required Map<SectorType, dynamic> skills,
   }) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
-        color: AppColors.surfaceVariant,
+        color: colorScheme.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: Colors.white10),
       ),
@@ -263,7 +276,7 @@ class InfoScreen extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             decoration: BoxDecoration(
-              color: AppColors.primary.withOpacity(0.15),
+              color: colorScheme.primary.withOpacity(0.15),
               borderRadius: const BorderRadius.vertical(
                 top: Radius.circular(16),
               ),
@@ -273,16 +286,16 @@ class InfoScreen extends StatelessWidget {
               children: [
                 Text(
                   'Lv. $level',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontWeight: FontWeight.bold,
-                    color: AppColors.primary,
+                    color: colorScheme.primary,
                   ),
                 ),
                 Text(
                   title,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontWeight: FontWeight.bold,
-                    color: AppColors.primary,
+                    color: colorScheme.primary,
                   ),
                 ),
               ],
@@ -417,11 +430,16 @@ class InfoScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildMissionCard({required MissionModel mission}) {
+  Widget _buildMissionCard(
+    BuildContext context, {
+    required MissionModel mission,
+  }) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
-        color: AppColors.surfaceVariant,
+        color: colorScheme.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: mission.color.withOpacity(0.3)),
       ),
@@ -490,9 +508,9 @@ class InfoScreen extends StatelessWidget {
                   const SizedBox(height: 8),
                   Text(
                     mission.description,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 12,
-                      color: AppColors.textSecondary,
+                      color: colorScheme.onSurfaceVariant,
                     ),
                   ),
                   const SizedBox(height: 16),
@@ -525,10 +543,12 @@ class InfoScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildTitleTable() {
+  Widget _buildTitleTable(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.surfaceVariant,
+        color: colorScheme.surfaceContainerHighest,
         border: Border.all(color: Colors.white10),
         borderRadius: BorderRadius.circular(16),
       ),
@@ -541,28 +561,32 @@ class InfoScreen extends StatelessWidget {
             2: FlexColumnWidth(2),
           },
           children: [
-            _buildTableRow(['Level', 'RPG', 'Standar'], isHeader: true),
-            _buildTableRow([
+            _buildTableRow(context, [
+              'Level',
+              'RPG',
+              'Standar',
+            ], isHeader: true),
+            _buildTableRow(context, [
               '1 - 10',
               GamificationDict.titleNovice.get(true),
               GamificationDict.titleNovice.get(false),
             ]),
-            _buildTableRow([
+            _buildTableRow(context, [
               '11 - 20',
               GamificationDict.titleSmart.get(true),
               GamificationDict.titleSmart.get(false),
             ]),
-            _buildTableRow([
+            _buildTableRow(context, [
               '21 - 30',
               GamificationDict.titleWise.get(true),
               GamificationDict.titleWise.get(false),
             ]),
-            _buildTableRow([
+            _buildTableRow(context, [
               '31 - 49',
               GamificationDict.titleWealth.get(true),
               GamificationDict.titleWealth.get(false),
             ]),
-            _buildTableRow([
+            _buildTableRow(context, [
               '50+',
               GamificationDict.titleWealth.get(true),
               GamificationDict.titleWealth.get(false),
@@ -573,11 +597,17 @@ class InfoScreen extends StatelessWidget {
     );
   }
 
-  TableRow _buildTableRow(List<String> cells, {bool isHeader = false}) {
+  TableRow _buildTableRow(
+    BuildContext context,
+    List<String> cells, {
+    bool isHeader = false,
+  }) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return TableRow(
       decoration: BoxDecoration(
         color: isHeader
-            ? AppColors.primary.withOpacity(0.1)
+            ? colorScheme.primary.withOpacity(0.1)
             : Colors.transparent,
       ),
       children: cells.map((cell) {
@@ -589,7 +619,7 @@ class InfoScreen extends StatelessWidget {
             style: TextStyle(
               fontSize: 12,
               fontWeight: isHeader ? FontWeight.bold : FontWeight.normal,
-              color: isHeader ? AppColors.primary : Colors.white,
+              color: isHeader ? colorScheme.primary : Colors.white,
             ),
           ),
         );
@@ -598,17 +628,21 @@ class InfoScreen extends StatelessWidget {
   }
 
   Widget _buildMechanismCard(
+    BuildContext context,
     String title,
     String desc, {
     required FaIconData icon,
-    Color color = AppColors.primary,
+    Color? color,
   }) {
+    final colorScheme = Theme.of(context).colorScheme;
+    Color mainColor = color ?? colorScheme.primary;
+
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.03),
-        border: Border.all(color: color.withOpacity(0.2)),
+        color: mainColor.withOpacity(0.03),
+        border: Border.all(color: mainColor.withOpacity(0.2)),
         borderRadius: BorderRadius.circular(16),
       ),
       child: Row(
@@ -627,9 +661,9 @@ class InfoScreen extends StatelessWidget {
                 const SizedBox(height: 4),
                 MarkdownTextParser(
                   rawText: desc,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 12,
-                    color: AppColors.textSecondary,
+                    color: colorScheme.onSurfaceVariant,
                   ),
                 ),
               ],

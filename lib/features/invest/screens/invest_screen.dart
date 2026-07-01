@@ -13,7 +13,6 @@ import '../../../controllers/wallet_controller.dart';
 import '../../../core/constants/category_dict.dart';
 import '../../../core/constants/screen_dict.dart';
 import '../../../core/constants/ui_dict.dart';
-import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/enum_types.dart';
 import '../../../core/utils/global_messenger.dart';
 import '../../../models/assets_model.dart';
@@ -222,6 +221,7 @@ class InvestScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final settingsController = context.watch<SettingsController>();
     final investController = context.watch<InvestController>();
+    final colorScheme = Theme.of(context).colorScheme;
 
     final isRpg = settingsController.isRpgMode;
 
@@ -265,9 +265,9 @@ class InvestScreen extends StatelessWidget {
             ),
 
             TabBar(
-              indicatorColor: AppColors.primary,
-              labelColor: AppColors.primary,
-              unselectedLabelColor: AppColors.textSecondary,
+              indicatorColor: colorScheme.primary,
+              labelColor: colorScheme.primary,
+              unselectedLabelColor: colorScheme.onSurfaceVariant,
 
               tabs: [
                 Tab(

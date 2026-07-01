@@ -29,7 +29,7 @@ class SettingsController with ChangeNotifier {
   bool get isAppLock => _prefService.isAppLock;
   bool get isRpgMode => _prefService.isRpgMode;
   bool get isNotification => _prefService.isNotification;
-  String get themeMode => _prefService.themeMode;
+  ThemeMode get themeMode => _prefService.themeMode;
   String? get currentPinHash => _prefService.pinHash;
   bool get isBiometricActive => _prefService.isBiometric;
   bool get isHardwareBiometricSupported => _isHardwareBiometricSupported;
@@ -140,7 +140,7 @@ class SettingsController with ChangeNotifier {
     return true;
   }
 
-  Future<void> changeThemeMode(String? value) async {
+  Future<void> changeThemeMode(ThemeMode? value) async {
     if (value != null) {
       await _prefService.setThemeMode(value);
       notifyListeners();

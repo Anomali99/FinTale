@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import '../../../core/constants/gamification_dict.dart';
-import '../../../core/theme/app_colors.dart';
 import '../../../models/user_model.dart';
 
 class DailyMissions extends StatelessWidget {
@@ -104,10 +103,11 @@ class DailyMissions extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildSectionHeader(GamificationDict.missionDaily),
+        _buildSectionHeader(context, GamificationDict.missionDaily),
         const SizedBox(height: 12),
         for (Map<String, dynamic> mission in dailyMissions)
           _buildTaskItem(
+            context,
             icon: mission['icon'],
             title: mission['title'],
             xp: mission['xp'],
@@ -115,10 +115,11 @@ class DailyMissions extends StatelessWidget {
             isDone: mission['isDone'],
           ),
         const SizedBox(height: 20),
-        _buildSectionHeader(GamificationDict.missionWeekly),
+        _buildSectionHeader(context, GamificationDict.missionWeekly),
         const SizedBox(height: 12),
         for (Map<String, dynamic> mission in weeklyMissions)
           _buildTaskItem(
+            context,
             icon: mission['icon'],
             title: mission['title'],
             xp: mission['xp'],
@@ -126,10 +127,11 @@ class DailyMissions extends StatelessWidget {
             isDone: mission['isDone'],
           ),
         const SizedBox(height: 20),
-        _buildSectionHeader(GamificationDict.missionMonthly),
+        _buildSectionHeader(context, GamificationDict.missionMonthly),
         const SizedBox(height: 12),
         for (Map<String, dynamic> mission in monthlyMissions)
           _buildTaskItem(
+            context,
             icon: mission['icon'],
             title: mission['title'],
             xp: mission['xp'],
@@ -137,10 +139,11 @@ class DailyMissions extends StatelessWidget {
             isDone: mission['isDone'],
           ),
         const SizedBox(height: 20),
-        _buildSectionHeader(GamificationDict.missionSpecial),
+        _buildSectionHeader(context, GamificationDict.missionSpecial),
         const SizedBox(height: 12),
         for (Map<String, dynamic> mission in specialMissions)
           _buildTaskItem(
+            context,
             icon: mission['icon'],
             title: mission['title'],
             xp: mission['xp'],
@@ -151,18 +154,23 @@ class DailyMissions extends StatelessWidget {
     );
   }
 
-  Widget _buildTaskItem({
+  Widget _buildTaskItem(
+    BuildContext context, {
     required FaIconData icon,
     required String title,
     required String xp,
     String? subtitle,
     bool isDone = false,
   }) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.surfaceVariant.withOpacity(isDone ? 0.5 : 1.0),
+        color: colorScheme.surfaceContainerHighest.withOpacity(
+          isDone ? 0.5 : 1.0,
+        ),
         borderRadius: BorderRadius.circular(16),
         border: isDone ? null : Border.all(color: Colors.white10),
       ),
@@ -171,7 +179,7 @@ class DailyMissions extends StatelessWidget {
           FaIcon(
             icon,
             size: 20,
-            color: isDone ? Colors.grey : AppColors.primary,
+            color: isDone ? Colors.grey : colorScheme.primary,
           ),
           const SizedBox(width: 16),
           Expanded(
@@ -189,9 +197,9 @@ class DailyMissions extends StatelessWidget {
                 if (subtitle != null)
                   Text(
                     subtitle,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 11,
-                      color: AppColors.textSecondary,
+                      color: colorScheme.onSurfaceVariant,
                     ),
                   ),
               ],
@@ -210,12 +218,12 @@ class DailyMissions extends StatelessWidget {
     );
   }
 
-  Widget _buildSectionHeader(String title) => Text(
+  Widget _buildSectionHeader(BuildContext context, String title) => Text(
     title,
-    style: const TextStyle(
+    style: TextStyle(
       fontSize: 14,
       fontWeight: FontWeight.bold,
-      color: AppColors.primary,
+      color: Theme.of(context).colorScheme.primary,
     ),
   );
 }

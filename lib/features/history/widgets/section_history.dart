@@ -6,7 +6,6 @@ import '../../../controllers/invest_controller.dart';
 import '../../../controllers/wallet_controller.dart';
 import '../../../core/constants/category_dict.dart';
 import '../../../core/constants/ui_dict.dart';
-import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/enum_types.dart';
 import '../../../models/transaction_model.dart';
 import 'transaction_card.dart';
@@ -53,7 +52,9 @@ class SectionHistory extends StatelessWidget {
     return '-';
   }
 
-  Widget _buildDateHeader(String dateText) {
+  Widget _buildDateHeader(BuildContext context, String dateText) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Padding(
       padding: const EdgeInsets.only(
         left: 24.0,
@@ -63,9 +64,9 @@ class SectionHistory extends StatelessWidget {
       ),
       child: Text(
         dateText,
-        style: const TextStyle(
+        style: TextStyle(
           fontWeight: FontWeight.bold,
-          color: AppColors.textSecondary,
+          color: colorScheme.onSurfaceVariant,
           fontSize: 14,
         ),
       ),
@@ -77,7 +78,7 @@ class SectionHistory extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildDateHeader(title),
+        _buildDateHeader(context, title),
 
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24.0),

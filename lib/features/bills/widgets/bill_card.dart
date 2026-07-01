@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import '../../../core/constants/category_dict.dart';
-import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/number_utils.dart';
 import '../../../models/bill_model.dart';
 
@@ -20,9 +19,11 @@ class BillCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     final Color mainColor = data.isActive
         ? data.tier.color
-        : AppColors.textSecondary;
+        : colorScheme.onSurfaceVariant;
 
     return InkWell(
       onTap: onTap,
@@ -31,7 +32,7 @@ class BillCard extends StatelessWidget {
         margin: const EdgeInsets.only(bottom: 16),
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: AppColors.surfaceVariant,
+          color: colorScheme.surfaceContainerHighest,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(color: mainColor.withOpacity(0.2)),
           boxShadow: [
@@ -72,8 +73,8 @@ class BillCard extends StatelessWidget {
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
                       color: data.isActive
-                          ? AppColors.textPrimary
-                          : AppColors.textSecondary,
+                          ? colorScheme.onSurface
+                          : colorScheme.onSurfaceVariant,
                     ),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
@@ -81,19 +82,19 @@ class BillCard extends StatelessWidget {
                   const SizedBox(height: 8),
                   Row(
                     children: [
-                      const Icon(
+                      Icon(
                         Icons.calendar_today,
                         size: 12,
-                        color: AppColors.textSecondary,
+                        color: colorScheme.onSurfaceVariant,
                       ),
                       const SizedBox(width: 6),
 
                       Expanded(
                         child: Text(
                           data.getScheduleTitle(),
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 11,
-                            color: AppColors.textSecondary,
+                            color: colorScheme.onSurfaceVariant,
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -116,8 +117,8 @@ class BillCard extends StatelessWidget {
                     fontWeight: FontWeight.bold,
                     fontSize: 14,
                     color: data.isActive
-                        ? AppColors.textPrimary
-                        : AppColors.textSecondary,
+                        ? colorScheme.onSurface
+                        : colorScheme.onSurfaceVariant,
                   ),
                 ),
                 const SizedBox(height: 6),
@@ -125,7 +126,7 @@ class BillCard extends StatelessWidget {
                   data.tier.title,
                   style: TextStyle(
                     fontSize: 10,
-                    color: AppColors.textSecondary,
+                    color: colorScheme.onSurfaceVariant,
                     fontWeight: FontWeight.bold,
                   ),
                 ),

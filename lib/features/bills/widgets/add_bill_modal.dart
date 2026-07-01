@@ -6,7 +6,6 @@ import 'package:provider/provider.dart';
 import '../../../controllers/settings_controller.dart';
 import '../../../core/constants/screen_dict.dart';
 import '../../../core/constants/ui_dict.dart';
-import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/enum_types.dart';
 import '../../../core/utils/number_utils.dart';
 import '../../../models/bill_model.dart';
@@ -127,6 +126,7 @@ class _AddBillModalState extends State<AddBillModal> {
   Widget build(BuildContext context) {
     final bottomInset = MediaQuery.of(context).viewInsets.bottom;
     final isRpg = context.read<SettingsController>().isRpgMode;
+    final colorScheme = Theme.of(context).colorScheme;
 
     return Container(
       padding: EdgeInsets.only(
@@ -135,8 +135,8 @@ class _AddBillModalState extends State<AddBillModal> {
         top: 16,
         bottom: 24 + bottomInset,
       ),
-      decoration: const BoxDecoration(
-        color: AppColors.surface,
+      decoration: BoxDecoration(
+        color: colorScheme.surface,
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       child: Form(
@@ -272,7 +272,7 @@ class _AddBillModalState extends State<AddBillModal> {
                   ScreenDict.nextBill.get(isRpg),
                   style: TextStyle(
                     fontSize: 12,
-                    color: AppColors.textSecondary,
+                    color: colorScheme.onSurfaceVariant,
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -293,7 +293,7 @@ class _AddBillModalState extends State<AddBillModal> {
 
                         onPressed: _canGoPrev() ? () => _shiftDate(-1) : null,
                         color: _canGoPrev()
-                            ? AppColors.primary
+                            ? colorScheme.primary
                             : Colors.grey.withOpacity(0.3),
                       ),
                       Text(
@@ -306,7 +306,7 @@ class _AddBillModalState extends State<AddBillModal> {
                       IconButton(
                         icon: const Icon(Icons.chevron_right),
                         onPressed: () => _shiftDate(1),
-                        color: AppColors.primary,
+                        color: colorScheme.primary,
                       ),
                     ],
                   ),
@@ -322,7 +322,7 @@ class _AddBillModalState extends State<AddBillModal> {
                     ScreenDict.getBillLockCheckDesc(isRpg: isRpg),
                     style: TextStyle(
                       fontSize: 12,
-                      color: AppColors.textSecondary,
+                      color: colorScheme.onSurfaceVariant,
                     ),
                   ),
                   value: _isLockActive,
@@ -335,7 +335,7 @@ class _AddBillModalState extends State<AddBillModal> {
                 title: widget.initialBill == null
                     ? UiDict.addNew
                     : UiDict.saveChanges,
-                color: AppColors.primary,
+                color: colorScheme.primary,
                 onTap: _submit,
               ),
             ],

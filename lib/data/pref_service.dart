@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/user_model.dart';
@@ -66,10 +67,30 @@ class PrefService {
   Future<void> setNotification(bool value) async =>
       await _prefs.setBool(_keyNotification, value);
 
-  String get themeMode => _prefs.getString(_keyThemeMode) ?? "dark";
+  ThemeMode get themeMode {
+    final String? themeString = _prefs.getString(_keyThemeMode);
 
-  Future<void> setThemeMode(String value) async =>
-      await _prefs.setString(_keyThemeMode, value);
+    switch (themeString) {
+      case 'light':
+        return ThemeMode.light;
+      case 'dark':
+        return ThemeMode.dark;
+      default:
+        return ThemeMode.system;
+    }
+  }
+
+  Future<void> setThemeMode(ThemeMode mode) async {
+    String themeString = 'system';
+
+    if (mode == ThemeMode.light) {
+      themeString = 'light';
+    } else if (mode == ThemeMode.dark) {
+      themeString = 'dark';
+    }
+
+    await _prefs.setString(_keyThemeMode, themeString);
+  }
 
   String? get pinHash => _prefs.getString(_keyPinHash);
 

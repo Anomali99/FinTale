@@ -8,7 +8,6 @@ import '../../../core/constants/category_dict.dart';
 import '../../../core/constants/gamification_dict.dart';
 import '../../../core/constants/screen_dict.dart';
 import '../../../core/constants/ui_dict.dart';
-import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/enum_types.dart';
 import '../../../core/utils/number_utils.dart';
 import '../../../models/transaction_detail_model.dart';
@@ -150,6 +149,7 @@ class _IncomeModalState extends State<IncomeModal> {
   Widget build(BuildContext context) {
     final isRpg = context.read<SettingsController>().isRpgMode;
     final bottomInset = MediaQuery.of(context).viewInsets.bottom;
+    final colorScheme = Theme.of(context).colorScheme;
 
     return Container(
       padding: EdgeInsets.only(
@@ -158,8 +158,8 @@ class _IncomeModalState extends State<IncomeModal> {
         top: 24,
         bottom: 24 + bottomInset,
       ),
-      decoration: const BoxDecoration(
-        color: AppColors.surface,
+      decoration: BoxDecoration(
+        color: colorScheme.surface,
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       child: Form(
@@ -324,7 +324,7 @@ class _IncomeModalState extends State<IncomeModal> {
                   ),
                   style: TextStyle(
                     fontSize: 12,
-                    color: AppColors.textSecondary,
+                    color: colorScheme.onSurfaceVariant,
                   ),
                 ),
                 value: _isFeeActive,
@@ -376,7 +376,7 @@ class _IncomeModalState extends State<IncomeModal> {
                     ScreenDict.getReservedCheckDesc(isRpg: isRpg),
                     style: TextStyle(
                       fontSize: 12,
-                      color: AppColors.textSecondary,
+                      color: colorScheme.onSurfaceVariant,
                     ),
                   ),
                   value: _isReservedActive,
@@ -407,7 +407,7 @@ class _IncomeModalState extends State<IncomeModal> {
                     UiDict.autoCheckDesc,
                     style: TextStyle(
                       fontSize: 12,
-                      color: AppColors.textSecondary,
+                      color: colorScheme.onSurfaceVariant,
                     ),
                   ),
                   value: _isAllocationActive,
@@ -420,10 +420,10 @@ class _IncomeModalState extends State<IncomeModal> {
                   Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: AppColors.surfaceVariant,
+                      color: colorScheme.surfaceContainerHighest,
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(
-                        color: AppColors.primary.withOpacity(0.3),
+                        color: colorScheme.primary.withOpacity(0.3),
                       ),
                     ),
                     child: Column(
@@ -480,7 +480,7 @@ class _IncomeModalState extends State<IncomeModal> {
                 title: widget.isTransfer
                     ? UiDict.transfer.get(isRpg)
                     : ScreenDict.saveIncome.get(isRpg),
-                color: AppColors.primary,
+                color: colorScheme.primary,
                 onTap: _submit,
               ),
             ],
@@ -491,6 +491,8 @@ class _IncomeModalState extends State<IncomeModal> {
   }
 
   Widget _buildAllocationRow(Enum name, double percentage) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     double amount = _onePercentageAmount * percentage;
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -499,10 +501,7 @@ class _IncomeModalState extends State<IncomeModal> {
           flex: 2,
           child: Text(
             GamificationDict.getSkillByEnum(name).get(false),
-            style: const TextStyle(
-              fontSize: 13,
-              color: AppColors.textSecondary,
-            ),
+            style: TextStyle(fontSize: 13, color: colorScheme.onSurfaceVariant),
           ),
         ),
 
@@ -510,10 +509,10 @@ class _IncomeModalState extends State<IncomeModal> {
           flex: 1,
           child: Text(
             "${percentage.toInt().toString()}%",
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.bold,
-              color: AppColors.primary,
+              color: colorScheme.primary,
             ),
             textAlign: TextAlign.center,
           ),

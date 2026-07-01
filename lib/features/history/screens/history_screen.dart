@@ -8,7 +8,6 @@ import '../../../controllers/settings_controller.dart';
 import '../../../controllers/transaction_controller.dart';
 import '../../../controllers/user_controller.dart';
 import '../../../core/constants/ui_dict.dart';
-import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/global_messenger.dart';
 import '../../../models/transaction_model.dart';
 import '../../../widgets/filter_bottom_sheet.dart';
@@ -95,6 +94,7 @@ class HistoryScreen extends StatelessWidget {
     final settingsController = context.watch<SettingsController>();
     final transactionController = context.watch<TransactionController>();
     final historyController = context.watch<HistoryController>();
+    final colorScheme = Theme.of(context).colorScheme;
 
     final isRpg = settingsController.isRpgMode;
 
@@ -124,7 +124,7 @@ class HistoryScreen extends StatelessWidget {
             icon: FaIcon(
               UiDict.menuAnalytics.icon(isRpg),
               size: 20,
-              color: AppColors.primary,
+              color: colorScheme.primary,
             ),
             onPressed: () async {
               await userController.processMonthlyReview();
@@ -186,7 +186,7 @@ class HistoryScreen extends StatelessWidget {
                     FaIcon(
                       UiDict.menuHistory.icon(isRpg),
                       size: 48,
-                      color: AppColors.surfaceVariant,
+                      color: colorScheme.surfaceContainerHighest,
                     ),
                     const SizedBox(height: 16),
                     Text(
@@ -195,7 +195,7 @@ class HistoryScreen extends StatelessWidget {
                         isRpg: isRpg,
                       ),
                       textAlign: TextAlign.center,
-                      style: const TextStyle(color: AppColors.textSecondary),
+                      style: TextStyle(color: colorScheme.onSurfaceVariant),
                     ),
                   ],
                 ),

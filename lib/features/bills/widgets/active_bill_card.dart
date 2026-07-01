@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
-import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/enum_types.dart';
 import '../../../core/utils/time_formatter.dart';
 import '../../../models/transaction_model.dart';
@@ -19,13 +18,15 @@ class ActiveBillCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     final isCleared = data.status == StatusType.paid;
-    final color = data.status.accentColor;
+    final color = data.status.getAccentColor(context);
 
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
-        color: data.status.cardColor,
+        color: data.status.getCardColor(context),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: color.withOpacity(isCleared ? 0.2 : 0.5)),
       ),
@@ -40,7 +41,7 @@ class ActiveBillCard extends StatelessWidget {
                 backgroundColor: color.withOpacity(0.2),
                 child: FaIcon(
                   data.detailTransaction[0].category.categoryDict.icon(isRpg),
-                  color: data.status.accentColor,
+                  color: data.status.getAccentColor(context),
                   size: 20,
                 ),
               ),
@@ -58,7 +59,7 @@ class ActiveBillCard extends StatelessWidget {
                             data.title,
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
-                              color: data.status.textColor,
+                              color: data.status.getTextColor(context),
                               decoration: isCleared
                                   ? TextDecoration.lineThrough
                                   : null,
@@ -74,7 +75,7 @@ class ActiveBillCard extends StatelessWidget {
                       TimeFormatter.formatShort(data.dateTimestamp),
                       style: TextStyle(
                         fontSize: 12,
-                        color: isCleared ? AppColors.textSecondary : color,
+                        color: isCleared ? colorScheme.onSurfaceVariant : color,
                       ),
                     ),
                   ],
