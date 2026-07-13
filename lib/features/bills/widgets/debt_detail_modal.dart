@@ -41,7 +41,7 @@ class DebtDetailModal extends StatelessWidget {
                 height: 4,
                 margin: const EdgeInsets.only(bottom: 24),
                 decoration: BoxDecoration(
-                  color: Colors.white24,
+                  color: colorScheme.onSurface.withOpacity(0.2),
                   borderRadius: BorderRadius.circular(4),
                 ),
               ),
@@ -51,10 +51,10 @@ class DebtDetailModal extends StatelessWidget {
               children: [
                 CircleAvatar(
                   radius: 28,
-                  backgroundColor: AppColors.error.withOpacity(0.2),
+                  backgroundColor: colorScheme.error.withOpacity(0.2),
                   child: FaIcon(
                     CategoryDict.getDebtByEnum(debt.type).icon(isRpg),
-                    color: AppColors.error,
+                    color: colorScheme.error,
                     size: 24,
                   ),
                 ),
@@ -65,8 +65,8 @@ class DebtDetailModal extends StatelessWidget {
                     children: [
                       Text(
                         'Lv. ${debt.level}',
-                        style: const TextStyle(
-                          color: AppColors.error,
+                        style: TextStyle(
+                          color: colorScheme.error,
                           fontSize: 12,
                           fontWeight: FontWeight.bold,
                         ),
@@ -88,17 +88,20 @@ class DebtDetailModal extends StatelessWidget {
 
             CustomTable(
               color: colorScheme.surfaceContainerHighest,
-              borderColor: AppColors.error,
+              borderColor: colorScheme.error,
               children: [
                 CustomRowTable(
                   label: ScreenDict.debtRemaining.get(isRpg),
                   value: NumberUtils.toIdr(debt.currentDebt),
-                  valueColor: AppColors.error,
+                  valueColor: colorScheme.error,
                   boldValue: true,
                 ),
-                const Padding(
+                Padding(
                   padding: EdgeInsets.symmetric(vertical: 12),
-                  child: Divider(color: Colors.white10, height: 1),
+                  child: Divider(
+                    color: colorScheme.onSurface.withOpacity(0.1),
+                    height: 1,
+                  ),
                 ),
                 CustomRowTable(
                   label: ScreenDict.debtAmount.get(isRpg),
@@ -108,7 +111,7 @@ class DebtDetailModal extends StatelessWidget {
                 CustomRowTable(
                   label: ScreenDict.debtPayAmount.get(isRpg),
                   value: NumberUtils.toIdr(debt.paidAmount),
-                  valueColor: AppColors.success,
+                  valueColor: AppColors.getSuccess(context),
                 ),
                 const SizedBox(height: 16),
                 ClipRRect(
@@ -116,7 +119,7 @@ class DebtDetailModal extends StatelessWidget {
                   child: LinearProgressIndicator(
                     value: debt.debtPercentage(isRpg),
                     backgroundColor: theme.scaffoldBackgroundColor,
-                    color: AppColors.success,
+                    color: AppColors.getSuccess(context),
                     minHeight: 8,
                   ),
                 ),
@@ -168,7 +171,7 @@ class DebtDetailModal extends StatelessWidget {
                     amount: NumberUtils.toIdr(debt.bill!.amount),
                     isRpg: isRpg,
                   ),
-                  color: AppColors.success,
+                  color: AppColors.getSuccess(context),
                   onTap: () {
                     Navigator.pop(context, DebtActionType.payBill);
                   },

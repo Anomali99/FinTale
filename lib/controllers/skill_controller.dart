@@ -207,7 +207,7 @@ class SkillController with ChangeNotifier {
     }
   }
 
-  Future<void> increaseAllocation() async {
+  Future<void> increaseAllocation(BuildContext context) async {
     if (selectedNode == null) return;
 
     double current = currentPercentage ?? 0.0;
@@ -289,7 +289,7 @@ class SkillController with ChangeNotifier {
     if (current < 100) {
       _userController.updateSkillByKey(selectedNode!, current + 1);
       await _userController.saveUser();
-      await _userController.processSetAllocation();
+      await _userController.processSetAllocation(context);
       await loadData();
       notifyListeners();
     }

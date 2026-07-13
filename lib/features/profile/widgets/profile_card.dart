@@ -118,12 +118,12 @@ class ProfileCard extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
+              Text(
                 'EXP',
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.bold,
-                  color: AppColors.warning,
+                  color: AppColors.getWarning(context),
                 ),
               ),
               Text(
@@ -135,13 +135,13 @@ class ProfileCard extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 6),
+          SizedBox(height: 6),
           ClipRRect(
             borderRadius: BorderRadius.circular(4),
             child: LinearProgressIndicator(
               value: xpPercentage,
               backgroundColor: theme.scaffoldBackgroundColor,
-              color: AppColors.warning,
+              color: AppColors.getWarning(context),
               minHeight: 8,
             ),
           ),

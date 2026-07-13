@@ -5,6 +5,7 @@ import '../../../core/constants/category_dict.dart';
 import '../../../core/constants/gamification_dict.dart';
 import '../../../core/constants/ui_dict.dart';
 import '../../../core/models/mission_model.dart';
+import '../../../core/utils/color_extension.dart';
 import '../../../core/utils/enum_types.dart';
 import '../../../widgets/markdown_text_parser.dart';
 
@@ -231,7 +232,7 @@ class InfoScreen extends StatelessWidget {
             GamificationDict.missionNote3Title,
             GamificationDict.missionNote3,
             icon: FontAwesomeIcons.fire,
-            color: Colors.orange,
+            color: Colors.orange.adapt(context),
           ),
 
           const SizedBox(height: 40),
@@ -268,7 +269,7 @@ class InfoScreen extends StatelessWidget {
       decoration: BoxDecoration(
         color: colorScheme.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.white10),
+        border: Border.all(color: colorScheme.onSurface.withOpacity(0.1)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -307,58 +308,72 @@ class InfoScreen extends StatelessWidget {
             child: Column(
               children: [
                 _buildStatRow(
+                  context,
                   GamificationDict.skillDaily.icon(false),
                   GamificationDict.skillDaily.get(false),
                   skills[SectorType.living]['value'],
-                  GamificationDict.skillDaily.color ?? Colors.blueAccent,
+                  GamificationDict.skillDaily.color ??
+                      Colors.blueAccent.adapt(context),
                 ),
                 _buildSubStatRow(
+                  context,
                   '- ${GamificationDict.skillRoutine.get(false)}',
                   skills[SectorType.living]['sub'][SubSectorType.essentials],
                 ),
                 _buildSubStatRow(
+                  context,
                   '- ${GamificationDict.skillDream.get(false)}',
                   skills[SectorType.living]['sub'][SubSectorType.dreamFund],
                 ),
                 const SizedBox(height: 12),
 
                 _buildStatRow(
+                  context,
                   GamificationDict.skillDebt.icon(false),
                   GamificationDict.skillDebt.get(false),
                   skills[SectorType.payDebt]['value'],
-                  GamificationDict.skillDebt.color ?? Colors.redAccent,
+                  GamificationDict.skillDebt.color ??
+                      Colors.redAccent.adapt(context),
                 ),
                 const SizedBox(height: 12),
 
                 _buildStatRow(
+                  context,
                   GamificationDict.skillEmergency.icon(false),
                   GamificationDict.skillEmergency.get(false),
                   skills[SectorType.emergency]['value'],
-                  GamificationDict.skillEmergency.color ?? Colors.greenAccent,
+                  GamificationDict.skillEmergency.color ??
+                      Colors.greenAccent.adapt(context),
                 ),
                 _buildSubStatRow(
+                  context,
                   '- ${CategoryDict.lowRisk.get(false)}',
                   skills[SectorType.emergency]['sub'][SubSectorType.lowRisk],
                 ),
                 const SizedBox(height: 12),
 
                 _buildStatRow(
+                  context,
                   GamificationDict.skillInvestment.icon(false),
                   GamificationDict.skillInvestment.get(false),
                   skills[SectorType.investment]['value'],
-                  GamificationDict.skillInvestment.color ?? Colors.purpleAccent,
+                  GamificationDict.skillInvestment.color ??
+                      Colors.purpleAccent.adapt(context),
                 ),
 
                 _buildSubStatRow(
+                  context,
                   '- ${CategoryDict.lowRisk.get(false)}',
                   skills[SectorType.investment]['sub'][SubSectorType.lowRisk],
                 ),
                 _buildSubStatRow(
+                  context,
                   '- ${CategoryDict.mediumRisk.get(false)}',
                   skills[SectorType.investment]['sub'][SubSectorType
                       .mediumRisk],
                 ),
                 _buildSubStatRow(
+                  context,
                   '- ${CategoryDict.highRisk.get(false)}',
                   skills[SectorType.investment]['sub'][SubSectorType.highRisk],
                 ),
@@ -371,24 +386,32 @@ class InfoScreen extends StatelessWidget {
   }
 
   Widget _buildStatRow(
+    BuildContext context,
     FaIconData icon,
     String label,
     String? value,
     Color color,
   ) {
+    final colorScheme = Theme.of(context).colorScheme;
     bool isLocked = value == null;
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Row(
           children: [
-            FaIcon(icon, size: 16, color: isLocked ? Colors.grey : color),
+            FaIcon(
+              icon,
+              size: 16,
+              color: isLocked ? colorScheme.onSurfaceVariant : color,
+            ),
             const SizedBox(width: 12),
             Text(
               label,
               style: TextStyle(
                 fontWeight: FontWeight.bold,
-                color: isLocked ? Colors.grey : Colors.white,
+                color: isLocked
+                    ? colorScheme.onSurfaceVariant
+                    : colorScheme.onSurface,
               ),
             ),
           ],
@@ -397,14 +420,17 @@ class InfoScreen extends StatelessWidget {
           isLocked ? 'LOCKED' : value,
           style: TextStyle(
             fontWeight: FontWeight.w900,
-            color: isLocked ? Colors.grey : Colors.white,
+            color: isLocked
+                ? colorScheme.onSurfaceVariant
+                : colorScheme.onSurface,
           ),
         ),
       ],
     );
   }
 
-  Widget _buildSubStatRow(String text, String? value) {
+  Widget _buildSubStatRow(BuildContext context, String text, String? value) {
+    final colorScheme = Theme.of(context).colorScheme;
     bool isLocked = value == null;
     return Padding(
       padding: const EdgeInsets.only(left: 28, top: 4),
@@ -415,14 +441,18 @@ class InfoScreen extends StatelessWidget {
             text,
             style: TextStyle(
               fontSize: 11,
-              color: isLocked ? Colors.grey : Colors.grey.shade500,
+              color: isLocked
+                  ? colorScheme.onSurfaceVariant
+                  : colorScheme.onSurfaceVariant.withOpacity(0.5),
             ),
           ),
           Text(
             isLocked ? 'LOCKED' : value,
             style: TextStyle(
               fontSize: 11,
-              color: isLocked ? Colors.grey : Colors.grey.shade500,
+              color: isLocked
+                  ? colorScheme.onSurfaceVariant
+                  : colorScheme.onSurfaceVariant.withOpacity(0.5),
             ),
           ),
         ],
@@ -526,10 +556,10 @@ class InfoScreen extends StatelessWidget {
                       ),
                       Text(
                         mission.xp,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.bold,
-                          color: Colors.orangeAccent,
+                          color: Colors.orangeAccent.adapt(context),
                         ),
                       ),
                     ],
@@ -549,7 +579,7 @@ class InfoScreen extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: colorScheme.surfaceContainerHighest,
-        border: Border.all(color: Colors.white10),
+        border: Border.all(color: colorScheme.onSurface.withOpacity(0.1)),
         borderRadius: BorderRadius.circular(16),
       ),
       child: ClipRRect(
@@ -619,7 +649,7 @@ class InfoScreen extends StatelessWidget {
             style: TextStyle(
               fontSize: 12,
               fontWeight: isHeader ? FontWeight.bold : FontWeight.normal,
-              color: isHeader ? colorScheme.primary : Colors.white,
+              color: isHeader ? colorScheme.primary : colorScheme.onSurface,
             ),
           ),
         );

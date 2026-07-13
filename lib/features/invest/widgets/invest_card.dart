@@ -7,6 +7,7 @@ import '../../../core/constants/category_dict.dart';
 import '../../../core/constants/gamification_dict.dart';
 import '../../../core/constants/screen_dict.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/utils/color_extension.dart';
 import '../../../core/utils/number_utils.dart';
 import '../../../models/assets_model.dart';
 import '../../../widgets/custom_bottom_sheet.dart';
@@ -52,7 +53,7 @@ class InvestCard extends StatelessWidget {
             ),
             BottomSheetChild(
               title: ScreenDict.investUpdatePrice.get(isRpg),
-              color: Colors.blueAccent,
+              color: Colors.blueAccent.adapt(context),
               icon: FontAwesomeIcons.arrowsRotate,
               onTap: () {
                 Navigator.pop(context);
@@ -62,7 +63,7 @@ class InvestCard extends StatelessWidget {
             if (asset.hasDividend)
               BottomSheetChild(
                 title: ScreenDict.investClaimDeviden,
-                color: AppColors.success,
+                color: AppColors.getSuccess(context),
                 icon: FontAwesomeIcons.moneyCheck,
                 onTap: () {
                   Navigator.pop(context);
@@ -71,7 +72,7 @@ class InvestCard extends StatelessWidget {
               ),
             BottomSheetChild(
               title: ScreenDict.investSellAsset.get(isRpg),
-              color: AppColors.error,
+              color: colorScheme.error,
               icon: FontAwesomeIcons.moneyBillTransfer,
               onTap: () {
                 Navigator.pop(context);
@@ -139,13 +140,15 @@ class InvestCard extends StatelessWidget {
                                     vertical: 4,
                                   ),
                                   decoration: BoxDecoration(
-                                    color: Colors.cyan.withOpacity(0.2),
+                                    color: Colors.cyan
+                                        .adapt(context)
+                                        .withOpacity(0.2),
                                     borderRadius: BorderRadius.circular(8),
                                   ),
                                   child: FaIcon(
                                     GamificationDict.skillEmergency.icon(isRpg),
                                     size: 12,
-                                    color: Colors.cyan,
+                                    color: Colors.cyan.adapt(context),
                                   ),
                                 ),
                                 const SizedBox(width: 8),
@@ -157,13 +160,15 @@ class InvestCard extends StatelessWidget {
                                     vertical: 4,
                                   ),
                                   decoration: BoxDecoration(
-                                    color: Colors.blueAccent.withOpacity(0.2),
+                                    color: Colors.blueAccent
+                                        .adapt(context)
+                                        .withOpacity(0.2),
                                     borderRadius: BorderRadius.circular(8),
                                   ),
                                   child: FaIcon(
                                     CategoryDict.dividend.icon(isRpg),
                                     size: 12,
-                                    color: Colors.blueAccent,
+                                    color: Colors.blueAccent.adapt(context),
                                   ),
                                 ),
                                 const SizedBox(width: 8),
@@ -175,8 +180,10 @@ class InvestCard extends StatelessWidget {
                                 ),
                                 decoration: BoxDecoration(
                                   color: asset.isProfit
-                                      ? AppColors.success.withOpacity(0.2)
-                                      : AppColors.error.withOpacity(0.2),
+                                      ? AppColors.getSuccess(
+                                          context,
+                                        ).withOpacity(0.2)
+                                      : colorScheme.error.withOpacity(0.2),
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                                 child: Text(
@@ -185,8 +192,8 @@ class InvestCard extends StatelessWidget {
                                     fontSize: 12,
                                     fontWeight: FontWeight.bold,
                                     color: asset.isProfit
-                                        ? AppColors.success
-                                        : AppColors.error,
+                                        ? AppColors.getSuccess(context)
+                                        : colorScheme.error,
                                   ),
                                 ),
                               ),
@@ -244,8 +251,8 @@ class InvestCard extends StatelessWidget {
                         fontFamily: 'Poppins',
                         fontWeight: FontWeight.bold,
                         color: asset.isProfit
-                            ? AppColors.success
-                            : AppColors.error,
+                            ? AppColors.getSuccess(context)
+                            : colorScheme.error,
                       ),
                     ),
                   ],

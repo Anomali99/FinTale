@@ -16,7 +16,21 @@ class AppColors {
   static const Color textLight = Color(0xFF1A1A1A);
   static const Color textSecondaryLight = Color(0xFF757575);
 
-  static const Color success = Color(0xFF4CAF50);
-  static const Color warning = Color(0xFFFF9800);
+  static const Color successDark = Color(0xFF4CAF50);
+  static const Color warningDark = Color(0xFFFF9800);
+
+  static const Color successLight = Color(0xFF2E7D32);
+  static const Color warningLight = Color(0xFFE65100);
+
+  static Color getSuccess(BuildContext context) =>
+      Theme.of(context).brightness == Brightness.light
+      ? successLight
+      : successDark;
+
+  static Color getWarning(BuildContext context) =>
+      Theme.of(context).brightness == Brightness.light
+      ? warningLight
+      : warningDark;
+
   static const Color error = Color(0xFFEF5350);
 }

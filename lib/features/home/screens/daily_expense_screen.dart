@@ -9,7 +9,6 @@ import '../../../controllers/settings_controller.dart';
 import '../../../controllers/wallet_controller.dart';
 import '../../../core/constants/screen_dict.dart';
 import '../../../core/constants/ui_dict.dart';
-import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/enum_types.dart';
 import '../../../core/utils/number_utils.dart';
 import '../../../models/transaction_detail_model.dart';
@@ -284,7 +283,9 @@ class _DailyExpenseScreenState extends State<DailyExpenseScreen> {
                 Container(
                   height: 51,
                   decoration: BoxDecoration(
-                    border: Border.all(color: Colors.white38),
+                    border: Border.all(
+                      color: colorScheme.onSurface.withOpacity(0.38),
+                    ),
                     borderRadius: BorderRadius.circular(4),
                   ),
                   child: IconButton(
@@ -343,7 +344,7 @@ class _DailyExpenseScreenState extends State<DailyExpenseScreen> {
               const SizedBox(height: 12),
               NoteContainer(
                 text: "Note: ${ScreenDict.getFeeCheckDesc(isRpg: isRpg)}",
-                color: Colors.grey,
+                color: colorScheme.onSurfaceVariant,
               ),
             ],
 
@@ -385,7 +386,7 @@ class _DailyExpenseScreenState extends State<DailyExpenseScreen> {
               onChanged: (val) => setState(() => _isExcludeActive = val),
             ),
 
-            const Divider(height: 1, color: Colors.white24),
+            Divider(height: 1, color: colorScheme.onSurface.withOpacity(0.2)),
             const SizedBox(height: 32),
 
             Text(
@@ -408,7 +409,9 @@ class _DailyExpenseScreenState extends State<DailyExpenseScreen> {
                 margin: const EdgeInsets.only(bottom: 24),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16),
-                  side: const BorderSide(color: Colors.white10),
+                  side: BorderSide(
+                    color: colorScheme.onSurface.withOpacity(0.1),
+                  ),
                 ),
                 child: Padding(
                   padding: const EdgeInsets.all(20.0),
@@ -438,9 +441,9 @@ class _DailyExpenseScreenState extends State<DailyExpenseScreen> {
                           ),
                           if (_items.length > 1)
                             IconButton(
-                              icon: const Icon(
+                              icon: Icon(
                                 Icons.delete_outline,
-                                color: AppColors.error,
+                                color: colorScheme.error,
                               ),
                               onPressed: () => _removeItem(index),
                               tooltip: UiDict.deleteItem,
@@ -552,7 +555,7 @@ class _DailyExpenseScreenState extends State<DailyExpenseScreen> {
         color: colorScheme.surface,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.2),
+            color: colorScheme.onPrimary.withOpacity(0.2),
             offset: const Offset(0, -4),
             blurRadius: 12,
           ),
@@ -573,7 +576,7 @@ class _DailyExpenseScreenState extends State<DailyExpenseScreen> {
                       _selectedWallet?.name ?? '',
                       NumberUtils.toIdr(_selectedWallet?.amount),
                     ),
-              color: Colors.grey,
+              color: colorScheme.onSurfaceVariant,
             ),
             const SizedBox(height: 8),
           ],
@@ -594,11 +597,11 @@ class _DailyExpenseScreenState extends State<DailyExpenseScreen> {
                   alignment: Alignment.centerRight,
                   child: Text(
                     NumberUtils.toIdr(_totalAmount),
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontFamily: 'Poppins',
                       fontWeight: FontWeight.bold,
                       fontSize: 22,
-                      color: AppColors.error,
+                      color: colorScheme.error,
                     ),
                   ),
                 ),
@@ -608,7 +611,7 @@ class _DailyExpenseScreenState extends State<DailyExpenseScreen> {
           const SizedBox(height: 16),
           CustomButton(
             title: ScreenDict.saveExpense.get(isRpg),
-            color: AppColors.error,
+            color: colorScheme.error,
             onTap: _submitForm,
           ),
         ],

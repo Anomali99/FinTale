@@ -160,6 +160,7 @@ class BillController with ChangeNotifier {
   }
 
   Future<bool> payBill(
+    BuildContext context,
     TransactionModel transaction, {
     bool useReserved = false,
     bool checkExisting = true,
@@ -178,7 +179,7 @@ class BillController with ChangeNotifier {
           debt.bill?.advanceToNextBill();
         }
         await _debtDao.update(debt);
-        await _userController.processDebtPayment();
+        await _userController.processDebtPayment(context);
       } else {
         final bill = getBillById(transaction.billId ?? 1);
         bill.advanceToNextBill();
@@ -199,8 +200,8 @@ class BillController with ChangeNotifier {
       await _walletController.updateWallet(wallet);
       await loadDebtData();
 
-      _userController.updateFreeDebt(isFreeDebt);
-      await _userController.processRecordTransaction();
+      _userController.updateFreeDebt(context, isFreeDebt);
+      await _userController.processRecordTransaction(context);
       await _userController.saveUser();
       await _walletController.loadData();
       await _userController.loadData();
@@ -215,6 +216,7 @@ class BillController with ChangeNotifier {
   }
 
   Future<bool> payDebt(
+    BuildContext context,
     TransactionModel transaction, {
     bool useReserved = false,
   }) async {
@@ -236,9 +238,9 @@ class BillController with ChangeNotifier {
       await _walletController.updateWallet(wallet);
       await loadDebtData();
 
-      _userController.updateFreeDebt(isFreeDebt);
-      await _userController.processRecordTransaction();
-      await _userController.processDebtPayment();
+      _userController.updateFreeDebt(context, isFreeDebt);
+      await _userController.processRecordTransaction(context);
+      await _userController.processDebtPayment(context);
       await _userController.saveUser();
       await _walletController.loadData();
       return true;
@@ -287,11 +289,11 @@ class BillController with ChangeNotifier {
     }
   }
 
-  Future<bool> createDebt(DebtModel debt) async {
+  Future<bool> createDebt(BuildContext context, DebtModel debt) async {
     try {
       if (debt.id == null) {
         await _debtDao.create(debt);
-        _userController.updateFreeDebt(false);
+        _userController.updateFreeDebt(context, false);
       } else {
         await _debtDao.update(debt);
       }

@@ -43,8 +43,8 @@ class TransactionCard extends StatelessWidget {
             children: [
               CircleAvatar(
                 radius: 20,
-                backgroundColor: type.bgColor,
-                child: FaIcon(icon, color: type.color, size: 18),
+                backgroundColor: type.getBgColor(context),
+                child: FaIcon(icon, color: type.getColor(context), size: 18),
               ),
               const SizedBox(width: 16),
 
@@ -76,7 +76,7 @@ class TransactionCard extends StatelessWidget {
                     style: TextStyle(
                       fontFamily: 'Poppins',
                       fontWeight: FontWeight.bold,
-                      color: type.color,
+                      color: type.getColor(context),
                       fontSize: 14,
                     ),
                   ),

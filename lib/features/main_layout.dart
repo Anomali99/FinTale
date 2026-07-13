@@ -11,7 +11,7 @@ import '../controllers/settings_controller.dart';
 import '../controllers/wallet_controller.dart';
 import '../core/constants/screen_dict.dart';
 import '../core/constants/ui_dict.dart';
-import '../core/theme/app_colors.dart';
+import '../core/utils/color_extension.dart';
 import '../core/utils/enum_types.dart';
 import '../core/utils/global_messenger.dart';
 import '../models/bill_model.dart';
@@ -67,11 +67,13 @@ class MainLayout extends StatelessWidget {
         bool isSuccess = false;
         if (isBill) {
           isSuccess = await billController.payBill(
+            context,
             transaction,
             useReserved: useReserved,
           );
         } else {
           isSuccess = await billController.payDebt(
+            context,
             transaction,
             useReserved: useReserved,
           );
@@ -83,12 +85,14 @@ class MainLayout extends StatelessWidget {
         await historyController.applyFilter();
         await analyticsController.applyFilter();
         GlobalMessenger.showMessage(
+          context,
           message: ScreenDict.getDebtNotif(isSuccess: isSuccess, isRpg: isRpg),
           isSuccess: isSuccess,
         );
       }
     } else {
       GlobalMessenger.showMessage(
+        context,
         message: ScreenDict.debtEmpty.get(isRpg),
         isSuccess: true,
       );
@@ -108,6 +112,7 @@ class MainLayout extends StatelessWidget {
       bool useReserved = result['use_reserved'];
       bool excludeDaily = result['exclude_daily'];
       bool isSuccess = await layoutController.saveTransaction(
+        context,
         transaction,
         useReserved: useReserved,
         excludeDaily: excludeDaily,
@@ -115,6 +120,7 @@ class MainLayout extends StatelessWidget {
       await historyController.applyFilter();
       await analyticsController.applyFilter();
       GlobalMessenger.showMessage(
+        context,
         message: UiDict.getSaveNotif(
           ScreenDict.historyTransaction.get(isRpg),
           isSuccess: isSuccess,
@@ -125,6 +131,8 @@ class MainLayout extends StatelessWidget {
   }
 
   void _showActionPopup(BuildContext context, bool isRpg) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
@@ -134,7 +142,7 @@ class MainLayout extends StatelessWidget {
             BottomSheetChild(
               title: UiDict.menuPayDebt.get(isRpg),
               subtitle: UiDict.menuPayDebt.description ?? "",
-              color: AppColors.error,
+              color: colorScheme.error,
               icon: UiDict.menuPayDebt.icon(isRpg),
               onTap: () {
                 Navigator.pop(con);
@@ -144,7 +152,7 @@ class MainLayout extends StatelessWidget {
             BottomSheetChild(
               title: UiDict.menuDailyUse.get(isRpg),
               subtitle: UiDict.menuDailyUse.description ?? "",
-              color: Colors.blueAccent,
+              color: Colors.blueAccent.adapt(context),
               icon: UiDict.menuDailyUse.icon(isRpg),
               onTap: () {
                 Navigator.pop(con);
@@ -170,8 +178,8 @@ class MainLayout extends StatelessWidget {
 
       floatingActionButton: FloatingActionButton(
         onPressed: () => _showActionPopup(context, isRpg),
-        backgroundColor: AppColors.error,
-        foregroundColor: Colors.white,
+        backgroundColor: colorScheme.error,
+        foregroundColor: colorScheme.onSurface,
         elevation: 4,
         shape: const CircleBorder(),
         child: FaIcon(UiDict.menuPayDebt.icon(isRpg), size: 24),

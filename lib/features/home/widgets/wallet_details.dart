@@ -60,7 +60,10 @@ class WalletDetails extends StatelessWidget {
                   isRpg: isRpg,
                 ),
 
-              const Divider(color: Colors.white10, height: 32),
+              Divider(
+                color: colorScheme.onSurface.withOpacity(0.1),
+                height: 32,
+              ),
 
               if (bank.isNotEmpty) ...[
                 _buildWalletItem(
@@ -71,7 +74,10 @@ class WalletDetails extends StatelessWidget {
                   wallet: bank,
                 ),
 
-                const Divider(color: Colors.white10, height: 16),
+                Divider(
+                  color: colorScheme.onSurface.withOpacity(0.1),
+                  height: 16,
+                ),
               ],
 
               if (eWallet.isNotEmpty) ...[
@@ -83,7 +89,10 @@ class WalletDetails extends StatelessWidget {
                   wallet: eWallet,
                 ),
 
-                const Divider(color: Colors.white10, height: 16),
+                Divider(
+                  color: colorScheme.onSurface.withOpacity(0.1),
+                  height: 16,
+                ),
               ],
 
               if (platform.isNotEmpty) ...[
@@ -95,7 +104,10 @@ class WalletDetails extends StatelessWidget {
                   wallet: platform,
                 ),
 
-                const Divider(color: Colors.white10, height: 16),
+                Divider(
+                  color: colorScheme.onSurface.withOpacity(0.1),
+                  height: 16,
+                ),
               ],
 
               const SizedBox(height: 32),

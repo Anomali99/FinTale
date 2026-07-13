@@ -21,6 +21,7 @@ class AllocationCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     final CategoryModel sector = GamificationDict.getSkillByEnum(
       allocation.sector,
     );
@@ -77,7 +78,7 @@ class AllocationCard extends StatelessWidget {
                         subSectorName,
                         style: TextStyle(
                           fontSize: 13,
-                          color: Colors.grey.shade600,
+                          color: colorScheme.onSurfaceVariant.withOpacity(0.6),
                           fontWeight: FontWeight.w500,
                         ),
                       ),
@@ -91,7 +92,10 @@ class AllocationCard extends StatelessWidget {
                 children: [
                   Text(
                     ScreenDict.homePending.get(isRpg),
-                    style: TextStyle(fontSize: 11, color: Colors.grey),
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: colorScheme.onSurfaceVariant,
+                    ),
                   ),
                   const SizedBox(height: 4),
                   Text(

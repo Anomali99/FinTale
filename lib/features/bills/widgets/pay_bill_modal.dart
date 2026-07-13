@@ -149,7 +149,7 @@ class _PayBillModalState extends State<PayBillModal> {
                   height: 4,
                   margin: const EdgeInsets.only(bottom: 16),
                   decoration: BoxDecoration(
-                    color: Colors.white24,
+                    color: colorScheme.onSurface.withOpacity(0.2),
                     borderRadius: BorderRadius.circular(4),
                   ),
                 ),
@@ -259,7 +259,7 @@ class _PayBillModalState extends State<PayBillModal> {
                 const SizedBox(height: 12),
                 NoteContainer(
                   text: "Note: ${ScreenDict.getFeeCheckDesc(isRpg: isRpg)}",
-                  color: Colors.grey,
+                  color: colorScheme.onSurfaceVariant,
                 ),
               ],
 
@@ -288,7 +288,7 @@ class _PayBillModalState extends State<PayBillModal> {
                   color: colorScheme.surface,
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.2),
+                      color: colorScheme.onPrimary.withOpacity(0.2),
                       offset: const Offset(0, -4),
                       blurRadius: 12,
                     ),
@@ -311,7 +311,7 @@ class _PayBillModalState extends State<PayBillModal> {
                                 _selectedWallet?.name ?? '',
                                 NumberUtils.toIdr(_selectedWallet?.amount),
                               ),
-                        color: Colors.grey,
+                        color: colorScheme.onSurfaceVariant,
                       ),
                       const SizedBox(height: 8),
                     ],

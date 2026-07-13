@@ -131,7 +131,7 @@ class _AddDebtModalState extends State<AddDebtModal> {
                   height: 4,
                   margin: const EdgeInsets.only(bottom: 16),
                   decoration: BoxDecoration(
-                    color: Colors.white24,
+                    color: colorScheme.onSurface.withOpacity(0.2),
                     borderRadius: BorderRadius.circular(4),
                   ),
                 ),

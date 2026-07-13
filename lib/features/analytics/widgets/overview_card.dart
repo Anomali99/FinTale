@@ -82,9 +82,9 @@ class OverviewCard extends StatelessWidget {
               ),
               Text(
                 NumberUtils.toIdr(totalIncome),
-                style: const TextStyle(
+                style: TextStyle(
                   fontWeight: FontWeight.bold,
-                  color: AppColors.success,
+                  color: AppColors.getSuccess(context),
                 ),
               ),
             ],
@@ -105,7 +105,7 @@ class OverviewCard extends StatelessWidget {
                                       100)
                                 : 0.0)
                             .toInt(),
-                    child: Container(color: AppColors.error),
+                    child: Container(color: colorScheme.error),
                   ),
                   Expanded(
                     flex:
@@ -125,7 +125,9 @@ class OverviewCard extends StatelessWidget {
                                       100)
                                 : 100.0)
                             .toInt(),
-                    child: Container(color: Colors.white24),
+                    child: Container(
+                      color: colorScheme.onSurface.withOpacity(0.2),
+                    ),
                   ),
                 ],
               ),
@@ -138,7 +140,7 @@ class OverviewCard extends StatelessWidget {
             children: [
               _buildLegendItem(
                 context,
-                color: AppColors.error,
+                color: colorScheme.error,
                 label: UiDict.expense.get(isRpg),
                 amount: totalExpense,
               ),
@@ -150,7 +152,7 @@ class OverviewCard extends StatelessWidget {
               ),
               _buildLegendItem(
                 context,
-                color: Colors.white24,
+                color: colorScheme.onSurface.withOpacity(0.2),
                 label: UiDict.unallocated.get(isRpg),
                 amount: unallocated,
               ),

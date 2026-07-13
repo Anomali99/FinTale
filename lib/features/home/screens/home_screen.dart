@@ -15,6 +15,7 @@ import '../../../controllers/wallet_controller.dart';
 import '../../../core/constants/gamification_dict.dart';
 import '../../../core/constants/screen_dict.dart';
 import '../../../core/constants/ui_dict.dart';
+import '../../../core/utils/color_extension.dart';
 import '../../../core/utils/enum_types.dart';
 import '../../../core/utils/global_messenger.dart';
 import '../../../models/assets_model.dart';
@@ -92,16 +93,19 @@ class HomeScreen extends StatelessWidget {
         bool isBill = result['is_bill'];
         if (isBill) {
           isSuccess = await billController.payBill(
+            context,
             transaction,
             useReserved: useReserved,
           );
         } else {
           isSuccess = await billController.payDebt(
+            context,
             transaction,
             useReserved: useReserved,
           );
         }
         GlobalMessenger.showMessage(
+          context,
           message: ScreenDict.getDebtNotif(isSuccess: isSuccess, isRpg: isRpg),
           isSuccess: isSuccess,
         );
@@ -109,6 +113,7 @@ class HomeScreen extends StatelessWidget {
       }
     } else {
       GlobalMessenger.showMessage(
+        context,
         message: ScreenDict.debtEmpty.get(isRpg),
         isSuccess: true,
       );
@@ -147,6 +152,7 @@ class HomeScreen extends StatelessWidget {
       TransactionModel transaction = result['transaction'];
       AssetsModel asset = result['asset'];
       bool isSuccess = await investController.saveTransaction(
+        context,
         transaction,
         asset,
       );
@@ -155,6 +161,7 @@ class HomeScreen extends StatelessWidget {
         await skillController.loadData();
       }
       GlobalMessenger.showMessage(
+        context,
         message: UiDict.getSaveNotif(
           ScreenDict.investAssetName.get(isRpg),
           isSuccess: isSuccess,
@@ -217,8 +224,12 @@ class HomeScreen extends StatelessWidget {
     );
 
     if (result != null && context.mounted) {
-      bool isSuccess = await context.read<HomeController>().saveWallet(result);
+      bool isSuccess = await context.read<HomeController>().saveWallet(
+        context,
+        result,
+      );
       GlobalMessenger.showMessage(
+        context,
         message: UiDict.getSaveNotif(
           UiDict.wallet,
           isSuccess: isSuccess,
@@ -253,12 +264,14 @@ class HomeScreen extends StatelessWidget {
       TransactionModel transaction = result['transaction'];
       bool autoAllocation = result['auto_allocation'];
       bool isSuccess = await homeController.saveTransaction(
+        context,
         transaction,
         autoAllocation: autoAllocation,
       );
       await historyController.applyFilter();
       await analyticsController.applyFilter();
       GlobalMessenger.showMessage(
+        context,
         message: UiDict.getSaveNotif(
           isTransfer ? UiDict.transfer.get(isRpg) : UiDict.income.get(isRpg),
           isSuccess: isSuccess,
@@ -332,7 +345,7 @@ class HomeScreen extends StatelessWidget {
                     child: LinearProgressIndicator(
                       value: xpPercentage,
                       backgroundColor: colorScheme.surfaceContainerHighest,
-                      color: Colors.amber,
+                      color: Colors.amber.adapt(context),
                       minHeight: 4,
                     ),
                   ),

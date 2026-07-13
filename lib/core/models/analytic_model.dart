@@ -18,7 +18,7 @@ class AnalyticModel {
     this.amount += amount;
   }
 
-  Color get color => category.color ?? Colors.black;
+  Color getColor(BuildContext context) => category.getColor(context);
   FaIconData icon(bool isRpgMode) => category.icon(isRpgMode);
   String get(bool isRpgMode) => category.get(isRpgMode);
 }

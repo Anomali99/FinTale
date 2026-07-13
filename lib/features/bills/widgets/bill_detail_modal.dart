@@ -5,7 +5,7 @@ import 'package:intl/intl.dart';
 import '../../../core/constants/category_dict.dart';
 import '../../../core/constants/screen_dict.dart';
 import '../../../core/constants/ui_dict.dart';
-import '../../../core/theme/app_colors.dart';
+import '../../../core/utils/color_extension.dart';
 import '../../../core/utils/number_utils.dart';
 import '../../../models/bill_model.dart';
 import '../../../widgets/custom_button.dart';
@@ -22,7 +22,7 @@ class BillDetailModal extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final Color mainColor = bill.tier.color;
+    final Color mainColor = bill.tier.color.adapt(context);
 
     return Container(
       padding: const EdgeInsets.all(24),
@@ -41,7 +41,7 @@ class BillDetailModal extends StatelessWidget {
                 height: 4,
                 margin: const EdgeInsets.only(bottom: 24),
                 decoration: BoxDecoration(
-                  color: Colors.white24,
+                  color: colorScheme.onSurface.withOpacity(0.2),
                   borderRadius: BorderRadius.circular(4),
                 ),
               ),
@@ -99,15 +99,17 @@ class BillDetailModal extends StatelessWidget {
                                 vertical: 2,
                               ),
                               decoration: BoxDecoration(
-                                color: Colors.grey.withOpacity(0.2),
+                                color: colorScheme.onSurfaceVariant.withOpacity(
+                                  0.2,
+                                ),
                                 borderRadius: BorderRadius.circular(4),
                               ),
-                              child: const Text(
+                              child: Text(
                                 'NONAKTIF',
                                 style: TextStyle(
                                   fontSize: 10,
                                   fontWeight: FontWeight.bold,
-                                  color: Colors.grey,
+                                  color: colorScheme.onSurfaceVariant,
                                 ),
                               ),
                             ),
@@ -138,9 +140,12 @@ class BillDetailModal extends StatelessWidget {
                   valueColor: colorScheme.onSurface,
                   boldValue: true,
                 ),
-                const Padding(
+                Padding(
                   padding: EdgeInsets.symmetric(vertical: 12),
-                  child: Divider(color: Colors.white10, height: 1),
+                  child: Divider(
+                    color: colorScheme.onSurface.withOpacity(0.1),
+                    height: 1,
+                  ),
                 ),
                 CustomRowTable(
                   label: ScreenDict.billType.get(isRpg),
@@ -167,8 +172,8 @@ class BillDetailModal extends StatelessWidget {
                     isRpg: isRpg,
                   ),
                   valueColor: bill.debtId != null
-                      ? AppColors.error
-                      : Colors.blueAccent,
+                      ? colorScheme.error
+                      : Colors.blueAccent.adapt(context),
                 ),
               ],
             ),
@@ -186,7 +191,7 @@ class BillDetailModal extends StatelessWidget {
 
               CustomButton(
                 title: ScreenDict.generatBill.get(isRpg),
-                color: Colors.orange,
+                color: Colors.orange.adapt(context),
                 onTap: () {
                   Navigator.pop(context, BillActionType.generateDraft);
                 },
@@ -197,7 +202,7 @@ class BillDetailModal extends StatelessWidget {
                 child: Text(
                   ScreenDict.billWarning.get(isRpg),
                   textAlign: TextAlign.center,
-                  style: TextStyle(color: AppColors.error, fontSize: 12),
+                  style: TextStyle(color: colorScheme.error, fontSize: 12),
                 ),
               ),
               const SizedBox(height: 16),

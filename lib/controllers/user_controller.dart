@@ -12,7 +12,7 @@ class UserController with ChangeNotifier {
   UserModel? currentUser;
 
   UserController(this._prefService) {
-    evaluateAndResetDaily();
+    evaluateAndResetDaily(null);
   }
 
   bool get isHideBalance => _prefService.isHideBalance;
@@ -53,11 +53,15 @@ class UserController with ChangeNotifier {
     }
   }
 
-  void addEmergencyTotal(Decimal amount, {required bool isIncome}) =>
-      currentUser?.addEmergencyTotal(amount, isIncome: isIncome);
-  void updateEmergencyAmount(Decimal amount) =>
-      currentUser?.updateEmergencyAmount(amount);
-  void updateFreeDebt(bool value) => currentUser?.updateFreeDebt(value);
+  void addEmergencyTotal(
+    BuildContext context,
+    Decimal amount, {
+    required bool isIncome,
+  }) => currentUser?.addEmergencyTotal(context, amount, isIncome: isIncome);
+  void updateEmergencyAmount(BuildContext context, Decimal amount) =>
+      currentUser?.updateEmergencyAmount(context, amount);
+  void updateFreeDebt(BuildContext context, bool value) =>
+      currentUser?.updateFreeDebt(context, value);
 
   void updateBaseDailyLimit(Decimal amount) =>
       budget.updateBaseDailyLimit(amount);
@@ -76,51 +80,51 @@ class UserController with ChangeNotifier {
 
   Future<void> clearAll() => _prefService.clearAll();
 
-  Future<void> processCreateWallet() async {
+  Future<void> processCreateWallet(BuildContext context) async {
     MissionResult? result = progress.processCreateWallet();
     if (result.xpGranted) {
-      currentUser?.addXp(result.xpReward);
+      currentUser?.addXp(context, result.xpReward);
       await saveUser();
     }
   }
 
-  Future<void> processSetAllocation() async {
+  Future<void> processSetAllocation(BuildContext context) async {
     MissionResult? result = progress.processSetAllocation();
     if (result.xpGranted) {
-      currentUser?.addXp(result.xpReward);
+      currentUser?.addXp(context, result.xpReward);
       await saveUser();
     }
   }
 
-  Future<void> processRecordTransaction() async {
+  Future<void> processRecordTransaction(BuildContext context) async {
     MissionResult? firstResult = progress.processFirstTransaction();
     MissionResult? result = progress.processRecordTransaction();
     if (result.xpGranted) {
-      currentUser?.addXp(result.xpReward);
+      currentUser?.addXp(context, result.xpReward);
       if (firstResult.xpGranted) {
-        currentUser?.addXp(firstResult.xpReward);
+        currentUser?.addXp(context, firstResult.xpReward);
       }
       await saveUser();
     }
   }
 
-  Future<void> processDebtPayment() async {
+  Future<void> processDebtPayment(BuildContext context) async {
     MissionResult? result = progress.processDebtPayment();
     if (result.xpGranted) {
-      currentUser?.addXp(result.xpReward);
+      currentUser?.addXp(context, result.xpReward);
       await saveUser();
     }
   }
 
-  Future<void> processMonthlyReview() async {
+  Future<void> processMonthlyReview(BuildContext context) async {
     MissionResult? result = progress.processMonthlyReview();
     if (result.xpGranted) {
-      currentUser?.addXp(result.xpReward);
+      currentUser?.addXp(context, result.xpReward);
       await saveUser();
     }
   }
 
-  Future<void> evaluateAndResetDaily() async {
+  Future<void> evaluateAndResetDaily(BuildContext? context) async {
     try {
       await loadData();
 
@@ -167,8 +171,8 @@ class UserController with ChangeNotifier {
           progress.updatWeeklyBudget(0, false);
         }
 
-        if (result.xpGranted) {
-          currentUser!.addXp(result.xpReward);
+        if (result.xpGranted && context != null) {
+          currentUser!.addXp(context, result.xpReward);
         }
 
         await saveUser();
@@ -180,12 +184,12 @@ class UserController with ChangeNotifier {
     }
   }
 
-  Future<bool> claimDailyBudgetMission() async {
+  Future<bool> claimDailyBudgetMission(BuildContext context) async {
     bool isBudgetSafe = budget.todayUsage <= budget.currentDailyLimit;
     MissionResult result = progress.processDailyBudgetCap(isBudgetSafe);
 
     if (result.xpGranted) {
-      currentUser?.addXp(result.xpReward);
+      currentUser?.addXp(context, result.xpReward);
       await saveUser();
       return true;
     }

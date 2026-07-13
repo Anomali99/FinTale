@@ -11,7 +11,7 @@ import '../../../controllers/transaction_controller.dart';
 import '../../../controllers/wallet_controller.dart';
 import '../../../core/constants/screen_dict.dart';
 import '../../../core/constants/ui_dict.dart';
-import '../../../core/theme/app_colors.dart';
+import '../../../core/utils/color_extension.dart';
 import '../../../core/utils/enum_types.dart';
 import '../../../core/utils/global_messenger.dart';
 import '../../../models/bill_model.dart';
@@ -78,6 +78,7 @@ class BillsScreen extends StatelessWidget {
           data,
         );
         GlobalMessenger.showMessage(
+          context,
           message: isSuccess
               ? UiDict.successGenerateDraft
               : UiDict.failedGenerateDraft,
@@ -103,6 +104,7 @@ class BillsScreen extends StatelessWidget {
     if (result != null && context.mounted) {
       bool isSuccess = await context.read<BillController>().createBill(result);
       GlobalMessenger.showMessage(
+        context,
         message: UiDict.getSaveNotif(
           ScreenDict.billsMaster.get(isRpg),
           isSuccess: isSuccess,
@@ -125,8 +127,12 @@ class BillsScreen extends StatelessWidget {
     );
 
     if (result != null && context.mounted) {
-      bool isSuccess = await context.read<BillController>().createDebt(result);
+      bool isSuccess = await context.read<BillController>().createDebt(
+        context,
+        result,
+      );
       GlobalMessenger.showMessage(
+        context,
         message: UiDict.getSaveNotif(
           ScreenDict.debtsMaster.get(isRpg),
           isSuccess: isSuccess,
@@ -173,12 +179,14 @@ class BillsScreen extends StatelessWidget {
       String message = '';
       if (isBill) {
         isSuccess = await billController.payBill(
+          context,
           transaction,
           useReserved: useReserved,
         );
         message = ScreenDict.getBillNotif(isSuccess: isSuccess, isRpg: isRpg);
       } else {
         isSuccess = await billController.payDebt(
+          context,
           transaction,
           useReserved: useReserved,
         );
@@ -190,7 +198,11 @@ class BillsScreen extends StatelessWidget {
       }
       await historyController.applyFilter();
       await analyticsController.applyFilter();
-      GlobalMessenger.showMessage(message: message, isSuccess: isSuccess);
+      GlobalMessenger.showMessage(
+        context,
+        message: message,
+        isSuccess: isSuccess,
+      );
     }
   }
 
@@ -211,6 +223,7 @@ class BillsScreen extends StatelessWidget {
       TransactionModel transaction = result['transaction'];
       bool useReserved = result['use_reserved'];
       await billController.payBill(
+        context,
         transaction,
         useReserved: useReserved,
         checkExisting: false,
@@ -221,6 +234,8 @@ class BillsScreen extends StatelessWidget {
   }
 
   void _showActionPopup(BuildContext context, bool isRpg) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -231,7 +246,7 @@ class BillsScreen extends StatelessWidget {
             BottomSheetChild(
               title: ScreenDict.addBill.get(isRpg),
               subtitle: ScreenDict.addBill.description ?? "",
-              color: Colors.blueAccent,
+              color: Colors.blueAccent.adapt(context),
               icon: ScreenDict.addBill.icon(isRpg),
               onTap: () {
                 Navigator.pop(con);
@@ -241,7 +256,7 @@ class BillsScreen extends StatelessWidget {
             BottomSheetChild(
               title: ScreenDict.addDebt.get(isRpg),
               subtitle: ScreenDict.addDebt.description ?? "",
-              color: AppColors.error,
+              color: colorScheme.error,
               icon: ScreenDict.addDebt.icon(isRpg),
               onTap: () {
                 Navigator.pop(con);

@@ -115,7 +115,7 @@ class _DividendModalState extends State<DividendModal> {
                   height: 4,
                   margin: const EdgeInsets.only(bottom: 16),
                   decoration: BoxDecoration(
-                    color: Colors.white24,
+                    color: colorScheme.onSurface.withOpacity(0.2),
                     borderRadius: BorderRadius.circular(4),
                   ),
                 ),
@@ -198,15 +198,15 @@ class _DividendModalState extends State<DividendModal> {
               ),
               const SizedBox(height: 16),
 
-              const NoteContainer(
+              NoteContainer(
                 text: ScreenDict.investDevidenDesc,
-                color: Colors.grey,
+                color: colorScheme.onSurfaceVariant,
               ),
               const SizedBox(height: 32),
 
               CustomButton(
                 title: ScreenDict.investClaim,
-                color: AppColors.success,
+                color: AppColors.getSuccess(context),
                 onTap: _submit,
               ),
             ],

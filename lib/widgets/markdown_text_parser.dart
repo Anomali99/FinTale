@@ -68,9 +68,11 @@ class MarkdownTextParser extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return RichText(
       text: TextSpan(
-        style: style ?? const TextStyle(fontSize: 16.0, color: Colors.black),
+        style: style ?? TextStyle(fontSize: 16.0, color: colorScheme.onPrimary),
         children: _parseNestedMarkdown(rawText),
       ),
     );

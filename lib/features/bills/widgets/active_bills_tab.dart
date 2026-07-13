@@ -81,18 +81,22 @@ class ActiveBillsTab extends StatelessWidget {
 
         Row(
           children: [
-            const Expanded(child: Divider(color: Colors.white10)),
+            Expanded(
+              child: Divider(color: colorScheme.onSurface.withOpacity(0.1)),
+            ),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: Text(
                 CategoryDict.statusPaid.get(isRpg).toUpperCase(),
-                style: const TextStyle(
-                  color: AppColors.success,
+                style: TextStyle(
+                  color: AppColors.getSuccess(context),
                   fontWeight: FontWeight.bold,
                 ),
               ),
             ),
-            const Expanded(child: Divider(color: Colors.white10)),
+            Expanded(
+              child: Divider(color: colorScheme.onSurface.withOpacity(0.1)),
+            ),
           ],
         ),
         const SizedBox(height: 12),

@@ -102,14 +102,16 @@ class _LockWrapperState extends State<LockWrapper> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     if (_isLocked) {
       return Scaffold(
-        backgroundColor: Theme.of(context).colorScheme.surface,
+        backgroundColor: colorScheme.surface,
         body: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(Icons.lock, size: 64, color: Colors.grey),
+              Icon(Icons.lock, size: 64, color: colorScheme.onSurfaceVariant),
               const SizedBox(height: 16),
               const Text(UiDict.appLock, style: TextStyle(fontSize: 20)),
               const SizedBox(height: 24),

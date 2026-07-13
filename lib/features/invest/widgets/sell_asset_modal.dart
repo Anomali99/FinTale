@@ -167,7 +167,7 @@ class _SellAssetModalState extends State<SellAssetModal> {
                   height: 4,
                   margin: const EdgeInsets.only(bottom: 16),
                   decoration: BoxDecoration(
-                    color: Colors.white24,
+                    color: colorScheme.onSurface.withOpacity(0.2),
                     borderRadius: BorderRadius.circular(4),
                   ),
                 ),
@@ -328,11 +328,11 @@ class _SellAssetModalState extends State<SellAssetModal> {
                         alignment: Alignment.centerRight,
                         child: Text(
                           NumberUtils.toIdr(_netAmount),
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontFamily: 'Poppins',
                             fontWeight: FontWeight.bold,
                             fontSize: 20,
-                            color: AppColors.success,
+                            color: AppColors.getSuccess(context),
                           ),
                         ),
                       ),

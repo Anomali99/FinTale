@@ -30,6 +30,7 @@ class AuthScreen extends StatelessWidget {
       debugPrint(authController.errorMessage);
       WidgetsBinding.instance.addPostFrameCallback((_) {
         GlobalMessenger.showMessage(
+          context,
           message: authController.errorMessage!,
           isSuccess: false,
         );

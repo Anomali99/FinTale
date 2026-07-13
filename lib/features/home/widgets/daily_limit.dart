@@ -2,7 +2,7 @@ import 'package:decimal/decimal.dart';
 import 'package:flutter/material.dart';
 
 import '../../../core/constants/screen_dict.dart';
-import '../../../core/theme/app_colors.dart';
+import '../../../core/utils/color_extension.dart';
 import '../../../core/utils/number_utils.dart';
 
 class DailyLimit extends StatelessWidget {
@@ -35,8 +35,10 @@ class DailyLimit extends StatelessWidget {
         : 0.0;
 
     final Color barColor = isExceeded
-        ? AppColors.error
-        : (percentage > 0.2 ? Colors.blueAccent : AppColors.error);
+        ? colorScheme.error
+        : (percentage > 0.2
+              ? Colors.blueAccent.adapt(context)
+              : colorScheme.error);
 
     final String formattedRemaining = NumberUtils.toIdr(remaining);
     final String formattedOverage = NumberUtils.toIdr(overage);
@@ -48,7 +50,7 @@ class DailyLimit extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
 
         border: isExceeded
-            ? Border.all(color: AppColors.error.withOpacity(0.5))
+            ? Border.all(color: colorScheme.error.withOpacity(0.5))
             : null,
       ),
       child: Column(
@@ -62,7 +64,7 @@ class DailyLimit extends StatelessWidget {
                     ? ScreenDict.homeLimitOver.get(isRpg)
                     : ScreenDict.homeRemainingToday.get(isRpg),
                 style: TextStyle(
-                  color: isExceeded ? AppColors.error : colorScheme.onSurface,
+                  color: isExceeded ? colorScheme.error : colorScheme.onSurface,
                   fontWeight: isExceeded ? FontWeight.bold : FontWeight.normal,
                 ),
               ),
@@ -82,7 +84,7 @@ class DailyLimit extends StatelessWidget {
             child: LinearProgressIndicator(
               value: percentage,
               backgroundColor: isExceeded
-                  ? AppColors.error.withOpacity(0.2)
+                  ? colorScheme.error.withOpacity(0.2)
                   : theme.scaffoldBackgroundColor,
               color: barColor,
               minHeight: 8,
@@ -111,9 +113,9 @@ class DailyLimit extends StatelessWidget {
                       const SizedBox(height: 4),
                       Text(
                         ScreenDict.getHomeLimitOver(formattedOverage),
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 11,
-                          color: AppColors.error,
+                          color: colorScheme.error,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -137,9 +139,9 @@ class DailyLimit extends StatelessWidget {
                       const SizedBox(height: 4),
                       Text(
                         '- ${NumberUtils.toIdr(penalty!)}',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 11,
-                          color: AppColors.error,
+                          color: colorScheme.error,
                           fontWeight: FontWeight.bold,
                         ),
                       ),

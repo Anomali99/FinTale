@@ -143,16 +143,17 @@ enum FlowType {
   income,
   transfer;
 
-  Color get ggColor => color.withOpacity(0.2);
+  Color getBgColor(BuildContext context) => getColor(context).withOpacity(0.2);
 
-  Color get color {
+  Color getColor(BuildContext context) {
+    final isLight = Theme.of(context).brightness == Brightness.light;
     switch (this) {
       case FlowType.income:
-        return AppColors.success;
+        return AppColors.getSuccess(context);
       case FlowType.expense:
-        return AppColors.error;
+        return Theme.of(context).colorScheme.error;
       case FlowType.transfer:
-        return Colors.blueGrey;
+        return isLight ? Colors.blueGrey.shade700 : Colors.blueGrey;
     }
   }
 
@@ -177,20 +178,21 @@ enum TransactionType {
   final String value;
   const TransactionType(this.value);
 
-  Color get color {
+  Color getColor(BuildContext context) {
+    final isLight = Theme.of(context).brightness == Brightness.light;
     switch (this) {
       case TransactionType.income:
-        return AppColors.success;
+        return AppColors.getSuccess(context);
       case TransactionType.expense:
-        return AppColors.error;
+        return Theme.of(context).colorScheme.error;
       case TransactionType.transfer:
-        return Colors.blueGrey;
+        return isLight ? Colors.blueGrey.shade700 : Colors.blueGrey;
       case TransactionType.debt:
-        return AppColors.warning;
+        return AppColors.getWarning(context);
     }
   }
 
-  Color get bgColor => color.withOpacity(0.2);
+  Color getBgColor(BuildContext context) => getColor(context).withOpacity(0.2);
 
   String get prefix {
     switch (this) {
@@ -241,7 +243,7 @@ enum StatusType {
 
     switch (this) {
       case StatusType.paid:
-        return AppColors.success;
+        return AppColors.getSuccess(context);
       case StatusType.pending:
         return colorScheme.primary;
       case StatusType.overdue:

@@ -102,11 +102,11 @@ class HomeController with ChangeNotifier {
     }
   }
 
-  Future<bool> saveWallet(WalletModel wallet) async {
+  Future<bool> saveWallet(BuildContext context, WalletModel wallet) async {
     try {
       if (wallet.id == null) {
         await _walletController.createWallet(wallet);
-        await _userController.processCreateWallet();
+        await _userController.processCreateWallet(context);
       } else {
         await _walletController.updateWallet(wallet);
       }
@@ -119,6 +119,7 @@ class HomeController with ChangeNotifier {
   }
 
   Future<bool> saveTransaction(
+    BuildContext context,
     TransactionModel transaction, {
     bool? autoAllocation,
     bool? useReserved,
@@ -259,7 +260,7 @@ class HomeController with ChangeNotifier {
       }
 
       await _walletController.updateWallet(wallet);
-      await _userController.processRecordTransaction();
+      await _userController.processRecordTransaction(context);
       await loadData();
       return true;
     } catch (e) {

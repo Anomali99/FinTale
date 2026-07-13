@@ -153,9 +153,12 @@ class _WalletModalState extends State<WalletModal> {
                     valueColor: colorScheme.onSurface,
                     boldValue: true,
                   ),
-                  const Padding(
+                  Padding(
                     padding: EdgeInsets.symmetric(vertical: 12),
-                    child: Divider(color: Colors.white10, height: 1),
+                    child: Divider(
+                      color: colorScheme.onSurface.withOpacity(0.1),
+                      height: 1,
+                    ),
                   ),
                   CustomRowTable(
                     label: ScreenDict.homeRegular.get(isRpg),

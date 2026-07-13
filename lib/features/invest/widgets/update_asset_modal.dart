@@ -110,7 +110,7 @@ class _UpdateAssetModalState extends State<UpdateAssetModal> {
                   height: 4,
                   margin: const EdgeInsets.only(bottom: 16),
                   decoration: BoxDecoration(
-                    color: Colors.white24,
+                    color: colorScheme.onSurface.withOpacity(0.2),
                     borderRadius: BorderRadius.circular(4),
                   ),
                 ),
@@ -183,7 +183,7 @@ class _UpdateAssetModalState extends State<UpdateAssetModal> {
 
               NoteContainer(
                 text: ScreenDict.getInvestUpdateDesc(isRpg: isRpg),
-                color: Colors.grey,
+                color: colorScheme.onSurfaceVariant,
               ),
               const SizedBox(height: 16),
 

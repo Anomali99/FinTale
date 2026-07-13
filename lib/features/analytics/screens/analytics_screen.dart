@@ -9,7 +9,6 @@ import '../../../controllers/transaction_controller.dart';
 import '../../../core/constants/screen_dict.dart';
 import '../../../core/constants/ui_dict.dart';
 import '../../../core/models/analytic_model.dart';
-import '../../../core/theme/app_colors.dart';
 import '../../../widgets/month_filter.dart';
 import '../widgets/detail_card.dart';
 import '../widgets/donut_chart.dart';
@@ -39,7 +38,7 @@ class AnalyticsScreen extends StatelessWidget {
         ? transactionController.detailExpense
         : transactionController.detailInvest;
     final activeTotal = showExpense ? totalExpense : totalInvest;
-    final activeColor = showExpense ? AppColors.error : colorScheme.primary;
+    final activeColor = showExpense ? colorScheme.error : colorScheme.primary;
 
     return Scaffold(
       appBar: AppBar(
@@ -85,12 +84,12 @@ class AnalyticsScreen extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(vertical: 12),
                       decoration: BoxDecoration(
                         color: showExpense
-                            ? AppColors.error.withOpacity(0.2)
+                            ? colorScheme.error.withOpacity(0.2)
                             : Colors.transparent,
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
                           color: showExpense
-                              ? AppColors.error.withOpacity(0.5)
+                              ? colorScheme.error.withOpacity(0.5)
                               : Colors.transparent,
                         ),
                       ),
@@ -99,7 +98,7 @@ class AnalyticsScreen extends StatelessWidget {
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           color: showExpense
-                              ? AppColors.error
+                              ? colorScheme.error
                               : colorScheme.onSurfaceVariant,
                           fontWeight: FontWeight.bold,
                           fontSize: 12,

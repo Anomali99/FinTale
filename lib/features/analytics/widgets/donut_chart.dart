@@ -26,7 +26,8 @@ class DonutChart extends StatelessWidget {
     required this.onTouch,
   });
 
-  List<PieChartSectionData> _buildPieChartSections() {
+  List<PieChartSectionData> _buildPieChartSections(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     final dataList = activeData.values.toList();
 
     return List.generate(dataList.length, (i) {
@@ -43,15 +44,20 @@ class DonutChart extends StatelessWidget {
       );
 
       return PieChartSectionData(
-        color: data.color,
+        color: data.getColor(context),
         value: data.amount.toDouble(),
         title: '$percentage%',
         radius: radius,
         titleStyle: TextStyle(
           fontSize: fontSize,
           fontWeight: FontWeight.bold,
-          color: Colors.white,
-          shadows: const [Shadow(color: Colors.black45, blurRadius: 2)],
+          color: colorScheme.onSurface,
+          shadows: [
+            Shadow(
+              color: colorScheme.onSurface.withOpacity(0.45),
+              blurRadius: 2,
+            ),
+          ],
         ),
       );
     });
@@ -79,7 +85,7 @@ class DonutChart extends StatelessWidget {
             borderData: FlBorderData(show: false),
             sectionsSpace: 2,
             centerSpaceRadius: 60,
-            sections: _buildPieChartSections(),
+            sections: _buildPieChartSections(context),
           ),
           swapAnimationDuration: const Duration(milliseconds: 500),
           swapAnimationCurve: Curves.easeInOut,

@@ -10,7 +10,6 @@ import '../../../controllers/user_controller.dart';
 import '../../../core/constants/gamification_dict.dart';
 import '../../../core/constants/screen_dict.dart';
 import '../../../core/constants/ui_dict.dart';
-import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/enum_types.dart';
 import '../../../core/utils/global_messenger.dart';
 import '../../../core/utils/number_utils.dart';
@@ -36,6 +35,7 @@ class ProfileScreen extends StatelessWidget {
     if (result != null && context.mounted) {
       bool isSuccess = await context.read<ProfileController>().saveName(result);
       GlobalMessenger.showMessage(
+        context,
         message: UiDict.getSaveNotif(
           UiDict.name,
           isSuccess: isSuccess,
@@ -72,6 +72,7 @@ class ProfileScreen extends StatelessWidget {
       }
 
       GlobalMessenger.showMessage(
+        context,
         message: UiDict.getSaveNotif(
           title,
           isSuccess: isSuccess,
@@ -161,7 +162,8 @@ class ProfileScreen extends StatelessWidget {
               context,
               title: GamificationDict.skillEmergency.get(isRpg),
               defaultValue: emergencyAmount.toString(),
-              function: profileController.saveEmergencyAmount,
+              function: (Decimal value) =>
+                  profileController.saveEmergencyAmount(context, value),
             ),
           ),
           const SizedBox(height: 32),
@@ -216,7 +218,7 @@ class ProfileScreen extends StatelessWidget {
                                       maxProgress.toDouble())
                                   .clamp(0.0, 1.0),
                         backgroundColor: theme.scaffoldBackgroundColor,
-                        color: AppColors.primaryDark,
+                        color: colorScheme.primary,
                         minHeight: 8,
                       ),
                     ),

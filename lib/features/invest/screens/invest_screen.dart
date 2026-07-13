@@ -48,6 +48,7 @@ class InvestScreen extends StatelessWidget {
       Decimal emergencyDeduction = result['emergency_deduction'];
 
       bool isSuccess = await investController.sellAsset(
+        context,
         transaction,
         updatedAsset,
         emergencyDeduction,
@@ -59,6 +60,7 @@ class InvestScreen extends StatelessWidget {
       await historyController.applyFilter();
       await analyticsController.applyFilter();
       GlobalMessenger.showMessage(
+        context,
         message: ScreenDict.getInvestSellNotif(
           isSuccess: isSuccess,
           isRpg: isRpg,
@@ -86,6 +88,7 @@ class InvestScreen extends StatelessWidget {
       await historyController.applyFilter();
       await analyticsController.applyFilter();
       GlobalMessenger.showMessage(
+        context,
         message: UiDict.getSaveNotif(
           ScreenDict.investClaim,
           isSuccess: isSuccess,
@@ -106,11 +109,12 @@ class InvestScreen extends StatelessWidget {
       builder: (context) => UpdateAssetModal(asset: asset),
     );
     if (result != null && context.mounted) {
-      bool isSuccess = await investController.updateAsset(result);
+      bool isSuccess = await investController.updateAsset(context, result);
       if (isSuccess) {
         await skillController.loadData();
       }
       GlobalMessenger.showMessage(
+        context,
         message: UiDict.getSaveNotif(
           ScreenDict.investAssetName.get(isRpg),
           isSuccess: isSuccess,
@@ -145,6 +149,7 @@ class InvestScreen extends StatelessWidget {
       AssetsModel asset = result['asset'];
       bool useReserved = result['use_reserved'];
       bool isSuccess = await investController.saveTransaction(
+        context,
         transaction,
         asset,
         useReserved: useReserved,
@@ -163,6 +168,7 @@ class InvestScreen extends StatelessWidget {
       await historyController.applyFilter();
       await analyticsController.applyFilter();
       GlobalMessenger.showMessage(
+        context,
         message: UiDict.getSaveNotif(
           ScreenDict.investAssetName.get(isRpg),
           isSuccess: isSuccess,
@@ -195,6 +201,7 @@ class InvestScreen extends StatelessWidget {
       TransactionModel transaction = result['transaction'];
       AssetsModel asset = result['asset'];
       bool isSuccess = await investController.saveTransaction(
+        context,
         transaction,
         asset,
       );
@@ -208,6 +215,7 @@ class InvestScreen extends StatelessWidget {
       await historyController.applyFilter();
       await analyticsController.applyFilter();
       GlobalMessenger.showMessage(
+        context,
         message: ScreenDict.getInvestModalNotif(
           isSuccess: isSuccess,
           isRpg: isRpg,

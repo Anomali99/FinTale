@@ -1,4 +1,5 @@
 import 'package:decimal/decimal.dart';
+import 'package:flutter/material.dart';
 
 import '../../models/user_model.dart';
 import 'enum_types.dart';
@@ -22,7 +23,11 @@ extension LevelingExtension on UserModel {
     return (xp / requiredXp).clamp(0.0, 1.0);
   }
 
-  void addEmergencyTotal(Decimal amount, {bool isIncome = true}) {
+  void addEmergencyTotal(
+    BuildContext context,
+    Decimal amount, {
+    bool isIncome = true,
+  }) {
     bool lastStatus = budget.isEmergencyMax;
     budget.addEmergencyTotal(amount, isIncome: isIncome);
     if (lastStatus != budget.isEmergencyMax) {
@@ -34,12 +39,13 @@ extension LevelingExtension on UserModel {
         ),
       );
       GlobalMessenger.showSleekNotification(
+        context,
         message: 'Status dana darurat berubah, skill disesuikan',
       );
     }
   }
 
-  void updateEmergencyAmount(Decimal amount) {
+  void updateEmergencyAmount(BuildContext context, Decimal amount) {
     bool lastStatus = budget.isEmergencyMax;
     budget.updateEmergencyAmount(amount);
     if (lastStatus != budget.isEmergencyMax) {
@@ -51,12 +57,13 @@ extension LevelingExtension on UserModel {
         ),
       );
       GlobalMessenger.showSleekNotification(
+        context,
         message: 'Status dana darurat berubah, skill disesuikan',
       );
     }
   }
 
-  void updateFreeDebt(bool value) {
+  void updateFreeDebt(BuildContext context, bool value) {
     if (value != budget.isFreeDebt) {
       allocation.updateSkill(
         AllocationMap.getAllocationByLevel(
@@ -67,14 +74,15 @@ extension LevelingExtension on UserModel {
       );
 
       GlobalMessenger.showSleekNotification(
+        context,
         message: 'Status hutang berubah, skill disesuikan',
       );
     }
     budget.updateFreeDebt(value);
   }
 
-  void addXp(int xp) {
-    GlobalMessenger.showSleekXpNotification(xp);
+  void addXp(BuildContext context, int xp) {
+    GlobalMessenger.showSleekXpNotification(context, xp);
 
     int totalXp = this.xp + xp;
     int initialLevel = level;
@@ -109,7 +117,11 @@ extension LevelingExtension on UserModel {
             : desc = "New Allocation Map";
       }
 
-      GlobalMessenger.showLevelUpNotification(level, description: desc);
+      GlobalMessenger.showLevelUpNotification(
+        context,
+        level,
+        description: desc,
+      );
     }
   }
 

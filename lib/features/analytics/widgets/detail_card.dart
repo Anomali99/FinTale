@@ -33,11 +33,13 @@ class DetailCard extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: isSelected
-            ? data.color.withOpacity(0.1)
+            ? data.getColor(context).withOpacity(0.1)
             : colorScheme.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: isSelected ? data.color.withOpacity(0.5) : Colors.transparent,
+          color: isSelected
+              ? data.getColor(context).withOpacity(0.5)
+              : Colors.transparent,
         ),
       ),
       child: Column(
@@ -46,8 +48,12 @@ class DetailCard extends StatelessWidget {
             children: [
               CircleAvatar(
                 radius: 16,
-                backgroundColor: data.color.withOpacity(0.2),
-                child: FaIcon(data.icon(isRpg), color: data.color, size: 14),
+                backgroundColor: data.getColor(context).withOpacity(0.2),
+                child: FaIcon(
+                  data.icon(isRpg),
+                  color: data.getColor(context),
+                  size: 14,
+                ),
               ),
               const SizedBox(width: 16),
               Expanded(
@@ -74,7 +80,7 @@ class DetailCard extends StatelessWidget {
                   '${(percentage).toStringAsFixed(1)}%',
                   style: TextStyle(
                     fontSize: 10,
-                    color: data.color,
+                    color: data.getColor(context),
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -85,7 +91,7 @@ class DetailCard extends StatelessWidget {
                   child: LinearProgressIndicator(
                     value: percentage,
                     backgroundColor: theme.scaffoldBackgroundColor,
-                    color: data.color,
+                    color: data.getColor(context),
                     minHeight: 6,
                   ),
                 ),

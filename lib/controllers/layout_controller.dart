@@ -33,6 +33,7 @@ class LayoutController extends ChangeNotifier with WidgetsBindingObserver {
   }
 
   Future<bool> saveTransaction(
+    BuildContext context,
     TransactionModel transaction, {
     bool excludeDaily = false,
     bool useReserved = false,
@@ -54,7 +55,7 @@ class LayoutController extends ChangeNotifier with WidgetsBindingObserver {
         _userController.useDaily(deductedFromRegular);
       }
 
-      await _userController.processRecordTransaction();
+      await _userController.processRecordTransaction(context);
       await _userController.saveUser();
       await _userController.loadData();
       return true;

@@ -38,8 +38,8 @@ class TotalCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
           color: isProvit
-              ? AppColors.success.withOpacity(0.3)
-              : AppColors.error.withOpacity(0.3),
+              ? AppColors.getSuccess(context).withOpacity(0.3)
+              : colorScheme.error.withOpacity(0.3),
         ),
       ),
       child: Column(
@@ -56,10 +56,12 @@ class TotalCard extends StatelessWidget {
               fontFamily: 'Poppins',
               fontSize: 32,
               fontWeight: FontWeight.bold,
-              color: isProvit ? AppColors.success : AppColors.error,
+              color: isProvit
+                  ? AppColors.getSuccess(context)
+                  : colorScheme.error,
             ),
           ),
-          const Divider(color: Colors.white10, height: 32),
+          Divider(color: colorScheme.onSurface.withOpacity(0.1), height: 32),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -89,8 +91,8 @@ class TotalCard extends StatelessWidget {
                 ),
                 decoration: BoxDecoration(
                   color: isProvit
-                      ? AppColors.success.withOpacity(0.2)
-                      : AppColors.error.withOpacity(0.2),
+                      ? AppColors.getSuccess(context).withOpacity(0.2)
+                      : colorScheme.error.withOpacity(0.2),
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Row(
@@ -99,14 +101,18 @@ class TotalCard extends StatelessWidget {
                       isProvit
                           ? FontAwesomeIcons.arrowTrendUp
                           : FontAwesomeIcons.arrowTrendDown,
-                      color: isProvit ? AppColors.success : AppColors.error,
+                      color: isProvit
+                          ? AppColors.getSuccess(context)
+                          : colorScheme.error,
                       size: 12,
                     ),
                     const SizedBox(width: 6),
                     Text(
                       '${isProvit ? '+' : ''}${percentage.toStringAsFixed(2)}%',
                       style: TextStyle(
-                        color: isProvit ? AppColors.success : AppColors.error,
+                        color: isProvit
+                            ? AppColors.getSuccess(context)
+                            : colorScheme.error,
                         fontWeight: FontWeight.bold,
                       ),
                     ),

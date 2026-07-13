@@ -60,7 +60,7 @@ class TransactionDetailModal extends StatelessWidget {
               width: 48,
               height: 4,
               decoration: BoxDecoration(
-                color: Colors.white24,
+                color: colorScheme.onSurface.withOpacity(0.2),
                 borderRadius: BorderRadius.circular(4),
               ),
             ),
@@ -68,12 +68,12 @@ class TransactionDetailModal extends StatelessWidget {
 
             CircleAvatar(
               radius: 28,
-              backgroundColor: transaction.type.bgColor,
+              backgroundColor: transaction.type.getBgColor(context),
               child: FaIcon(
                 CategoryDict.getByTransactionCategory(
                   transaction.detailTransaction[0].category,
                 ).icon(isRpg),
-                color: transaction.type.color,
+                color: transaction.type.getColor(context),
                 size: 24,
               ),
             ),
@@ -96,7 +96,7 @@ class TransactionDetailModal extends StatelessWidget {
                 fontFamily: 'Poppins',
                 fontSize: 28,
                 fontWeight: FontWeight.bold,
-                color: transaction.type.color,
+                color: transaction.type.getColor(context),
               ),
             ),
 
@@ -107,7 +107,9 @@ class TransactionDetailModal extends StatelessWidget {
               decoration: BoxDecoration(
                 color: colorScheme.surfaceContainerHighest,
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: Colors.white10),
+                border: Border.all(
+                  color: colorScheme.onSurface.withOpacity(0.1),
+                ),
               ),
               child: Column(
                 children: [
@@ -170,9 +172,12 @@ class TransactionDetailModal extends StatelessWidget {
                     ],
                   ),
 
-                  const Padding(
+                  Padding(
                     padding: EdgeInsets.symmetric(vertical: 12.0),
-                    child: Divider(color: Colors.white10, height: 1),
+                    child: Divider(
+                      color: colorScheme.onSurface.withOpacity(0.1),
+                      height: 1,
+                    ),
                   ),
 
                   if (transaction.assetsId != null &&
@@ -312,7 +317,7 @@ class TransactionDetailModal extends StatelessWidget {
               fontFamily: 'Poppins',
               fontWeight: FontWeight.bold,
               fontSize: 14,
-              color: detail.flow.color,
+              color: detail.flow.getColor(context),
             ),
           ),
         ],

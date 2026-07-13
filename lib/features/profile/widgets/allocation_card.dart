@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import '../../../core/constants/gamification_dict.dart';
+import '../../../core/utils/color_extension.dart';
 import 'stat_radar.dart';
 
 class AllocationCard extends StatelessWidget {
@@ -73,10 +74,10 @@ class AllocationCard extends StatelessWidget {
                       color: colorScheme.primary,
                     ),
 
-                    const FaIcon(
+                    FaIcon(
                       FontAwesomeIcons.khanda,
                       size: 16,
-                      color: Colors.white24,
+                      color: colorScheme.onSurface.withOpacity(0.2),
                     ),
                   ],
                 ),
@@ -91,25 +92,29 @@ class AllocationCard extends StatelessWidget {
                         context,
                         GamificationDict.skillDaily.get(isRpg),
                         '${livingPercentage.toInt().toString()}%',
-                        GamificationDict.skillDaily.color ?? Colors.blue,
+                        GamificationDict.skillDaily.color ??
+                            Colors.blue.adapt(context),
                       ),
                       _statRow(
                         context,
                         GamificationDict.skillDebt.get(isRpg),
                         '${payDebtPercentage.toInt().toString()}%',
-                        GamificationDict.skillDebt.color ?? Colors.blue,
+                        GamificationDict.skillDebt.color ??
+                            Colors.blue.adapt(context),
                       ),
                       _statRow(
                         context,
                         GamificationDict.skillEmergency.get(isRpg),
                         '${emergencyPercentage.toInt().toString()}%',
-                        GamificationDict.skillEmergency.color ?? Colors.blue,
+                        GamificationDict.skillEmergency.color ??
+                            Colors.blue.adapt(context),
                       ),
                       _statRow(
                         context,
                         GamificationDict.skillInvestment.get(isRpg),
                         '${investmentPercentage.toInt().toString()}%',
-                        GamificationDict.skillInvestment.color ?? Colors.blue,
+                        GamificationDict.skillInvestment.color ??
+                            Colors.blue.adapt(context),
                       ),
                     ],
                   ),

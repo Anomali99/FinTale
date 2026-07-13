@@ -4,7 +4,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../../../core/constants/category_dict.dart';
 import '../../../core/constants/screen_dict.dart';
 import '../../../core/constants/ui_dict.dart';
-import '../../../core/theme/app_colors.dart';
+import '../../../core/utils/color_extension.dart';
 import '../../../core/utils/number_utils.dart';
 import '../../../models/debt_model.dart';
 
@@ -34,10 +34,10 @@ class DebtsCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: colorScheme.surfaceContainerHighest,
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: AppColors.error.withOpacity(0.3)),
+          border: Border.all(color: colorScheme.error.withOpacity(0.3)),
           boxShadow: [
             BoxShadow(
-              color: AppColors.error.withOpacity(0.1),
+              color: colorScheme.error.withOpacity(0.1),
               blurRadius: 10,
               spreadRadius: 2,
             ),
@@ -50,12 +50,12 @@ class DebtsCard extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: AppColors.error.withOpacity(0.2),
+                    color: colorScheme.error.withOpacity(0.2),
                     shape: BoxShape.circle,
                   ),
                   child: FaIcon(
                     CategoryDict.getDebtByEnum(data.type).icon(isRpg),
-                    color: AppColors.error,
+                    color: colorScheme.error,
                     size: 28,
                   ),
                 ),
@@ -66,8 +66,8 @@ class DebtsCard extends StatelessWidget {
                     children: [
                       Text(
                         'Lv. ${data.level}',
-                        style: const TextStyle(
-                          color: AppColors.error,
+                        style: TextStyle(
+                          color: colorScheme.error,
                           fontSize: 12,
                           fontWeight: FontWeight.bold,
                         ),
@@ -100,10 +100,10 @@ class DebtsCard extends StatelessWidget {
                 ),
                 Text(
                   NumberUtils.toIdr(data.currentDebt),
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontFamily: 'Poppins',
                     fontWeight: FontWeight.bold,
-                    color: AppColors.error,
+                    color: colorScheme.error,
                   ),
                 ),
               ],
@@ -115,7 +115,7 @@ class DebtsCard extends StatelessWidget {
               child: LinearProgressIndicator(
                 value: data.debtPercentage(isRpg),
                 backgroundColor: theme.scaffoldBackgroundColor,
-                color: AppColors.error,
+                color: colorScheme.error,
                 minHeight: 12,
               ),
             ),
@@ -136,9 +136,9 @@ class DebtsCard extends StatelessWidget {
                     NumberUtils.toIdr(data.paidAmount),
                     isRpg: isRpg,
                   ),
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 12,
-                    color: Colors.green,
+                    color: Colors.green.adapt(context),
                     fontWeight: FontWeight.bold,
                   ),
                 ),

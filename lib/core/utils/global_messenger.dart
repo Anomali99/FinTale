@@ -1,28 +1,35 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
+import '../theme/app_colors.dart';
+import '../utils/color_extension.dart';
+
 class GlobalMessenger {
   static final GlobalKey<ScaffoldMessengerState> globalMessengerKey =
       GlobalKey<ScaffoldMessengerState>();
 
-  static void showMessage({required String message, bool isSuccess = true}) {
+  static void showMessage(
+    BuildContext context, {
+    required String message,
+    bool isSuccess = true,
+  }) {
     final banner = MaterialBanner(
       content: Text(
         message,
-        style: const TextStyle(
-          color: Colors.white,
+        style: TextStyle(
+          color: AppColors.textDark,
           fontWeight: FontWeight.w500,
         ),
       ),
       backgroundColor: isSuccess
-          ? const Color(0xFF4CAF50)
-          : const Color(0xFFEF5350),
+          ? AppColors.getSuccess(context)
+          : AppColors.error,
       elevation: 3,
       dividerColor: Colors.transparent,
 
       actions: [
         IconButton(
-          icon: const Icon(Icons.close, color: Colors.white),
+          icon: Icon(Icons.close, color: AppColors.textDark),
           onPressed: () {
             globalMessengerKey.currentState?.hideCurrentMaterialBanner();
           },
@@ -39,10 +46,12 @@ class GlobalMessenger {
     });
   }
 
-  static void showSleekNotification({
+  static void showSleekNotification(
+    BuildContext context, {
     required String message,
     FaIconData? icon,
   }) {
+    final colorScheme = Theme.of(context).colorScheme;
     final snackBar = SnackBar(
       elevation: 0,
       behavior: SnackBarBehavior.floating,
@@ -55,12 +64,15 @@ class GlobalMessenger {
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           decoration: BoxDecoration(
-            color: const Color(0xFF1E1E2C),
+            color: colorScheme.surface,
             borderRadius: BorderRadius.circular(30),
-            border: Border.all(color: Colors.white12, width: 1),
+            border: Border.all(
+              color: colorScheme.onSurface.withOpacity(0.12),
+              width: 1,
+            ),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.3),
+                color: colorScheme.onPrimary.withOpacity(0.3),
                 blurRadius: 10,
                 offset: const Offset(0, 4),
               ),
@@ -70,7 +82,11 @@ class GlobalMessenger {
             mainAxisSize: MainAxisSize.min,
             children: [
               if (icon != null) ...[
-                FaIcon(icon, color: Colors.greenAccent, size: 14),
+                FaIcon(
+                  icon,
+                  color: Colors.greenAccent.adapt(context),
+                  size: 14,
+                ),
                 const SizedBox(width: 8),
               ],
               Flexible(
@@ -79,8 +95,8 @@ class GlobalMessenger {
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                   textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    color: Colors.greenAccent,
+                  style: TextStyle(
+                    color: Colors.greenAccent.adapt(context),
                     fontFamily: 'Poppins',
                     fontWeight: FontWeight.w600,
                     fontSize: 13,
@@ -98,14 +114,20 @@ class GlobalMessenger {
       ..showSnackBar(snackBar);
   }
 
-  static void showSleekXpNotification(int xpReward) {
+  static void showSleekXpNotification(BuildContext context, int xpReward) {
     showSleekNotification(
+      context,
       message: '+$xpReward XP',
       icon: FontAwesomeIcons.arrowUpRightDots,
     );
   }
 
-  static void showLevelUpNotification(int newLevel, {String? description}) {
+  static void showLevelUpNotification(
+    BuildContext context,
+    int newLevel, {
+    String? description,
+  }) {
+    final colorScheme = Theme.of(context).colorScheme;
     final snackBar = SnackBar(
       elevation: 0,
       behavior: SnackBarBehavior.floating,
@@ -116,15 +138,15 @@ class GlobalMessenger {
       content: Container(
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: const Color(0xFF232336),
+          color: colorScheme.surface,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: Colors.blueAccent.withOpacity(0.5),
+            color: Colors.blueAccent..adapt(context).withOpacity(0.5),
             width: 1.5,
           ),
           boxShadow: [
             BoxShadow(
-              color: Colors.blueAccent.withOpacity(0.2),
+              color: Colors.blueAccent..adapt(context).withOpacity(0.2),
               blurRadius: 20,
               spreadRadius: 2,
             ),
@@ -133,42 +155,44 @@ class GlobalMessenger {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const FaIcon(FontAwesomeIcons.crown, color: Colors.amber, size: 28),
+            FaIcon(
+              FontAwesomeIcons.crown,
+              color: Colors.amber.adapt(context),
+              size: 28,
+            ),
             const SizedBox(height: 12),
-            /* TODO */
             Text(
               'LEVEL UP!',
-              style: const TextStyle(
+              style: TextStyle(
                 fontFamily: 'Poppins',
-                color: Colors.white,
+                color: colorScheme.onSurface,
                 fontWeight: FontWeight.w800,
                 fontSize: 18,
                 letterSpacing: 2.0,
               ),
             ),
             const SizedBox(height: 4),
-            /* TODO */
             Text(
               'You reached Level $newLevel',
-              style: const TextStyle(
+              style: TextStyle(
                 fontFamily: 'Poppins',
-                color: Colors.blueAccent,
+                color: Colors.blueAccent.adapt(context),
                 fontWeight: FontWeight.w600,
                 fontSize: 14,
               ),
             ),
 
             if (description != null && description.isNotEmpty) ...[
-              const Padding(
+              Padding(
                 padding: EdgeInsets.symmetric(vertical: 12.0),
-                child: Divider(color: Colors.white12),
+                child: Divider(color: colorScheme.onSurface.withOpacity(0.12)),
               ),
               Text(
                 description,
                 textAlign: TextAlign.center,
-                style: const TextStyle(
+                style: TextStyle(
                   fontFamily: 'Poppins',
-                  color: Colors.white70,
+                  color: colorScheme.onSurface.withOpacity(0.7),
                   fontWeight: FontWeight.w500,
                   fontSize: 13,
                   height: 1.5,

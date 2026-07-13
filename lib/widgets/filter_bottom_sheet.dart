@@ -4,7 +4,6 @@ import 'package:provider/provider.dart';
 
 import '../controllers/wallet_controller.dart';
 import '../core/constants/ui_dict.dart';
-import '../core/theme/app_colors.dart';
 import '../core/utils/enum_types.dart';
 import 'custom_button.dart';
 
@@ -55,7 +54,7 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
           data: Theme.of(context).copyWith(
             colorScheme: colorScheme.copyWith(
               primary: colorScheme.primary,
-              onPrimary: Colors.black,
+              onPrimary: colorScheme.onPrimary,
               surface: colorScheme.surface,
               onSurface: colorScheme.onSurface,
             ),
@@ -145,7 +144,7 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
                   child: Text(
                     UiDict.reset,
                     style: TextStyle(
-                      color: AppColors.error,
+                      color: colorScheme.error,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -169,7 +168,7 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
                 border: Border.all(
                   color: _startDate != null
                       ? colorScheme.primary
-                      : Colors.white30,
+                      : colorScheme.onSurface.withOpacity(0.3),
                 ),
                 borderRadius: BorderRadius.circular(4),
               ),

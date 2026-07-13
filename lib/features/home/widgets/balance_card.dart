@@ -115,7 +115,7 @@ class BalanceCard extends StatelessWidget {
                   ),
 
                   const SizedBox(height: 5),
-                  const Divider(color: Colors.white10),
+                  Divider(color: colorScheme.onSurface.withOpacity(0.1)),
                   const SizedBox(height: 6),
 
                   Row(
@@ -139,7 +139,7 @@ class BalanceCard extends StatelessWidget {
                                 fontSize: 14,
                                 fontWeight: FontWeight.bold,
                                 color: unallocatedBalance > Decimal.zero
-                                    ? AppColors.success
+                                    ? AppColors.getSuccess(context)
                                     : colorScheme.onSurface,
                               ),
                             ),
@@ -161,10 +161,10 @@ class BalanceCard extends StatelessWidget {
                             const SizedBox(height: 4),
                             Text(
                               _formatBalance(reservedBalance),
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.bold,
-                                color: AppColors.warning,
+                                color: AppColors.getWarning(context),
                               ),
                             ),
                           ],
@@ -198,7 +198,7 @@ class BalanceCard extends StatelessWidget {
                           children: [
                             FaIcon(
                               UiDict.income.icon(isRpg),
-                              color: AppColors.success,
+                              color: AppColors.getSuccess(context),
                               size: 14,
                             ),
                             const SizedBox(width: 8),
@@ -214,7 +214,9 @@ class BalanceCard extends StatelessWidget {
                       ),
                     ),
                   ),
-                  const VerticalDivider(color: Colors.white10),
+                  VerticalDivider(
+                    color: colorScheme.onSurface.withOpacity(0.1),
+                  ),
                   Expanded(
                     child: InkWell(
                       onTap: openTransfer,
@@ -224,7 +226,7 @@ class BalanceCard extends StatelessWidget {
                           children: [
                             FaIcon(
                               UiDict.transfer.icon(isRpg),
-                              color: AppColors.warning,
+                              color: AppColors.getWarning(context),
                               size: 14,
                             ),
                             const SizedBox(width: 8),

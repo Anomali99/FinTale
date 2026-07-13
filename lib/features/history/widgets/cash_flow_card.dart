@@ -34,7 +34,7 @@ class CashFlowCard extends StatelessWidget {
           _buildFlowBlock(
             amount: totalIncome,
             icon: UiDict.income.icon(isRpg),
-            color: AppColors.success,
+            color: AppColors.getSuccess(context),
           ),
 
           const SizedBox(width: 12),
@@ -42,7 +42,7 @@ class CashFlowCard extends StatelessWidget {
           _buildFlowBlock(
             amount: totalExpense,
             icon: UiDict.expense.icon(isRpg),
-            color: AppColors.error,
+            color: colorScheme.error,
           ),
         ],
       ),

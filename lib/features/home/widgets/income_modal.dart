@@ -359,7 +359,7 @@ class _IncomeModalState extends State<IncomeModal> {
                 NoteContainer(
                   text:
                       "Note: ${ScreenDict.getFeeCheckDesc(isIncome: !widget.isTransfer, isRpg: isRpg)}",
-                  color: Colors.grey,
+                  color: colorScheme.onSurfaceVariant,
                 ),
               ],
 
@@ -437,7 +437,10 @@ class _IncomeModalState extends State<IncomeModal> {
                           ),
                         ),
                         const SizedBox(height: 12),
-                        const Divider(height: 1, color: Colors.white24),
+                        Divider(
+                          height: 1,
+                          color: colorScheme.onSurface.withOpacity(0.2),
+                        ),
                         const SizedBox(height: 12),
 
                         if (widget.allocation != null &&
@@ -471,7 +474,7 @@ class _IncomeModalState extends State<IncomeModal> {
                           _selectedWallet?.name ?? '',
                           NumberUtils.toIdr(_selectedWallet?.amount),
                         ),
-                  color: Colors.grey,
+                  color: colorScheme.onSurfaceVariant,
                 ),
                 const SizedBox(height: 16),
               ],

@@ -210,7 +210,7 @@ class _PayDebtModalState extends State<PayDebtModal>
                   height: 4,
                   margin: const EdgeInsets.only(bottom: 16),
                   decoration: BoxDecoration(
-                    color: Colors.white24,
+                    color: colorScheme.onSurface.withOpacity(0.2),
                     borderRadius: BorderRadius.circular(4),
                   ),
                 ),
@@ -400,7 +400,7 @@ class _PayDebtModalState extends State<PayDebtModal>
                 const SizedBox(height: 12),
                 NoteContainer(
                   text: "Note: ${ScreenDict.getFeeCheckDesc(isRpg: isRpg)}",
-                  color: Colors.grey,
+                  color: colorScheme.onSurfaceVariant,
                 ),
               ],
 
@@ -430,7 +430,7 @@ class _PayDebtModalState extends State<PayDebtModal>
                   color: colorScheme.surface,
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.2),
+                      color: colorScheme.onPrimary.withOpacity(0.2),
                       offset: const Offset(0, -4),
                       blurRadius: 12,
                     ),
@@ -459,7 +459,7 @@ class _PayDebtModalState extends State<PayDebtModal>
                                 _selectedWallet?.name ?? '',
                                 NumberUtils.toIdr(_selectedWallet?.amount),
                               ),
-                        color: Colors.grey,
+                        color: colorScheme.onSurfaceVariant,
                       ),
                       const SizedBox(height: 8),
                     ],

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import '../../../core/constants/gamification_dict.dart';
+import '../../../core/utils/color_extension.dart';
 import '../../../models/user_model.dart';
 
 class DailyMissions extends StatelessWidget {
@@ -172,14 +173,16 @@ class DailyMissions extends StatelessWidget {
           isDone ? 0.5 : 1.0,
         ),
         borderRadius: BorderRadius.circular(16),
-        border: isDone ? null : Border.all(color: Colors.white10),
+        border: isDone
+            ? null
+            : Border.all(color: colorScheme.onSurface.withOpacity(0.1)),
       ),
       child: Row(
         children: [
           FaIcon(
             icon,
             size: 20,
-            color: isDone ? Colors.grey : colorScheme.primary,
+            color: isDone ? colorScheme.onSurfaceVariant : colorScheme.primary,
           ),
           const SizedBox(width: 16),
           Expanded(
@@ -191,7 +194,9 @@ class DailyMissions extends StatelessWidget {
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     decoration: isDone ? TextDecoration.lineThrough : null,
-                    color: isDone ? Colors.grey : Colors.white,
+                    color: isDone
+                        ? colorScheme.onSurfaceVariant
+                        : colorScheme.onSurface,
                   ),
                 ),
                 if (subtitle != null)
@@ -209,7 +214,9 @@ class DailyMissions extends StatelessWidget {
             isDone ? 'COMPLETED' : xp,
             style: TextStyle(
               fontSize: 10,
-              color: isDone ? Colors.green : Colors.orangeAccent,
+              color: isDone
+                  ? Colors.green.adapt(context)
+                  : Colors.orangeAccent.adapt(context),
               fontWeight: FontWeight.bold,
             ),
           ),

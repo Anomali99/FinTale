@@ -69,12 +69,13 @@ class InvestController with ChangeNotifier {
     }
   }
 
-  Future<bool> updateAsset(AssetsModel asset) async {
+  Future<bool> updateAsset(BuildContext context, AssetsModel asset) async {
     try {
       if (asset.id != null) {
         final oldAsset = getAssetById(asset.id!);
         if (oldAsset.isEmergency != asset.isEmergency) {
           _userController.addEmergencyTotal(
+            context,
             asset.invested,
             isIncome: asset.isEmergency,
           );
@@ -103,6 +104,7 @@ class InvestController with ChangeNotifier {
   }
 
   Future<bool> sellAsset(
+    BuildContext context,
     TransactionModel transaction,
     AssetsModel asset,
     Decimal emergencyDeduction,
@@ -114,13 +116,17 @@ class InvestController with ChangeNotifier {
       wallet.addAmount(transaction.amount, isIncome: true);
 
       if (asset.isEmergency) {
-        _userController.addEmergencyTotal(emergencyDeduction, isIncome: false);
+        _userController.addEmergencyTotal(
+          context,
+          emergencyDeduction,
+          isIncome: false,
+        );
       }
 
       await _walletController.updateWallet(wallet);
       await _walletController.loadData();
       await _transactionController.createTransaction(transaction);
-      await _userController.processRecordTransaction();
+      await _userController.processRecordTransaction(context);
       await _userController.saveUser();
       await loadData();
 
@@ -132,6 +138,7 @@ class InvestController with ChangeNotifier {
   }
 
   Future<bool> saveTransaction(
+    BuildContext context,
     TransactionModel transaction,
     AssetsModel asset, {
     bool useReserved = false,
@@ -149,6 +156,7 @@ class InvestController with ChangeNotifier {
 
       if (asset.isEmergency) {
         _userController.addEmergencyTotal(
+          context,
           transaction.detailTransaction[0].amount,
           isIncome: true,
         );
@@ -157,7 +165,7 @@ class InvestController with ChangeNotifier {
       await _walletController.updateWallet(wallet);
       await _walletController.loadData();
       await _transactionController.createTransaction(transaction);
-      await _userController.processRecordTransaction();
+      await _userController.processRecordTransaction(context);
       await _userController.saveUser();
       await loadData();
       return true;

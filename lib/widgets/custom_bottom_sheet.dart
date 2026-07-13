@@ -32,7 +32,7 @@ class CustomBottomSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    
+
     return Container(
       decoration: BoxDecoration(
         color: colorScheme.surface,
@@ -46,7 +46,7 @@ class CustomBottomSheet extends StatelessWidget {
             width: 40,
             height: 4,
             decoration: BoxDecoration(
-              color: Colors.grey[700],
+              color: colorScheme.onSurfaceVariant.withOpacity(0.7),
               borderRadius: BorderRadius.circular(2),
             ),
           ),
@@ -66,7 +66,8 @@ class CustomBottomSheet extends StatelessWidget {
             const SizedBox(height: 24),
 
           for (BottomSheetChild data in children) ...[
-            if (!hideDriver) const Divider(color: Colors.white10),
+            if (!hideDriver)
+              Divider(color: colorScheme.onSurface.withOpacity(0.1)),
 
             ListTile(
               leading: CircleAvatar(

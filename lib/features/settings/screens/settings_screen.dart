@@ -13,6 +13,7 @@ import '../../../controllers/user_controller.dart';
 import '../../../controllers/wallet_controller.dart';
 import '../../../core/constants/ui_dict.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/utils/color_extension.dart';
 import '../../../core/utils/global_messenger.dart';
 import '../../../models/wallet_model.dart';
 import '../../../widgets/custom_button.dart';
@@ -80,13 +81,17 @@ class SettingsScreen extends StatelessWidget {
       }
 
       if (onSuccess != null) {
-        GlobalMessenger.showMessage(message: onSuccess, isSuccess: true);
+        GlobalMessenger.showMessage(
+          context,
+          message: onSuccess,
+          isSuccess: true,
+        );
       }
       Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
     } else {
       String? failed = onFailed ?? result["error"];
       if (failed != null) {
-        GlobalMessenger.showMessage(message: failed, isSuccess: false);
+        GlobalMessenger.showMessage(context, message: failed, isSuccess: false);
       }
     }
   }
@@ -108,7 +113,9 @@ class SettingsScreen extends StatelessWidget {
           children: [
             FaIcon(
               FontAwesomeIcons.triangleExclamation,
-              color: isDanger ? AppColors.error : AppColors.warning,
+              color: isDanger
+                  ? colorScheme.error
+                  : AppColors.getWarning(context),
             ),
             const SizedBox(width: 12),
             Expanded(
@@ -117,7 +124,9 @@ class SettingsScreen extends StatelessWidget {
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
-                  color: isDanger ? AppColors.error : AppColors.warning,
+                  color: isDanger
+                      ? colorScheme.error
+                      : AppColors.getWarning(context),
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
                 ),
@@ -136,13 +145,18 @@ class SettingsScreen extends StatelessWidget {
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
-              backgroundColor: isDanger ? AppColors.error : AppColors.warning,
+              backgroundColor: isDanger
+                  ? colorScheme.error
+                  : AppColors.getWarning(context),
             ),
             onPressed: () {
               Navigator.pop(con);
               onYes();
             },
-            child: Text(yesTitle, style: TextStyle(color: Colors.white)),
+            child: Text(
+              yesTitle,
+              style: TextStyle(color: colorScheme.onSurface),
+            ),
           ),
         ],
       ),
@@ -209,7 +223,11 @@ class SettingsScreen extends StatelessWidget {
                     onChanged: settingsController.changeHideBalance,
                   ),
                 ),
-                const Divider(color: Colors.white10, height: 1, indent: 56),
+                Divider(
+                  color: colorScheme.onSurface.withOpacity(0.1),
+                  height: 1,
+                  indent: 56,
+                ),
                 ListTile(
                   leading: FaIcon(
                     FontAwesomeIcons.lock,
@@ -228,6 +246,7 @@ class SettingsScreen extends StatelessWidget {
                       );
                       if (!success && context.mounted) {
                         GlobalMessenger.showMessage(
+                          context,
                           message: UiDict.authRequired,
                           isSuccess: false,
                         );
@@ -240,15 +259,15 @@ class SettingsScreen extends StatelessWidget {
                     duration: const Duration(milliseconds: 300),
                     curve: Curves.easeInOut,
                     decoration: BoxDecoration(
-                      color: Colors.black.withOpacity(0.1),
+                      color: colorScheme.onPrimary.withOpacity(0.1),
                       borderRadius: const BorderRadius.vertical(
                         bottom: Radius.circular(16),
                       ),
                     ),
                     child: Column(
                       children: [
-                        const Divider(
-                          color: Colors.white10,
+                        Divider(
+                          color: colorScheme.onSurface.withOpacity(0.1),
                           height: 1,
                           indent: 56,
                         ),
@@ -271,6 +290,7 @@ class SettingsScreen extends StatelessWidget {
                                 .handleResetPin(context);
                             if (context.mounted) {
                               GlobalMessenger.showMessage(
+                                context,
                                 message: success
                                     ? UiDict.changePinSuccess
                                     : UiDict.changePinCancel,
@@ -282,8 +302,8 @@ class SettingsScreen extends StatelessWidget {
 
                         if (settingsController
                             .isHardwareBiometricSupported) ...[
-                          const Divider(
-                            color: Colors.white10,
+                          Divider(
+                            color: colorScheme.onSurface.withOpacity(0.1),
                             height: 1,
                             indent: 56,
                           ),
@@ -310,6 +330,7 @@ class SettingsScreen extends StatelessWidget {
                                   .changeBiometric(context, val);
                               if (!success && context.mounted) {
                                 GlobalMessenger.showMessage(
+                                  context,
                                   message: UiDict.biometricFailed,
                                   isSuccess: false,
                                 );
@@ -350,7 +371,11 @@ class SettingsScreen extends StatelessWidget {
                     onChanged: settingsController.changeRpgMode,
                   ),
                 ),
-                const Divider(color: Colors.white10, height: 1, indent: 56),
+                Divider(
+                  color: colorScheme.onSurface.withOpacity(0.1),
+                  height: 1,
+                  indent: 56,
+                ),
                 ListTile(
                   leading: FaIcon(
                     FontAwesomeIcons.bell,
@@ -367,6 +392,7 @@ class SettingsScreen extends StatelessWidget {
                       if (context.mounted) {
                         if (!success) {
                           GlobalMessenger.showMessage(
+                            context,
                             message: UiDict.setNotificationsFiled,
                             isSuccess: false,
                           );
@@ -381,7 +407,11 @@ class SettingsScreen extends StatelessWidget {
                     },
                   ),
                 ),
-                const Divider(color: Colors.white10, height: 1, indent: 56),
+                Divider(
+                  color: colorScheme.onSurface.withOpacity(0.1),
+                  height: 1,
+                  indent: 56,
+                ),
                 ListTile(
                   leading: FaIcon(
                     FontAwesomeIcons.moon,
@@ -441,6 +471,7 @@ class SettingsScreen extends StatelessWidget {
                     bool success = await settingsController.handleExportData();
                     if (context.mounted) {
                       GlobalMessenger.showMessage(
+                        context,
                         message: success
                             ? UiDict.setSuccessExport
                             : UiDict.setFailedExport,
@@ -449,7 +480,11 @@ class SettingsScreen extends StatelessWidget {
                     }
                   },
                 ),
-                const Divider(color: Colors.white10, height: 1, indent: 56),
+                Divider(
+                  color: colorScheme.onSurface.withOpacity(0.1),
+                  height: 1,
+                  indent: 56,
+                ),
                 ListTile(
                   leading: FaIcon(
                     FontAwesomeIcons.fileArrowUp,
@@ -474,16 +509,20 @@ class SettingsScreen extends StatelessWidget {
                     ),
                   ),
                 ),
-                const Divider(color: Colors.white10, height: 1, indent: 56),
+                Divider(
+                  color: colorScheme.onSurface.withOpacity(0.1),
+                  height: 1,
+                  indent: 56,
+                ),
                 ListTile(
-                  leading: const FaIcon(
+                  leading: FaIcon(
                     FontAwesomeIcons.trash,
-                    color: AppColors.error,
+                    color: colorScheme.error,
                     size: 20,
                   ),
                   title: Text(
                     UiDict.setDataReset,
-                    style: const TextStyle(color: AppColors.error),
+                    style: TextStyle(color: colorScheme.error),
                   ),
                   onTap: () => _showWarningDialog(
                     context,
@@ -505,11 +544,12 @@ class SettingsScreen extends StatelessWidget {
           CustomButton(
             icon: FontAwesomeIcons.upload,
             title: 'Backup ke Cloud',
-            color: Colors.greenAccent,
+            color: Colors.greenAccent.adapt(context),
             onTap: () async {
               bool success = await settingsController.handleBackupData();
               if (context.mounted) {
                 GlobalMessenger.showMessage(
+                  context,
                   message: success
                       ? UiDict.setSuccessExport
                       : UiDict.setFailedExport,
@@ -522,7 +562,7 @@ class SettingsScreen extends StatelessWidget {
           CustomButton(
             icon: FontAwesomeIcons.download,
             title: 'Restore dari Cloud',
-            color: Colors.blueAccent,
+            color: Colors.blueAccent.adapt(context),
             onTap: () => _showWarningDialog(
               context,
               title: UiDict.setWarning,
@@ -540,7 +580,7 @@ class SettingsScreen extends StatelessWidget {
           CustomButton(
             icon: FontAwesomeIcons.arrowRightFromBracket,
             title: UiDict.setSignOut,
-            color: AppColors.error,
+            color: colorScheme.error,
             onTap: () => _showWarningDialog(
               context,
               title: UiDict.setWarning,

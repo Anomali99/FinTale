@@ -8,6 +8,7 @@ import '../../../core/constants/category_dict.dart';
 import '../../../core/constants/gamification_dict.dart';
 import '../../../core/constants/ui_dict.dart';
 import '../../../core/models/category_model.dart';
+import '../../../core/utils/color_extension.dart';
 import '../../../core/utils/enum_types.dart';
 import '../../../core/utils/global_messenger.dart';
 
@@ -92,14 +93,15 @@ class _SkillTreeScreenState extends State<SkillTreeScreen> {
             onPressed: () async {
               await skillController.resetAllocation();
               GlobalMessenger.showMessage(
+                context,
                 message: UiDict.resetSkill,
                 isSuccess: true,
               );
             },
-            icon: const FaIcon(
+            icon: FaIcon(
               FontAwesomeIcons.arrowRotateRight,
               size: 20,
-              color: Colors.orangeAccent,
+              color: Colors.orangeAccent.adapt(context),
             ),
           ),
           SizedBox(width: 10),
@@ -231,9 +233,10 @@ class _SkillTreeScreenState extends State<SkillTreeScreen> {
     bool isRoot = false,
     double size = 60,
   }) {
+    final colorScheme = Theme.of(context).colorScheme;
     final selectedNode = context.read<SkillController>().selectedNode;
     bool isSelected = selectedNode == id;
-    Color col = data.color ?? Colors.black;
+    Color col = data.getColor(context) ?? colorScheme.onPrimary;
     bool isLocked = percentage == null;
     return GestureDetector(
       onTap: () => context.read<SkillController>().changeNode(id),
@@ -246,13 +249,13 @@ class _SkillTreeScreenState extends State<SkillTreeScreen> {
             height: size,
             decoration: BoxDecoration(
               color: isLocked
-                  ? Colors.black
+                  ? colorScheme.onPrimary
                   : (isSelected ? col : col.withOpacity(0.2)),
               shape: BoxShape.circle,
               border: Border.all(
                 color: isSelected
-                    ? Colors.white
-                    : (isLocked ? Colors.grey : col),
+                    ? colorScheme.onSurface
+                    : (isLocked ? colorScheme.onSurfaceVariant : col),
                 width: 2,
               ),
               boxShadow: isSelected
@@ -269,8 +272,8 @@ class _SkillTreeScreenState extends State<SkillTreeScreen> {
               child: FaIcon(
                 isLocked ? FontAwesomeIcons.lock : data.icon(isRpg),
                 color: isSelected
-                    ? Colors.white
-                    : (isLocked ? Colors.grey : col),
+                    ? colorScheme.onSurface
+                    : (isLocked ? colorScheme.onSurfaceVariant : col),
                 size: size * 0.4,
               ),
             ),
@@ -285,7 +288,9 @@ class _SkillTreeScreenState extends State<SkillTreeScreen> {
               overflow: TextOverflow.ellipsis,
               style: TextStyle(
                 fontSize: 10,
-                color: isSelected ? Colors.white : Colors.grey,
+                color: isSelected
+                    ? colorScheme.onSurface
+                    : colorScheme.onSurfaceVariant,
                 fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
               ),
             ),
@@ -296,7 +301,9 @@ class _SkillTreeScreenState extends State<SkillTreeScreen> {
                 : '[LOCKED]',
             style: TextStyle(
               fontSize: 8,
-              color: isSelected ? Colors.white : Colors.grey,
+              color: isSelected
+                  ? colorScheme.onSurface
+                  : colorScheme.onSurfaceVariant,
               fontWeight: FontWeight.normal,
               overflow: TextOverflow.ellipsis,
             ),
@@ -392,7 +399,12 @@ class _SkillTreeScreenState extends State<SkillTreeScreen> {
           color: colorScheme.surfaceContainerHighest,
           borderRadius: BorderRadius.circular(24),
           border: Border.all(color: colorScheme.primary.withOpacity(0.5)),
-          boxShadow: const [BoxShadow(color: Colors.black54, blurRadius: 20)],
+          boxShadow: [
+            BoxShadow(
+              color: colorScheme.onSurface.withOpacity(0.54),
+              blurRadius: 20,
+            ),
+          ],
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -402,9 +414,15 @@ class _SkillTreeScreenState extends State<SkillTreeScreen> {
               Text(
                 desc,
                 textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 10, color: Colors.grey.shade300),
+                style: TextStyle(
+                  fontSize: 10,
+                  color: colorScheme.onSurfaceVariant.withOpacity(0.3),
+                ),
               ),
-              const Divider(height: 24, color: Colors.white24),
+              Divider(
+                height: 24,
+                color: colorScheme.onSurface.withOpacity(0.2),
+              ),
             ],
 
             if (isLocked) ...[
@@ -412,27 +430,32 @@ class _SkillTreeScreenState extends State<SkillTreeScreen> {
                 padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 4),
                 width: double.infinity,
                 decoration: BoxDecoration(
-                  color: Colors.black12,
+                  color: colorScheme.onSurface.withOpacity(0.12),
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: Colors.white10),
+                  border: Border.all(
+                    color: colorScheme.onSurface.withOpacity(0.1),
+                  ),
                 ),
                 child: ListTile(
-                  leading: const FaIcon(
+                  leading: FaIcon(
                     FontAwesomeIcons.lock,
-                    color: Colors.grey,
+                    color: colorScheme.onSurfaceVariant,
                     size: 20,
                   ),
-                  title: const Text(
+                  title: Text(
                     GamificationDict.lockedSkill,
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.bold,
-                      color: Colors.grey,
+                      color: colorScheme.onSurfaceVariant,
                     ),
                   ),
                   subtitle: Text(
                     GamificationDict.lockedSkillDesc,
-                    style: TextStyle(fontSize: 10, color: Colors.grey.shade500),
+                    style: TextStyle(
+                      fontSize: 10,
+                      color: colorScheme.onSurfaceVariant.withOpacity(0.5),
+                    ),
                   ),
                 ),
               ),
@@ -450,10 +473,10 @@ class _SkillTreeScreenState extends State<SkillTreeScreen> {
                     ),
                     Text(
                       '${controller.freeAllocation.toInt()}%',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 14,
-                        color: Colors.greenAccent,
+                        color: Colors.greenAccent.adapt(context),
                       ),
                     ),
                   ],
@@ -471,10 +494,10 @@ class _SkillTreeScreenState extends State<SkillTreeScreen> {
                     ),
                     Text(
                       '${controller.extraFreeAllocation.toInt()}%',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 14,
-                        color: Colors.amber,
+                        color: Colors.amber.adapt(context),
                       ),
                     ),
                   ],
@@ -492,10 +515,10 @@ class _SkillTreeScreenState extends State<SkillTreeScreen> {
                     ),
                     Text(
                       '${(selectedNode is SectorType) ? controller.freeAllocation.toInt() : parentRegular}%',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 14,
-                        color: Colors.greenAccent,
+                        color: Colors.greenAccent.adapt(context),
                       ),
                     ),
                   ],
@@ -513,10 +536,10 @@ class _SkillTreeScreenState extends State<SkillTreeScreen> {
                     ),
                     Text(
                       '${(selectedNode is SectorType) ? controller.extraFreeAllocation.toInt() : parentExtra}%',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 14,
-                        color: Colors.amber,
+                        color: Colors.amber.adapt(context),
                       ),
                     ),
                   ],
@@ -534,7 +557,7 @@ class _SkillTreeScreenState extends State<SkillTreeScreen> {
 
                       color: canDecrease
                           ? colorScheme.primary
-                          : Colors.grey.shade700,
+                          : colorScheme.onSurfaceVariant.withOpacity(0.7),
                       size: 32,
                     ),
                     onPressed: canDecrease
@@ -557,11 +580,11 @@ class _SkillTreeScreenState extends State<SkillTreeScreen> {
 
                       color: canIncrease
                           ? colorScheme.primary
-                          : Colors.grey.shade700,
+                          : colorScheme.onSurfaceVariant.withOpacity(0.7),
                       size: 32,
                     ),
                     onPressed: canIncrease
-                        ? () => controller.increaseAllocation()
+                        ? () => controller.increaseAllocation(context)
                         : null,
                   ),
                 ],

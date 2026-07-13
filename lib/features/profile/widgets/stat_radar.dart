@@ -14,25 +14,27 @@ class StatRadar extends StatelessWidget {
       width: 100,
       height: 100,
       child: CustomPaint(
-        painter: StatRadarPainter(stats: stats, color: color),
+        painter: StatRadarPainter(context, stats: stats, color: color),
       ),
     );
   }
 }
 
 class StatRadarPainter extends CustomPainter {
+  final BuildContext context;
   final List<double> stats;
   final Color color;
 
-  StatRadarPainter({required this.stats, required this.color});
+  StatRadarPainter(this.context, {required this.stats, required this.color});
 
   @override
   void paint(Canvas canvas, Size size) {
+    final colorScheme = Theme.of(context).colorScheme;
     final center = Offset(size.width / 2, size.height / 2);
     final radius = size.width / 2;
 
     final paintWeb = Paint()
-      ..color = Colors.white.withOpacity(0.15)
+      ..color = colorScheme.onSurface.withOpacity(0.15)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1;
 

@@ -87,7 +87,11 @@ class _CreatePinScreenState extends State<CreatePinScreen> {
         if (mounted) setState(() => _currentStep = PinStep.enterNew);
       });
     } else {
-      GlobalMessenger.showMessage(message: UiDict.pinWrong, isSuccess: false);
+      GlobalMessenger.showMessage(
+        context,
+        message: UiDict.pinWrong,
+        isSuccess: false,
+      );
 
       setState(() => _oldPinInput = '');
     }
@@ -103,12 +107,14 @@ class _CreatePinScreenState extends State<CreatePinScreen> {
       if (mounted) {
         Navigator.pop(context, true);
         GlobalMessenger.showMessage(
+          context,
           message: UiDict.changePinSuccess,
           isSuccess: true,
         );
       }
     } else {
       GlobalMessenger.showMessage(
+        context,
         message: UiDict.confirmPinWorng,
         isSuccess: true,
       );
@@ -204,7 +210,9 @@ class _CreatePinScreenState extends State<CreatePinScreen> {
                   height: 16,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: isFilled ? colorScheme.primary : Colors.white10,
+                    color: isFilled
+                        ? colorScheme.primary
+                        : colorScheme.onSurface.withOpacity(0.1),
                     border: Border.all(
                       color: isFilled
                           ? colorScheme.primary

@@ -49,6 +49,7 @@ class HistoryScreen extends StatelessWidget {
       }
       await historyController.applyFilter();
       GlobalMessenger.showMessage(
+        context,
         message: UiDict.applyFilterNotif,
         isSuccess: true,
       );
@@ -127,7 +128,7 @@ class HistoryScreen extends StatelessWidget {
               color: colorScheme.primary,
             ),
             onPressed: () async {
-              await userController.processMonthlyReview();
+              await userController.processMonthlyReview(context);
               await userController.loadData();
               Navigator.pushNamed(context, '/analytics');
             },

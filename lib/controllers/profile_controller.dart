@@ -31,9 +31,9 @@ class ProfileController with ChangeNotifier {
     }
   }
 
-  Future<bool> saveEmergencyAmount(Decimal amount) async {
+  Future<bool> saveEmergencyAmount(BuildContext context, Decimal amount) async {
     try {
-      _userController.updateEmergencyAmount(amount);
+      _userController.updateEmergencyAmount(context, amount);
       await _userController.saveUser();
       return true;
     } catch (e) {

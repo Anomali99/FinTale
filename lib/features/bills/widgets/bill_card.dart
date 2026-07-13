@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import '../../../core/constants/category_dict.dart';
+import '../../../core/utils/color_extension.dart';
 import '../../../core/utils/number_utils.dart';
 import '../../../models/bill_model.dart';
 
@@ -22,7 +23,7 @@ class BillCard extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
 
     final Color mainColor = data.isActive
-        ? data.tier.color
+        ? data.tier.color.adapt(context)
         : colorScheme.onSurfaceVariant;
 
     return InkWell(
@@ -37,7 +38,7 @@ class BillCard extends StatelessWidget {
           border: Border.all(color: mainColor.withOpacity(0.2)),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: colorScheme.onPrimary.withOpacity(0.05),
               blurRadius: 5,
               offset: const Offset(0, 2),
             ),
