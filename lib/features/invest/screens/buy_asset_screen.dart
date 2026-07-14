@@ -13,6 +13,7 @@ import '../../../models/transaction_detail_model.dart';
 import '../../../models/transaction_model.dart';
 import '../../../models/wallet_model.dart';
 import '../../../widgets/custom_button.dart';
+import '../../../widgets/custom_date_time_picker.dart';
 import '../../../widgets/note_container.dart';
 
 class BuyAssetScreen extends StatefulWidget {
@@ -48,6 +49,7 @@ class _BuyAssetScreenState extends State<BuyAssetScreen>
   final _unitAmountController = TextEditingController();
   final _priceController = TextEditingController();
 
+  DateTime _selectedDate = DateTime.now();
   AssetsModel? _selectedAsset;
   WalletModel? _selectedWallet;
   AssetsCategory? _selectedCategory;
@@ -243,7 +245,7 @@ class _BuyAssetScreenState extends State<BuyAssetScreen>
         walletId: _selectedWallet?.id,
         assetsId: assetToReturn.id,
         detailTransaction: details,
-        dateTimestamp: DateTime.now().millisecondsSinceEpoch,
+        dateTimestamp: _selectedDate.millisecondsSinceEpoch,
       );
 
       Navigator.pop(context, {
@@ -504,6 +506,18 @@ class _BuyAssetScreenState extends State<BuyAssetScreen>
                       val == null ? UiDict.requiredWallet : null,
                 ),
                 const SizedBox(height: 16),
+
+                CustomDateTimePicker(
+                  initialDate: _selectedDate,
+                  label: ScreenDict.historyTime.get(isRpg),
+                  onChanged: (newDate) {
+                    setState(() {
+                      _selectedDate = newDate;
+                    });
+                  },
+                ),
+                const SizedBox(height: 16),
+
                 if (_isNewAssetTab) ...[
                   SwitchListTile(
                     contentPadding: EdgeInsets.zero,

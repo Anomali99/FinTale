@@ -347,6 +347,14 @@ class ScreenDict {
   static String getHomeLimitOver(String formattedOverage) =>
       'Offset Hari Ini: $formattedOverage';
 
+  static String getHomeIncome(
+    String wallet, {
+    bool isExpense = false,
+    bool isRpg = false,
+  }) => UiDict.getTotal(
+    '${isExpense ? UiDict.expense.get(isRpg).toLowerCase() : UiDict.income.get(isRpg).toLowerCase()} $wallet',
+  );
+
   static String getHomeNote(String name, String amount, {bool isRpg = false}) {
     final tabungan = homeSavings.get(isRpg).toLowerCase();
     return 'Transaksi ini akan menggunakan dana $tabungan **$name**. Saldo $tabungan saat ini: **$amount**';

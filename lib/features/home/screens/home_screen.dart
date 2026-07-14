@@ -28,7 +28,6 @@ import '../../bills/widgets/pay_debt_modal.dart';
 import '../widgets/allocation_card.dart';
 import '../widgets/balance_card.dart';
 import '../widgets/daily_limit.dart';
-import '../widgets/income_modal.dart';
 import '../widgets/wallet_details.dart';
 import '../widgets/wallet_modal.dart';
 
@@ -245,20 +244,19 @@ class HomeScreen extends StatelessWidget {
     bool isTransfer = false,
   }) async {
     final homeController = context.read<HomeController>();
-    final walletController = context.read<WalletController>();
     final historyController = context.read<HistoryController>();
     final analyticsController = context.read<AnalyticsController>();
     final isRpg = context.read<SettingsController>().isRpgMode;
-    final result = await showModalBottomSheet<Map<String, dynamic>?>(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) => IncomeModal(
-        wallets: walletController.wallets,
-        allocation: homeController.activeAllocations,
-        isTransfer: isTransfer,
-      ),
-    );
+    final result =
+        await Navigator.pushNamed(
+              context,
+              '/income-record',
+              arguments: {
+                "allocation": homeController.activeAllocations,
+                "isTransfer": isTransfer,
+              },
+            )
+            as Map<String, dynamic>?;
 
     if (result != null && context.mounted) {
       TransactionModel transaction = result['transaction'];

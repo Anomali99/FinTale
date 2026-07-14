@@ -1,6 +1,8 @@
 import 'package:decimal/decimal.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
+import '../../../controllers/settings_controller.dart';
 import '../../../core/constants/screen_dict.dart';
 import '../../../core/constants/ui_dict.dart';
 import '../../../core/theme/app_colors.dart';
@@ -11,6 +13,7 @@ import '../../../models/transaction_detail_model.dart';
 import '../../../models/transaction_model.dart';
 import '../../../models/wallet_model.dart';
 import '../../../widgets/custom_button.dart';
+import '../../../widgets/custom_date_time_picker.dart';
 import '../../../widgets/note_container.dart';
 
 class DividendModal extends StatefulWidget {
@@ -29,6 +32,7 @@ class _DividendModalState extends State<DividendModal> {
   final _perUnitController = TextEditingController();
   final _totalController = TextEditingController();
   WalletModel? _selectedWallet;
+  DateTime _selectedDate = DateTime.now();
 
   @override
   void dispose() {
@@ -79,7 +83,7 @@ class _DividendModalState extends State<DividendModal> {
             flow: FlowType.income,
           ),
         ],
-        dateTimestamp: DateTime.now().millisecondsSinceEpoch,
+        dateTimestamp: _selectedDate.millisecondsSinceEpoch,
       );
 
       Navigator.pop(context, transaction);
@@ -89,6 +93,7 @@ class _DividendModalState extends State<DividendModal> {
   @override
   Widget build(BuildContext context) {
     final bottomInset = MediaQuery.of(context).viewInsets.bottom;
+    final isRpg = context.read<SettingsController>().isRpgMode;
     final colorScheme = Theme.of(context).colorScheme;
 
     return Container(
@@ -195,6 +200,17 @@ class _DividendModalState extends State<DividendModal> {
                 onChanged: (val) => setState(() => _selectedWallet = val),
                 validator: (val) =>
                     val == null ? UiDict.requiredWalletDest : null,
+              ),
+              const SizedBox(height: 16),
+
+              CustomDateTimePicker(
+                initialDate: _selectedDate,
+                label: ScreenDict.historyTime.get(isRpg),
+                onChanged: (newDate) {
+                  setState(() {
+                    _selectedDate = newDate;
+                  });
+                },
               ),
               const SizedBox(height: 16),
 

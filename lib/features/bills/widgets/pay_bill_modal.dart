@@ -13,6 +13,7 @@ import '../../../models/transaction_detail_model.dart';
 import '../../../models/transaction_model.dart';
 import '../../../models/wallet_model.dart';
 import '../../../widgets/custom_button.dart';
+import '../../../widgets/custom_date_time_picker.dart';
 import '../../../widgets/note_container.dart';
 
 class PayBillModal extends StatefulWidget {
@@ -30,6 +31,7 @@ class _PayBillModalState extends State<PayBillModal> {
   final _amountController = TextEditingController(text: '0');
   final _feeController = TextEditingController(text: '0');
 
+  DateTime _selectedDate = DateTime.now();
   WalletModel? _selectedWallet;
   Decimal _amount = Decimal.zero;
   bool _isReservedActive = false;
@@ -107,7 +109,7 @@ class _PayBillModalState extends State<PayBillModal> {
         amount: _amount,
         status: StatusType.paid,
         detailTransaction: newDetail,
-        dateTimestamp: DateTime.now().millisecondsSinceEpoch,
+        dateTimestamp: _selectedDate.millisecondsSinceEpoch,
       );
 
       Navigator.pop(context, {
@@ -209,6 +211,17 @@ class _PayBillModalState extends State<PayBillModal> {
                     .toList(),
                 onChanged: (val) => setState(() => _selectedWallet = val),
                 validator: (val) => val == null ? UiDict.requiredWallet : null,
+              ),
+              const SizedBox(height: 16),
+
+              CustomDateTimePicker(
+                initialDate: _selectedDate,
+                label: ScreenDict.historyTime.get(isRpg),
+                onChanged: (newDate) {
+                  setState(() {
+                    _selectedDate = newDate;
+                  });
+                },
               ),
               const SizedBox(height: 16),
 

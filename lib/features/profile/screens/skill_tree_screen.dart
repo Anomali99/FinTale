@@ -236,7 +236,7 @@ class _SkillTreeScreenState extends State<SkillTreeScreen> {
     final colorScheme = Theme.of(context).colorScheme;
     final selectedNode = context.read<SkillController>().selectedNode;
     bool isSelected = selectedNode == id;
-    Color col = data.getColor(context) ?? colorScheme.onPrimary;
+    Color col = data.getColor(context);
     bool isLocked = percentage == null;
     return GestureDetector(
       onTap: () => context.read<SkillController>().changeNode(id),

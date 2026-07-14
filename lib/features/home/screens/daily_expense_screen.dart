@@ -1,8 +1,6 @@
 import 'package:decimal/decimal.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import '../../../controllers/settings_controller.dart';
@@ -15,6 +13,7 @@ import '../../../models/transaction_detail_model.dart';
 import '../../../models/transaction_model.dart';
 import '../../../models/wallet_model.dart';
 import '../../../widgets/custom_button.dart';
+import '../../../widgets/custom_date_time_picker.dart';
 import '../../../widgets/note_container.dart';
 
 class ExpenseItemForm {
@@ -150,51 +149,6 @@ class _DailyExpenseScreenState extends State<DailyExpenseScreen> {
     }
   }
 
-  Future<void> _pickDate() async {
-    final pickedDate = await showDatePicker(
-      context: context,
-      initialDate: _selectedDate,
-      firstDate: DateTime(2000),
-      lastDate: DateTime(2100),
-    );
-
-    if (pickedDate != null) {
-      if (!context.mounted) return;
-      final pickedTime = await showTimePicker(
-        context: context,
-        initialTime: TimeOfDay.fromDateTime(_selectedDate),
-      );
-
-      if (pickedTime != null) {
-        setState(() {
-          _selectedDate = DateTime(
-            pickedDate.year,
-            pickedDate.month,
-            pickedDate.day,
-            pickedTime.hour,
-            pickedTime.minute,
-          );
-        });
-      } else {
-        setState(() {
-          _selectedDate = DateTime(
-            pickedDate.year,
-            pickedDate.month,
-            pickedDate.day,
-            _selectedDate.hour,
-            _selectedDate.minute,
-          );
-        });
-      }
-    }
-  }
-
-  void _resetToCurrentTime() {
-    setState(() {
-      _selectedDate = DateTime.now();
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     final settingsController = context.read<SettingsController>();
@@ -244,7 +198,7 @@ class _DailyExpenseScreenState extends State<DailyExpenseScreen> {
                   ? UiDict.requiredTitle
                   : null,
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 16),
 
             DropdownButtonFormField<WalletModel>(
               initialValue: _selectedWallet,
@@ -258,45 +212,16 @@ class _DailyExpenseScreenState extends State<DailyExpenseScreen> {
               onChanged: (val) => setState(() => _selectedWallet = val),
               validator: (val) => val == null ? UiDict.requiredWallet : null,
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 16),
 
-            Row(
-              children: [
-                Expanded(
-                  child: InkWell(
-                    onTap: _pickDate,
-                    child: InputDecorator(
-                      decoration: InputDecoration(
-                        labelText: ScreenDict.historyTime.get(isRpg),
-                        border: const OutlineInputBorder(),
-                      ),
-                      child: Text(
-                        DateFormat(
-                          'dd MMMM yyyy •󠁏󠁏 HH:mm',
-                        ).format(_selectedDate),
-                        style: TextStyle(color: colorScheme.onSurface),
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Container(
-                  height: 51,
-                  decoration: BoxDecoration(
-                    border: Border.all(
-                      color: colorScheme.onSurface.withOpacity(0.38),
-                    ),
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                  child: IconButton(
-                    onPressed: _resetToCurrentTime,
-                    icon: FaIcon(
-                      FontAwesomeIcons.arrowRotateLeft,
-                      color: colorScheme.primary,
-                    ),
-                  ),
-                ),
-              ],
+            CustomDateTimePicker(
+              initialDate: _selectedDate,
+              label: ScreenDict.historyTime.get(isRpg),
+              onChanged: (newDate) {
+                setState(() {
+                  _selectedDate = newDate;
+                });
+              },
             ),
 
             const SizedBox(height: 16),

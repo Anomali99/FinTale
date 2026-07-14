@@ -8,6 +8,7 @@ import 'core/wrappers/auth_wrapper.dart';
 import 'core/wrappers/lock_wrapper.dart';
 import 'features/analytics/screens/analytics_screen.dart';
 import 'features/home/screens/daily_expense_screen.dart';
+import 'features/home/screens/income_screen.dart';
 import 'features/invest/screens/buy_asset_screen.dart';
 import 'features/main_layout.dart';
 import 'features/profile/screens/info_screen.dart';
@@ -52,6 +53,13 @@ class FinTaleApp extends StatelessWidget {
             return MaterialPageRoute(builder: (_) => AnalyticsScreen());
           case '/daily-expense':
             return MaterialPageRoute(builder: (_) => DailyExpenseScreen());
+          case '/income-record':
+            return MaterialPageRoute(
+              builder: (_) => IncomeScreen(
+                isTransfer: args?['isTransfer'],
+                allocation: args?['allocation'],
+              ),
+            );
           case '/buy-asset':
             return MaterialPageRoute(
               builder: (_) => BuyAssetScreen(

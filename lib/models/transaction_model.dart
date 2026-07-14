@@ -12,7 +12,7 @@ class TransactionModel {
   final int? targetId;
   final String title;
   final Decimal amount;
-  final int dateTimestamp;
+  int dateTimestamp;
   StatusType status;
   final TransactionType type;
   final List<TransactionDetailModel> detailTransaction;
@@ -47,6 +47,10 @@ class TransactionModel {
 
   void setStatus(StatusType status) {
     this.status = status;
+  }
+
+  void setDateTimestamp(DateTime date) {
+    dateTimestamp = date.millisecondsSinceEpoch;
   }
 
   Map<String, dynamic> toMap() {

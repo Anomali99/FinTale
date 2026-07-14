@@ -13,6 +13,7 @@ import '../../../models/transaction_detail_model.dart';
 import '../../../models/transaction_model.dart';
 import '../../../models/wallet_model.dart';
 import '../../../widgets/custom_button.dart';
+import '../../../widgets/custom_date_time_picker.dart';
 
 class SellAssetModal extends StatefulWidget {
   final AssetsModel asset;
@@ -31,6 +32,7 @@ class _SellAssetModalState extends State<SellAssetModal> {
   final _priceController = TextEditingController();
   final _feeController = TextEditingController(text: '0');
 
+  DateTime _selectedDate = DateTime.now();
   WalletModel? _selectedWallet;
   bool _isFeeActive = false;
   Decimal _netAmount = Decimal.zero;
@@ -126,7 +128,7 @@ class _SellAssetModalState extends State<SellAssetModal> {
         walletId: _selectedWallet?.id,
         assetsId: widget.asset.id,
         detailTransaction: details,
-        dateTimestamp: DateTime.now().millisecondsSinceEpoch,
+        dateTimestamp: _selectedDate.millisecondsSinceEpoch,
       );
 
       Navigator.pop(context, {
@@ -254,6 +256,17 @@ class _SellAssetModalState extends State<SellAssetModal> {
                 onChanged: (val) => setState(() => _selectedWallet = val),
                 validator: (val) =>
                     val == null ? UiDict.requiredWalletDest : null,
+              ),
+              const SizedBox(height: 16),
+
+              CustomDateTimePicker(
+                initialDate: _selectedDate,
+                label: ScreenDict.historyTime.get(isRpg),
+                onChanged: (newDate) {
+                  setState(() {
+                    _selectedDate = newDate;
+                  });
+                },
               ),
               const SizedBox(height: 16),
 

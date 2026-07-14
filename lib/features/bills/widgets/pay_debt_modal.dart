@@ -14,6 +14,7 @@ import '../../../models/transaction_detail_model.dart';
 import '../../../models/transaction_model.dart';
 import '../../../models/wallet_model.dart';
 import '../../../widgets/custom_button.dart';
+import '../../../widgets/custom_date_time_picker.dart';
 import '../../../widgets/note_container.dart';
 
 class PayDebtModal extends StatefulWidget {
@@ -43,6 +44,7 @@ class _PayDebtModalState extends State<PayDebtModal>
   final _amountController = TextEditingController(text: '0');
   final _feeController = TextEditingController(text: '0');
 
+  DateTime _selectedDate = DateTime.now();
   WalletModel? _selectedWallet;
   DebtModel? _selectedDebt;
   BillModel? _selectedBill;
@@ -146,6 +148,7 @@ class _PayDebtModalState extends State<PayDebtModal>
   void _submit() {
     if (_formKey.currentState!.validate()) {
       TransactionModel transaction;
+
       if (_isBillTab) {
         transaction = _selectedBill!.generateTransaction(
           status: StatusType.paid,
@@ -171,6 +174,8 @@ class _PayDebtModalState extends State<PayDebtModal>
           ),
         );
       }
+
+      transaction.setDateTimestamp(_selectedDate);
 
       Navigator.pop(context, {
         "is_bill": _isBillTab,
@@ -353,6 +358,17 @@ class _PayDebtModalState extends State<PayDebtModal>
                     ? (val) => setState(() => _selectedWallet = val)
                     : null,
                 validator: (val) => val == null ? UiDict.requiredWallet : null,
+              ),
+              const SizedBox(height: 16),
+
+              CustomDateTimePicker(
+                initialDate: _selectedDate,
+                label: ScreenDict.historyTime.get(isRpg),
+                onChanged: (newDate) {
+                  setState(() {
+                    _selectedDate = newDate;
+                  });
+                },
               ),
               const SizedBox(height: 16),
 
