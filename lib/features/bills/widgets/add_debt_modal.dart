@@ -163,7 +163,7 @@ class _AddDebtModalState extends State<AddDebtModal> {
                     .map(
                       (t) => DropdownMenuItem(
                         value: t,
-                        child: Text(t.name.toUpperCase()),
+                        child: Text(t.categoryDict.get(isRpg)),
                       ),
                     )
                     .toList(),

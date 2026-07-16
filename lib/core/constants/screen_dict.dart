@@ -333,6 +333,15 @@ class ScreenDict {
     ),
   );
 
+  static const CategoryModel addReceivable = CategoryModel(
+    terminology: TermModel(normal: 'Tambah Piutang', rpg: 'Kontrak Tavern'),
+    description: 'Catat koin yang Anda pinjamkan kepada orang lain',
+    icons: IconModel(
+      normal: FontAwesomeIcons.handshake,
+      rpg: FontAwesomeIcons.beerMugEmpty,
+    ),
+  );
+
   static const CategoryModel billsPayAction = CategoryModel(
     terminology: TermModel(normal: 'Bayar', rpg: 'Serang'),
     icons: IconModel(

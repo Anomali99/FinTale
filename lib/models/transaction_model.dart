@@ -9,6 +9,7 @@ class TransactionModel {
   int? debtId;
   int? billId;
   int? assetsId;
+  int? receivableId;
   final int? targetId;
   final String title;
   final Decimal amount;
@@ -30,6 +31,7 @@ class TransactionModel {
     this.debtId,
     this.billId,
     this.assetsId,
+    this.receivableId,
     this.targetId,
   });
 
@@ -43,6 +45,14 @@ class TransactionModel {
 
   void setBillId(int id) {
     billId = id;
+  }
+
+  void setDebtId(int id) {
+    debtId = id;
+  }
+
+  void setReceivableId(int id) {
+    receivableId = id;
   }
 
   void setStatus(StatusType status) {
@@ -59,6 +69,7 @@ class TransactionModel {
       "wallet_id": walletId,
       "debt_id": debtId,
       "bill_id": billId,
+      "receivable_id": receivableId,
       "assets_id": assetsId,
       "target_id": targetId,
       "title": title,
@@ -78,6 +89,7 @@ class TransactionModel {
       walletId: map['wallet_id'],
       debtId: map['debt_id'],
       billId: map['bill_id'],
+      receivableId: map['receivable_id'],
       assetsId: map['assets_id'],
       targetId: map['target_id'],
       title: map['title'],

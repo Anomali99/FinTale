@@ -19,6 +19,7 @@ import 'controllers/wallet_controller.dart';
 import 'data/dao/asset_dao.dart';
 import 'data/dao/bill_dao.dart';
 import 'data/dao/debt_dao.dart';
+import 'data/dao/receivable_dao.dart';
 import 'data/dao/transaction_dao.dart';
 import 'data/dao/wallet_dao.dart';
 import 'data/pref_service.dart';
@@ -37,6 +38,7 @@ void main() async {
 
   final walletDao = WalletDao();
   final assetDao = AssetDao();
+  final receivableDao = ReceivableDao();
   final debtDao = DebtDao();
   final billDao = BillDao();
   final transactionDao = TransactionDao();
@@ -60,6 +62,7 @@ void main() async {
   final billController = BillController(
     billDao,
     debtDao,
+    receivableDao,
     userController,
     walletController,
     transactionController,

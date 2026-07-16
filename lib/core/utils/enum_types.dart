@@ -32,7 +32,16 @@ enum RiskType {
   }
 }
 
-enum DebtType { creditCard, mortgage, vehicle, personal, business, other }
+enum DebtType {
+  creditCard,
+  mortgage,
+  vehicle,
+  personal,
+  business,
+  other;
+
+  CategoryModel get categoryDict => CategoryDict.getDebtByEnum(this);
+}
 
 enum TimeType {
   daily('Harian'),

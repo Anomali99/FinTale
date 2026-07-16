@@ -14,6 +14,7 @@ import '../../../models/transaction_model.dart';
 import '../../../models/wallet_model.dart';
 import '../../../widgets/custom_button.dart';
 import '../../../widgets/custom_date_time_picker.dart';
+import '../../../widgets/custom_tab_bar.dart';
 import '../../../widgets/note_container.dart';
 
 class BuyAssetScreen extends StatefulWidget {
@@ -291,35 +292,12 @@ class _BuyAssetScreenState extends State<BuyAssetScreen>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 if (!_isHideTab) ...[
-                  Container(
-                    height: 45,
-                    decoration: BoxDecoration(
-                      color: colorScheme.surfaceContainerHighest,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: TabBar(
-                      controller: _tabController,
-                      indicatorSize: TabBarIndicatorSize.tab,
-                      dividerColor: Colors.transparent,
-                      indicator: BoxDecoration(
-                        color: colorScheme.primary.withOpacity(0.2),
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(
-                          color: colorScheme.primary.withOpacity(0.5),
-                        ),
-                      ),
-                      labelColor: colorScheme.primary,
-                      labelStyle: const TextStyle(
-                        fontFamily: 'Poppins',
-                        fontWeight: FontWeight.bold,
-                        fontSize: 13,
-                      ),
-                      unselectedLabelColor: colorScheme.onSurfaceVariant,
-                      tabs: [
-                        Tab(text: ScreenDict.investNewAsset.get(isRpg)),
-                        Tab(text: ScreenDict.investAddModal.get(isRpg)),
-                      ],
-                    ),
+                  CustomTabBar(
+                    controller: _tabController,
+                    tabs: [
+                      ScreenDict.investNewAsset.get(isRpg),
+                      ScreenDict.investAddModal.get(isRpg),
+                    ],
                   ),
                   const SizedBox(height: 24),
                 ],

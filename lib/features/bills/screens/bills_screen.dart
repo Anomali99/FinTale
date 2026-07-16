@@ -16,8 +16,10 @@ import '../../../core/utils/enum_types.dart';
 import '../../../core/utils/global_messenger.dart';
 import '../../../models/bill_model.dart';
 import '../../../models/debt_model.dart';
+import '../../../models/receivable_model.dart';
 import '../../../models/transaction_model.dart';
 import '../../../widgets/custom_bottom_sheet.dart';
+import '../../../widgets/custom_tab_bar.dart';
 import '../widgets/active_bills_tab.dart';
 import '../widgets/add_bill_modal.dart';
 import '../widgets/add_debt_modal.dart';
@@ -27,9 +29,27 @@ import '../widgets/debt_detail_modal.dart';
 import '../widgets/debts_tab.dart';
 import '../widgets/pay_bill_modal.dart';
 import '../widgets/pay_debt_modal.dart';
+import '../widgets/receivables_tab.dart';
 
 class BillsScreen extends StatelessWidget {
   const BillsScreen({super.key});
+
+  void _openReceivableDetail(
+    BuildContext context,
+    String borrowerName,
+    List<ReceivableModel> data,
+    bool isRpg,
+  ) async {
+    final result =
+        await Navigator.pushNamed(
+              context,
+              '/receivable-detail',
+              arguments: {"borrowerName": borrowerName, "initialRecords": data},
+            )
+            as Map<String, dynamic>?;
+
+    if (result != null && context.mounted) {}
+  }
 
   void _openDebtDetail(BuildContext context, DebtModel data, bool isRpg) async {
     final result = await showModalBottomSheet<DebtActionType>(
@@ -263,6 +283,16 @@ class BillsScreen extends StatelessWidget {
                 _openAddDebtModal(context);
               },
             ),
+            BottomSheetChild(
+              title: ScreenDict.addReceivable.get(isRpg),
+              subtitle: ScreenDict.addReceivable.description ?? "",
+              color: Colors.greenAccent.adapt(context),
+              icon: ScreenDict.addReceivable.icon(isRpg),
+              onTap: () {
+                Navigator.pop(con);
+                _openAddDebtModal(context);
+              },
+            ),
           ],
         );
       },
@@ -282,8 +312,10 @@ class BillsScreen extends StatelessWidget {
     final bills = billController.bills;
     final debts = billController.debts;
 
+    Map<String, List<ReceivableModel>> dummyGroupedReceivables = {};
+
     return DefaultTabController(
-      length: 3,
+      length: 2,
       child: Scaffold(
         appBar: AppBar(
           title: Text(
@@ -305,29 +337,89 @@ class BillsScreen extends StatelessWidget {
             labelColor: colorScheme.primary,
             unselectedLabelColor: colorScheme.onSurfaceVariant,
             tabs: [
-              Tab(text: ScreenDict.billsActive.get(isRpg)),
               Tab(text: ScreenDict.billsMaster.get(isRpg)),
               Tab(text: ScreenDict.debtsMaster.get(isRpg)),
             ],
           ),
         ),
+
         body: TabBarView(
           children: [
-            ActiveBillsTab(
-              data: billTransaction,
-              isRpg: isRpg,
-              onTap: (transaction) =>
-                  _openActiveBillModal(context, transaction),
+            DefaultTabController(
+              length: 2,
+              child: Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(16.0),
+
+                    child: CustomTabBar(
+                      tabs: [
+                        ScreenDict.billsActive.get(isRpg),
+                        ScreenDict.billsMaster.get(isRpg),
+                      ],
+                    ),
+                  ),
+
+                  Expanded(
+                    child: TabBarView(
+                      children: [
+                        ActiveBillsTab(
+                          data: billTransaction,
+                          isRpg: isRpg,
+                          onTap: (transaction) =>
+                              _openActiveBillModal(context, transaction),
+                        ),
+                        BillsTab(
+                          data: bills,
+                          isRpg: isRpg,
+                          onTapCard: (bill) =>
+                              _openBillDetail(context, bill, isRpg),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
-            BillsTab(
-              data: bills,
-              isRpg: isRpg,
-              onTapCard: (bill) => _openBillDetail(context, bill, isRpg),
-            ),
-            DebtsTab(
-              data: debts,
-              isRpg: isRpg,
-              onTapCard: (debt) => _openDebtDetail(context, debt, isRpg),
+
+            DefaultTabController(
+              length: 2,
+              child: Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(16.0),
+
+                    child: CustomTabBar(
+                      tabs: [ScreenDict.debtsMaster.get(isRpg), 'Piutang'],
+                    ),
+                  ),
+
+                  Expanded(
+                    child: TabBarView(
+                      children: [
+                        DebtsTab(
+                          data: debts,
+                          isRpg: isRpg,
+                          onTapCard: (debt) =>
+                              _openDebtDetail(context, debt, isRpg),
+                        ),
+
+                        ReceivablesTab(
+                          data: dummyGroupedReceivables,
+                          isRpg: isRpg,
+                          onTapCard: (name, receivable) =>
+                              _openReceivableDetail(
+                                context,
+                                name,
+                                receivable,
+                                isRpg,
+                              ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
           ],
         ),

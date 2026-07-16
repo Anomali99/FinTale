@@ -68,6 +68,22 @@ class AppDatabase {
     ''');
 
     await db.execute('''
+      CREATE TABLE receivables (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        borrower_name TEXT NOT NULL,
+        title TEXT NOT NULL,
+        amount TEXT NOT NULL,
+        paid_amount TEXT NOT NULL,
+        date_timestamp INTEGER NOT NULL,
+        target_date INTEGER,
+        is_reminder_active INTEGER NOT NULL,
+        created_at INTEGER NOT NULL,
+        updated_at INTEGER NOT NULL,
+        deleted_at INTEGER
+      )
+    ''');
+
+    await db.execute('''
       CREATE TABLE bills (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         debt_id INTEGER UNIQUE,
@@ -93,6 +109,7 @@ class AppDatabase {
         wallet_id INTEGER,
         debt_id INTEGER,
         bill_id INTEGER,
+        receivable_id INTEGER,
         assets_id INTEGER,
         target_id INTEGER,
         title TEXT NOT NULL,
@@ -107,6 +124,7 @@ class AppDatabase {
         FOREIGN KEY (wallet_id) REFERENCES wallets (id) ON DELETE RESTRICT,
         FOREIGN KEY (debt_id) REFERENCES debts (id) ON DELETE RESTRICT,
         FOREIGN KEY (bill_id) REFERENCES bills (id) ON DELETE RESTRICT,
+        FOREIGN KEY (receivable_id) REFERENCES receivables (id) ON DELETE RESTRICT,
         FOREIGN KEY (assets_id) REFERENCES assets (id) ON DELETE RESTRICT,
         FOREIGN KEY (target_id) REFERENCES wallets (id) ON DELETE RESTRICT
       )
@@ -142,6 +160,7 @@ class AppDatabase {
       'wallets',
       'assets',
       'debts',
+      'receivables',
       'bills',
       'transactions',
       'transaction_details',
@@ -163,6 +182,7 @@ class AppDatabase {
           'transaction_details',
           'transactions',
           'bills',
+          'receivables',
           'debts',
           'assets',
           'wallets',
@@ -176,6 +196,7 @@ class AppDatabase {
           'wallets',
           'assets',
           'debts',
+          'receivables',
           'bills',
           'transactions',
           'transaction_details',

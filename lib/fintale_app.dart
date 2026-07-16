@@ -7,6 +7,7 @@ import 'core/utils/global_messenger.dart';
 import 'core/wrappers/auth_wrapper.dart';
 import 'core/wrappers/lock_wrapper.dart';
 import 'features/analytics/screens/analytics_screen.dart';
+import 'features/bills/screens/receivable_detail_screen.dart';
 import 'features/home/screens/daily_expense_screen.dart';
 import 'features/home/screens/income_screen.dart';
 import 'features/invest/screens/buy_asset_screen.dart';
@@ -58,6 +59,13 @@ class FinTaleApp extends StatelessWidget {
               builder: (_) => IncomeScreen(
                 isTransfer: args?['isTransfer'],
                 allocation: args?['allocation'],
+              ),
+            );
+          case '/receivable-detail':
+            return MaterialPageRoute(
+              builder: (_) => ReceivableDetailScreen(
+                borrowerName: args?['borrowerName'] ?? '',
+                initialRecords: args?['initialRecords'] ?? [],
               ),
             );
           case '/buy-asset':

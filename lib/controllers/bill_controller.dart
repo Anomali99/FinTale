@@ -7,6 +7,7 @@ import '../core/constants/ui_dict.dart';
 import '../core/utils/enum_types.dart';
 import '../data/dao/bill_dao.dart';
 import '../data/dao/debt_dao.dart';
+import '../data/dao/receivable_dao.dart';
 import '../models/bill_model.dart';
 import '../models/debt_model.dart';
 import '../models/transaction_model.dart';
@@ -16,6 +17,7 @@ import '../services/notification_service.dart';
 class BillController with ChangeNotifier {
   final BillDao _billDao;
   final DebtDao _debtDao;
+  final ReceivableDao _receivableDao;
   final UserController _userController;
   final WalletController _walletController;
   final TransactionController _transactionController;
@@ -25,6 +27,7 @@ class BillController with ChangeNotifier {
   BillController(
     this._billDao,
     this._debtDao,
+    this._receivableDao,
     this._userController,
     this._walletController,
     this._transactionController,
