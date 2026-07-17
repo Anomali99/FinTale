@@ -102,10 +102,13 @@ enum TransactionCategory {
   transport,
   entertainment,
   health,
+  lending,
+  charity,
   utilities,
   debtInstallment,
   salary,
   business,
+  debtCollection,
   dividend,
   transfer,
   lowRisk,
@@ -120,12 +123,15 @@ enum TransactionCategory {
     transport,
     entertainment,
     health,
+    lending,
+    charity,
     utilities,
   ];
 
   static List<TransactionCategory> get incomeCategories => [
     salary,
     business,
+    debtCollection,
     dividend,
   ];
 

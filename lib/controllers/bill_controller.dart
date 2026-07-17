@@ -10,6 +10,7 @@ import '../data/dao/debt_dao.dart';
 import '../data/dao/receivable_dao.dart';
 import '../models/bill_model.dart';
 import '../models/debt_model.dart';
+import '../models/receivable_model.dart';
 import '../models/transaction_model.dart';
 import '../models/wallet_model.dart';
 import '../services/notification_service.dart';
@@ -21,8 +22,11 @@ class BillController with ChangeNotifier {
   final UserController _userController;
   final WalletController _walletController;
   final TransactionController _transactionController;
-  List<BillModel> bills = [];
+  Map<String, List<ReceivableModel>> groupedReceivables = {};
+  List<String> borrowerNames = [];
+  List<ReceivableModel> receivables = [];
   List<DebtModel> debts = [];
+  List<BillModel> bills = [];
 
   BillController(
     this._billDao,
@@ -316,6 +320,7 @@ class BillController with ChangeNotifier {
   Future<void> loadData() async {
     try {
       await loadDebtData();
+      await loadReceivableData();
       await _transactionController.loadBillTransaction();
       if (_userController.isNotification) {
         await checAndCreateNotification();
@@ -355,6 +360,27 @@ class BillController with ChangeNotifier {
         e.updateBill(billMap[e.id]);
         return e;
       }).toList();
+    } catch (e) {
+      debugPrint("[BILL] An error occurred while loading debt: $e");
+    } finally {
+      notifyListeners();
+    }
+  }
+
+  Future<void> loadReceivableData() async {
+    try {
+      borrowerNames.clear();
+      groupedReceivables.clear();
+      receivables = await _receivableDao.readAllActiveData();
+
+      for (ReceivableModel rcx in receivables) {
+        String borrowerName = rcx.borrowerName;
+        if (!groupedReceivables.containsKey(borrowerName)) {
+          groupedReceivables[borrowerName] = [];
+          borrowerNames.add(borrowerName);
+        }
+        groupedReceivables[borrowerName]!.add(rcx);
+      }
     } catch (e) {
       debugPrint("[BILL] An error occurred while loading debt: $e");
     } finally {

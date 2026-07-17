@@ -54,6 +54,29 @@ class CategoryDict {
     ),
   );
 
+  static const CategoryModel lending = CategoryModel(
+    type: 'expense',
+    color: Colors.deepOrangeAccent,
+    terminology: TermModel(
+      normal: 'Memberi Pinjaman',
+      rpg: 'Pinjaman Petualang',
+    ),
+    icons: IconModel(
+      normal: FontAwesomeIcons.handHoldingDollar,
+      rpg: FontAwesomeIcons.coins,
+    ),
+  );
+
+  static const CategoryModel charity = CategoryModel(
+    type: 'expense',
+    color: Colors.cyan,
+    terminology: TermModel(normal: 'Amal & Donasi', rpg: 'Sumbangan Kuil'),
+    icons: IconModel(
+      normal: FontAwesomeIcons.handHoldingHeart,
+      rpg: FontAwesomeIcons.church,
+    ),
+  );
+
   static const CategoryModel utilities = CategoryModel(
     type: 'expense',
     color: Colors.blueAccent,
@@ -84,6 +107,19 @@ class CategoryDict {
     icons: IconModel(
       normal: FontAwesomeIcons.shop,
       rpg: FontAwesomeIcons.scaleBalanced,
+    ),
+  );
+
+  static const CategoryModel debtCollection = CategoryModel(
+    type: 'income',
+    color: Colors.teal,
+    terminology: TermModel(
+      normal: 'Pembayaran Piutang',
+      rpg: 'Penebusan Kontrak',
+    ),
+    icons: IconModel(
+      normal: FontAwesomeIcons.moneyCheckDollar,
+      rpg: FontAwesomeIcons.sackDollar,
     ),
   );
 
@@ -231,10 +267,13 @@ class CategoryDict {
     transport,
     entertainment,
     health,
+    lending,
+    charity,
     utilities,
     debtInstallment,
     salary,
     business,
+    debtCollection,
     dividend,
     transfer,
     lowRisk,
@@ -293,6 +332,10 @@ class CategoryDict {
         return entertainment;
       case TransactionCategory.health:
         return health;
+      case TransactionCategory.lending:
+        return lending;
+      case TransactionCategory.charity:
+        return charity;
       case TransactionCategory.utilities:
         return utilities;
       case TransactionCategory.debtInstallment:
@@ -301,6 +344,8 @@ class CategoryDict {
         return salary;
       case TransactionCategory.business:
         return business;
+      case TransactionCategory.debtCollection:
+        return debtCollection;
       case TransactionCategory.dividend:
         return dividend;
       case TransactionCategory.transfer:

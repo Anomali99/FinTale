@@ -163,6 +163,27 @@ class BillsScreen extends StatelessWidget {
     }
   }
 
+  void _openAddReceivableModal(
+    BuildContext context, {
+    ReceivableModel? initialReceivable,
+  }) async {
+    final isRpg = context.read<SettingsController>().isRpgMode;
+    final borrowerNames = context.read<BillController>().borrowerNames;
+
+    final result =
+        await Navigator.pushNamed(
+              context,
+              '/add-receivable',
+              arguments: {
+                "existingNames": borrowerNames,
+                "initialReceivable": initialReceivable,
+              },
+            )
+            as Map<String, dynamic>?;
+
+    if (result != null && context.mounted) {}
+  }
+
   void _openPayDebtOrBillModal(
     BuildContext context, {
     required String title,
@@ -290,7 +311,7 @@ class BillsScreen extends StatelessWidget {
               icon: ScreenDict.addReceivable.icon(isRpg),
               onTap: () {
                 Navigator.pop(con);
-                _openAddDebtModal(context);
+                _openAddReceivableModal(context);
               },
             ),
           ],
@@ -312,7 +333,7 @@ class BillsScreen extends StatelessWidget {
     final bills = billController.bills;
     final debts = billController.debts;
 
-    Map<String, List<ReceivableModel>> dummyGroupedReceivables = {};
+    final groupedReceivables = billController.groupedReceivables;
 
     return DefaultTabController(
       length: 2,
@@ -405,7 +426,7 @@ class BillsScreen extends StatelessWidget {
                         ),
 
                         ReceivablesTab(
-                          data: dummyGroupedReceivables,
+                          data: groupedReceivables,
                           isRpg: isRpg,
                           onTapCard: (name, receivable) =>
                               _openReceivableDetail(

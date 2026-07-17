@@ -526,75 +526,64 @@ class _IncomeScreenState extends State<IncomeScreen> {
             ),
             const SizedBox(height: 8),
           ],
-          if (widget.isTransfer) ...[
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: colorScheme.surfaceContainerHighest,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: colorScheme.primary.withOpacity(0.2)),
+            ),
+            child: Column(
               children: [
-                Text(
-                  ScreenDict.getHomeIncome(
-                    _selectedWallet?.name ?? '',
-                    isExpense: true,
-                    isRpg: isRpg,
+                if (widget.isTransfer) ...[
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        ScreenDict.getHomeIncome(
+                          _selectedWallet?.name ?? '',
+                          isExpense: true,
+                          isRpg: isRpg,
+                        ),
+                        style: TextStyle(color: colorScheme.onSurfaceVariant),
+                      ),
+                      Text(
+                        NumberUtils.toIdr(_cleanAmount),
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: colorScheme.error,
+                        ),
+                      ),
+                    ],
                   ),
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: colorScheme.onSurfaceVariant,
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Flexible(
-                  child: FittedBox(
-                    fit: BoxFit.scaleDown,
-                    alignment: Alignment.centerRight,
-                    child: Text(
-                      NumberUtils.toIdr(_cleanAmount),
+                  const SizedBox(height: 8),
+                ],
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      ScreenDict.getHomeIncome(
+                        widget.isTransfer
+                            ? _selectedTarget?.name ?? ''
+                            : _selectedWallet?.name ?? '',
+                        isExpense: false,
+                        isRpg: isRpg,
+                      ),
+                      style: TextStyle(color: colorScheme.onSurfaceVariant),
+                    ),
+                    Text(
+                      NumberUtils.toIdr(_cleanAmount - _cleanFee),
                       style: TextStyle(
-                        fontFamily: 'Poppins',
                         fontWeight: FontWeight.bold,
-                        fontSize: 22,
-                        color: colorScheme.error,
+                        color: AppColors.getSuccess(context),
                       ),
                     ),
-                  ),
+                  ],
                 ),
               ],
             ),
-            const SizedBox(height: 8),
-          ],
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                ScreenDict.getHomeIncome(
-                  widget.isTransfer
-                      ? _selectedTarget?.name ?? ''
-                      : _selectedWallet?.name ?? '',
-                  isExpense: false,
-                  isRpg: isRpg,
-                ),
-                style: TextStyle(
-                  fontSize: 14,
-                  color: colorScheme.onSurfaceVariant,
-                ),
-              ),
-              const SizedBox(width: 16),
-              Flexible(
-                child: FittedBox(
-                  fit: BoxFit.scaleDown,
-                  alignment: Alignment.centerRight,
-                  child: Text(
-                    NumberUtils.toIdr(_cleanAmount - _cleanFee),
-                    style: TextStyle(
-                      fontFamily: 'Poppins',
-                      fontWeight: FontWeight.bold,
-                      fontSize: 22,
-                      color: AppColors.getSuccess(context),
-                    ),
-                  ),
-                ),
-              ),
-            ],
           ),
+
           const SizedBox(height: 16),
           CustomButton(
             title: widget.isTransfer
