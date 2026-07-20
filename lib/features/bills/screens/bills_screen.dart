@@ -40,6 +40,10 @@ class BillsScreen extends StatelessWidget {
     List<ReceivableModel> data,
     bool isRpg,
   ) async {
+    final billController = context.read<BillController>();
+    final historyController = context.read<HistoryController>();
+    final analyticsController = context.read<AnalyticsController>();
+
     final result =
         await Navigator.pushNamed(
               context,
@@ -48,7 +52,29 @@ class BillsScreen extends StatelessWidget {
             )
             as Map<String, dynamic>?;
 
-    if (result != null && context.mounted) {}
+    if (result != null && context.mounted) {
+      List<ReceivableModel> receivables = result['receivables'];
+      List<TransactionModel> transactions = result['transactions'];
+
+      final isSuccess = await billController.recordReceivable(
+        context,
+        transactions: transactions,
+        receivable: receivables,
+      );
+
+      await historyController.applyFilter();
+      await analyticsController.applyFilter();
+
+      GlobalMessenger.showMessage(
+        context,
+        message: UiDict.getSaveNotif(
+          ScreenDict.receivableMaster.get(isRpg),
+          isSuccess: isSuccess,
+          isUpdate: true,
+        ),
+        isSuccess: isSuccess,
+      );
+    }
   }
 
   void _openDebtDetail(BuildContext context, DebtModel data, bool isRpg) async {
@@ -167,8 +193,13 @@ class BillsScreen extends StatelessWidget {
     BuildContext context, {
     ReceivableModel? initialReceivable,
   }) async {
-    final isRpg = context.read<SettingsController>().isRpgMode;
-    final borrowerNames = context.read<BillController>().borrowerNames;
+    final settingsController = context.read<SettingsController>();
+    final billController = context.read<BillController>();
+    final historyController = context.read<HistoryController>();
+    final analyticsController = context.read<AnalyticsController>();
+
+    final borrowerNames = billController.borrowerNames;
+    final isRpg = settingsController.isRpgMode;
 
     final result =
         await Navigator.pushNamed(
@@ -181,7 +212,31 @@ class BillsScreen extends StatelessWidget {
             )
             as Map<String, dynamic>?;
 
-    if (result != null && context.mounted) {}
+    if (result != null && context.mounted) {
+      ReceivableModel receivable = result['receivable'];
+      TransactionModel transaction = result['transaction'];
+      bool useReserved = result['use_reserved'];
+
+      final isSuccess = await billController.createReceivable(
+        context,
+        transaction,
+        receivable,
+        useReserved: useReserved,
+      );
+
+      await historyController.applyFilter();
+      await analyticsController.applyFilter();
+
+      GlobalMessenger.showMessage(
+        context,
+        message: UiDict.getSaveNotif(
+          ScreenDict.receivableMaster.get(isRpg),
+          isSuccess: isSuccess,
+          isUpdate: initialReceivable != null,
+        ),
+        isSuccess: isSuccess,
+      );
+    }
   }
 
   void _openPayDebtOrBillModal(
@@ -411,7 +466,10 @@ class BillsScreen extends StatelessWidget {
                     padding: const EdgeInsets.all(16.0),
 
                     child: CustomTabBar(
-                      tabs: [ScreenDict.debtsMaster.get(isRpg), 'Piutang'],
+                      tabs: [
+                        ScreenDict.debtsMaster.get(isRpg),
+                        ScreenDict.receivableMaster.get(isRpg),
+                      ],
                     ),
                   ),
 

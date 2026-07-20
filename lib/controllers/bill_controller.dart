@@ -259,6 +259,41 @@ class BillController with ChangeNotifier {
     }
   }
 
+  Future<bool> recordReceivable(
+    BuildContext context, {
+    required List<TransactionModel> transactions,
+    required List<ReceivableModel> receivable,
+  }) async {
+    try {
+      await _receivableDao.updateMultiple(receivable);
+
+      Map<int, WalletModel> wallets = {};
+      for (TransactionModel trx in transactions) {
+        int walletId = trx.id ?? 1;
+
+        if (!wallets.containsKey(walletId)) {
+          wallets[walletId] = _walletController.getWalletById(walletId);
+        }
+
+        wallets[walletId]?.addAmount(trx.amount, isIncome: true);
+      }
+
+      await _walletController.updateMultipleWallet(wallets.values.toList());
+      await _walletController.loadData();
+      await _transactionController.createMultipleTransaction(transactions);
+      await _userController.processRecordTransaction(context);
+      await _userController.saveUser();
+      await loadReceivableData();
+
+      return true;
+    } catch (e) {
+      debugPrint("[BILL] An error occurred while pay debt: $e");
+      return false;
+    } finally {
+      notifyListeners();
+    }
+  }
+
   Future<bool> createBill(BillModel bill) async {
     try {
       if (bill.id == null) {
@@ -308,6 +343,39 @@ class BillController with ChangeNotifier {
       if (debt.bill != null) {
         loadBillData();
       }
+      return true;
+    } catch (e) {
+      debugPrint("[BILL] An error occurred while create debt: $e");
+      return false;
+    } finally {
+      notifyListeners();
+    }
+  }
+
+  Future<bool> createReceivable(
+    BuildContext context,
+    TransactionModel transaction,
+    ReceivableModel receivable, {
+    bool useReserved = false,
+  }) async {
+    try {
+      if (receivable.id == null) {
+        int receivableId = await _receivableDao.create(receivable);
+        transaction.setReceivableId(receivableId);
+      } else {
+        await _receivableDao.update(receivable);
+      }
+
+      final wallet = _walletController.getWalletById(transaction.walletId);
+      wallet.autoExpanse(transaction.amount, useReserved: useReserved);
+
+      await _walletController.updateWallet(wallet);
+      await _walletController.loadData();
+      await _transactionController.createTransaction(transaction);
+      await _userController.processRecordTransaction(context);
+      await _userController.saveUser();
+      await loadReceivableData();
+
       return true;
     } catch (e) {
       debugPrint("[BILL] An error occurred while create debt: $e");

@@ -66,6 +66,21 @@ class WalletDao {
     );
   }
 
+  Future<void> updateMultiple(List<WalletModel> wallets) async {
+    final database = await _database;
+    final batch = database.batch();
+    int now = DateTime.now().millisecondsSinceEpoch;
+
+    for (var wallet in wallets) {
+      Map<String, dynamic> data = wallet.toMap();
+      data['updated_at'] = now;
+
+      batch.update('wallets', data, where: 'id = ?', whereArgs: [wallet.id]);
+    }
+
+    await batch.commit(noResult: true);
+  }
+
   Future<int> softDelete(int id) async {
     final database = await _database;
     int now = DateTime.now().millisecondsSinceEpoch;

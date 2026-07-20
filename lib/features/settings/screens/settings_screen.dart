@@ -412,7 +412,7 @@ class SettingsScreen extends StatelessWidget {
                   height: 1,
                   indent: 56,
                 ),
-                ListTile(
+                /* ListTile(
                   leading: FaIcon(
                     FontAwesomeIcons.moon,
                     color: colorScheme.onSurface,
@@ -439,7 +439,7 @@ class SettingsScreen extends StatelessWidget {
                       );
                     }).toList(),
                   ),
-                ),
+                ), */
               ],
             ),
           ),

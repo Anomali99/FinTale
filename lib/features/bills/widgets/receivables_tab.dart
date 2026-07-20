@@ -1,4 +1,6 @@
 import 'package:decimal/decimal.dart';
+import 'package:fintale/core/constants/screen_dict.dart';
+import 'package:fintale/core/constants/ui_dict.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
@@ -27,15 +29,16 @@ class ReceivablesTab extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             FaIcon(
-              FontAwesomeIcons.beerMugEmpty,
+              ScreenDict.addReceivable.icon(isRpg),
               size: 48,
               color: colorScheme.surfaceContainerHighest,
             ),
             const SizedBox(height: 16),
             Text(
-              isRpg
-                  ? "Tidak ada Kontrak Tavern aktif."
-                  : "Tidak ada piutang aktif.",
+              UiDict.getEmptyDesc(
+                ScreenDict.receivableMaster.get(isRpg).toLowerCase(),
+                isRpg: isRpg,
+              ),
               style: TextStyle(color: colorScheme.onSurfaceVariant),
             ),
           ],
@@ -91,7 +94,7 @@ class ReceivablesTab extends StatelessWidget {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          "${records.length} ${isRpg ? 'Kontrak Aktif' : 'Catatan Piutang'}",
+                          "${records.length} ${ScreenDict.receivableRecord.get(isRpg)}",
                           style: TextStyle(
                             fontSize: 12,
                             color: colorScheme.onSurfaceVariant,
@@ -104,7 +107,7 @@ class ReceivablesTab extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
                       Text(
-                        isRpg ? "Sisa Emas" : "Sisa Piutang",
+                        ScreenDict.receivableRemaining.get(isRpg),
                         style: TextStyle(
                           fontSize: 10,
                           color: colorScheme.onSurfaceVariant,

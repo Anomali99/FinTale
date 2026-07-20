@@ -3,15 +3,15 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class CustomButton extends StatelessWidget {
   final FaIconData? icon;
-  final String title;
+  final String? title;
   final Color color;
-  final VoidCallback onTap;
+  final VoidCallback? onTap;
 
   const CustomButton({
     super.key,
-    required this.title,
     required this.color,
-    required this.onTap,
+    this.onTap,
+    this.title,
     this.icon,
   });
 
@@ -30,18 +30,19 @@ class CustomButton extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            if (icon != null) ...[
-              FaIcon(icon, color: color, size: 20),
-              const SizedBox(width: 16),
-            ],
-            Text(
-              title,
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                color: color,
-                fontSize: 16,
+            if (icon != null) FaIcon(icon, color: color, size: 20),
+
+            if (icon != null && title != null) const SizedBox(width: 16),
+
+            if (title != null)
+              Text(
+                title ?? '',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: color,
+                  fontSize: 16,
+                ),
               ),
-            ),
           ],
         ),
       ),

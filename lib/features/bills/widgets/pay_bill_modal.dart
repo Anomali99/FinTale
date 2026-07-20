@@ -105,7 +105,7 @@ class _PayBillModalState extends State<PayBillModal> {
         billId: transaction.billId,
         debtId: transaction.debtId,
         type: transaction.type,
-        title: _titleController.text,
+        title: _titleController.text.trim(),
         amount: _amount,
         status: StatusType.paid,
         detailTransaction: newDetail,

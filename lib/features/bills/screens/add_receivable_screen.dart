@@ -10,6 +10,7 @@ import '../../../core/constants/ui_dict.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/number_utils.dart';
 import '../../../models/receivable_model.dart';
+import '../../../models/transaction_model.dart';
 import '../../../models/wallet_model.dart';
 import '../../../widgets/custom_button.dart';
 import '../../../widgets/custom_date_time_picker.dart';
@@ -62,13 +63,13 @@ class _AddReceivableScreenState extends State<AddReceivableScreen> {
     if (widget.initialReceivable != null) {
       final r = widget.initialReceivable!;
       _titleController.text = r.title;
-      _amountController.text = r.amount.toString();
       _selectedDate = DateTime.fromMillisecondsSinceEpoch(r.dateTimestamp);
+      _onAmountChanged(r.amount.toString());
 
       if (r.targetDate != null) {
         _hasTargetDate = true;
-        _targetDate = DateTime.fromMillisecondsSinceEpoch(r.targetDate!);
         _isReminderActive = r.isReminderActive;
+        _targetDate = DateTime.fromMillisecondsSinceEpoch(r.targetDate!);
       }
     }
   }
@@ -97,7 +98,37 @@ class _AddReceivableScreenState extends State<AddReceivableScreen> {
   }
 
   void _submit() {
-    if (_formKey.currentState!.validate()) {}
+    if (_formKey.currentState!.validate()) {
+      ReceivableModel receivable = ReceivableModel(
+        id: widget.initialReceivable?.id,
+        title: _titleController.text.trim(),
+        borrowerName: _borrowerController.text.trim(),
+        paidAmount: widget.initialReceivable?.paidAmount,
+        amount: _cleanAmount,
+        isReminderActive: _hasTargetDate && _isReminderActive,
+        dateTimestamp: _selectedDate.millisecondsSinceEpoch,
+        targetDate: _targetDate?.millisecondsSinceEpoch,
+      );
+
+      if (widget.initialReceivable == null) {
+        TransactionModel transaction = receivable.generateTransaction(
+          walletId: _selectedWallet?.id,
+          feeAmount: _isFeeActive ? _cleanFee : null,
+        );
+
+        Navigator.pop(context, {
+          "receivable": receivable,
+          "transaction": transaction,
+          "use_reserved": _isReservedActive,
+        });
+      } else {
+        Navigator.pop(context, {
+          "receivable": receivable,
+          "transaction": null,
+          "use_reserved": null,
+        });
+      }
+    }
   }
 
   @override
@@ -115,8 +146,8 @@ class _AddReceivableScreenState extends State<AddReceivableScreen> {
         elevation: 0,
         title: Text(
           widget.initialReceivable != null
-              ? (isRpg ? "Edit Kontrak" : "Edit Piutang")
-              : (isRpg ? "Kontrak Tavern Baru" : "Tambah Piutang Baru"),
+              ? UiDict.getEdit(ScreenDict.receivableMaster.get(isRpg))
+              : ScreenDict.addReceivable.get(isRpg),
           style: const TextStyle(
             fontFamily: 'Poppins',
             fontWeight: FontWeight.bold,
@@ -161,14 +192,12 @@ class _AddReceivableScreenState extends State<AddReceivableScreen> {
                         controller: textEditingController,
                         focusNode: focusNode,
                         decoration: InputDecoration(
-                          labelText: isRpg
-                              ? 'Nama NPC / Peminjam'
-                              : 'Nama Peminjam',
+                          labelText: UiDict.name,
                           prefixIcon: const Icon(Icons.person_outline),
                           border: const OutlineInputBorder(),
                         ),
                         validator: (val) => val == null || val.trim().isEmpty
-                            ? 'Nama tidak boleh kosong'
+                            ? UiDict.requiredName
                             : null,
                         onFieldSubmitted: (String value) => onFieldSubmitted(),
                       );
@@ -219,74 +248,72 @@ class _AddReceivableScreenState extends State<AddReceivableScreen> {
               TextFormField(
                 controller: _titleController,
                 decoration: const InputDecoration(
-                  labelText: 'Tujuan Pinjaman (Judul)',
+                  labelText: UiDict.title,
                   border: OutlineInputBorder(),
                 ),
                 validator: (val) => val == null || val.trim().isEmpty
-                    ? 'Tujuan harus diisi'
+                    ? UiDict.requiredTitle
                     : null,
               ),
               const SizedBox(height: 16),
-
-              DropdownButtonFormField<WalletModel>(
-                initialValue: _selectedWallet,
-                decoration: InputDecoration(
-                  labelText: isRpg
-                      ? 'Ambil Koin Dari Dompet'
-                      : 'Sumber Dompet (Uang Keluar)',
-                  border: const OutlineInputBorder(),
+              if (widget.initialReceivable == null) ...[
+                DropdownButtonFormField<WalletModel>(
+                  initialValue: _selectedWallet,
+                  decoration: InputDecoration(
+                    labelText: UiDict.sourceFunds,
+                    border: const OutlineInputBorder(),
+                  ),
+                  items: wallets.map((wallet) {
+                    return DropdownMenuItem(
+                      value: wallet,
+                      child: Text(wallet.name),
+                    );
+                  }).toList(),
+                  validator: (val) =>
+                      val == null || widget.initialReceivable != null
+                      ? UiDict.requiredWallet
+                      : null,
+                  onChanged: (val) {
+                    setState(() => _selectedWallet = val);
+                    _onAmountChanged(_amountController.text);
+                  },
                 ),
-                items: wallets.map((wallet) {
-                  return DropdownMenuItem(
-                    value: wallet,
-                    child: Text(wallet.name),
-                  );
-                }).toList(),
-                validator: (val) => val == null ? 'Pilih dompet' : null,
-                onChanged: (val) {
-                  setState(() => _selectedWallet = val);
-                  _onAmountChanged(_amountController.text);
-                },
-              ),
-              const SizedBox(height: 16),
-
+                const SizedBox(height: 16),
+              ],
               TextFormField(
                 controller: _amountController,
                 keyboardType: TextInputType.number,
                 inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                 decoration: InputDecoration(
-                  labelText: isRpg
-                      ? 'Jumlah Emas Dipinjamkan'
-                      : 'Nominal Pinjaman',
+                  labelText: UiDict.amount,
                   prefixText: 'Rp ',
                   border: const OutlineInputBorder(),
                 ),
                 validator: (val) => val == null || val == '0' || val.isEmpty
-                    ? 'Nominal harus diisi'
+                    ? UiDict.requiredAmount
                     : null,
                 onChanged: _onAmountChanged,
               ),
               const SizedBox(height: 16),
 
-              CustomDateTimePicker(
-                initialDate: _selectedDate,
-                label: isRpg ? 'Tanggal Kesepakatan' : 'Tanggal Uang Keluar',
-                onChanged: (newDate) => setState(() => _selectedDate = newDate),
-              ),
-              const SizedBox(height: 12),
+              if (widget.initialReceivable == null) ...[
+                CustomDateTimePicker(
+                  initialDate: _selectedDate,
+                  label: ScreenDict.receivableDate.get(isRpg),
+                  onChanged: (newDate) =>
+                      setState(() => _selectedDate = newDate),
+                ),
+                const SizedBox(height: 12),
+              ],
 
               SwitchListTile(
                 contentPadding: EdgeInsets.zero,
                 title: Text(
-                  isRpg
-                      ? 'Tetapkan Batas Penagihan'
-                      : 'Target Tanggal Pengembalian',
+                  ScreenDict.getTargetDateCheck(isRpg: isRpg),
                   style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
                 subtitle: Text(
-                  isRpg
-                      ? 'Aktifkan jika ada janji kapan koin akan dikembalikan.'
-                      : 'Aktifkan jika peminjam menjanjikan tanggal pelunasan.',
+                  ScreenDict.getDebtBillDesc(isRpg: isRpg),
                   style: TextStyle(
                     fontSize: 12,
                     color: colorScheme.onSurfaceVariant,
@@ -311,81 +338,98 @@ class _AddReceivableScreenState extends State<AddReceivableScreen> {
                 const SizedBox(height: 8),
                 CustomDateTimePicker(
                   initialDate: _targetDate!,
-                  label: isRpg
-                      ? 'Batas Waktu Penagihan'
-                      : 'Tenggat Waktu Lunas',
+                  label: ScreenDict.receivableTarget.get(isRpg),
                   onChanged: (newDate) => setState(() => _targetDate = newDate),
                 ),
-              ],
-              const SizedBox(height: 8),
-
-              SwitchListTile(
-                contentPadding: EdgeInsets.zero,
-                title: const Text(
-                  UiDict.feeCheck,
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-                subtitle: Text(
-                  'Biaya admin transfer akan dipotong dari uang yang diterima peminjam.',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: colorScheme.onSurfaceVariant,
-                  ),
-                ),
-                value: _isFeeActive,
-                onChanged: (val) => setState(() => _isFeeActive = val),
-              ),
-
-              if (_isFeeActive) ...[
                 const SizedBox(height: 8),
-                TextFormField(
-                  controller: _feeController,
-                  keyboardType: TextInputType.number,
-                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                  decoration: const InputDecoration(
-                    labelText: UiDict.feeAmount,
-                    prefixText: 'Rp ',
-                    border: OutlineInputBorder(),
+                SwitchListTile(
+                  contentPadding: EdgeInsets.zero,
+                  title: Text(
+                    ScreenDict.notificationCheck,
+                    style: TextStyle(fontWeight: FontWeight.bold),
                   ),
-                  validator: (val) =>
-                      _isFeeActive && (val == null || val == '0' || val.isEmpty)
-                      ? 'Biaya admin harus diisi'
-                      : null,
-                  onChanged: (val) {
-                    Decimal currentFee = NumberUtils.parseToDecimal(val);
-                    if (currentFee > _cleanAmount) currentFee = _cleanAmount;
-                    NumberUtils.formatInput(
-                      _feeController,
-                      currentFee.toString(),
-                    );
-                    setState(() {});
-                  },
+                  subtitle: Text(
+                    ScreenDict.getNotificationDesc(isRpg: isRpg),
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                  value: _isReminderActive,
+                  onChanged: (val) => setState(() => _isReminderActive = val),
                 ),
               ],
-              const SizedBox(height: 8),
 
-              SwitchListTile(
-                contentPadding: EdgeInsets.zero,
-                title: Text(
-                  ScreenDict.getReservedCheck(isRpg: isRpg),
-                  style: const TextStyle(fontWeight: FontWeight.bold),
-                ),
-                subtitle: Text(
-                  ScreenDict.getReservedCheckDesc(isRpg: isRpg),
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: colorScheme.onSurfaceVariant,
+              if (widget.initialReceivable == null) ...[
+                const SizedBox(height: 8),
+                SwitchListTile(
+                  contentPadding: EdgeInsets.zero,
+                  title: const Text(
+                    UiDict.feeCheck,
+                    style: TextStyle(fontWeight: FontWeight.bold),
                   ),
+                  subtitle: Text(
+                    "Note: ${ScreenDict.getFeeCheckDesc(isIncome: false, isRpg: isRpg)}",
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                  value: _isFeeActive,
+                  onChanged: (val) => setState(() => _isFeeActive = val),
                 ),
-                value: _isReservedActive,
-                onChanged: (val) => setState(() {
-                  if (_selectedWallet != null) {
-                    _isReservedActive = val;
 
-                    _onAmountChanged(_amountController.text);
-                  }
-                }),
-              ),
+                if (_isFeeActive) ...[
+                  const SizedBox(height: 8),
+                  TextFormField(
+                    controller: _feeController,
+                    keyboardType: TextInputType.number,
+                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                    decoration: const InputDecoration(
+                      labelText: UiDict.feeAmount,
+                      prefixText: 'Rp ',
+                      border: OutlineInputBorder(),
+                    ),
+                    validator: (val) =>
+                        _isFeeActive &&
+                            (val == null || val == '0' || val.isEmpty)
+                        ? UiDict.requiredFee
+                        : null,
+                    onChanged: (val) {
+                      Decimal currentFee = NumberUtils.parseToDecimal(val);
+                      if (currentFee > _cleanAmount) currentFee = _cleanAmount;
+                      NumberUtils.formatInput(
+                        _feeController,
+                        currentFee.toString(),
+                      );
+                      setState(() {});
+                    },
+                  ),
+                ],
+                const SizedBox(height: 8),
+
+                SwitchListTile(
+                  contentPadding: EdgeInsets.zero,
+                  title: Text(
+                    ScreenDict.getReservedCheck(isRpg: isRpg),
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  subtitle: Text(
+                    ScreenDict.getReservedCheckDesc(isRpg: isRpg),
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                  value: _isReservedActive,
+                  onChanged: (val) => setState(() {
+                    if (_selectedWallet != null) {
+                      _isReservedActive = val;
+                      _onAmountChanged(_amountController.text);
+                    }
+                  }),
+                ),
+              ],
             ],
           ),
         ),
@@ -416,75 +460,79 @@ class _AddReceivableScreenState extends State<AddReceivableScreen> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          if (_selectedWallet != null) ...[
-            NoteContainer(
-              text: _isReservedActive
-                  ? ScreenDict.getHomeNote(
-                      _selectedWallet?.name ?? '',
-                      NumberUtils.toIdr(_selectedWallet?.reservedAmount),
-                      isRpg: isRpg,
-                    )
-                  : ScreenDict.getHistoryNote(
-                      _selectedWallet?.name ?? '',
-                      NumberUtils.toIdr(_selectedWallet?.amount),
-                    ),
-              color: colorScheme.onSurfaceVariant,
+          if (widget.initialReceivable == null) ...[
+            if (_selectedWallet != null) ...[
+              NoteContainer(
+                text: _isReservedActive
+                    ? ScreenDict.getHomeNote(
+                        _selectedWallet?.name ?? '',
+                        NumberUtils.toIdr(_selectedWallet?.reservedAmount),
+                        isRpg: isRpg,
+                      )
+                    : ScreenDict.getHistoryNote(
+                        _selectedWallet?.name ?? '',
+                        NumberUtils.toIdr(_selectedWallet?.amount),
+                      ),
+                color: colorScheme.onSurfaceVariant,
+              ),
+              const SizedBox(height: 12),
+            ],
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: colorScheme.surfaceContainerHighest,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: colorScheme.primary.withOpacity(0.2)),
+              ),
+              child: Column(
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        ScreenDict.getHomeIncome(
+                          _selectedWallet?.name ?? '',
+                          isExpense: false,
+                          isRpg: isRpg,
+                        ),
+                        style: TextStyle(color: colorScheme.onSurfaceVariant),
+                      ),
+                      Text(
+                        NumberUtils.toIdr(_cleanAmount),
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: colorScheme.error,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        ScreenDict.totalReceived,
+                        style: TextStyle(color: colorScheme.onSurfaceVariant),
+                      ),
+                      Text(
+                        NumberUtils.toIdr(
+                          _cleanAmount -
+                              (_isFeeActive ? _cleanFee : Decimal.zero),
+                        ),
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.getSuccess(context),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 16),
           ],
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: colorScheme.surfaceContainerHighest,
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: colorScheme.primary.withOpacity(0.2)),
-            ),
-            child: Column(
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      isRpg ? 'Emas Keluar dari Dompet' : 'Total Uang Keluar',
-                      style: TextStyle(color: colorScheme.onSurfaceVariant),
-                    ),
-                    Text(
-                      NumberUtils.toIdr(_cleanAmount),
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: colorScheme.error,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      isRpg
-                          ? 'Emas Diterima Peminjam'
-                          : 'Diterima oleh Peminjam',
-                      style: TextStyle(color: colorScheme.onSurfaceVariant),
-                    ),
-                    Text(
-                      NumberUtils.toIdr(
-                        _cleanAmount -
-                            (_isFeeActive ? _cleanFee : Decimal.zero),
-                      ),
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.getSuccess(context),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 16),
           CustomButton(
-            title: isRpg ? 'Tandatangani Kontrak' : 'Simpan Piutang',
+            title: ScreenDict.receivableApply.get(isRpg),
             color: colorScheme.primary,
             onTap: _submit,
           ),

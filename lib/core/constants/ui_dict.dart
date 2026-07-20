@@ -252,4 +252,5 @@ class UiDict {
   static String getEdit(String item) => 'Edit $item';
   static String getTotal(String item) => 'Total $item';
   static String getNominal(String item) => 'Nominal $item';
+  static String getLoan(String name) => 'Pinjaman $name';
 }

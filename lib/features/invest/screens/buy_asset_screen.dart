@@ -181,10 +181,10 @@ class _BuyAssetScreenState extends State<BuyAssetScreen>
       if (_isNewAssetTab) {
         riskType = _selectedRisk!;
         assetToReturn = AssetsModel(
-          name: _nameController.text,
+          name: _nameController.text.trim(),
           type: riskType,
           category: _selectedCategory!,
-          unitName: _unitNameController.text,
+          unitName: _unitNameController.text.trim(),
           hasDividend: _isDevidenActive,
           isEmergency: _isEmergencyActive,
           invested: cleanAssetAmount,
@@ -447,7 +447,7 @@ class _BuyAssetScreenState extends State<BuyAssetScreen>
                   keyboardType: TextInputType.number,
                   decoration: InputDecoration(
                     labelText: ScreenDict.getInvestPricePerUnit(
-                      _unitNameController.text,
+                      _unitNameController.text.trim(),
                     ),
                     prefixText: 'Rp ',
                     border: OutlineInputBorder(),

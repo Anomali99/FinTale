@@ -240,6 +240,61 @@ class TransactionDao {
     );
   }
 
+  Future<void> multipleCreateOrUpdate(
+    List<TransactionModel> transactions,
+  ) async {
+    final database = await _database;
+    int now = DateTime.now().millisecondsSinceEpoch;
+
+    await database.transaction((txn) async {
+      final batch = txn.batch();
+
+      for (TransactionModel transaction in transactions) {
+        int parentId;
+
+        if (transaction.id == null) {
+          Map<String, dynamic> parentData = transaction.toMap();
+          parentData['created_at'] = now;
+          parentData['updated_at'] = now;
+
+          parentId = await txn.insert('transactions', parentData);
+          transaction.setTransactionId(parentId);
+        } else {
+          parentId = transaction.id!;
+          Map<String, dynamic> parentData = transaction.toMap();
+          parentData['updated_at'] = now;
+
+          batch.update(
+            'transactions',
+            parentData,
+            where: 'id = ?',
+            whereArgs: [parentId],
+          );
+        }
+
+        for (TransactionDetailModel detail in transaction.detailTransaction) {
+          Map<String, dynamic> childData = detail.toMap(parentId);
+          childData['updated_at'] = now;
+
+          if (detail.id == null) {
+            childData['created_at'] = now;
+            childData['deleted_at'] = null;
+            batch.insert('transaction_details', childData);
+          } else {
+            batch.update(
+              'transaction_details',
+              childData,
+              where: 'id = ?',
+              whereArgs: [detail.id],
+            );
+          }
+        }
+      }
+
+      await batch.commit(noResult: true);
+    });
+  }
+
   Future<int> softDelete(int id) async {
     final database = await _database;
     int now = DateTime.now().millisecondsSinceEpoch;

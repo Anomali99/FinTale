@@ -1,4 +1,9 @@
 import 'package:decimal/decimal.dart';
+import 'package:fintale/core/constants/ui_dict.dart';
+
+import '../../../core/utils/enum_types.dart';
+import 'transaction_detail_model.dart';
+import 'transaction_model.dart';
 
 class ReceivableModel {
   final int? id;
@@ -77,5 +82,45 @@ extension ReceivableExtension on ReceivableModel {
 
   void clearTargetDate() {
     targetDate = null;
+  }
+
+  TransactionModel generateTransaction({
+    StatusType? status,
+    int? walletId,
+    Decimal? feeAmount,
+  }) {
+    Decimal totalAmount = amount;
+    if (feeAmount != null) totalAmount -= feeAmount;
+
+    List<TransactionDetailModel> details = [
+      TransactionDetailModel(
+        title: title,
+        amount: totalAmount,
+        flow: FlowType.expense,
+        category: TransactionCategory.lending,
+      ),
+    ];
+
+    if (feeAmount != null) {
+      details.add(
+        TransactionDetailModel(
+          title: 'Fee',
+          amount: feeAmount,
+          category: TransactionCategory.utilities,
+          flow: FlowType.expense,
+        ),
+      );
+    }
+
+    return TransactionModel(
+      type: TransactionType.debt,
+      debtId: id,
+      walletId: walletId,
+      title: UiDict.getLoan(borrowerName),
+      amount: amount,
+      status: status ?? StatusType.paid,
+      dateTimestamp: dateTimestamp,
+      detailTransaction: details,
+    );
   }
 }

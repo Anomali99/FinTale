@@ -145,7 +145,7 @@ class _UpdateAssetModalState extends State<UpdateAssetModal> {
                       keyboardType: TextInputType.number,
                       decoration: InputDecoration(
                         labelText: ScreenDict.getInvestPricePerUnit(
-                          _unitNameController.text,
+                          _unitNameController.text.trim(),
                         ),
                         prefixText: 'Rp ',
                         border: const OutlineInputBorder(),

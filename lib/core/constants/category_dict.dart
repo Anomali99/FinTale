@@ -110,6 +110,16 @@ class CategoryDict {
     ),
   );
 
+  static const CategoryModel loanDisbursement = CategoryModel(
+    type: 'income',
+    color: Colors.indigo,
+    terminology: TermModel(normal: 'Pencairan Pinjaman', rpg: 'Pinjaman Guild'),
+    icons: IconModel(
+      normal: FontAwesomeIcons.buildingColumns,
+      rpg: FontAwesomeIcons.fileContract,
+    ),
+  );
+
   static const CategoryModel debtCollection = CategoryModel(
     type: 'income',
     color: Colors.teal,
@@ -235,7 +245,7 @@ class CategoryDict {
   );
 
   static const CategoryModel statusPending = CategoryModel(
-    terminology: TermModel(normal: 'Tertunda', rpg: 'Berjalan'),
+    terminology: TermModel(normal: 'Aktif', rpg: 'Berjalan'),
     color: Colors.amber,
     icons: IconModel(
       normal: FontAwesomeIcons.hourglassHalf,
@@ -273,6 +283,7 @@ class CategoryDict {
     debtInstallment,
     salary,
     business,
+    loanDisbursement,
     debtCollection,
     dividend,
     transfer,
@@ -344,6 +355,8 @@ class CategoryDict {
         return salary;
       case TransactionCategory.business:
         return business;
+      case TransactionCategory.loanDisbursement:
+        return loanDisbursement;
       case TransactionCategory.debtCollection:
         return debtCollection;
       case TransactionCategory.dividend:

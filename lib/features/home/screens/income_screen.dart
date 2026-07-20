@@ -104,7 +104,7 @@ class _IncomeScreenState extends State<IncomeScreen> {
         );
       }
 
-      final transaction = TransactionModel(
+      TransactionModel transaction = TransactionModel(
         type: widget.isTransfer
             ? TransactionType.transfer
             : TransactionType.income,
@@ -307,6 +307,10 @@ class _IncomeScreenState extends State<IncomeScreen> {
                       border: OutlineInputBorder(),
                     ),
                     items: [
+                      DropdownMenuItem(
+                        value: TransactionCategory.loanDisbursement,
+                        child: Text(CategoryDict.loanDisbursement.get(false)),
+                      ),
                       DropdownMenuItem(
                         value: TransactionCategory.business,
                         child: Text(CategoryDict.business.get(false)),

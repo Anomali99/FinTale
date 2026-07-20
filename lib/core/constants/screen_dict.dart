@@ -22,9 +22,11 @@ class ScreenDict {
   static const String investInvalidUnitSell =
       'Unit yang dijual melebihi unit yang dimiliki.';
   static const String roundedCheck = 'Pembulatan Otomatis?';
+  static const String notificationCheck = 'Aktifkan notifikasi?';
 
   static const String historyInformation = 'Informasi Dasar';
   static const String breakdownDetail = 'Rincian Item';
+  static const String totalReceived = 'Total diterima peminjam';
 
   static const TermModel homeTotalBalance = TermModel(
     normal: 'Total Saldo',
@@ -95,6 +97,10 @@ class ScreenDict {
   static const TermModel debtsMaster = TermModel(
     normal: 'Hutang',
     rpg: 'Boss Raid',
+  );
+  static const TermModel receivableMaster = TermModel(
+    normal: 'Piutang',
+    rpg: 'Kontrak Tavern',
   );
   static const TermModel billName = TermModel(
     normal: 'Nama Tagihan',
@@ -173,15 +179,42 @@ class ScreenDict {
     normal: 'Nominal Cicilan',
     rpg: 'Jumlah Demage',
   );
-
   static const TermModel debtRequired = TermModel(
     normal: 'Silakan pilih hutang.',
     rpg: 'Silakan pilih boss.',
   );
-
   static const TermModel debtEmpty = TermModel(
     normal: 'Anda tidak memiliki catatan hutang.',
     rpg: 'Tidak ada boss raid terdeteksi.',
+  );
+
+  static const TermModel receivableDate = TermModel(
+    normal: 'Tanggal Pinjam',
+    rpg: 'Tanggal Kontrak',
+  );
+  static const TermModel receivableTarget = TermModel(
+    normal: 'Tanggal Lunas',
+    rpg: 'Kontrak Selesai',
+  );
+  static const TermModel receivableRemaining = TermModel(
+    normal: 'Sisa Piutang',
+    rpg: 'Sisa Kontrak',
+  );
+  static const TermModel receivableTotal = TermModel(
+    normal: 'Total Piutang',
+    rpg: 'Total Kontrak',
+  );
+  static const TermModel receivablePayAmount = TermModel(
+    normal: 'Sudah Dibayar',
+    rpg: 'Kontrak Tuntas',
+  );
+  static const TermModel receivableApply = TermModel(
+    normal: 'Simpan',
+    rpg: 'Tandatangani',
+  );
+  static const TermModel receivableRecord = TermModel(
+    normal: 'Catatan',
+    rpg: 'Kontrak',
   );
 
   static const TermModel generatBill = TermModel(
@@ -275,6 +308,10 @@ class ScreenDict {
   static const TermModel recordIncome = TermModel(
     normal: 'Catat Pemasukan',
     rpg: 'Catat Loot',
+  );
+  static const TermModel recordPayment = TermModel(
+    normal: 'Catat Pembayaran',
+    rpg: 'Sita Loot',
   );
 
   static const TermModel newTranfer = TermModel(
@@ -372,6 +409,9 @@ class ScreenDict {
   static String getReservedCheck({bool isRpg = false}) =>
       'Menggunakan ${homeSavings.get(isRpg)}?';
 
+  static String getTargetDateCheck({bool isRpg = false}) =>
+      'Tetapkan batas ${isRpg ? 'kontrak' : 'pengembalian'}?';
+
   static String getExcludeDailyCheck({bool isRpg = false}) =>
       'Kecualikan ${historyTransaction.get(isRpg)}?';
 
@@ -387,7 +427,13 @@ class ScreenDict {
   static String getDebtBillTitle(String title) => 'Cicilan: $title';
 
   static String getDebtBillDesc({bool isRpg = false}) =>
+      'Aktifkan jika ${isRpg ? 'ada pejanjian kontrak selesai' : 'peminjam menjanjikan tanggal pelunasan'}.';
+
+  static String getTargetDateDesc({bool isRpg = false}) =>
       'Aktifkan untuk notifikasi atau ${billsMaster.get(isRpg)} otomatis generate setiap periode tertentu.';
+
+  static String getNotificationDesc({bool isRpg = false}) =>
+      'Aktifkan jika ingin mengingatkan saat ${receivableTarget.get(isRpg).toLowerCase()}.';
 
   static String getPayBill({String? amount, bool isRpg = false}) {
     String result = isRpg ? 'Jalankan Quest' : 'Bayar Tagihan';

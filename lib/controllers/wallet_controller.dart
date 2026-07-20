@@ -46,6 +46,16 @@ class WalletController extends ChangeNotifier with WidgetsBindingObserver {
     }
   }
 
+  Future<void> updateMultipleWallet(List<WalletModel> wallets) async {
+    try {
+      _walletDao.updateMultiple(wallets);
+    } catch (e) {
+      debugPrint("[WALLET] An error occurred while saving: $e");
+    } finally {
+      notifyListeners();
+    }
+  }
+
   Future<void> loadData() async {
     try {
       wallets = await _walletDao.readAllActiveData();

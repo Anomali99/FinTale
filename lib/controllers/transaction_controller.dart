@@ -42,6 +42,13 @@ class TransactionController extends ChangeNotifier {
     }
   }
 
+  Future<void> createMultipleTransaction(
+    List<TransactionModel> transactions,
+  ) async {
+    await _transactionDao.multipleCreateOrUpdate(transactions);
+    _monthlyCache.clear();
+  }
+
   Future<void> loadBillTransaction() async {
     try {
       DateTime now = DateTime.now();
