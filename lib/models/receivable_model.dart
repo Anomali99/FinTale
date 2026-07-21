@@ -1,6 +1,6 @@
 import 'package:decimal/decimal.dart';
-import 'package:fintale/core/constants/ui_dict.dart';
 
+import '../../../core/constants/ui_dict.dart';
 import '../../../core/utils/enum_types.dart';
 import 'transaction_detail_model.dart';
 import 'transaction_model.dart';

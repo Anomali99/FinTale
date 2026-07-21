@@ -32,6 +32,7 @@ class HistoryScreen extends StatelessWidget {
           endDate: historyController.customEndDate,
           selectedTypes: historyController.selectedTypes,
           selectedWallets: historyController.selectedWallets,
+          features: FilterFeatures(category: false),
         ),
       ),
     );

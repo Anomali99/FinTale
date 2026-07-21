@@ -7,7 +7,7 @@ import '../app_database.dart';
 class DebtDao {
   Future<Database> get _database async => await AppDatabase.instance.database;
 
-  Future<int> create(DebtModel debt) async {
+  Future<List<int>> create(DebtModel debt) async {
     final database = await _database;
     int now = DateTime.now().millisecondsSinceEpoch;
 
@@ -18,6 +18,7 @@ class DebtDao {
 
     int id = await database.insert('debts', parentData);
 
+    int? billId;
     BillModel? bill = debt.bill;
     if (bill != null) {
       Map<String, dynamic> childData = bill.toMap();
@@ -26,10 +27,10 @@ class DebtDao {
       childData['updated_at'] = now;
       childData['deleted_at'] = null;
 
-      await database.insert('bills', childData);
+      billId = await database.insert('bills', childData);
     }
 
-    return id;
+    return [id, billId ?? 0];
   }
 
   Future<List<DebtModel>> readAllActiveData() async {
@@ -79,13 +80,14 @@ class DebtDao {
     );
   }
 
-  Future<int> update(DebtModel debt) async {
+  Future<List<int>> update(DebtModel debt) async {
     final database = await _database;
     int now = DateTime.now().millisecondsSinceEpoch;
 
     Map<String, dynamic> parentData = debt.toMap();
     parentData['updated_at'] = now;
 
+    int? billId;
     BillModel? bill = debt.bill;
 
     if (bill != null) {
@@ -95,8 +97,9 @@ class DebtDao {
         childData['updated_at'] = now;
         childData['deleted_at'] = null;
 
-        await database.insert('bills', childData);
+        billId = await database.insert('bills', childData);
       } else {
+        billId = bill.id;
         Map<String, dynamic> childData = bill.toMap();
         childData['updated_at'] = now;
 
@@ -108,13 +111,13 @@ class DebtDao {
         );
       }
     }
-
-    return await database.update(
+    int id = await database.update(
       'debts',
       parentData,
       where: 'id = ?',
       whereArgs: [debt.id],
     );
+    return [id, billId ?? 0];
   }
 
   Future<int> softDelete(int id) async {

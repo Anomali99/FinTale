@@ -128,6 +128,18 @@ enum TransactionCategory {
     utilities,
   ];
 
+  static List<TransactionCategory> get allExpenseCategories => [
+    food,
+    groceries,
+    transport,
+    entertainment,
+    health,
+    lending,
+    charity,
+    utilities,
+    debtInstallment,
+  ];
+
   static List<TransactionCategory> get incomeCategories => [
     salary,
     business,

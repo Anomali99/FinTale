@@ -69,7 +69,13 @@ class TransactionController extends ChangeNotifier {
     }
   }
 
-  Future<void> loadDetail({DateTime? startDate, DateTime? endDate}) async {
+  Future<void> loadDetail({
+    DateTime? startDate,
+    DateTime? endDate,
+    List<int>? walletIds,
+    List<TransactionCategory>? categories,
+    bool filtered = false,
+  }) async {
     try {
       DateTime now = DateTime.now();
       DateTime finalStart = startDate ?? DateTime(now.year, now.month, 1);
@@ -77,18 +83,23 @@ class TransactionController extends ChangeNotifier {
           endDate ?? DateTime(now.year, now.month + 1, 0, 23, 59, 59);
 
       String cacheKey = "${finalStart.year}-${finalStart.month}";
-      List<TransactionModel> transaction = [];
+      bool isCustomFilter =
+          (walletIds != null && walletIds.isNotEmpty) ||
+          (categories != null && categories.isNotEmpty) ||
+          filtered;
 
-      if (_monthlyCache.containsKey(cacheKey)) {
-        transaction = List.from(_monthlyCache[cacheKey]!);
+      List<TransactionModel> listTransaction = [];
+
+      if (!isCustomFilter && _monthlyCache.containsKey(cacheKey)) {
+        listTransaction = List.from(_monthlyCache[cacheKey]!);
       } else {
-        transaction = await _transactionDao.getFilteredDataWithChild(
+        listTransaction = await _transactionDao.getFilteredDataWithChild(
           startDate: finalStart,
           endDate: finalEnd,
           status: [StatusType.paid],
         );
 
-        _monthlyCache[cacheKey] = List.from(transaction);
+        _monthlyCache[cacheKey] = List.from(listTransaction);
       }
 
       totalIncome = Decimal.zero;
@@ -98,45 +109,51 @@ class TransactionController extends ChangeNotifier {
       Map<TransactionCategory, AnalyticModel> expenseTemp = {};
       Map<TransactionCategory, AnalyticModel> investTemp = {};
 
-      for (TransactionModel transaction in transaction) {
-        for (TransactionDetailModel detail in transaction.detailTransaction) {
-          if (detail.flow == FlowType.income) {
-            totalIncome += detail.amount;
-          } else if (detail.flow == FlowType.expense) {
-            if ([
-              TransactionCategory.lowRisk,
-              TransactionCategory.mediumRisk,
-              TransactionCategory.highRisk,
-            ].contains(detail.category)) {
-              totalInvest += detail.amount;
-              investTemp.update(
-                detail.category,
-                (existing) {
-                  existing.addAmount(detail.amount);
-                  return existing;
-                },
-                ifAbsent: () {
-                  return AnalyticModel(
-                    id: detail.category,
-                    amount: detail.amount,
+      for (TransactionModel transaction in listTransaction) {
+        if (walletIds == null ||
+            walletIds.isEmpty ||
+            walletIds.contains(transaction.walletId)) {
+          for (TransactionDetailModel detail in transaction.detailTransaction) {
+            if (categories == null ||
+                categories.isEmpty ||
+                categories.contains(detail.category)) {
+              if (detail.flow == FlowType.income) {
+                totalIncome += detail.amount;
+              } else if (detail.flow == FlowType.expense) {
+                if (TransactionCategory.investCategories.contains(
+                  detail.category,
+                )) {
+                  totalInvest += detail.amount;
+                  investTemp.update(
+                    detail.category,
+                    (existing) {
+                      existing.addAmount(detail.amount);
+                      return existing;
+                    },
+                    ifAbsent: () {
+                      return AnalyticModel(
+                        id: detail.category,
+                        amount: detail.amount,
+                      );
+                    },
                   );
-                },
-              );
-            } else {
-              totalExpense += detail.amount;
-              expenseTemp.update(
-                detail.category,
-                (existing) {
-                  existing.addAmount(detail.amount);
-                  return existing;
-                },
-                ifAbsent: () {
-                  return AnalyticModel(
-                    id: detail.category,
-                    amount: detail.amount,
+                } else {
+                  totalExpense += detail.amount;
+                  expenseTemp.update(
+                    detail.category,
+                    (existing) {
+                      existing.addAmount(detail.amount);
+                      return existing;
+                    },
+                    ifAbsent: () {
+                      return AnalyticModel(
+                        id: detail.category,
+                        amount: detail.amount,
+                      );
+                    },
                   );
-                },
-              );
+                }
+              }
             }
           }
         }

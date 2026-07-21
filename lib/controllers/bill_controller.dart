@@ -5,6 +5,7 @@ import '../controllers/user_controller.dart';
 import '../controllers/wallet_controller.dart';
 import '../core/constants/ui_dict.dart';
 import '../core/utils/enum_types.dart';
+import '../core/utils/time_formatter.dart';
 import '../data/dao/bill_dao.dart';
 import '../data/dao/debt_dao.dart';
 import '../data/dao/receivable_dao.dart';
@@ -67,6 +68,7 @@ class BillController with ChangeNotifier {
   Future<void> autoDraftOrNotification({
     required BillModel bill,
     required DateTime today,
+    required int id,
     bool isNotifOnly = false,
   }) async {
     DateTime target = bill.targetDate;
@@ -88,7 +90,7 @@ class BillController with ChangeNotifier {
       } else if (diffInDays <= generateThreshold && !isNotifOnly) {
         await generateBillDraft(bill);
       } else {
-        String notificationId = 'bill_${bill.id}';
+        String notificationId = 'bill_$id';
         bool isExist = await NotificationService().isNotificationScheduled(
           notificationId.hashCode,
         );
@@ -100,11 +102,40 @@ class BillController with ChangeNotifier {
 
           await NotificationService().scheduleCustomNotification(
             stringId: notificationId,
-            title: UiDict.getNotifTitle(bill.title),
-            body: UiDict.getNotifBody(generateThreshold.toString()),
+            title: UiDict.getBillNotifTitle(bill.title),
+            body: UiDict.getBillNotifBody(generateThreshold.toString()),
             scheduledTime: scheduleDate,
           );
         }
+      }
+    }
+  }
+
+  Future<void> createReceivableNotification({
+    required ReceivableModel receivable,
+    required int id,
+  }) async {
+    int? targetDate = receivable.targetDate;
+    if (targetDate != null) {
+      DateTime target = TimeFormatter.toDate(targetDate);
+
+      String notificationId = 'receivable_$id';
+      bool isExist = await NotificationService().isNotificationScheduled(
+        notificationId.hashCode,
+      );
+      if (!isExist) {
+        DateTime scheduleDate = target.add(const Duration(hours: -2));
+
+        await NotificationService().scheduleCustomNotification(
+          stringId: notificationId,
+          title: UiDict.getReceivableNotifTitle(receivable.borrowerName),
+          body: UiDict.getReceivableNotifBody(
+            receivable.borrowerName,
+            receivable.title,
+            TimeFormatter.formatShortWithHour(targetDate),
+          ),
+          scheduledTime: scheduleDate,
+        );
       }
     }
   }
@@ -116,7 +147,22 @@ class BillController with ChangeNotifier {
 
       for (BillModel bill in bills) {
         if (!bill.isActive) continue;
-        await autoDraftOrNotification(bill: bill, today: today);
+        await autoDraftOrNotification(
+          id: bill.id ?? 0,
+          bill: bill,
+          today: today,
+        );
+      }
+
+      for (ReceivableModel receivable in receivables) {
+        if (!receivable.isFinished &&
+            receivable.isReminderActive &&
+            receivable.targetDate != null) {
+          await createReceivableNotification(
+            receivable: receivable,
+            id: receivable.id!,
+          );
+        }
       }
     } catch (e) {
       debugPrint("[BILL] An error occurred while chec notification bill: $e");
@@ -278,6 +324,21 @@ class BillController with ChangeNotifier {
         wallets[walletId]?.addAmount(trx.amount, isIncome: true);
       }
 
+      if (_userController.isNotification) {
+        for (ReceivableModel rcv in receivable) {
+          int id = rcv.id!;
+          if (!rcv.isFinished &&
+              rcv.isReminderActive &&
+              rcv.targetDate != null) {
+            await createReceivableNotification(receivable: rcv, id: id);
+          } else {
+            await NotificationService().cancelNotificationByStringId(
+              'receivable_$id',
+            );
+          }
+        }
+      }
+
       await _walletController.updateMultipleWallet(wallets.values.toList());
       await _walletController.loadData();
       await _transactionController.createMultipleTransaction(transactions);
@@ -296,10 +357,12 @@ class BillController with ChangeNotifier {
 
   Future<bool> createBill(BillModel bill) async {
     try {
+      int id;
       if (bill.id == null) {
-        await _billDao.create(bill);
+        id = await _billDao.create(bill);
       } else {
         await _billDao.update(bill);
+        id = bill.id!;
       }
       if (bill.isActive) {
         if (_userController.isNotification && bill.type != TimeType.daily) {
@@ -307,15 +370,14 @@ class BillController with ChangeNotifier {
           DateTime today = DateTime(now.year, now.month, now.day);
 
           await autoDraftOrNotification(
+            id: id,
             bill: bill,
             today: today,
             isNotifOnly: true,
           );
         }
       } else {
-        await NotificationService().cancelNotificationByStringId(
-          'bill_${bill.id}',
-        );
+        await NotificationService().cancelNotificationByStringId('bill_$id');
       }
       if (bill.debtId == null) {
         await loadBillData();
@@ -333,12 +395,37 @@ class BillController with ChangeNotifier {
 
   Future<bool> createDebt(BuildContext context, DebtModel debt) async {
     try {
+      List<int> ids;
       if (debt.id == null) {
-        await _debtDao.create(debt);
+        ids = await _debtDao.create(debt);
         _userController.updateFreeDebt(context, false);
       } else {
-        await _debtDao.update(debt);
+        ids = await _debtDao.update(debt);
       }
+
+      if (_userController.isNotification &&
+          debt.bill != null &&
+          ids.length > 1 &&
+          ids[1] != 0) {
+        int id = ids[1];
+        DateTime now = DateTime.now();
+        DateTime today = DateTime(now.year, now.month, now.day);
+        BillModel bill = debt.bill!;
+
+        if (bill.isActive) {
+          if (bill.type != TimeType.daily) {
+            await autoDraftOrNotification(
+              id: id,
+              bill: bill,
+              today: today,
+              isNotifOnly: true,
+            );
+          }
+        } else {
+          await NotificationService().cancelNotificationByStringId('bill_$id');
+        }
+      }
+
       await loadDebtData();
       if (debt.bill != null) {
         loadBillData();
@@ -359,11 +446,24 @@ class BillController with ChangeNotifier {
     bool useReserved = false,
   }) async {
     try {
+      int id;
       if (receivable.id == null) {
-        int receivableId = await _receivableDao.create(receivable);
-        transaction.setReceivableId(receivableId);
+        id = await _receivableDao.create(receivable);
+        transaction.setReceivableId(id);
       } else {
+        id = receivable.id!;
         await _receivableDao.update(receivable);
+      }
+
+      if (_userController.isNotification &&
+          !receivable.isFinished &&
+          receivable.isReminderActive &&
+          receivable.targetDate != null) {
+        await createReceivableNotification(receivable: receivable, id: id);
+      } else {
+        await NotificationService().cancelNotificationByStringId(
+          'receivable_$id',
+        );
       }
 
       final wallet = _walletController.getWalletById(transaction.walletId);

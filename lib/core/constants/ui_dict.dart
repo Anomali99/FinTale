@@ -234,10 +234,18 @@ class UiDict {
     ),
   );
 
-  static String getNotifTitle(String title) => 'Quest $title Mendekati!';
+  static String getBillNotifTitle(String title) => 'Quest $title Mendekat!';
 
-  static String getNotifBody(String threshold) =>
+  static String getReceivableNotifTitle(String name) => 'Kontrak $name Habis!';
+
+  static String getBillNotifBody(String threshold) =>
       'Quest akan aktif dalam $threshold hari. Persiapkan loot Anda!';
+
+  static String getReceivableNotifBody(
+    String name,
+    String title,
+    String time,
+  ) => 'Kontrak dengan $name: $title, akan habis pada $time.';
 
   static String getSaveNotif(
     String name, {

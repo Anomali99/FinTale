@@ -1,9 +1,9 @@
 import 'package:decimal/decimal.dart';
-import 'package:fintale/core/constants/screen_dict.dart';
-import 'package:fintale/core/constants/ui_dict.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
+import '../../../core/constants/screen_dict.dart';
+import '../../../core/constants/ui_dict.dart';
 import '../../../core/utils/number_utils.dart';
 import '../../../models/receivable_model.dart';
 

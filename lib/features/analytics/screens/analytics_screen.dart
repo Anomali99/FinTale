@@ -9,6 +9,8 @@ import '../../../controllers/transaction_controller.dart';
 import '../../../core/constants/screen_dict.dart';
 import '../../../core/constants/ui_dict.dart';
 import '../../../core/models/analytic_model.dart';
+import '../../../core/utils/global_messenger.dart';
+import '../../../widgets/filter_bottom_sheet.dart';
 import '../../../widgets/month_filter.dart';
 import '../widgets/detail_card.dart';
 import '../widgets/donut_chart.dart';
@@ -16,6 +18,61 @@ import '../widgets/overview_card.dart';
 
 class AnalyticsScreen extends StatelessWidget {
   const AnalyticsScreen({super.key});
+
+  void _openFilter(BuildContext context) async {
+    final analyticsController = context.read<AnalyticsController>();
+    final result = await showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => FractionallySizedBox(
+        heightFactor: 0.85,
+        child: FilterBottomSheet(
+          startDate: analyticsController.customStartDate,
+          endDate: analyticsController.customEndDate,
+          selectedWallets: analyticsController.selectedWallets,
+          selectedCategories: analyticsController.selectedCategories,
+          features: FilterFeatures(type: false),
+        ),
+      ),
+    );
+
+    if (result != null && context.mounted) {
+      if (result['isReset']) {
+        analyticsController.resetFilter();
+      } else {
+        analyticsController.updateFilter(
+          result['startDate'],
+          result['endDate'],
+          result['selectedCategories'],
+          result['selectedWallets'],
+        );
+      }
+      await analyticsController.applyFilter();
+      GlobalMessenger.showMessage(
+        context,
+        message: UiDict.applyFilterNotif,
+        isSuccess: true,
+      );
+    }
+  }
+
+  String getTitleMonth({
+    required DateTime selectedMonth,
+    DateTime? customStartDate,
+    DateTime? customEndDate,
+  }) {
+    if (customStartDate == null && customEndDate == null) {
+      return DateFormat('MMMM yyyy').format(selectedMonth);
+    } else {
+      String result = DateFormat('dd MMMM yyyy').format(customStartDate!);
+      if (customEndDate != null && customStartDate != customEndDate) {
+        result += ' - ';
+        result += DateFormat('dd MMMM yyyy').format(customEndDate);
+      }
+      return result;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -33,6 +90,8 @@ class AnalyticsScreen extends StatelessWidget {
     final showExpense = analyticsController.showExpense;
     final touchedIndex = analyticsController.touchedIndex;
     final selectedMonth = analyticsController.selectedMonth;
+    final customStartDate = analyticsController.customStartDate;
+    final customEndDate = analyticsController.customEndDate;
 
     final activeData = showExpense
         ? transactionController.detailExpense
@@ -49,14 +108,25 @@ class AnalyticsScreen extends StatelessWidget {
             fontWeight: FontWeight.bold,
           ),
         ),
+        actions: [
+          IconButton(
+            icon: FaIcon(FontAwesomeIcons.filter, size: 18),
+            onPressed: () => _openFilter(context),
+          ),
+        ],
       ),
       body: ListView(
         padding: const EdgeInsets.all(24.0),
         children: [
           MonthFilter(
-            selected: DateFormat('MMMM yyyy').format(selectedMonth),
+            selected: getTitleMonth(
+              selectedMonth: selectedMonth,
+              customStartDate: customStartDate,
+              customEndDate: customEndDate,
+            ),
             onPrev: analyticsController.onPrev,
             onNext: analyticsController.onNext,
+            enabled: customStartDate == null && customEndDate == null,
           ),
 
           const SizedBox(height: 24),

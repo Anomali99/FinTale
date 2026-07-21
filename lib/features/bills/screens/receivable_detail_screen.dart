@@ -1,12 +1,12 @@
 import 'package:decimal/decimal.dart';
-import 'package:fintale/core/constants/screen_dict.dart';
-import 'package:fintale/core/constants/ui_dict.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../controllers/bill_controller.dart';
 import '../../../controllers/settings_controller.dart';
 import '../../../controllers/wallet_controller.dart';
+import '../../../core/constants/screen_dict.dart';
+import '../../../core/constants/ui_dict.dart';
 import '../../../core/utils/enum_types.dart';
 import '../../../models/receivable_model.dart';
 import '../../../models/transaction_detail_model.dart';
