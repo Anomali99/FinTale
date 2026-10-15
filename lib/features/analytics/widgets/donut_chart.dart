@@ -97,7 +97,7 @@ class DonutChart extends StatelessWidget {
             children: [
               Text(
                 showExpense
-                    ? UiDict.getTotal(UiDict.income.get(isRpg))
+                    ? UiDict.getTotal(UiDict.expense.get(isRpg))
                     : UiDict.getTotal(UiDict.menuInvest.get(isRpg)),
                 style: TextStyle(
                   fontSize: 10,
