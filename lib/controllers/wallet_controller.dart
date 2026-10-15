@@ -5,7 +5,7 @@ import '../../models/wallet_model.dart';
 import '../core/utils/enum_types.dart';
 import '../data/dao/wallet_dao.dart';
 
-class WalletController extends ChangeNotifier with WidgetsBindingObserver {
+class WalletController extends ChangeNotifier {
   final WalletDao _walletDao;
   List<WalletModel> wallets = [];
 
@@ -23,12 +23,23 @@ class WalletController extends ChangeNotifier with WidgetsBindingObserver {
     loadData();
   }
 
-  WalletModel getWalletById(int? id) =>
-      wallets.firstWhere((e) => e.id == id, orElse: () => cash ?? wallets[0]);
+  WalletModel getWalletById(int? id) => wallets.firstWhere(
+        (e) => e.id == id,
+        orElse: () =>
+            cash ??
+            (wallets.isNotEmpty
+                ? wallets[0]
+                : WalletModel(
+                    name: 'Dompet Utama',
+                    type: WalletType.cash,
+                    amount: Decimal.zero,
+                    reservedAmount: Decimal.zero,
+                  )),
+      );
 
   Future<void> createWallet(WalletModel newWallet) async {
     try {
-      _walletDao.create(newWallet);
+      await _walletDao.create(newWallet);
     } catch (e) {
       debugPrint("[WALLET] An error occurred while saving: $e");
     } finally {
@@ -38,7 +49,7 @@ class WalletController extends ChangeNotifier with WidgetsBindingObserver {
 
   Future<void> updateWallet(WalletModel wallet) async {
     try {
-      _walletDao.update(wallet);
+      await _walletDao.update(wallet);
     } catch (e) {
       debugPrint("[WALLET] An error occurred while saving: $e");
     } finally {
@@ -48,7 +59,7 @@ class WalletController extends ChangeNotifier with WidgetsBindingObserver {
 
   Future<void> updateMultipleWallet(List<WalletModel> wallets) async {
     try {
-      _walletDao.updateMultiple(wallets);
+      await _walletDao.updateMultiple(wallets);
     } catch (e) {
       debugPrint("[WALLET] An error occurred while saving: $e");
     } finally {

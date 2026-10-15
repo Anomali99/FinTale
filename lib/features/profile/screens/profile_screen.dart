@@ -212,7 +212,7 @@ class ProfileScreen extends StatelessWidget {
                     ClipRRect(
                       borderRadius: BorderRadius.circular(4),
                       child: LinearProgressIndicator(
-                        value: maxProgress == BigInt.zero
+                        value: maxProgress == Decimal.zero
                             ? 0.0
                             : (currentProgress.toDouble() /
                                       maxProgress.toDouble())

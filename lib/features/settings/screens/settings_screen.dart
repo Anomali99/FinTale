@@ -412,34 +412,28 @@ class SettingsScreen extends StatelessWidget {
                   height: 1,
                   indent: 56,
                 ),
-                /* ListTile(
+                ListTile(
                   leading: FaIcon(
-                    FontAwesomeIcons.moon,
+                    FontAwesomeIcons.scaleBalanced,
                     color: colorScheme.onSurface,
                     size: 20,
                   ),
-                  title: Text(UiDict.setTheme),
-                  trailing: DropdownButton<ThemeMode>(
-                    value: settingsController.themeMode,
-                    dropdownColor: colorScheme.surface,
-                    underline: const SizedBox(),
-                    icon: Icon(
-                      Icons.arrow_drop_down,
-                      color: colorScheme.onSurfaceVariant,
-                    ),
-                    style: TextStyle(
-                      color: colorScheme.onSurface,
-                      fontSize: 14,
-                    ),
-                    onChanged: settingsController.changeThemeMode,
-                    items: ThemeMode.values.map((ThemeMode value) {
-                      return DropdownMenuItem<ThemeMode>(
-                        value: value,
-                        child: Text(value.name),
-                      );
-                    }).toList(),
+                  title: const Text('Lisensi Sumber Terbuka'),
+                  subtitle: const Text('Lisensi dan atribusi pustaka'),
+                  trailing: Icon(
+                    Icons.chevron_right,
+                    color: colorScheme.onSurfaceVariant,
                   ),
-                ), */
+                  onTap: () {
+                    showLicensePage(
+                      context: context,
+                      applicationName: 'FinTale',
+                      applicationVersion: settingsController.appVersion,
+                      applicationLegalese:
+                          '© 2026 FinTale. All rights reserved.',
+                    );
+                  },
+                ),
               ],
             ),
           ),
@@ -594,13 +588,30 @@ class SettingsScreen extends StatelessWidget {
           const SizedBox(height: 24),
 
           Center(
-            child: Text(
-              'FinTale ${settingsController.appVersion}  •  Created by Anomali99',
-              style: TextStyle(
-                fontSize: 12,
-                color: colorScheme.onSurfaceVariant,
-                fontWeight: FontWeight.w500,
-                letterSpacing: 0.5,
+            child: InkWell(
+              borderRadius: BorderRadius.circular(8),
+              onTap: () {
+                showLicensePage(
+                  context: context,
+                  applicationName: 'FinTale',
+                  applicationVersion: '1.1.0',
+                  applicationLegalese: '© 2026 FinTale. All rights reserved.',
+                );
+              },
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 6,
+                ),
+                child: Text(
+                  'FinTale ${settingsController.appVersion}  •  Created by Anomali99',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: colorScheme.onSurfaceVariant,
+                    fontWeight: FontWeight.w500,
+                    letterSpacing: 0.5,
+                  ),
+                ),
               ),
             ),
           ),

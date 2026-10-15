@@ -36,10 +36,10 @@ class TransactionDao {
     final result = await database.rawQuery('''
     SELECT
       t.*,
-      (SELECT category FROM transaction_details d WHERE d.transaction_id = t.id ORDER BY day ASC LIMIT 1) AS icon
+      (SELECT category FROM transaction_details d WHERE d.transaction_id = t.id AND d.deleted_at IS NULL ORDER BY d.id ASC LIMIT 1) AS icon
     FROM transactions t
-    WHERE d.deleted_at IS NULL
-    ORDER BY d.created_at DESC
+    WHERE t.deleted_at IS NULL
+    ORDER BY t.created_at DESC
     ''');
 
     return result.map((json) => TransactionModel.fromMap(json)).toList();

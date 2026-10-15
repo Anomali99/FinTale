@@ -77,7 +77,7 @@ extension AssetsExtension on AssetsModel {
   bool get isProfit => value > invested;
 
   double get getPercentage {
-    if (invested == BigInt.zero) return 0.0;
+    if (invested == Decimal.zero) return 0.0;
 
     double current = value.toDouble();
     double capital = invested.toDouble();

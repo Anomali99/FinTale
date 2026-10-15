@@ -237,7 +237,7 @@ class _VerifyPinScreenState extends State<VerifyPinScreen> {
   Widget _buildNumpadRow(List<String> numbers) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: numbers.map((num) => _buildNumberButton(num)).toList(),
+      children: numbers.map((n) => _buildNumberButton(n)).toList(),
     );
   }
 

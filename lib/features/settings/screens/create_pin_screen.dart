@@ -115,8 +115,8 @@ class _CreatePinScreenState extends State<CreatePinScreen> {
     } else {
       GlobalMessenger.showMessage(
         context,
-        message: UiDict.confirmPinWorng,
-        isSuccess: true,
+        message: UiDict.confirmPinWrong,
+        isSuccess: false,
       );
 
       setState(() {
@@ -278,7 +278,7 @@ class _CreatePinScreenState extends State<CreatePinScreen> {
   Widget _buildNumpadRow(List<String> numbers) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: numbers.map((num) => _buildNumberButton(num)).toList(),
+      children: numbers.map((n) => _buildNumberButton(n)).toList(),
     );
   }
 

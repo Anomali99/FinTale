@@ -133,7 +133,13 @@ class HomeController with ChangeNotifier {
 
       if (transaction.type == TransactionType.income) {
         if (autoAllocation == true) {
-          double onePercentageAmount = transaction.amount.toDouble() / 100;
+          Decimal calcAllocated(double percentage) {
+            if (percentage <= 0.0) return Decimal.zero;
+            Decimal pctDec = Decimal.parse(percentage.toString());
+            return ((transaction.amount * pctDec) / Decimal.fromInt(100))
+                .toDecimal(scaleOnInfinitePrecision: 2);
+          }
+
           Map<Enum, double?> userAllocations = _userController.userAllocations;
 
           double totalLowRisk = userAllocations[SubSectorType.lowRisk] ?? 0.0;
@@ -155,7 +161,7 @@ class HomeController with ChangeNotifier {
 
           if (dreamFund > 0.0) {
             wallet.addReserved(
-              Decimal.parse((onePercentageAmount * dreamFund).toString()),
+              calcAllocated(dreamFund),
               isIncome: true,
             );
           }
@@ -167,9 +173,7 @@ class HomeController with ChangeNotifier {
           ) {
             if (percentage <= 0.0) return;
 
-            Decimal allocatedAmount = Decimal.parse(
-              (onePercentageAmount * percentage).toString(),
-            );
+            Decimal allocatedAmount = calcAllocated(percentage);
 
             int index = pendingAllocations.indexWhere(
               (a) => a.sector == sector && a.subSector == subSector,

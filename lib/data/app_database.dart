@@ -19,7 +19,15 @@ class AppDatabase {
     final dbPath = await getDatabasesPath();
     final path = join(dbPath, filePath);
 
-    return await openDatabase(path, version: 1, onCreate: _createDB);
+    return await openDatabase(
+      path,
+      version: 2,
+      onConfigure: (db) async {
+        await db.execute('PRAGMA foreign_keys = ON;');
+      },
+      onCreate: _createDB,
+      onUpgrade: _onUpgrade,
+    );
   }
 
   Future _createDB(Database db, int version) async {
@@ -145,6 +153,35 @@ class AppDatabase {
         FOREIGN KEY (transaction_id) REFERENCES transactions (id) ON DELETE CASCADE
       )
     ''');
+
+    await _createIndices(db);
+  }
+
+  Future _createIndices(Database db) async {
+    await db.execute(
+      'CREATE INDEX IF NOT EXISTS idx_transactions_wallet ON transactions (wallet_id);',
+    );
+    await db.execute(
+      'CREATE INDEX IF NOT EXISTS idx_transactions_date ON transactions (date_timestamp);',
+    );
+    await db.execute(
+      'CREATE INDEX IF NOT EXISTS idx_transactions_deleted ON transactions (deleted_at);',
+    );
+    await db.execute(
+      'CREATE INDEX IF NOT EXISTS idx_trans_details_parent ON transaction_details (transaction_id);',
+    );
+    await db.execute(
+      'CREATE INDEX IF NOT EXISTS idx_bills_debt ON bills (debt_id);',
+    );
+    await db.execute(
+      'CREATE INDEX IF NOT EXISTS idx_receivables_deleted ON receivables (deleted_at);',
+    );
+  }
+
+  Future _onUpgrade(Database db, int oldVersion, int newVersion) async {
+    if (oldVersion < 2) {
+      await _createIndices(db);
+    }
   }
 
   Future close() async {

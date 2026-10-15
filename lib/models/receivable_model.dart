@@ -114,7 +114,7 @@ extension ReceivableExtension on ReceivableModel {
 
     return TransactionModel(
       type: TransactionType.debt,
-      debtId: id,
+      receivableId: id,
       walletId: walletId,
       title: UiDict.getLoan(borrowerName),
       amount: amount,

@@ -60,7 +60,7 @@ class UiDict {
   static const String openApp = 'Buka Kunci';
   static const String pinInput = 'Masukkan PIN';
   static const String pinWrong = 'PIN yang Anda masukkan salah.';
-  static const String confirmPinWorng = 'PIN konfirmasi tidak cocok.';
+  static const String confirmPinWrong = 'PIN konfirmasi tidak cocok.';
   static const String forgotPin = 'Lupa PIN?';
   static const String changeAcount = 'Ubah Akun?';
 

@@ -190,8 +190,9 @@ class SkillController with ChangeNotifier {
           (extraFreeAllocationLv1[SectorType.investment] ?? 0.0);
       if (invCake <= 0) {
         double low = skillAllocations[SubSectorType.lowRisk] ?? 0.0;
-        if (low > 0)
+        if (low > 0) {
           _userController.updateSkillByKey(SubSectorType.lowRisk, low - 1);
+        }
       }
     } else if (sector == SectorType.investment) {
       double high = skillAllocations[SubSectorType.highRisk] ?? 0.0;

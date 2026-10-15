@@ -265,7 +265,7 @@ class InvestScreen extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.all(24.0),
               child: TotalCard(
-                isProvit: isOverallProfit,
+                isProfit: isOverallProfit,
                 totalCapital: totalInvested,
                 totalCurrent: totalValue,
                 percentage: overallPercentage,
