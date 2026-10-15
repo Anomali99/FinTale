@@ -233,7 +233,8 @@ class SettingsController with ChangeNotifier {
       final Map<String, dynamic> userData = _prefService.rawUser ?? {};
       final bool isSuccess = await BackupService().exportData(userData, dbData);
       return isSuccess;
-    } catch (e) {
+    } catch (e, stackTrace) {
+      debugPrint("[SETTINGS] Error exporting data: $e\n$stackTrace");
       return false;
     } finally {
       _isBypassLock = false;
@@ -271,7 +272,8 @@ class SettingsController with ChangeNotifier {
         );
       }
       return isSuccess;
-    } catch (e) {
+    } catch (e, stackTrace) {
+      debugPrint("[SETTINGS] Error backing up data to Drive: $e\n$stackTrace");
       return false;
     } finally {
       _isBypassLock = false;

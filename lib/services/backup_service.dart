@@ -129,7 +129,8 @@ class BackupService {
         await driveApi.files.create(fileMetadata, uploadMedia: media);
       }
       return true;
-    } catch (e) {
+    } catch (e, stackTrace) {
+      debugPrint("[BACKUP] Error uploading to Drive: $e\n$stackTrace");
       return false;
     }
   }
@@ -158,7 +159,8 @@ class BackupService {
 
       final String jsonString = utf8.decode(bytes);
       return jsonDecode(jsonString);
-    } catch (e) {
+    } catch (e, stackTrace) {
+      debugPrint("[BACKUP] Error downloading from Drive: $e\n$stackTrace");
       return null;
     }
   }

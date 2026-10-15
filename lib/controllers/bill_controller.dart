@@ -220,7 +220,7 @@ class BillController with ChangeNotifier {
   }) async {
     try {
       final wallet = _walletController.getWalletById(transaction.walletId);
-      wallet.autoExpanse(transaction.amount, useReserved: useReserved);
+      wallet.autoExpense(transaction.amount, useReserved: useReserved);
 
       if (transaction.debtId != null) {
         final debt = getDebtById(transaction.debtId);
@@ -277,7 +277,7 @@ class BillController with ChangeNotifier {
       final wallet = _walletController.getWalletById(transaction.walletId);
       final debt = getDebtById(transaction.debtId ?? 1);
       await _transactionController.createTransaction(transaction);
-      wallet.autoExpanse(transaction.amount, useReserved: useReserved);
+      wallet.autoExpense(transaction.amount, useReserved: useReserved);
       debt.addPayment(transaction.detailTransaction[0].amount);
 
       if (debt.bill != null) {
@@ -467,7 +467,7 @@ class BillController with ChangeNotifier {
       }
 
       final wallet = _walletController.getWalletById(transaction.walletId);
-      wallet.autoExpanse(transaction.amount, useReserved: useReserved);
+      wallet.autoExpense(transaction.amount, useReserved: useReserved);
 
       await _walletController.updateWallet(wallet);
       await _walletController.loadData();
@@ -517,17 +517,6 @@ class BillController with ChangeNotifier {
   Future<void> loadDebtData() async {
     try {
       debts = await _debtDao.readAllActiveData();
-      await loadBillData();
-      Map<int, BillModel> billMap = {};
-      for (var row in bills) {
-        if (row.debtId != null) {
-          billMap[row.debtId!] = row;
-        }
-      }
-      debts = debts.map((e) {
-        e.updateBill(billMap[e.id]);
-        return e;
-      }).toList();
     } catch (e) {
       debugPrint("[BILL] An error occurred while loading debt: $e");
     } finally {

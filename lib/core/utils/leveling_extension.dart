@@ -125,7 +125,7 @@ extension LevelingExtension on UserModel {
     }
   }
 
-  void resetSkillAlocaton() {
+  void resetSkillAllocation() {
     allocation.updateSkill(
       AllocationMap.getAllocationByLevel(
         level,

@@ -1,3 +1,4 @@
+import 'package:decimal/decimal.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
@@ -92,16 +93,17 @@ class HistoryScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final userController = context.watch<UserController>();
-    final settingsController = context.watch<SettingsController>();
-    final transactionController = context.watch<TransactionController>();
     final historyController = context.watch<HistoryController>();
     final colorScheme = Theme.of(context).colorScheme;
 
-    final isRpg = settingsController.isRpgMode;
+    final isRpg = context.select<SettingsController, bool>((s) => s.isRpgMode);
 
-    final income = transactionController.income;
-    final expense = transactionController.expense;
+    final income = context.select<TransactionController, Decimal>(
+      (t) => t.income,
+    );
+    final expense = context.select<TransactionController, Decimal>(
+      (t) => t.expense,
+    );
 
     final selectedMonth = historyController.selectedMonth;
     final groupedTransactions = historyController.groupedTransactions;
@@ -129,9 +131,12 @@ class HistoryScreen extends StatelessWidget {
               color: colorScheme.primary,
             ),
             onPressed: () async {
+              final userController = context.read<UserController>();
               await userController.processMonthlyReview(context);
               await userController.loadData();
-              Navigator.pushNamed(context, '/analytics');
+              if (context.mounted) {
+                Navigator.pushNamed(context, '/analytics');
+              }
             },
             tooltip: UiDict.menuAnalytics.get(isRpg),
           ),
@@ -169,15 +174,18 @@ class HistoryScreen extends StatelessWidget {
           ),
 
           if (groupedTransactions.isNotEmpty) ...[
-            for (var entry in groupedTransactions.entries)
-              SliverToBoxAdapter(
-                child: SectionHistory(
+            SliverList.builder(
+              itemCount: groupedTransactions.length,
+              itemBuilder: (context, index) {
+                final entry = groupedTransactions.entries.elementAt(index);
+                return SectionHistory(
                   title: entry.key,
                   transactions: entry.value,
                   onTap: (value) => _openDetail(context, value, isRpg),
                   isRpg: isRpg,
-                ),
-              ),
+                );
+              },
+            ),
           ] else ...[
             SliverFillRemaining(
               hasScrollBody: false,

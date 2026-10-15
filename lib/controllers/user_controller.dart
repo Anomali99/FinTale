@@ -47,9 +47,9 @@ class UserController with ChangeNotifier {
     }
   }
 
-  void resetSkillAlocaton() {
+  void resetSkillAllocation() {
     if (currentUser != null) {
-      currentUser!.resetSkillAlocaton();
+      currentUser!.resetSkillAllocation();
     }
   }
 
@@ -168,7 +168,7 @@ class UserController with ChangeNotifier {
                 dailyResult.xpReward + weeklyResult.xpReward + result.xpReward,
           );
         } else {
-          progress.updatWeeklyBudget(0, false);
+          progress.updateWeeklyBudget(0, false);
         }
 
         if (result.xpGranted && context != null) {

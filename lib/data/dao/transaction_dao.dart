@@ -17,18 +17,20 @@ class TransactionDao {
     parentData['updated_at'] = now;
     parentData['deleted_at'] = null;
 
-    int id = await database.insert('transactions', parentData);
+    return await database.transaction<int>((txn) async {
+      int id = await txn.insert('transactions', parentData);
 
-    for (TransactionDetailModel detail in transaction.detailTransaction) {
-      Map<String, dynamic> childData = detail.toMap(id);
-      childData['created_at'] = now;
-      childData['updated_at'] = now;
-      childData['deleted_at'] = null;
+      for (TransactionDetailModel detail in transaction.detailTransaction) {
+        Map<String, dynamic> childData = detail.toMap(id);
+        childData['created_at'] = now;
+        childData['updated_at'] = now;
+        childData['deleted_at'] = null;
 
-      await database.insert('transaction_details', childData);
-    }
+        await txn.insert('transaction_details', childData);
+      }
 
-    return id;
+      return id;
+    });
   }
 
   Future<List<TransactionModel>> readAllActiveData() async {

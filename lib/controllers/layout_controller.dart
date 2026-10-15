@@ -41,7 +41,7 @@ class LayoutController extends ChangeNotifier with WidgetsBindingObserver {
     try {
       final wallet = _walletController.getWalletById(transaction.walletId);
       await _transactionController.createTransaction(transaction);
-      Decimal deductedFromReserved = wallet.autoExpanse(
+      Decimal deductedFromReserved = wallet.autoExpense(
         transaction.amount,
         useReserved: useReserved,
       );

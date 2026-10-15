@@ -63,7 +63,7 @@ extension WalletExtension on WalletModel {
     }
   }
 
-  Decimal autoExpanse(Decimal amount, {bool useReserved = false}) {
+  Decimal autoExpense(Decimal amount, {bool useReserved = false}) {
     Decimal availableAmount = this.amount - reservedAmount;
     Decimal deductedFromReserved = Decimal.zero;
 

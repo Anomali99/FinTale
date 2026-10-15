@@ -330,7 +330,7 @@ class SkillController with ChangeNotifier {
   }
 
   Future<void> resetAllocation() async {
-    _userController.resetSkillAlocaton();
+    _userController.resetSkillAllocation();
     await _userController.saveUser();
     await loadData();
     notifyListeners();

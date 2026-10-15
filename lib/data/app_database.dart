@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 
@@ -250,7 +251,8 @@ class AppDatabase {
       });
 
       return true;
-    } catch (e) {
+    } catch (e, stackTrace) {
+      debugPrint("[APP_DATABASE] Import database failed: $e\n$stackTrace");
       return false;
     }
   }

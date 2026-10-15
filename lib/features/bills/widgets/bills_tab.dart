@@ -46,13 +46,17 @@ class BillsTab extends StatelessWidget {
       );
     }
 
-    return ListView(
-      padding: const EdgeInsets.all(24.0),
-      children: [
-        for (BillModel item in data)
-          BillCard(data: item, isRpg: isRpg, onTap: () => onTapCard(item)),
-        const SizedBox(height: 100),
-      ],
+    return ListView.builder(
+      padding: const EdgeInsets.fromLTRB(24, 24, 24, 100),
+      itemCount: data.length,
+      itemBuilder: (context, index) {
+        final item = data[index];
+        return BillCard(
+          data: item,
+          isRpg: isRpg,
+          onTap: () => onTapCard(item),
+        );
+      },
     );
   }
 }

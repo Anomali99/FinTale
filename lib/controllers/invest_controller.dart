@@ -85,7 +85,8 @@ class InvestController with ChangeNotifier {
         return true;
       }
       return false;
-    } catch (e) {
+    } catch (e, stackTrace) {
+      debugPrint("[INVEST] Error updating asset: $e\n$stackTrace");
       return false;
     }
   }
@@ -98,7 +99,8 @@ class InvestController with ChangeNotifier {
       await _walletController.updateWallet(wallet);
       await _walletController.loadData();
       return true;
-    } catch (e) {
+    } catch (e, stackTrace) {
+      debugPrint("[INVEST] Error claiming deviden: $e\n$stackTrace");
       return false;
     }
   }
@@ -152,7 +154,7 @@ class InvestController with ChangeNotifier {
       }
 
       final wallet = _walletController.getWalletById(transaction.walletId);
-      wallet.autoExpanse(transaction.amount, useReserved: useReserved);
+      wallet.autoExpense(transaction.amount, useReserved: useReserved);
 
       if (asset.isEmergency) {
         _userController.addEmergencyTotal(

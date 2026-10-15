@@ -281,26 +281,34 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final settingsController = context.watch<SettingsController>();
-    final userController = context.watch<UserController>();
-    final walletController = context.watch<WalletController>();
-    final homeController = context.watch<HomeController>();
     final colorScheme = Theme.of(context).colorScheme;
 
-    final isRpg = settingsController.isRpgMode;
-    final userName = userController.userName;
-    final userTitle = userController.userTitle;
-    final userLevel = userController.userLevel;
-    final maxLimit = userController.currentDailyLimit;
-    final dailyPenalty = userController.dailyPenalty;
-    final spentToday = userController.todayUsage;
-    final xpPercentage = userController.xpPercentage;
+    final isRpg = context.select<SettingsController, bool>((s) => s.isRpgMode);
 
-    final totalBalance = walletController.totalBalance;
-    final totalReserved = walletController.totalReserved;
-    final isHideBalance = homeController.isHideBalance;
-    final pendingAllocations = homeController.pendingAllocations;
-    final totalUnallocated = homeController.totalUnallocated;
+    final userName = context.select<UserController, String>((u) => u.userName);
+    final userTitle =
+        context.select<UserController, TitleType>((u) => u.userTitle);
+    final userLevel = context.select<UserController, int>((u) => u.userLevel);
+    final maxLimit =
+        context.select<UserController, Decimal>((u) => u.currentDailyLimit);
+    final dailyPenalty =
+        context.select<UserController, Decimal>((u) => u.dailyPenalty);
+    final spentToday =
+        context.select<UserController, Decimal>((u) => u.todayUsage);
+    final xpPercentage =
+        context.select<UserController, double>((u) => u.xpPercentage);
+
+    final totalBalance =
+        context.select<WalletController, Decimal>((w) => w.totalBalance);
+    final totalReserved =
+        context.select<WalletController, Decimal>((w) => w.totalReserved);
+
+    final isHideBalance =
+        context.select<HomeController, bool>((h) => h.isHideBalance);
+    final pendingAllocations = context
+        .select<HomeController, List<AllocationModel>>((h) => h.pendingAllocations);
+    final totalUnallocated =
+        context.select<HomeController, Decimal>((h) => h.totalUnallocated);
 
     return Scaffold(
       appBar: AppBar(
@@ -357,7 +365,7 @@ class HomeScreen extends StatelessWidget {
             icon: const FaIcon(FontAwesomeIcons.gear, size: 20),
             onPressed: () async {
               await Navigator.pushNamed(context, '/settings');
-              if (context.mounted) homeController.loadData();
+              if (context.mounted) context.read<HomeController>().loadData();
             },
           ),
           const SizedBox(width: 8),
@@ -374,7 +382,8 @@ class HomeScreen extends StatelessWidget {
                 _openAddIncomeOrTransfer(context, isTransfer: false),
             openTransfer: () =>
                 _openAddIncomeOrTransfer(context, isTransfer: true),
-            onToggleHideBalance: homeController.toggleHideBalance,
+            onToggleHideBalance:
+                context.read<HomeController>().toggleHideBalance,
             isHideBalance: isHideBalance,
             reservedBalance: totalReserved,
             unallocatedBalance: totalUnallocated,
