@@ -44,7 +44,6 @@ class HomeController with ChangeNotifier {
   }
 
   Future<void> loadData() async {
-    Future.microtask(() => notifyListeners());
     try {
       await _userController.loadData();
       await _walletController.loadData();
@@ -106,7 +105,9 @@ class HomeController with ChangeNotifier {
     try {
       if (wallet.id == null) {
         await _walletController.createWallet(wallet);
-        await _userController.processCreateWallet(context);
+        if (context.mounted) {
+          await _userController.processCreateWallet(context);
+        }
       } else {
         await _walletController.updateWallet(wallet);
       }
@@ -264,7 +265,9 @@ class HomeController with ChangeNotifier {
       }
 
       await _walletController.updateWallet(wallet);
-      await _userController.processRecordTransaction(context);
+      if (context.mounted) {
+        await _userController.processRecordTransaction(context);
+      }
       await loadData();
       return true;
     } catch (e) {

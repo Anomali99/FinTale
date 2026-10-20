@@ -35,10 +35,10 @@ class BillCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: colorScheme.surfaceContainerHighest,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: mainColor.withOpacity(0.2)),
+          border: Border.all(color: mainColor.withValues(alpha: 0.2)),
           boxShadow: [
             BoxShadow(
-              color: colorScheme.onPrimary.withOpacity(0.05),
+              color: colorScheme.onPrimary.withValues(alpha: 0.05),
               blurRadius: 5,
               offset: const Offset(0, 2),
             ),
@@ -50,7 +50,7 @@ class BillCard extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: mainColor.withOpacity(0.15),
+                color: mainColor.withValues(alpha: 0.15),
                 shape: BoxShape.circle,
               ),
               child: FaIcon(
@@ -143,9 +143,9 @@ class BillCard extends StatelessWidget {
                           vertical: 2,
                         ),
                         decoration: BoxDecoration(
-                          color: mainColor.withOpacity(0.15),
+                          color: mainColor.withValues(alpha: 0.15),
                           borderRadius: BorderRadius.circular(4),
-                          border: Border.all(color: mainColor.withOpacity(0.5)),
+                          border: Border.all(color: mainColor.withValues(alpha: 0.5)),
                         ),
                         child: Padding(
                           padding: const EdgeInsets.symmetric(vertical: 1),
@@ -164,9 +164,9 @@ class BillCard extends StatelessWidget {
                         vertical: 2,
                       ),
                       decoration: BoxDecoration(
-                        color: mainColor.withOpacity(0.15),
+                        color: mainColor.withValues(alpha: 0.15),
                         borderRadius: BorderRadius.circular(4),
-                        border: Border.all(color: mainColor.withOpacity(0.5)),
+                        border: Border.all(color: mainColor.withValues(alpha: 0.5)),
                       ),
                       child: Text(
                         data.tier.rank,

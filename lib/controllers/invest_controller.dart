@@ -117,7 +117,7 @@ class InvestController with ChangeNotifier {
       final wallet = _walletController.getWalletById(transaction.walletId);
       wallet.addAmount(transaction.amount, isIncome: true);
 
-      if (asset.isEmergency) {
+      if (asset.isEmergency && context.mounted) {
         _userController.addEmergencyTotal(
           context,
           emergencyDeduction,
@@ -128,7 +128,9 @@ class InvestController with ChangeNotifier {
       await _walletController.updateWallet(wallet);
       await _walletController.loadData();
       await _transactionController.createTransaction(transaction);
-      await _userController.processRecordTransaction(context);
+      if (context.mounted) {
+        await _userController.processRecordTransaction(context);
+      }
       await _userController.saveUser();
       await loadData();
 
@@ -156,7 +158,7 @@ class InvestController with ChangeNotifier {
       final wallet = _walletController.getWalletById(transaction.walletId);
       wallet.autoExpense(transaction.amount, useReserved: useReserved);
 
-      if (asset.isEmergency) {
+      if (asset.isEmergency && context.mounted) {
         _userController.addEmergencyTotal(
           context,
           transaction.detailTransaction[0].amount,
@@ -167,7 +169,9 @@ class InvestController with ChangeNotifier {
       await _walletController.updateWallet(wallet);
       await _walletController.loadData();
       await _transactionController.createTransaction(transaction);
-      await _userController.processRecordTransaction(context);
+      if (context.mounted) {
+        await _userController.processRecordTransaction(context);
+      }
       await _userController.saveUser();
       await loadData();
       return true;

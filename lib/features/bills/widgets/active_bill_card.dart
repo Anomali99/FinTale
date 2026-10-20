@@ -28,7 +28,7 @@ class ActiveBillCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: data.status.getCardColor(context),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: color.withOpacity(isCleared ? 0.2 : 0.5)),
+        border: Border.all(color: color.withValues(alpha: isCleared ? 0.2 : 0.5)),
       ),
       child: InkWell(
         borderRadius: BorderRadius.circular(16),
@@ -38,7 +38,7 @@ class ActiveBillCard extends StatelessWidget {
           child: Row(
             children: [
               CircleAvatar(
-                backgroundColor: color.withOpacity(0.2),
+                backgroundColor: color.withValues(alpha: 0.2),
                 child: FaIcon(
                   data.detailTransaction[0].category.categoryDict.icon(isRpg),
                   color: data.status.getAccentColor(context),

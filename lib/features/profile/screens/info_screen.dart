@@ -269,7 +269,7 @@ class InfoScreen extends StatelessWidget {
       decoration: BoxDecoration(
         color: colorScheme.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: colorScheme.onSurface.withOpacity(0.1)),
+        border: Border.all(color: colorScheme.onSurface.withValues(alpha: 0.1)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -277,7 +277,7 @@ class InfoScreen extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             decoration: BoxDecoration(
-              color: colorScheme.primary.withOpacity(0.15),
+              color: colorScheme.primary.withValues(alpha: 0.15),
               borderRadius: const BorderRadius.vertical(
                 top: Radius.circular(16),
               ),
@@ -443,7 +443,7 @@ class InfoScreen extends StatelessWidget {
               fontSize: 11,
               color: isLocked
                   ? colorScheme.onSurfaceVariant
-                  : colorScheme.onSurfaceVariant.withOpacity(0.5),
+                  : colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
             ),
           ),
           Text(
@@ -452,7 +452,7 @@ class InfoScreen extends StatelessWidget {
               fontSize: 11,
               color: isLocked
                   ? colorScheme.onSurfaceVariant
-                  : colorScheme.onSurfaceVariant.withOpacity(0.5),
+                  : colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
             ),
           ),
         ],
@@ -471,7 +471,7 @@ class InfoScreen extends StatelessWidget {
       decoration: BoxDecoration(
         color: colorScheme.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: mission.color.withOpacity(0.3)),
+        border: Border.all(color: mission.color.withValues(alpha: 0.3)),
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(20),
@@ -483,7 +483,7 @@ class InfoScreen extends StatelessWidget {
               child: FaIcon(
                 mission.icon(false),
                 size: 80,
-                color: mission.color.withOpacity(0.05),
+                color: mission.color.withValues(alpha: 0.05),
               ),
             ),
             Padding(
@@ -521,7 +521,7 @@ class InfoScreen extends StatelessWidget {
                           vertical: 4,
                         ),
                         decoration: BoxDecoration(
-                          color: mission.color.withOpacity(0.2),
+                          color: mission.color.withValues(alpha: 0.2),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(
@@ -579,7 +579,7 @@ class InfoScreen extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: colorScheme.surfaceContainerHighest,
-        border: Border.all(color: colorScheme.onSurface.withOpacity(0.1)),
+        border: Border.all(color: colorScheme.onSurface.withValues(alpha: 0.1)),
         borderRadius: BorderRadius.circular(16),
       ),
       child: ClipRRect(
@@ -637,7 +637,7 @@ class InfoScreen extends StatelessWidget {
     return TableRow(
       decoration: BoxDecoration(
         color: isHeader
-            ? colorScheme.primary.withOpacity(0.1)
+            ? colorScheme.primary.withValues(alpha: 0.1)
             : Colors.transparent,
       ),
       children: cells.map((cell) {
@@ -671,8 +671,8 @@ class InfoScreen extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: mainColor.withOpacity(0.03),
-        border: Border.all(color: mainColor.withOpacity(0.2)),
+        color: mainColor.withValues(alpha: 0.03),
+        border: Border.all(color: mainColor.withValues(alpha: 0.2)),
         borderRadius: BorderRadius.circular(16),
       ),
       child: Row(

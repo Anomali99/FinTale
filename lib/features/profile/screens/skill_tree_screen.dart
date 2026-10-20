@@ -92,6 +92,7 @@ class _SkillTreeScreenState extends State<SkillTreeScreen> {
           IconButton(
             onPressed: () async {
               await skillController.resetAllocation();
+              if (!context.mounted) return;
               GlobalMessenger.showMessage(
                 context,
                 message: UiDict.resetSkill,
@@ -250,7 +251,7 @@ class _SkillTreeScreenState extends State<SkillTreeScreen> {
             decoration: BoxDecoration(
               color: isLocked
                   ? colorScheme.onPrimary
-                  : (isSelected ? col : col.withOpacity(0.2)),
+                  : (isSelected ? col : col.withValues(alpha: 0.2)),
               shape: BoxShape.circle,
               border: Border.all(
                 color: isSelected
@@ -261,7 +262,7 @@ class _SkillTreeScreenState extends State<SkillTreeScreen> {
               boxShadow: isSelected
                   ? [
                       BoxShadow(
-                        color: col.withOpacity(0.6),
+                        color: col.withValues(alpha: 0.6),
                         blurRadius: 15,
                         spreadRadius: 2,
                       ),
@@ -398,10 +399,10 @@ class _SkillTreeScreenState extends State<SkillTreeScreen> {
         decoration: BoxDecoration(
           color: colorScheme.surfaceContainerHighest,
           borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: colorScheme.primary.withOpacity(0.5)),
+          border: Border.all(color: colorScheme.primary.withValues(alpha: 0.5)),
           boxShadow: [
             BoxShadow(
-              color: colorScheme.onSurface.withOpacity(0.54),
+              color: colorScheme.onSurface.withValues(alpha: 0.54),
               blurRadius: 20,
             ),
           ],
@@ -416,12 +417,12 @@ class _SkillTreeScreenState extends State<SkillTreeScreen> {
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 10,
-                  color: colorScheme.onSurfaceVariant.withOpacity(0.3),
+                  color: colorScheme.onSurfaceVariant.withValues(alpha: 0.3),
                 ),
               ),
               Divider(
                 height: 24,
-                color: colorScheme.onSurface.withOpacity(0.2),
+                color: colorScheme.onSurface.withValues(alpha: 0.2),
               ),
             ],
 
@@ -430,10 +431,10 @@ class _SkillTreeScreenState extends State<SkillTreeScreen> {
                 padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 4),
                 width: double.infinity,
                 decoration: BoxDecoration(
-                  color: colorScheme.onSurface.withOpacity(0.12),
+                  color: colorScheme.onSurface.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(
-                    color: colorScheme.onSurface.withOpacity(0.1),
+                    color: colorScheme.onSurface.withValues(alpha: 0.1),
                   ),
                 ),
                 child: ListTile(
@@ -454,7 +455,7 @@ class _SkillTreeScreenState extends State<SkillTreeScreen> {
                     GamificationDict.lockedSkillDesc,
                     style: TextStyle(
                       fontSize: 10,
-                      color: colorScheme.onSurfaceVariant.withOpacity(0.5),
+                      color: colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
                     ),
                   ),
                 ),
@@ -557,7 +558,7 @@ class _SkillTreeScreenState extends State<SkillTreeScreen> {
 
                       color: canDecrease
                           ? colorScheme.primary
-                          : colorScheme.onSurfaceVariant.withOpacity(0.7),
+                          : colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
                       size: 32,
                     ),
                     onPressed: canDecrease
@@ -580,7 +581,7 @@ class _SkillTreeScreenState extends State<SkillTreeScreen> {
 
                       color: canIncrease
                           ? colorScheme.primary
-                          : colorScheme.onSurfaceVariant.withOpacity(0.7),
+                          : colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
                       size: 32,
                     ),
                     onPressed: canIncrease
@@ -616,12 +617,12 @@ class DynamicSkillTreePainter extends CustomPainter {
     final colorScheme = Theme.of(context).colorScheme;
 
     final paintNormal = Paint()
-      ..color = colorScheme.onSurface.withOpacity(0.1)
+      ..color = colorScheme.onSurface.withValues(alpha: 0.1)
       ..strokeWidth = 2
       ..style = PaintingStyle.stroke;
 
     final paintHighlight = Paint()
-      ..color = colorScheme.primary.withOpacity(0.8)
+      ..color = colorScheme.primary.withValues(alpha: 0.8)
       ..strokeWidth = 3
       ..style = PaintingStyle.stroke
       ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 3);

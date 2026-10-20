@@ -45,7 +45,7 @@ class BalanceCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: colorScheme.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: colorScheme.primary.withOpacity(0.3)),
+        border: Border.all(color: colorScheme.primary.withValues(alpha: 0.3)),
       ),
       child: Column(
         children: [
@@ -115,7 +115,7 @@ class BalanceCard extends StatelessWidget {
                   ),
 
                   const SizedBox(height: 5),
-                  Divider(color: colorScheme.onSurface.withOpacity(0.1)),
+                  Divider(color: colorScheme.onSurface.withValues(alpha: 0.1)),
                   const SizedBox(height: 6),
 
                   Row(
@@ -180,7 +180,7 @@ class BalanceCard extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(vertical: 14),
             decoration: BoxDecoration(
-              color: colorScheme.primary.withOpacity(0.05),
+              color: colorScheme.primary.withValues(alpha: 0.05),
               borderRadius: const BorderRadius.only(
                 bottomLeft: Radius.circular(20),
                 bottomRight: Radius.circular(20),
@@ -215,7 +215,7 @@ class BalanceCard extends StatelessWidget {
                     ),
                   ),
                   VerticalDivider(
-                    color: colorScheme.onSurface.withOpacity(0.1),
+                    color: colorScheme.onSurface.withValues(alpha: 0.1),
                   ),
                   Expanded(
                     child: InkWell(

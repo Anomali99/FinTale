@@ -29,7 +29,11 @@ import 'services/notification_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await dotenv.load(fileName: ".env");
+  try {
+    await dotenv.load(fileName: ".env");
+  } catch (e) {
+    debugPrint("[ENV] Warning: .env file not found or failed to load: $e");
+  }
   await NotificationService().init();
 
   final prefs = await SharedPreferences.getInstance();

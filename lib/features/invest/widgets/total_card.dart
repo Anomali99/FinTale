@@ -38,8 +38,8 @@ class TotalCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
           color: isProfit
-              ? AppColors.getSuccess(context).withOpacity(0.3)
-              : colorScheme.error.withOpacity(0.3),
+              ? AppColors.getSuccess(context).withValues(alpha: 0.3)
+              : colorScheme.error.withValues(alpha: 0.3),
         ),
       ),
       child: Column(
@@ -61,7 +61,7 @@ class TotalCard extends StatelessWidget {
                   : colorScheme.error,
             ),
           ),
-          Divider(color: colorScheme.onSurface.withOpacity(0.1), height: 32),
+          Divider(color: colorScheme.onSurface.withValues(alpha: 0.1), height: 32),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -91,8 +91,8 @@ class TotalCard extends StatelessWidget {
                 ),
                 decoration: BoxDecoration(
                   color: isProfit
-                      ? AppColors.getSuccess(context).withOpacity(0.2)
-                      : colorScheme.error.withOpacity(0.2),
+                      ? AppColors.getSuccess(context).withValues(alpha: 0.2)
+                      : colorScheme.error.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Row(

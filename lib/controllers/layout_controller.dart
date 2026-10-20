@@ -55,7 +55,9 @@ class LayoutController extends ChangeNotifier with WidgetsBindingObserver {
         _userController.useDaily(deductedFromRegular);
       }
 
-      await _userController.processRecordTransaction(context);
+      if (context.mounted) {
+        await _userController.processRecordTransaction(context);
+      }
       await _userController.saveUser();
       await _userController.loadData();
       return true;

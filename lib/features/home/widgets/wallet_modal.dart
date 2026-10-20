@@ -156,7 +156,7 @@ class _WalletModalState extends State<WalletModal> {
                   Padding(
                     padding: EdgeInsets.symmetric(vertical: 12),
                     child: Divider(
-                      color: colorScheme.onSurface.withOpacity(0.1),
+                      color: colorScheme.onSurface.withValues(alpha: 0.1),
                       height: 1,
                     ),
                   ),

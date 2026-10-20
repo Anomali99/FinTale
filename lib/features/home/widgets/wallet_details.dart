@@ -61,7 +61,7 @@ class WalletDetails extends StatelessWidget {
                 ),
 
               Divider(
-                color: colorScheme.onSurface.withOpacity(0.1),
+                color: colorScheme.onSurface.withValues(alpha: 0.1),
                 height: 32,
               ),
 
@@ -75,7 +75,7 @@ class WalletDetails extends StatelessWidget {
                 ),
 
                 Divider(
-                  color: colorScheme.onSurface.withOpacity(0.1),
+                  color: colorScheme.onSurface.withValues(alpha: 0.1),
                   height: 16,
                 ),
               ],
@@ -90,7 +90,7 @@ class WalletDetails extends StatelessWidget {
                 ),
 
                 Divider(
-                  color: colorScheme.onSurface.withOpacity(0.1),
+                  color: colorScheme.onSurface.withValues(alpha: 0.1),
                   height: 16,
                 ),
               ],
@@ -105,7 +105,7 @@ class WalletDetails extends StatelessWidget {
                 ),
 
                 Divider(
-                  color: colorScheme.onSurface.withOpacity(0.1),
+                  color: colorScheme.onSurface.withValues(alpha: 0.1),
                   height: 16,
                 ),
               ],

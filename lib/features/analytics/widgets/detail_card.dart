@@ -35,12 +35,12 @@ class DetailCard extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: isSelected
-            ? data.getColor(context).withOpacity(0.1)
+            ? data.getColor(context).withValues(alpha: 0.1)
             : colorScheme.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: isSelected
-              ? data.getColor(context).withOpacity(0.5)
+              ? data.getColor(context).withValues(alpha: 0.5)
               : Colors.transparent,
         ),
       ),
@@ -50,7 +50,7 @@ class DetailCard extends StatelessWidget {
             children: [
               CircleAvatar(
                 radius: 16,
-                backgroundColor: data.getColor(context).withOpacity(0.2),
+                backgroundColor: data.getColor(context).withValues(alpha: 0.2),
                 child: FaIcon(
                   data.icon(isRpg),
                   color: data.getColor(context),

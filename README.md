@@ -89,11 +89,21 @@ SERVER_CLIENT_ID=masukkan-web-client-id-anda
 
 #### A. Mode Debug (Untuk Pengembangan Cepat)
 
-Anda bisa langsung menjalankan aplikasi di emulator atau perangkat fisik untuk pengujian:
+Proyek ini menggunakan **Product Flavors**. Anda **harus** menyertakan parameter `--flavor` saat menjalankan aplikasi.
+
+- **Flavor `dev`** — Untuk pengembangan sehari-hari. Package name: `id.my.anomali99.fintale.dev`
+- **Flavor `prod`** — Menggunakan package name produksi: `id.my.anomali99.fintale`
 
 ```bash
-flutter run
+# Gunakan flavor dev untuk pengembangan sehari-hari
+flutter run --flavor dev
+
+# Gunakan flavor prod jika ingin menguji fitur Cloud Sync
+# (package name harus cocok dengan credential di Google Cloud Console)
+flutter run --flavor prod
 ```
+
+> ⚠️ **Penting:** Jika Anda menggunakan flavor `dev`, pastikan Anda juga mendaftarkan OAuth client ID Android dengan package name `id.my.anomali99.fintale.dev` beserta SHA-1 Debug di Google Cloud Console. Jika tidak, fitur Cloud Sync (Backup/Restore Google Drive) tidak akan berfungsi pada flavor `dev`.
 
 #### B. Mode Release (Build APK / AppBundle)
 
@@ -137,13 +147,13 @@ _Salin kode **SHA-1** yang muncul di terminal._
 5. Lakukan Build APK:
 
 ```bash
-flutter build apk --release
+flutter build apk --flavor prod --release
 ```
 
 atau
 
 ```bash
-flutter build apk --split-per-abi
+flutter build apk --flavor prod --split-per-abi
 ```
 
 ## 📄 Lisensi

@@ -36,7 +36,7 @@ class AllocationCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: colorScheme.surfaceContainerHighest,
           borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: colorScheme.primary.withOpacity(0.2)),
+          border: Border.all(color: colorScheme.primary.withValues(alpha: 0.2)),
         ),
         child: Column(
           children: [
@@ -77,7 +77,7 @@ class AllocationCard extends StatelessWidget {
                     FaIcon(
                       FontAwesomeIcons.khanda,
                       size: 16,
-                      color: colorScheme.onSurface.withOpacity(0.2),
+                      color: colorScheme.onSurface.withValues(alpha: 0.2),
                     ),
                   ],
                 ),

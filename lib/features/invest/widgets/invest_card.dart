@@ -99,7 +99,7 @@ class InvestCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: colorScheme.surfaceContainerHighest,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: colorScheme.primary.withOpacity(0.1)),
+          border: Border.all(color: colorScheme.primary.withValues(alpha: 0.1)),
         ),
         child: Column(
           children: [
@@ -108,7 +108,7 @@ class InvestCard extends StatelessWidget {
               children: [
                 CircleAvatar(
                   radius: 18,
-                  backgroundColor: colorScheme.primary.withOpacity(0.2),
+                  backgroundColor: colorScheme.primary.withValues(alpha: 0.2),
                   child: FaIcon(icon, size: 14, color: colorScheme.primary),
                 ),
                 const SizedBox(width: 12),
@@ -142,7 +142,7 @@ class InvestCard extends StatelessWidget {
                                   decoration: BoxDecoration(
                                     color: Colors.cyan
                                         .adapt(context)
-                                        .withOpacity(0.2),
+                                        .withValues(alpha: 0.2),
                                     borderRadius: BorderRadius.circular(8),
                                   ),
                                   child: FaIcon(
@@ -162,7 +162,7 @@ class InvestCard extends StatelessWidget {
                                   decoration: BoxDecoration(
                                     color: Colors.blueAccent
                                         .adapt(context)
-                                        .withOpacity(0.2),
+                                        .withValues(alpha: 0.2),
                                     borderRadius: BorderRadius.circular(8),
                                   ),
                                   child: FaIcon(
@@ -182,8 +182,8 @@ class InvestCard extends StatelessWidget {
                                   color: asset.isProfit
                                       ? AppColors.getSuccess(
                                           context,
-                                        ).withOpacity(0.2)
-                                      : colorScheme.error.withOpacity(0.2),
+                                        ).withValues(alpha: 0.2)
+                                      : colorScheme.error.withValues(alpha: 0.2),
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                                 child: Text(

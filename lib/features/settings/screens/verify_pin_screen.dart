@@ -28,6 +28,23 @@ class VerifyPinScreen extends StatefulWidget {
 
 class _VerifyPinScreenState extends State<VerifyPinScreen> {
   String _pinInput = '';
+  int _failedAttempts = 0;
+  int _lockoutSeconds = 0;
+
+  void _startLockout() {
+    setState(() {
+      _lockoutSeconds = 30;
+      _pinInput = '';
+    });
+    Future.doWhile(() async {
+      await Future.delayed(const Duration(seconds: 1));
+      if (!mounted) return false;
+      setState(() {
+        _lockoutSeconds--;
+      });
+      return _lockoutSeconds > 0;
+    });
+  }
 
   @override
   void initState() {
@@ -46,6 +63,7 @@ class _VerifyPinScreenState extends State<VerifyPinScreen> {
   }
 
   void _onNumberPressed(String number) {
+    if (_lockoutSeconds > 0) return;
     setState(() {
       if (_pinInput.length < 6) {
         _pinInput += number;
@@ -57,6 +75,7 @@ class _VerifyPinScreenState extends State<VerifyPinScreen> {
   }
 
   void _onBackPressed() {
+    if (_lockoutSeconds > 0) return;
     setState(() {
       if (_pinInput.isNotEmpty) {
         _pinInput = _pinInput.substring(0, _pinInput.length - 1);
@@ -68,17 +87,27 @@ class _VerifyPinScreenState extends State<VerifyPinScreen> {
     bool isMatch = HashHelper.verifyPin(_pinInput, widget.savedPinHash);
 
     if (isMatch) {
+      _failedAttempts = 0;
       Navigator.pop(context, true);
     } else {
+      _failedAttempts++;
+      final bool shouldLock = _failedAttempts >= 5;
+
       GlobalMessenger.showMessage(
         context,
-        message: UiDict.pinWrong,
-        isSuccess: true,
+        message: shouldLock
+            ? 'Terlalu banyak percobaan. Tunggu 30 detik.'
+            : UiDict.pinWrong,
+        isSuccess: false,
       );
 
-      setState(() {
-        _pinInput = '';
-      });
+      if (shouldLock) {
+        _startLockout();
+      } else {
+        setState(() {
+          _pinInput = '';
+        });
+      }
     }
   }
 
@@ -124,7 +153,7 @@ class _VerifyPinScreenState extends State<VerifyPinScreen> {
                   vertical: 8,
                 ),
                 decoration: BoxDecoration(
-                  color: colorScheme.surfaceContainerHighest.withOpacity(0.5),
+                  color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Row(
@@ -159,7 +188,7 @@ class _VerifyPinScreenState extends State<VerifyPinScreen> {
                       shape: BoxShape.circle,
                       color: isFilled
                           ? colorScheme.primary
-                          : colorScheme.onSurfaceVariant.withOpacity(0.3),
+                          : colorScheme.onSurfaceVariant.withValues(alpha: 0.3),
                     ),
                   );
                 }),

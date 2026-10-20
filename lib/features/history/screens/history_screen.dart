@@ -50,6 +50,7 @@ class HistoryScreen extends StatelessWidget {
         );
       }
       await historyController.applyFilter();
+      if (!context.mounted) return;
       GlobalMessenger.showMessage(
         context,
         message: UiDict.applyFilterNotif,

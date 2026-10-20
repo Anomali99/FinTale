@@ -213,33 +213,50 @@ class TransactionDao {
     Map<String, dynamic> parentData = transaction.toMap();
     parentData['updated_at'] = now;
 
-    for (TransactionDetailModel detail in transaction.detailTransaction) {
-      if (detail.id == null) {
-        Map<String, dynamic> childData = detail.toMap(transaction.id ?? 0);
-        childData['created_at'] = now;
-        childData['updated_at'] = now;
-        childData['deleted_at'] = null;
+    return await database.transaction<int>((txn) async {
+      final activeDetailIds = <int>[];
 
-        await database.insert('transaction_details', childData);
-      } else {
-        Map<String, dynamic> childData = detail.toMap(transaction.id ?? 0);
-        childData['updated_at'] = now;
+      for (TransactionDetailModel detail in transaction.detailTransaction) {
+        if (detail.id == null) {
+          Map<String, dynamic> childData = detail.toMap(transaction.id ?? 0);
+          childData['created_at'] = now;
+          childData['updated_at'] = now;
+          childData['deleted_at'] = null;
 
-        await database.update(
+          int newDetailId = await txn.insert('transaction_details', childData);
+          activeDetailIds.add(newDetailId);
+        } else {
+          Map<String, dynamic> childData = detail.toMap(transaction.id ?? 0);
+          childData['updated_at'] = now;
+
+          await txn.update(
+            'transaction_details',
+            childData,
+            where: 'id = ?',
+            whereArgs: [detail.id],
+          );
+          activeDetailIds.add(detail.id!);
+        }
+      }
+
+      if (transaction.id != null && activeDetailIds.isNotEmpty) {
+        final placeholders = List.filled(activeDetailIds.length, '?').join(',');
+        await txn.update(
           'transaction_details',
-          childData,
-          where: 'id = ?',
-          whereArgs: [detail.id],
+          {'deleted_at': now},
+          where:
+              'transaction_id = ? AND id NOT IN ($placeholders) AND deleted_at IS NULL',
+          whereArgs: [transaction.id, ...activeDetailIds],
         );
       }
-    }
 
-    return await database.update(
-      'transactions',
-      parentData,
-      where: 'id = ?',
-      whereArgs: [transaction.id],
-    );
+      return await txn.update(
+        'transactions',
+        parentData,
+        where: 'id = ?',
+        whereArgs: [transaction.id],
+      );
+    });
   }
 
   Future<void> multipleCreateOrUpdate(
@@ -301,11 +318,20 @@ class TransactionDao {
     final database = await _database;
     int now = DateTime.now().millisecondsSinceEpoch;
 
-    return await database.update(
-      'transactions',
-      {'deleted_at': now},
-      where: 'id = ?',
-      whereArgs: [id],
-    );
+    return await database.transaction<int>((txn) async {
+      await txn.update(
+        'transaction_details',
+        {'deleted_at': now},
+        where: 'transaction_id = ? AND deleted_at IS NULL',
+        whereArgs: [id],
+      );
+
+      return await txn.update(
+        'transactions',
+        {'deleted_at': now},
+        where: 'id = ?',
+        whereArgs: [id],
+      );
+    });
   }
 }

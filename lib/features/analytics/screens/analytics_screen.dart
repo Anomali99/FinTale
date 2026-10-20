@@ -49,6 +49,7 @@ class AnalyticsScreen extends StatelessWidget {
         );
       }
       await analyticsController.applyFilter();
+      if (!context.mounted) return;
       GlobalMessenger.showMessage(
         context,
         message: UiDict.applyFilterNotif,
@@ -154,12 +155,12 @@ class AnalyticsScreen extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(vertical: 12),
                       decoration: BoxDecoration(
                         color: showExpense
-                            ? colorScheme.error.withOpacity(0.2)
+                            ? colorScheme.error.withValues(alpha: 0.2)
                             : Colors.transparent,
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
                           color: showExpense
-                              ? colorScheme.error.withOpacity(0.5)
+                              ? colorScheme.error.withValues(alpha: 0.5)
                               : Colors.transparent,
                         ),
                       ),
@@ -184,12 +185,12 @@ class AnalyticsScreen extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(vertical: 12),
                       decoration: BoxDecoration(
                         color: !showExpense
-                            ? colorScheme.primary.withOpacity(0.2)
+                            ? colorScheme.primary.withValues(alpha: 0.2)
                             : Colors.transparent,
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
                           color: !showExpense
-                              ? colorScheme.primary.withOpacity(0.5)
+                              ? colorScheme.primary.withValues(alpha: 0.5)
                               : Colors.transparent,
                         ),
                       ),

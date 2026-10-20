@@ -232,7 +232,9 @@ class BillController with ChangeNotifier {
           debt.bill?.advanceToNextBill();
         }
         await _debtDao.update(debt);
-        await _userController.processDebtPayment(context);
+        if (context.mounted) {
+          await _userController.processDebtPayment(context);
+        }
       } else {
         final bill = getBillById(transaction.billId ?? 1);
         bill.advanceToNextBill();
@@ -253,8 +255,10 @@ class BillController with ChangeNotifier {
       await _walletController.updateWallet(wallet);
       await loadDebtData();
 
-      _userController.updateFreeDebt(context, isFreeDebt);
-      await _userController.processRecordTransaction(context);
+      if (context.mounted) {
+        _userController.updateFreeDebt(context, isFreeDebt);
+        await _userController.processRecordTransaction(context);
+      }
       await _userController.saveUser();
       await _walletController.loadData();
       await _userController.loadData();
@@ -291,9 +295,13 @@ class BillController with ChangeNotifier {
       await _walletController.updateWallet(wallet);
       await loadDebtData();
 
-      _userController.updateFreeDebt(context, isFreeDebt);
-      await _userController.processRecordTransaction(context);
-      await _userController.processDebtPayment(context);
+      if (context.mounted) {
+        _userController.updateFreeDebt(context, isFreeDebt);
+        await _userController.processRecordTransaction(context);
+        if (context.mounted) {
+          await _userController.processDebtPayment(context);
+        }
+      }
       await _userController.saveUser();
       await _walletController.loadData();
       return true;
@@ -342,7 +350,9 @@ class BillController with ChangeNotifier {
       await _walletController.updateMultipleWallet(wallets.values.toList());
       await _walletController.loadData();
       await _transactionController.createMultipleTransaction(transactions);
-      await _userController.processRecordTransaction(context);
+      if (context.mounted) {
+        await _userController.processRecordTransaction(context);
+      }
       await _userController.saveUser();
       await loadReceivableData();
 
@@ -398,7 +408,9 @@ class BillController with ChangeNotifier {
       List<int> ids;
       if (debt.id == null) {
         ids = await _debtDao.create(debt);
-        _userController.updateFreeDebt(context, false);
+        if (context.mounted) {
+          _userController.updateFreeDebt(context, false);
+        }
       } else {
         ids = await _debtDao.update(debt);
       }
@@ -472,7 +484,9 @@ class BillController with ChangeNotifier {
       await _walletController.updateWallet(wallet);
       await _walletController.loadData();
       await _transactionController.createTransaction(transaction);
-      await _userController.processRecordTransaction(context);
+      if (context.mounted) {
+        await _userController.processRecordTransaction(context);
+      }
       await _userController.saveUser();
       await loadReceivableData();
 
@@ -487,6 +501,7 @@ class BillController with ChangeNotifier {
 
   Future<void> loadData() async {
     try {
+      await loadBillData();
       await loadDebtData();
       await loadReceivableData();
       await _transactionController.loadBillTransaction();

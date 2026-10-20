@@ -171,7 +171,7 @@ class UserController with ChangeNotifier {
           progress.updateWeeklyBudget(0, false);
         }
 
-        if (result.xpGranted && context != null) {
+        if (result.xpGranted && context != null && context.mounted) {
           currentUser!.addXp(context, result.xpReward);
         }
 

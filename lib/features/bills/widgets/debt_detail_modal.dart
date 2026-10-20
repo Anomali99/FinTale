@@ -41,7 +41,7 @@ class DebtDetailModal extends StatelessWidget {
                 height: 4,
                 margin: const EdgeInsets.only(bottom: 24),
                 decoration: BoxDecoration(
-                  color: colorScheme.onSurface.withOpacity(0.2),
+                  color: colorScheme.onSurface.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(4),
                 ),
               ),
@@ -51,7 +51,7 @@ class DebtDetailModal extends StatelessWidget {
               children: [
                 CircleAvatar(
                   radius: 28,
-                  backgroundColor: colorScheme.error.withOpacity(0.2),
+                  backgroundColor: colorScheme.error.withValues(alpha: 0.2),
                   child: FaIcon(
                     CategoryDict.getDebtByEnum(debt.type).icon(isRpg),
                     color: colorScheme.error,
@@ -99,7 +99,7 @@ class DebtDetailModal extends StatelessWidget {
                 Padding(
                   padding: EdgeInsets.symmetric(vertical: 12),
                   child: Divider(
-                    color: colorScheme.onSurface.withOpacity(0.1),
+                    color: colorScheme.onSurface.withValues(alpha: 0.1),
                     height: 1,
                   ),
                 ),

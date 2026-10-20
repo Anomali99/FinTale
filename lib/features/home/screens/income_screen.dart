@@ -446,7 +446,7 @@ class _IncomeScreenState extends State<IncomeScreen> {
                         color: colorScheme.surfaceContainerHighest,
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
-                          color: colorScheme.primary.withOpacity(0.3),
+                          color: colorScheme.primary.withValues(alpha: 0.3),
                         ),
                       ),
                       child: Column(
@@ -462,7 +462,7 @@ class _IncomeScreenState extends State<IncomeScreen> {
                           const SizedBox(height: 12),
                           Divider(
                             height: 1,
-                            color: colorScheme.onSurface.withOpacity(0.2),
+                            color: colorScheme.onSurface.withValues(alpha: 0.2),
                           ),
                           const SizedBox(height: 12),
 
@@ -505,7 +505,7 @@ class _IncomeScreenState extends State<IncomeScreen> {
         color: colorScheme.surface,
         boxShadow: [
           BoxShadow(
-            color: colorScheme.onPrimary.withOpacity(0.2),
+            color: colorScheme.onPrimary.withValues(alpha: 0.2),
             offset: const Offset(0, -4),
             blurRadius: 12,
           ),
@@ -535,7 +535,7 @@ class _IncomeScreenState extends State<IncomeScreen> {
             decoration: BoxDecoration(
               color: colorScheme.surfaceContainerHighest,
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: colorScheme.primary.withOpacity(0.2)),
+              border: Border.all(color: colorScheme.primary.withValues(alpha: 0.2)),
             ),
             child: Column(
               children: [

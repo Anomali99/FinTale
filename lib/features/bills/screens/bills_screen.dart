@@ -64,6 +64,7 @@ class BillsScreen extends StatelessWidget {
 
       await historyController.applyFilter();
       await analyticsController.applyFilter();
+      if (!context.mounted) return;
 
       GlobalMessenger.showMessage(
         context,
@@ -123,6 +124,7 @@ class BillsScreen extends StatelessWidget {
         bool isSuccess = await context.read<BillController>().generateBillDraft(
           data,
         );
+        if (!context.mounted) return;
         GlobalMessenger.showMessage(
           context,
           message: isSuccess
@@ -149,6 +151,7 @@ class BillsScreen extends StatelessWidget {
 
     if (result != null && context.mounted) {
       bool isSuccess = await context.read<BillController>().createBill(result);
+      if (!context.mounted) return;
       GlobalMessenger.showMessage(
         context,
         message: UiDict.getSaveNotif(
@@ -177,6 +180,7 @@ class BillsScreen extends StatelessWidget {
         context,
         result,
       );
+      if (!context.mounted) return;
       GlobalMessenger.showMessage(
         context,
         message: UiDict.getSaveNotif(
@@ -226,6 +230,7 @@ class BillsScreen extends StatelessWidget {
 
       await historyController.applyFilter();
       await analyticsController.applyFilter();
+      if (!context.mounted) return;
 
       GlobalMessenger.showMessage(
         context,
@@ -294,6 +299,7 @@ class BillsScreen extends StatelessWidget {
       }
       await historyController.applyFilter();
       await analyticsController.applyFilter();
+      if (!context.mounted) return;
       GlobalMessenger.showMessage(
         context,
         message: message,

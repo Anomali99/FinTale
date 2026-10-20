@@ -26,7 +26,9 @@ class AuthWrapper extends StatelessWidget {
               const SizedBox(height: 16),
               Text(
                 UiDict.authSetup,
-                style: TextStyle(color: colorScheme.primary.withOpacity(0.7)),
+                style: TextStyle(
+                  color: colorScheme.primary.withValues(alpha: 0.7),
+                ),
               ),
             ],
           ),

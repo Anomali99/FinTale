@@ -10,6 +10,8 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 
+import 'backup_migrator.dart';
+
 class BackupService {
   static const String backupFileName = 'FinTale_Backup.json';
 
@@ -28,6 +30,7 @@ class BackupService {
         'app': 'FinTale',
         'app_version': appVersion,
         'build_number': buildNumber,
+        'schema_version': BackupMigrator.currentSchemaVersion,
         'exported_at': time.millisecondsSinceEpoch,
       },
       'user': userData,
@@ -56,9 +59,12 @@ class BackupService {
       final File backupFile = File(filePath);
       await backupFile.writeAsString(jsonString);
 
-      final result = await Share.shareXFiles([
-        XFile(backupFile.path),
-      ], text: 'Backup Data FinTale');
+      final result = await SharePlus.instance.share(
+        ShareParams(
+          files: [XFile(backupFile.path)],
+          text: 'Backup Data FinTale',
+        ),
+      );
 
       if (result.status == ShareResultStatus.success) {
         return true;

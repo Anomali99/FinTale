@@ -31,14 +31,14 @@ class ReceivableDetailCard extends StatelessWidget {
 
     return Card(
       elevation: 0,
-      color: colorScheme.surfaceContainerHighest.withOpacity(0.4),
+      color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.4),
       margin: const EdgeInsets.only(bottom: 24),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
         side: BorderSide(
           color: data.isFinished
-              ? AppColors.getSuccess(context).withOpacity(0.3)
-              : colorScheme.primary.withOpacity(0.3),
+              ? AppColors.getSuccess(context).withValues(alpha: 0.3)
+              : colorScheme.primary.withValues(alpha: 0.3),
         ),
       ),
       child: Padding(
@@ -67,10 +67,10 @@ class ReceivableDetailCard extends StatelessWidget {
                     color: data.isFinished
                         ? CategoryDict.statusPaid
                               .getColor(context)
-                              .withOpacity(0.15)
+                              .withValues(alpha: 0.15)
                         : CategoryDict.statusOverdue
                               .getColor(context)
-                              .withOpacity(0.15),
+                              .withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
@@ -94,7 +94,7 @@ class ReceivableDetailCard extends StatelessWidget {
                       vertical: 4,
                     ),
                     decoration: BoxDecoration(
-                      color: Colors.blueAccent.adapt(context).withOpacity(0.15),
+                      color: Colors.blueAccent.adapt(context).withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: FaIcon(
@@ -122,7 +122,7 @@ class ReceivableDetailCard extends StatelessWidget {
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 8),
                     child: Divider(
-                      color: colorScheme.onSurface.withOpacity(0.05),
+                      color: colorScheme.onSurface.withValues(alpha: 0.05),
                       height: 1,
                     ),
                   ),
@@ -157,7 +157,7 @@ class ReceivableDetailCard extends StatelessWidget {
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 8),
                     child: Divider(
-                      color: colorScheme.onSurface.withOpacity(0.05),
+                      color: colorScheme.onSurface.withValues(alpha: 0.05),
                       height: 1,
                     ),
                   ),
@@ -193,10 +193,10 @@ class ReceivableDetailCard extends StatelessWidget {
                   vertical: 12,
                 ),
                 decoration: BoxDecoration(
-                  color: colorScheme.onSurface.withOpacity(0.02),
+                  color: colorScheme.onSurface.withValues(alpha: 0.02),
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
-                    color: colorScheme.onSurface.withOpacity(0.05),
+                    color: colorScheme.onSurface.withValues(alpha: 0.05),
                   ),
                 ),
                 child: Row(

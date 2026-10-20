@@ -169,13 +169,13 @@ class DailyMissions extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: colorScheme.surfaceContainerHighest.withOpacity(
-          isDone ? 0.5 : 1.0,
+        color: colorScheme.surfaceContainerHighest.withValues(
+          alpha: isDone ? 0.5 : 1.0,
         ),
         borderRadius: BorderRadius.circular(16),
         border: isDone
             ? null
-            : Border.all(color: colorScheme.onSurface.withOpacity(0.1)),
+            : Border.all(color: colorScheme.onSurface.withValues(alpha: 0.1)),
       ),
       child: Row(
         children: [

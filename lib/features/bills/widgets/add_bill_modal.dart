@@ -152,7 +152,7 @@ class _AddBillModalState extends State<AddBillModal> {
                   height: 4,
                   margin: const EdgeInsets.only(bottom: 16),
                   decoration: BoxDecoration(
-                    color: colorScheme.onSurface.withOpacity(0.2),
+                    color: colorScheme.onSurface.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(4),
                   ),
                 ),
@@ -283,7 +283,7 @@ class _AddBillModalState extends State<AddBillModal> {
                   ),
                   decoration: BoxDecoration(
                     border: Border.all(
-                      color: colorScheme.onSurface.withOpacity(0.2),
+                      color: colorScheme.onSurface.withValues(alpha: 0.2),
                     ),
                     borderRadius: BorderRadius.circular(8),
                   ),
@@ -295,7 +295,7 @@ class _AddBillModalState extends State<AddBillModal> {
                         onPressed: _canGoPrev() ? () => _shiftDate(-1) : null,
                         color: _canGoPrev()
                             ? colorScheme.primary
-                            : colorScheme.onSurface.withOpacity(0.3),
+                            : colorScheme.onSurface.withValues(alpha: 0.3),
                       ),
                       Text(
                         DateFormat('dd MMM yyyy').format(_currentNextDueDate!),

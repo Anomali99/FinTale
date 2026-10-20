@@ -166,11 +166,20 @@ class DebtDao {
     final database = await _database;
     int now = DateTime.now().millisecondsSinceEpoch;
 
-    return await database.update(
-      'debts',
-      {'deleted_at': now},
-      where: 'id = ?',
-      whereArgs: [id],
-    );
+    return await database.transaction<int>((txn) async {
+      await txn.update(
+        'bills',
+        {'deleted_at': now},
+        where: 'debt_id = ? AND deleted_at IS NULL',
+        whereArgs: [id],
+      );
+
+      return await txn.update(
+        'debts',
+        {'deleted_at': now},
+        where: 'id = ?',
+        whereArgs: [id],
+      );
+    });
   }
 }

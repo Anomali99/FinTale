@@ -171,7 +171,8 @@ enum FlowType {
   income,
   transfer;
 
-  Color getBgColor(BuildContext context) => getColor(context).withOpacity(0.2);
+  Color getBgColor(BuildContext context) =>
+      getColor(context).withValues(alpha: 0.2);
 
   Color getColor(BuildContext context) {
     final isLight = Theme.of(context).brightness == Brightness.light;
@@ -220,7 +221,8 @@ enum TransactionType {
     }
   }
 
-  Color getBgColor(BuildContext context) => getColor(context).withOpacity(0.2);
+  Color getBgColor(BuildContext context) =>
+      getColor(context).withValues(alpha: 0.2);
 
   String get prefix {
     switch (this) {
@@ -247,7 +249,7 @@ enum StatusType {
 
     switch (this) {
       case StatusType.paid:
-        return colorScheme.surfaceContainerHighest.withOpacity(0.5);
+        return colorScheme.surfaceContainerHighest.withValues(alpha: 0.5);
       case StatusType.pending:
       case StatusType.overdue:
         return colorScheme.surfaceContainerHighest;

@@ -34,12 +34,12 @@ class StatRadarPainter extends CustomPainter {
     final radius = size.width / 2;
 
     final paintWeb = Paint()
-      ..color = colorScheme.onSurface.withOpacity(0.15)
+      ..color = colorScheme.onSurface.withValues(alpha: 0.15)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1;
 
     final paintAura = Paint()
-      ..color = color.withOpacity(0.4)
+      ..color = color.withValues(alpha: 0.4)
       ..style = PaintingStyle.fill;
 
     final paintLine = Paint()

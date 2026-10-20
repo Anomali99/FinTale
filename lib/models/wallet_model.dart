@@ -45,7 +45,7 @@ class WalletModel {
 
 extension WalletExtension on WalletModel {
   Decimal get regularAmount =>
-      amount > Decimal.zero ? amount - reservedAmount : Decimal.zero;
+      amount > reservedAmount ? amount - reservedAmount : Decimal.zero;
 
   void addAmount(Decimal amount, {bool isIncome = true}) {
     if (isIncome) {

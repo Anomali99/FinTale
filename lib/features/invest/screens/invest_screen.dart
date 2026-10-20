@@ -59,6 +59,7 @@ class InvestScreen extends StatelessWidget {
       }
       await historyController.applyFilter();
       await analyticsController.applyFilter();
+      if (!context.mounted) return;
       GlobalMessenger.showMessage(
         context,
         message: ScreenDict.getInvestSellNotif(
@@ -87,6 +88,7 @@ class InvestScreen extends StatelessWidget {
       bool isSuccess = await investController.claimDeviden(result);
       await historyController.applyFilter();
       await analyticsController.applyFilter();
+      if (!context.mounted) return;
       GlobalMessenger.showMessage(
         context,
         message: UiDict.getSaveNotif(
@@ -113,6 +115,7 @@ class InvestScreen extends StatelessWidget {
       if (isSuccess) {
         await skillController.loadData();
       }
+      if (!context.mounted) return;
       GlobalMessenger.showMessage(
         context,
         message: UiDict.getSaveNotif(
@@ -167,6 +170,7 @@ class InvestScreen extends StatelessWidget {
       );
       await historyController.applyFilter();
       await analyticsController.applyFilter();
+      if (!context.mounted) return;
       GlobalMessenger.showMessage(
         context,
         message: UiDict.getSaveNotif(
@@ -214,6 +218,7 @@ class InvestScreen extends StatelessWidget {
       );
       await historyController.applyFilter();
       await analyticsController.applyFilter();
+      if (!context.mounted) return;
       GlobalMessenger.showMessage(
         context,
         message: ScreenDict.getInvestModalNotif(

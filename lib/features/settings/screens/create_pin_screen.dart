@@ -212,11 +212,11 @@ class _CreatePinScreenState extends State<CreatePinScreen> {
                     shape: BoxShape.circle,
                     color: isFilled
                         ? colorScheme.primary
-                        : colorScheme.onSurface.withOpacity(0.1),
+                        : colorScheme.onSurface.withValues(alpha: 0.1),
                     border: Border.all(
                       color: isFilled
                           ? colorScheme.primary
-                          : colorScheme.onSurfaceVariant.withOpacity(0.3),
+                          : colorScheme.onSurfaceVariant.withValues(alpha: 0.3),
                       width: 1.5,
                     ),
                   ),
@@ -293,7 +293,7 @@ class _CreatePinScreenState extends State<CreatePinScreen> {
         height: 68,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          color: colorScheme.surfaceContainerHighest.withOpacity(0.5),
+          color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
         ),
         child: Center(
           child: Text(
@@ -322,7 +322,7 @@ class _CreatePinScreenState extends State<CreatePinScreen> {
         child: Center(
           child: FaIcon(
             FontAwesomeIcons.deleteLeft,
-            color: colorScheme.onSurface.withOpacity(0.8),
+            color: colorScheme.onSurface.withValues(alpha: 0.8),
             size: 22,
           ),
         ),

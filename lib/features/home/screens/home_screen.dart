@@ -103,6 +103,7 @@ class HomeScreen extends StatelessWidget {
             useReserved: useReserved,
           );
         }
+        if (!context.mounted) return transaction.amount;
         GlobalMessenger.showMessage(
           context,
           message: ScreenDict.getDebtNotif(isSuccess: isSuccess, isRpg: isRpg),
@@ -159,6 +160,7 @@ class HomeScreen extends StatelessWidget {
       if (isSuccess) {
         await skillController.loadData();
       }
+      if (!context.mounted) return transaction.amount;
       GlobalMessenger.showMessage(
         context,
         message: UiDict.getSaveNotif(
@@ -227,6 +229,7 @@ class HomeScreen extends StatelessWidget {
         context,
         result,
       );
+      if (!context.mounted) return;
       GlobalMessenger.showMessage(
         context,
         message: UiDict.getSaveNotif(
@@ -268,6 +271,7 @@ class HomeScreen extends StatelessWidget {
       );
       await historyController.applyFilter();
       await analyticsController.applyFilter();
+      if (!context.mounted) return;
       GlobalMessenger.showMessage(
         context,
         message: UiDict.getSaveNotif(

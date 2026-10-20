@@ -82,8 +82,8 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
             ),
 
             datePickerTheme: DatePickerThemeData(
-              rangeSelectionBackgroundColor: colorScheme.primary.withOpacity(
-                0.15,
+              rangeSelectionBackgroundColor: colorScheme.primary.withValues(
+                alpha: 0.15,
               ),
 
               headerBackgroundColor: colorScheme.surfaceContainerHighest,
@@ -201,7 +201,7 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
                   border: Border.all(
                     color: _startDate != null
                         ? colorScheme.primary
-                        : colorScheme.onSurface.withOpacity(0.3),
+                        : colorScheme.onSurface.withValues(alpha: 0.3),
                   ),
                   borderRadius: BorderRadius.circular(4),
                 ),

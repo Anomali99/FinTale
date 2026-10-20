@@ -8,6 +8,7 @@ import '../data/pref_service.dart';
 import '../models/user_model.dart';
 import '../models/wallet_model.dart';
 import '../services/auth_service.dart';
+import '../services/backup_migrator.dart';
 import '../services/backup_service.dart';
 import '../services/local_auth_service.dart';
 import '../services/notification_service.dart';
@@ -209,8 +210,16 @@ class SettingsController with ChangeNotifier {
   Future<bool> handleMigrateData(Map<String, dynamic>? backupData) async {
     if (backupData == null) return false;
 
-    final Map<String, dynamic> dbData = backupData['database'];
-    final Map<String, dynamic> userData = backupData['user'];
+    // Migrate backup from any older schema version to current
+    final Map<String, dynamic> migrated = BackupMigrator.migrate(backupData);
+
+    final Map<String, dynamic> dbData = migrated['database'] ?? {};
+    final Map<String, dynamic> rawUserData = migrated['user'] ?? {};
+
+    // Sanitize user data so fromJson won't crash on missing fields
+    final Map<String, dynamic> userData = BackupMigrator.sanitizeUserData(
+      rawUserData,
+    );
 
     await NotificationService().cancelAllNotifications();
 
@@ -220,8 +229,10 @@ class SettingsController with ChangeNotifier {
       userData['email'] = currentUser['email'];
     }
 
-    await _prefService.saveRawUser(userData);
     bool isDbSuccess = await AppDatabase.instance.importDatabase(dbData);
+    if (isDbSuccess) {
+      await _prefService.saveRawUser(userData);
+    }
     return isDbSuccess;
   }
 

@@ -84,6 +84,7 @@ class MainLayout extends StatelessWidget {
         );
         await historyController.applyFilter();
         await analyticsController.applyFilter();
+        if (!context.mounted) return;
         GlobalMessenger.showMessage(
           context,
           message: ScreenDict.getDebtNotif(isSuccess: isSuccess, isRpg: isRpg),
@@ -107,7 +108,7 @@ class MainLayout extends StatelessWidget {
         await Navigator.pushNamed(context, '/daily-expense')
             as Map<String, dynamic>?;
 
-    if (result != null) {
+    if (result != null && context.mounted) {
       TransactionModel transaction = result['transaction'];
       bool useReserved = result['use_reserved'];
       bool excludeDaily = result['exclude_daily'];
@@ -119,6 +120,7 @@ class MainLayout extends StatelessWidget {
       );
       await historyController.applyFilter();
       await analyticsController.applyFilter();
+      if (!context.mounted) return;
       GlobalMessenger.showMessage(
         context,
         message: UiDict.getSaveNotif(

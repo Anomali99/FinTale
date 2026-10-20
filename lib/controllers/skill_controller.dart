@@ -290,7 +290,9 @@ class SkillController with ChangeNotifier {
     if (current < 100) {
       _userController.updateSkillByKey(selectedNode!, current + 1);
       await _userController.saveUser();
-      await _userController.processSetAllocation(context);
+      if (context.mounted) {
+        await _userController.processSetAllocation(context);
+      }
       await loadData();
       notifyListeners();
     }

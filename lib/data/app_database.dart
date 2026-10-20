@@ -4,6 +4,8 @@ import 'package:flutter/foundation.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 
+import '../services/backup_migrator.dart';
+
 class AppDatabase {
   static final AppDatabase instance = AppDatabase._init();
   static Database? _database;
@@ -215,6 +217,16 @@ class AppDatabase {
   Future<bool> importDatabase(Map<String, dynamic> databaseData) async {
     final db = await instance.database;
     try {
+      // Sanitize: strip unknown columns so old/future backups
+      // don't cause "has no column named X" errors.
+      final Map<String, dynamic> safeData = BackupMigrator.sanitizeDatabase(
+        databaseData,
+      );
+
+      // Disable FK checks BEFORE the transaction — SQLite does not
+      // allow changing PRAGMA foreign_keys inside a transaction.
+      await db.execute('PRAGMA foreign_keys = OFF;');
+
       await db.transaction((txn) async {
         List<String> deleteOrder = [
           'transaction_details',
@@ -241,8 +253,8 @@ class AppDatabase {
         ];
 
         for (String table in insertOrder) {
-          if (databaseData.containsKey(table)) {
-            List<dynamic> rows = databaseData[table];
+          if (safeData.containsKey(table)) {
+            List<dynamic> rows = safeData[table];
             for (var row in rows) {
               await txn.insert(table, Map<String, dynamic>.from(row));
             }
@@ -250,8 +262,15 @@ class AppDatabase {
         }
       });
 
+      // Re-enable FK checks after the transaction completes
+      await db.execute('PRAGMA foreign_keys = ON;');
+
       return true;
     } catch (e, stackTrace) {
+      // Ensure FK checks are re-enabled even on failure
+      try {
+        await db.execute('PRAGMA foreign_keys = ON;');
+      } catch (_) {}
       debugPrint("[APP_DATABASE] Import database failed: $e\n$stackTrace");
       return false;
     }

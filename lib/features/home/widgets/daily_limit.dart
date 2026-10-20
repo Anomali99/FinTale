@@ -50,7 +50,7 @@ class DailyLimit extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
 
         border: isExceeded
-            ? Border.all(color: colorScheme.error.withOpacity(0.5))
+            ? Border.all(color: colorScheme.error.withValues(alpha: 0.5))
             : null,
       ),
       child: Column(
@@ -84,7 +84,7 @@ class DailyLimit extends StatelessWidget {
             child: LinearProgressIndicator(
               value: percentage,
               backgroundColor: isExceeded
-                  ? colorScheme.error.withOpacity(0.2)
+                  ? colorScheme.error.withValues(alpha: 0.2)
                   : theme.scaffoldBackgroundColor,
               color: barColor,
               minHeight: 8,

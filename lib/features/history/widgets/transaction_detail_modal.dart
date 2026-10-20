@@ -60,7 +60,7 @@ class TransactionDetailModal extends StatelessWidget {
               width: 48,
               height: 4,
               decoration: BoxDecoration(
-                color: colorScheme.onSurface.withOpacity(0.2),
+                color: colorScheme.onSurface.withValues(alpha: 0.2),
                 borderRadius: BorderRadius.circular(4),
               ),
             ),
@@ -108,7 +108,7 @@ class TransactionDetailModal extends StatelessWidget {
                 color: colorScheme.surfaceContainerHighest,
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(
-                  color: colorScheme.onSurface.withOpacity(0.1),
+                  color: colorScheme.onSurface.withValues(alpha: 0.1),
                 ),
               ),
               child: Column(
@@ -155,7 +155,7 @@ class TransactionDetailModal extends StatelessWidget {
                               vertical: 4,
                             ),
                             decoration: BoxDecoration(
-                              color: status.color?.withOpacity(0.2),
+                              color: status.color?.withValues(alpha: 0.2),
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: Text(
@@ -175,7 +175,7 @@ class TransactionDetailModal extends StatelessWidget {
                   Padding(
                     padding: EdgeInsets.symmetric(vertical: 12.0),
                     child: Divider(
-                      color: colorScheme.onSurface.withOpacity(0.1),
+                      color: colorScheme.onSurface.withValues(alpha: 0.1),
                       height: 1,
                     ),
                   ),

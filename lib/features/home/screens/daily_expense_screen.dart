@@ -311,7 +311,7 @@ class _DailyExpenseScreenState extends State<DailyExpenseScreen> {
               onChanged: (val) => setState(() => _isExcludeActive = val),
             ),
 
-            Divider(height: 1, color: colorScheme.onSurface.withOpacity(0.2)),
+            Divider(height: 1, color: colorScheme.onSurface.withValues(alpha: 0.2)),
             const SizedBox(height: 32),
 
             Text(
@@ -330,12 +330,12 @@ class _DailyExpenseScreenState extends State<DailyExpenseScreen> {
 
               return Card(
                 elevation: 0,
-                color: colorScheme.surfaceContainerHighest.withOpacity(0.5),
+                color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
                 margin: const EdgeInsets.only(bottom: 24),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16),
                   side: BorderSide(
-                    color: colorScheme.onSurface.withOpacity(0.1),
+                    color: colorScheme.onSurface.withValues(alpha: 0.1),
                   ),
                 ),
                 child: Padding(
@@ -352,7 +352,7 @@ class _DailyExpenseScreenState extends State<DailyExpenseScreen> {
                               vertical: 6,
                             ),
                             decoration: BoxDecoration(
-                              color: colorScheme.primary.withOpacity(0.2),
+                              color: colorScheme.primary.withValues(alpha: 0.2),
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: Text(
@@ -480,7 +480,7 @@ class _DailyExpenseScreenState extends State<DailyExpenseScreen> {
         color: colorScheme.surface,
         boxShadow: [
           BoxShadow(
-            color: colorScheme.onPrimary.withOpacity(0.2),
+            color: colorScheme.onPrimary.withValues(alpha: 0.2),
             offset: const Offset(0, -4),
             blurRadius: 12,
           ),

@@ -80,6 +80,8 @@ class SettingsScreen extends StatelessWidget {
         await analyticsController.applyFilter();
       }
 
+      if (!context.mounted) return;
+
       if (onSuccess != null) {
         GlobalMessenger.showMessage(
           context,
@@ -89,6 +91,7 @@ class SettingsScreen extends StatelessWidget {
       }
       Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
     } else {
+      if (!context.mounted) return;
       String? failed = onFailed ?? result["error"];
       if (failed != null) {
         GlobalMessenger.showMessage(context, message: failed, isSuccess: false);
@@ -224,7 +227,7 @@ class SettingsScreen extends StatelessWidget {
                   ),
                 ),
                 Divider(
-                  color: colorScheme.onSurface.withOpacity(0.1),
+                  color: colorScheme.onSurface.withValues(alpha: 0.1),
                   height: 1,
                   indent: 56,
                 ),
@@ -259,7 +262,7 @@ class SettingsScreen extends StatelessWidget {
                     duration: const Duration(milliseconds: 300),
                     curve: Curves.easeInOut,
                     decoration: BoxDecoration(
-                      color: colorScheme.onPrimary.withOpacity(0.1),
+                      color: colorScheme.onPrimary.withValues(alpha: 0.1),
                       borderRadius: const BorderRadius.vertical(
                         bottom: Radius.circular(16),
                       ),
@@ -267,7 +270,7 @@ class SettingsScreen extends StatelessWidget {
                     child: Column(
                       children: [
                         Divider(
-                          color: colorScheme.onSurface.withOpacity(0.1),
+                          color: colorScheme.onSurface.withValues(alpha: 0.1),
                           height: 1,
                           indent: 56,
                         ),
@@ -303,7 +306,7 @@ class SettingsScreen extends StatelessWidget {
                         if (settingsController
                             .isHardwareBiometricSupported) ...[
                           Divider(
-                            color: colorScheme.onSurface.withOpacity(0.1),
+                            color: colorScheme.onSurface.withValues(alpha: 0.1),
                             height: 1,
                             indent: 56,
                           ),
@@ -372,7 +375,7 @@ class SettingsScreen extends StatelessWidget {
                   ),
                 ),
                 Divider(
-                  color: colorScheme.onSurface.withOpacity(0.1),
+                  color: colorScheme.onSurface.withValues(alpha: 0.1),
                   height: 1,
                   indent: 56,
                 ),
@@ -408,7 +411,7 @@ class SettingsScreen extends StatelessWidget {
                   ),
                 ),
                 Divider(
-                  color: colorScheme.onSurface.withOpacity(0.1),
+                  color: colorScheme.onSurface.withValues(alpha: 0.1),
                   height: 1,
                   indent: 56,
                 ),
@@ -475,7 +478,7 @@ class SettingsScreen extends StatelessWidget {
                   },
                 ),
                 Divider(
-                  color: colorScheme.onSurface.withOpacity(0.1),
+                  color: colorScheme.onSurface.withValues(alpha: 0.1),
                   height: 1,
                   indent: 56,
                 ),
@@ -504,7 +507,7 @@ class SettingsScreen extends StatelessWidget {
                   ),
                 ),
                 Divider(
-                  color: colorScheme.onSurface.withOpacity(0.1),
+                  color: colorScheme.onSurface.withValues(alpha: 0.1),
                   height: 1,
                   indent: 56,
                 ),
