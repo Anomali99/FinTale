@@ -177,6 +177,14 @@ class BillController with ChangeNotifier {
         return false;
       }
 
+      // Ensure nextDueDate is set before generating the transaction
+      if (bill.nextDueDate == null) {
+        bill.nextDueDate = bill.targetDate.millisecondsSinceEpoch;
+        if (bill.debtId == null) {
+          await _billDao.update(bill);
+        }
+      }
+
       if (status == StatusType.overdue) {
         if (existingPendingTransaction != null) {
           existingPendingTransaction.status = StatusType.overdue;
