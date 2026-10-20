@@ -34,7 +34,7 @@ class _PayBillModalState extends State<PayBillModal> {
   DateTime _selectedDate = DateTime.now();
   WalletModel? _selectedWallet;
   Decimal _amount = Decimal.zero;
-  bool _isReservedActive = false;
+  bool _isSavingsActive = false;
   bool _isFeeActive = false;
 
   @override
@@ -114,7 +114,7 @@ class _PayBillModalState extends State<PayBillModal> {
 
       Navigator.pop(context, {
         "transaction": newTrans,
-        'use_reserved': _isReservedActive,
+        'use_reserved': _isSavingsActive,
       });
     }
   }
@@ -125,7 +125,8 @@ class _PayBillModalState extends State<PayBillModal> {
     final colorScheme = Theme.of(context).colorScheme;
 
     final isRpg = context.read<SettingsController>().isRpgMode;
-    final wallets = context.read<WalletController>().wallets;
+    final walletController = context.read<WalletController>();
+    final wallets = walletController.allWallets;
 
     return Container(
       padding: EdgeInsets.only(
@@ -201,14 +202,19 @@ class _PayBillModalState extends State<PayBillModal> {
                   labelText: UiDict.sourceFunds,
                   border: OutlineInputBorder(),
                 ),
-                items: wallets
-                    .map(
-                      (wallet) => DropdownMenuItem(
-                        value: wallet,
-                        child: Text(wallet.name),
-                      ),
-                    )
-                    .toList(),
+                items:
+                    (_isSavingsActive
+                            ? wallets
+                            : wallets.where((w) => !w.isSavings).toList())
+                        .map(
+                          (wallet) => DropdownMenuItem(
+                            value: wallet,
+                            child: Text(
+                              walletController.getDisplayName(wallet),
+                            ),
+                          ),
+                        )
+                        .toList(),
                 onChanged: (val) => setState(() => _selectedWallet = val),
                 validator: (val) => val == null ? UiDict.requiredWallet : null,
               ),
@@ -289,10 +295,13 @@ class _PayBillModalState extends State<PayBillModal> {
                   ScreenDict.getReservedCheckDesc(isRpg: isRpg),
                   style: TextStyle(fontWeight: FontWeight.bold),
                 ),
-                value: _isReservedActive,
+                value: _isSavingsActive,
                 onChanged: (val) => setState(() {
-                  if (_selectedWallet != null) {
-                    _isReservedActive = val;
+                  _isSavingsActive = val;
+                  if (!val &&
+                      _selectedWallet != null &&
+                      _selectedWallet!.isSavings) {
+                    _selectedWallet = null;
                   }
                 }),
               ),
@@ -312,18 +321,10 @@ class _PayBillModalState extends State<PayBillModal> {
                   children: [
                     if (_selectedWallet != null) ...[
                       NoteContainer(
-                        text: _isReservedActive
-                            ? ScreenDict.getHomeNote(
-                                _selectedWallet?.name ?? '',
-                                NumberUtils.toIdr(
-                                  _selectedWallet?.reservedAmount,
-                                ),
-                                isRpg: isRpg,
-                              )
-                            : ScreenDict.getHistoryNote(
-                                _selectedWallet?.name ?? '',
-                                NumberUtils.toIdr(_selectedWallet?.amount),
-                              ),
+                        text: ScreenDict.getHistoryNote(
+                          walletController.getDisplayName(_selectedWallet!),
+                          NumberUtils.toIdr(_selectedWallet?.amount),
+                        ),
                         color: colorScheme.onSurfaceVariant,
                       ),
                       const SizedBox(height: 8),

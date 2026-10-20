@@ -1,3 +1,5 @@
+import 'package:decimal/decimal.dart';
+
 /// Handles migration of backup data across different schema versions.
 ///
 /// Schema versions:
@@ -6,11 +8,14 @@
 ///       in transactions.
 ///   2 - Added receivables table, added receivable_id column in
 ///       transactions, added DB indices.
+///   3 - Wallet pockets: added parent_id, is_savings, is_emergency
+///       columns to wallets. Removed reserved_amount. Wallets with
+///       reserved_amount > 0 get a 'Tabungan' savings pocket.
 ///
 /// This migrator ensures that backup files from any known schema
 /// version can be loaded into the current app version.
 class BackupMigrator {
-  static const int currentSchemaVersion = 2;
+  static const int currentSchemaVersion = 3;
 
   /// Column whitelist for each table in the current schema.
   /// Used to strip unknown/removed columns from old backups and
@@ -20,8 +25,10 @@ class BackupMigrator {
       'id',
       'name',
       'amount',
-      'reserved_amount',
       'type',
+      'parent_id',
+      'is_savings',
+      'is_emergency',
       'created_at',
       'updated_at',
       'deleted_at',
@@ -114,7 +121,8 @@ class BackupMigrator {
   /// If the backup has an explicit `schema_version`, use it.
   /// Otherwise, infer from the data structure:
   ///   - No `receivables` key in database → schema 1
-  ///   - Has `receivables` key → schema 2
+  ///   - Has `receivables` key but wallets have reserved_amount → schema 2
+  ///   - Has parent_id in wallets → schema 3
   static int detectSchemaVersion(Map<String, dynamic> backupData) {
     final metadata = backupData['metadata'] as Map<String, dynamic>?;
 
@@ -125,6 +133,17 @@ class BackupMigrator {
 
     final database = backupData['database'] as Map<String, dynamic>?;
     if (database == null) return 1;
+
+    // Heuristic: check wallet rows for parent_id (schema 3)
+    if (database.containsKey('wallets')) {
+      final List<dynamic> walletRows = database['wallets'] as List<dynamic>;
+      if (walletRows.isNotEmpty) {
+        final firstRow = walletRows[0] as Map;
+        if (firstRow.containsKey('parent_id')) {
+          return 3;
+        }
+      }
+    }
 
     // Heuristic: receivables table was added in schema 2
     if (database.containsKey('receivables')) {
@@ -150,8 +169,10 @@ class BackupMigrator {
       version = 2;
     }
 
-    // Future migrations go here:
-    // if (version < 3) { migrated = _migrateV2ToV3(migrated); version = 3; }
+    if (version < 3) {
+      migrated = _migrateV2ToV3(migrated);
+      version = 3;
+    }
 
     // Stamp the current schema version
     migrated['metadata'] ??= {};
@@ -194,9 +215,7 @@ class BackupMigrator {
 
   /// Ensures the user data has all required fields with sensible
   /// defaults so UserModel.fromJson won't crash on old backups.
-  static Map<String, dynamic> sanitizeUserData(
-    Map<String, dynamic> userData,
-  ) {
+  static Map<String, dynamic> sanitizeUserData(Map<String, dynamic> userData) {
     final Map<String, dynamic> sanitized = Map<String, dynamic>.from(userData);
 
     // Core fields
@@ -209,9 +228,7 @@ class BackupMigrator {
 
     // Budget sub-object
     sanitized['budget'] ??= {};
-    final budget = Map<String, dynamic>.from(
-      sanitized['budget'] as Map? ?? {},
-    );
+    final budget = Map<String, dynamic>.from(sanitized['budget'] as Map? ?? {});
     budget['base_daily_limit'] ??= '0';
     budget['daily_penalty'] ??= '0';
     budget['current_penalty'] ??= '0';
@@ -260,9 +277,7 @@ class BackupMigrator {
 
   /// v1 → v2: Add empty receivables list, add receivable_id to
   /// transactions rows.
-  static Map<String, dynamic> _migrateV1ToV2(
-    Map<String, dynamic> backupData,
-  ) {
+  static Map<String, dynamic> _migrateV1ToV2(Map<String, dynamic> backupData) {
     final database = backupData['database'] as Map<String, dynamic>? ?? {};
 
     // Add empty receivables table if missing
@@ -276,6 +291,78 @@ class BackupMigrator {
         row.putIfAbsent('receivable_id', () => null);
         transactions[i] = row;
       }
+    }
+
+    backupData['database'] = database;
+    return backupData;
+  }
+
+  /// v2 → v3: Add parent_id, is_savings, is_emergency to wallets.
+  /// Migrate reserved_amount > 0 into savings pocket rows.
+  /// Remove reserved_amount from all wallet rows.
+  static Map<String, dynamic> _migrateV2ToV3(Map<String, dynamic> backupData) {
+    final database = backupData['database'] as Map<String, dynamic>? ?? {};
+
+    if (database.containsKey('wallets')) {
+      final List<dynamic> walletRows = database['wallets'];
+      final List<Map<String, dynamic>> newPockets = [];
+
+      // Find the max id to generate new pocket ids
+      int maxId = 0;
+      for (final row in walletRows) {
+        final Map<String, dynamic> wallet = Map<String, dynamic>.from(
+          row as Map,
+        );
+        final id = wallet['id'] as int? ?? 0;
+        if (id > maxId) maxId = id;
+      }
+
+      int now = DateTime.now().millisecondsSinceEpoch;
+
+      for (int i = 0; i < walletRows.length; i++) {
+        final row = Map<String, dynamic>.from(walletRows[i] as Map);
+
+        final String reservedStr = (row['reserved_amount'] ?? '0').toString();
+        final Decimal reserved = Decimal.parse(reservedStr);
+
+        if (reserved > Decimal.zero) {
+          // Create a savings pocket
+          maxId++;
+          final Decimal currentAmount = Decimal.parse(
+            (row['amount'] ?? '0').toString(),
+          );
+          final Decimal newParentAmount = currentAmount - reserved;
+
+          newPockets.add({
+            'id': maxId,
+            'name': 'Tabungan',
+            'amount': reservedStr,
+            'type': row['type'],
+            'parent_id': row['id'],
+            'is_savings': 1,
+            'is_emergency': 0,
+            'created_at': now,
+            'updated_at': now,
+            'deleted_at': null,
+          });
+
+          // Update parent wallet amount
+          row['amount'] = newParentAmount.toString();
+        }
+
+        // Add new columns with defaults
+        row['parent_id'] = row['parent_id']; // null for existing rows
+        row['is_savings'] = row['is_savings'] ?? 0;
+        row['is_emergency'] = row['is_emergency'] ?? 0;
+
+        // Remove reserved_amount
+        row.remove('reserved_amount');
+
+        walletRows[i] = row;
+      }
+
+      // Append new pocket rows
+      walletRows.addAll(newPockets);
     }
 
     backupData['database'] = database;

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../controllers/settings_controller.dart';
+import '../../../controllers/wallet_controller.dart';
 import '../../../core/constants/screen_dict.dart';
 import '../../../core/constants/ui_dict.dart';
 import '../../../core/theme/app_colors.dart';
@@ -94,6 +95,7 @@ class _DividendModalState extends State<DividendModal> {
   Widget build(BuildContext context) {
     final bottomInset = MediaQuery.of(context).viewInsets.bottom;
     final isRpg = context.read<SettingsController>().isRpgMode;
+    final walletController = context.read<WalletController>();
     final colorScheme = Theme.of(context).colorScheme;
 
     return Container(
@@ -194,7 +196,7 @@ class _DividendModalState extends State<DividendModal> {
                 items: widget.wallets.map((wallet) {
                   return DropdownMenuItem(
                     value: wallet,
-                    child: Text(wallet.name),
+                    child: Text(walletController.getDisplayName(wallet)),
                   );
                 }).toList(),
                 onChanged: (val) => setState(() => _selectedWallet = val),

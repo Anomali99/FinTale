@@ -199,7 +199,7 @@ class TransactionDetailModal extends StatelessWidget {
                         : transaction.type == TransactionType.transfer
                         ? UiDict.originWallet
                         : UiDict.sourceFunds,
-                    value: wallet.name,
+                    value: walletController.getDisplayName(wallet),
                     icon: wallet.icon,
                   ),
 
@@ -209,7 +209,7 @@ class TransactionDetailModal extends StatelessWidget {
                     _buildWalletRow(
                       context,
                       label: UiDict.destinationWallet,
-                      value: walletTarget.name,
+                      value: walletController.getDisplayName(walletTarget),
                       icon: walletTarget.icon,
                     ),
                   ],

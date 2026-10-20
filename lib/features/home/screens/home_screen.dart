@@ -24,12 +24,13 @@ import '../../../models/debt_model.dart';
 import '../../../models/transaction_model.dart';
 import '../../../models/user_model.dart';
 import '../../../models/wallet_model.dart';
+import '../../../widgets/responsive_container.dart';
 import '../../bills/widgets/pay_debt_modal.dart';
 import '../widgets/allocation_card.dart';
 import '../widgets/balance_card.dart';
 import '../widgets/daily_limit.dart';
 import '../widgets/wallet_details.dart';
-import '../../../widgets/responsive_container.dart';
+import '../widgets/wallet_info_modal.dart';
 import '../widgets/wallet_modal.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -49,10 +50,42 @@ class HomeScreen extends StatelessWidget {
       builder: (_) => WalletDetails(
         wallets: walletController.wallets,
         onTap: (value, {lock}) =>
-            _openUpdateOrAddWallet(context, wallet: value, lock: lock),
+            _showWalletInfo(context, wallet: value, lock: lock),
         isRpg: isRpg,
       ),
     );
+  }
+
+  void _showWalletInfo(
+    BuildContext context, {
+    WalletModel? wallet,
+    bool? lock,
+  }) async {
+    if (wallet == null) {
+      _openUpdateOrAddWallet(context);
+      return;
+    }
+    final result = await showModalBottomSheet<Map<String, dynamic>>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) =>
+          WalletInfoModal(wallet: wallet, lock: lock ?? false),
+    );
+    if (result != null && context.mounted) {
+      if (result['action'] == 'edit') {
+        _openUpdateOrAddWallet(
+          context,
+          wallet: result['wallet'] as WalletModel,
+          lock: lock,
+        );
+      } else if (result['action'] == 'add_pocket') {
+        _openUpdateOrAddWallet(
+          context,
+          parentIdForPocket: result['parentId'] as int?,
+        );
+      }
+    }
   }
 
   Future<Decimal?> _openPayDebt(
@@ -217,12 +250,17 @@ class HomeScreen extends StatelessWidget {
     BuildContext context, {
     WalletModel? wallet,
     bool? lock,
+    int? parentIdForPocket,
   }) async {
     final WalletModel? result = await showModalBottomSheet<WalletModel>(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) => WalletModal(wallet: wallet, lock: lock ?? false),
+      builder: (context) => WalletModal(
+        wallet: wallet,
+        lock: lock ?? false,
+        parentIdForPocket: parentIdForPocket,
+      ),
     );
 
     if (result != null && context.mounted) {
@@ -291,29 +329,44 @@ class HomeScreen extends StatelessWidget {
     final isRpg = context.select<SettingsController, bool>((s) => s.isRpgMode);
 
     final userName = context.select<UserController, String>((u) => u.userName);
-    final userTitle =
-        context.select<UserController, TitleType>((u) => u.userTitle);
+    final userTitle = context.select<UserController, TitleType>(
+      (u) => u.userTitle,
+    );
     final userLevel = context.select<UserController, int>((u) => u.userLevel);
-    final maxLimit =
-        context.select<UserController, Decimal>((u) => u.currentDailyLimit);
-    final dailyPenalty =
-        context.select<UserController, Decimal>((u) => u.dailyPenalty);
-    final spentToday =
-        context.select<UserController, Decimal>((u) => u.todayUsage);
-    final xpPercentage =
-        context.select<UserController, double>((u) => u.xpPercentage);
+    final maxLimit = context.select<UserController, Decimal>(
+      (u) => u.currentDailyLimit,
+    );
+    final dailyPenalty = context.select<UserController, Decimal>(
+      (u) => u.dailyPenalty,
+    );
+    final spentToday = context.select<UserController, Decimal>(
+      (u) => u.todayUsage,
+    );
+    final xpPercentage = context.select<UserController, double>(
+      (u) => u.xpPercentage,
+    );
 
-    final totalBalance =
-        context.select<WalletController, Decimal>((w) => w.totalBalance);
-    final totalReserved =
-        context.select<WalletController, Decimal>((w) => w.totalReserved);
+    final totalBalance = context.select<WalletController, Decimal>(
+      (w) => w.totalBalance,
+    );
+    final totalSavings = context.select<WalletController, Decimal>(
+      (w) => w.totalSavings,
+    );
 
-    final isHideBalance =
-        context.select<HomeController, bool>((h) => h.isHideBalance);
+    final excludeSavings = !context.select<SettingsController, bool>(
+      (s) => s.isIncludeSavingsInTotal,
+    );
+
+    final isHideBalance = context.select<HomeController, bool>(
+      (h) => h.isHideBalance,
+    );
     final pendingAllocations = context
-        .select<HomeController, List<AllocationModel>>((h) => h.pendingAllocations);
-    final totalUnallocated =
-        context.select<HomeController, Decimal>((h) => h.totalUnallocated);
+        .select<HomeController, List<AllocationModel>>(
+          (h) => h.pendingAllocations,
+        );
+    final totalUnallocated = context.select<HomeController, Decimal>(
+      (h) => h.totalUnallocated,
+    );
 
     return Scaffold(
       appBar: AppBar(
@@ -382,16 +435,19 @@ class HomeScreen extends StatelessWidget {
           final isWide = constraints.maxWidth >= 700;
 
           final balanceCard = BalanceCard(
-            totalBalance: totalBalance,
+            totalBalance: excludeSavings
+                ? (totalBalance - totalSavings)
+                : totalBalance,
             showWallets: () => _showWalletDetails(context, isRpg),
             openAddIncome: () =>
                 _openAddIncomeOrTransfer(context, isTransfer: false),
             openTransfer: () =>
                 _openAddIncomeOrTransfer(context, isTransfer: true),
-            onToggleHideBalance:
-                context.read<HomeController>().toggleHideBalance,
+            onToggleHideBalance: context
+                .read<HomeController>()
+                .toggleHideBalance,
             isHideBalance: isHideBalance,
-            reservedBalance: totalReserved,
+            savingsBalance: totalSavings,
             unallocatedBalance: totalUnallocated,
             isRpg: isRpg,
           );
@@ -401,7 +457,10 @@ class HomeScreen extends StatelessWidget {
             children: [
               Text(
                 ScreenDict.homeDailyLimit.get(isRpg),
-                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               const SizedBox(height: 12),
               DailyLimit(
@@ -418,7 +477,10 @@ class HomeScreen extends StatelessWidget {
             children: [
               Text(
                 ScreenDict.homePending.get(isRpg),
-                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               const SizedBox(height: 12),
               if (pendingAllocations.isNotEmpty)
@@ -452,7 +514,9 @@ class HomeScreen extends StatelessWidget {
                     flex: 5,
                     child: ListView(
                       padding: const EdgeInsets.only(
-                        top: 24, bottom: 24, right: 12,
+                        top: 24,
+                        bottom: 24,
+                        right: 12,
                       ),
                       children: [
                         balanceCard,
@@ -465,11 +529,11 @@ class HomeScreen extends StatelessWidget {
                     flex: 4,
                     child: ListView(
                       padding: const EdgeInsets.only(
-                        top: 24, bottom: 24, left: 12,
+                        top: 24,
+                        bottom: 24,
+                        left: 12,
                       ),
-                      children: [
-                        pendingSection,
-                      ],
+                      children: [pendingSection],
                     ),
                   ),
                 ],

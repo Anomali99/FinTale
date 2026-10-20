@@ -108,8 +108,65 @@ class HomeController with ChangeNotifier {
         if (context.mounted) {
           await _userController.processCreateWallet(context);
         }
+
+        // New wallet marked as emergency: add its initial amount to target.
+        if (wallet.isEmergency &&
+            wallet.amount > Decimal.zero &&
+            context.mounted) {
+          _userController.addEmergencyTotal(
+            context,
+            wallet.amount,
+            isIncome: true,
+          );
+          await _userController.saveUser();
+        }
       } else {
+        // Editing an existing wallet — check for isEmergency change.
+        final oldWallet = _walletController.getWalletById(wallet.id);
+        final bool wasEmergency = oldWallet.isEmergency;
+        final bool nowEmergency = wallet.isEmergency;
+
         await _walletController.updateWallet(wallet);
+
+        // If a parent changed type, cascade to all its pockets.
+        if (wallet.isParent && oldWallet.type != wallet.type) {
+          final pockets = _walletController.getPocketsForWallet(wallet.id!);
+          for (final pocket in pockets) {
+            final updated = WalletModel(
+              id: pocket.id,
+              name: pocket.name,
+              type: wallet.type,
+              amount: pocket.amount,
+              parentId: pocket.parentId,
+              isSavings: pocket.isSavings,
+              isEmergency: pocket.isEmergency,
+            );
+            await _walletController.updateWallet(updated);
+          }
+        }
+
+        // Adjust emergency fund when the flag changed.
+        if (wasEmergency != nowEmergency && context.mounted) {
+          // Calculate total amount of this wallet (itself + pockets if parent).
+          Decimal totalAmount = wallet.amount;
+          if (wallet.isParent) {
+            final pockets = _walletController.getPocketsForWallet(wallet.id!);
+            for (final pocket in pockets) {
+              if (pocket.isEmergency == wasEmergency) {
+                totalAmount += pocket.amount;
+              }
+            }
+          }
+
+          if (totalAmount > Decimal.zero) {
+            _userController.addEmergencyTotal(
+              context,
+              totalAmount,
+              isIncome: nowEmergency, // true=add to total, false=subtract
+            );
+            await _userController.saveUser();
+          }
+        }
       }
       await _walletController.loadData();
       return true;
@@ -132,6 +189,11 @@ class HomeController with ChangeNotifier {
         transaction.walletId,
       );
 
+      WalletModel? walletTarget;
+      if (transaction.targetId != null) {
+        walletTarget = _walletController.getWalletById(transaction.targetId!);
+      }
+
       if (transaction.type == TransactionType.income) {
         if (autoAllocation == true) {
           Decimal calcAllocated(double percentage) {
@@ -145,7 +207,6 @@ class HomeController with ChangeNotifier {
 
           double totalLowRisk = userAllocations[SubSectorType.lowRisk] ?? 0.0;
           double emergencyLimit = userAllocations[SectorType.emergency] ?? 0.0;
-          double dreamFund = userAllocations[SubSectorType.dreamFund] ?? 0.0;
 
           double emergencyLowRiskPct = 0.0;
           double investLowRiskPct = 0.0;
@@ -160,12 +221,8 @@ class HomeController with ChangeNotifier {
             }
           }
 
-          if (dreamFund > 0.0) {
-            wallet.addReserved(
-              calcAllocated(dreamFund),
-              isIncome: true,
-            );
-          }
+          // DreamFund allocation: no longer adds to reservedAmount.
+          // Pocket-based savings allocation will be handled in Phase 2.
 
           void processAllocation(
             SectorType sector,
@@ -224,47 +281,61 @@ class HomeController with ChangeNotifier {
         }
         wallet.addAmount(transaction.amount, isIncome: true);
       } else {
-        WalletModel walletTarget = _walletController.getWalletById(
-          transaction.targetId,
-        );
-
         Decimal expenseAmount = transaction.detailTransaction.isNotEmpty
             ? transaction.detailTransaction[0].amount
             : transaction.amount;
 
-        Decimal feeAmount = expenseAmount - transaction.amount;
-
-        Decimal availableAmount = wallet.amount - wallet.reservedAmount;
-
-        if (useReserved == true) {
-          Decimal deductedFromReserved = expenseAmount > wallet.reservedAmount
-              ? wallet.reservedAmount
-              : expenseAmount;
-
-          wallet.addReserved(deductedFromReserved, isIncome: false);
-
-          Decimal arrivingReserved = deductedFromReserved > feeAmount
-              ? deductedFromReserved - feeAmount
-              : Decimal.zero;
-
-          walletTarget.addReserved(arrivingReserved, isIncome: true);
-        } else if (expenseAmount > availableAmount) {
-          Decimal overflowAmount = expenseAmount - availableAmount;
-
-          Decimal deductedFromReserved = overflowAmount > wallet.reservedAmount
-              ? wallet.reservedAmount
-              : overflowAmount;
-
-          wallet.addReserved(deductedFromReserved, isIncome: false);
-        }
-
         wallet.addAmount(expenseAmount, isIncome: false);
-        walletTarget.addAmount(transaction.amount, isIncome: true);
+        walletTarget!.addAmount(transaction.amount, isIncome: true);
 
         await _walletController.updateWallet(walletTarget);
       }
 
       await _walletController.updateWallet(wallet);
+
+      // Track emergency fund progress
+      if (context.mounted) {
+        if (transaction.type == TransactionType.income) {
+          if (wallet.isEmergency) {
+            _userController.addEmergencyTotal(
+              context,
+              transaction.amount,
+              isIncome: true,
+            );
+          }
+        } else if (transaction.type == TransactionType.transfer) {
+          // wallet = source (expense side)
+          if (wallet.isEmergency) {
+            Decimal expenseAmount = transaction.detailTransaction.isNotEmpty
+                ? transaction.detailTransaction[0].amount
+                : transaction.amount;
+            _userController.addEmergencyTotal(
+              context,
+              expenseAmount,
+              isIncome: false,
+            );
+          }
+          // walletTarget = destination (income side)
+          if (walletTarget!.isEmergency) {
+            _userController.addEmergencyTotal(
+              context,
+              transaction.amount,
+              isIncome: true,
+            );
+          }
+        } else {
+          // expense / debt — money leaves wallet
+          if (wallet.isEmergency) {
+            _userController.addEmergencyTotal(
+              context,
+              transaction.amount,
+              isIncome: false,
+            );
+          }
+        }
+      }
+      await _userController.saveUser();
+
       if (context.mounted) {
         await _userController.processRecordTransaction(context);
       }

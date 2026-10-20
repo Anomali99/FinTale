@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../controllers/settings_controller.dart';
+import '../../../controllers/wallet_controller.dart';
 import '../../../core/constants/category_dict.dart';
 import '../../../core/constants/screen_dict.dart';
 import '../../../core/constants/ui_dict.dart';
@@ -58,7 +59,7 @@ class _BuyAssetScreenState extends State<BuyAssetScreen>
   RiskType? _selectedRisk;
   Decimal _amount = Decimal.zero;
   bool _isRoundedActive = false;
-  bool _isReservedActive = false;
+  bool _isSavingsActive = false;
   bool _isDevidenActive = false;
   bool _isEmergencyActive = false;
   bool _isFeeActive = false;
@@ -141,7 +142,7 @@ class _BuyAssetScreenState extends State<BuyAssetScreen>
     _priceController.text = '0';
     _feeController.text = '0';
     _amount = Decimal.zero;
-    _isReservedActive = false;
+    _isSavingsActive = false;
     _isFeeActive = false;
     _isDevidenActive = false;
     if (_isNewAssetTab) {
@@ -253,7 +254,7 @@ class _BuyAssetScreenState extends State<BuyAssetScreen>
       Navigator.pop(context, {
         "asset": assetToReturn,
         "transaction": transaction,
-        'use_reserved': _isReservedActive,
+        'use_reserved': _isSavingsActive,
       });
     }
   }
@@ -261,6 +262,7 @@ class _BuyAssetScreenState extends State<BuyAssetScreen>
   @override
   Widget build(BuildContext context) {
     final isRpg = context.read<SettingsController>().isRpgMode;
+    final walletController = context.read<WalletController>();
     final colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
@@ -318,16 +320,12 @@ class _BuyAssetScreenState extends State<BuyAssetScreen>
                   .map(
                     (cat) => DropdownMenuItem(
                       value: cat,
-                      child: Text(
-                        cat.value,
-                        overflow: TextOverflow.ellipsis,
-                      ),
+                      child: Text(cat.value, overflow: TextOverflow.ellipsis),
                     ),
                   )
                   .toList(),
               onChanged: (val) => setState(() => _selectedCategory = val),
-              validator: (val) =>
-                  val == null ? UiDict.requiredCategory : null,
+              validator: (val) => val == null ? UiDict.requiredCategory : null,
             );
 
             final riskDropdown = DropdownButtonFormField<RiskType>(
@@ -351,9 +349,8 @@ class _BuyAssetScreenState extends State<BuyAssetScreen>
               onChanged: !_isLockRisk
                   ? (val) => setState(() => _selectedRisk = val)
                   : null,
-              validator: (val) => val == null
-                  ? ScreenDict.investRiskRequired.get(isRpg)
-                  : null,
+              validator: (val) =>
+                  val == null ? ScreenDict.investRiskRequired.get(isRpg) : null,
             );
 
             final assetDropdown = DropdownButtonFormField<AssetsModel>(
@@ -368,10 +365,7 @@ class _BuyAssetScreenState extends State<BuyAssetScreen>
                   .map(
                     (a) => DropdownMenuItem(
                       value: a,
-                      child: Text(
-                        a.name,
-                        overflow: TextOverflow.ellipsis,
-                      ),
+                      child: Text(a.name, overflow: TextOverflow.ellipsis),
                     ),
                   )
                   .toList(),
@@ -451,25 +445,28 @@ class _BuyAssetScreenState extends State<BuyAssetScreen>
                   val == null || val.isEmpty ? UiDict.requiredPrice : null,
             );
 
+            final displayWallets = _isSavingsActive
+                ? widget.wallets
+                : widget.wallets.where((w) => !w.isSavings).toList();
+
             final walletDropdown = DropdownButtonFormField<WalletModel>(
               initialValue: _selectedWallet,
               decoration: InputDecoration(
                 labelText: UiDict.sourceFunds,
                 border: OutlineInputBorder(),
               ),
-              items: widget.wallets
+              items: displayWallets
                   .map(
                     (wallet) => DropdownMenuItem(
                       value: wallet,
-                      child: Text(wallet.name),
+                      child: Text(walletController.getDisplayName(wallet)),
                     ),
                   )
                   .toList(),
               onChanged: !_isLockWallet
                   ? (val) => setState(() => _selectedWallet = val)
                   : null,
-              validator: (val) =>
-                  val == null ? UiDict.requiredWallet : null,
+              validator: (val) => val == null ? UiDict.requiredWallet : null,
             );
 
             final datePicker = CustomDateTimePicker(
@@ -514,8 +511,7 @@ class _BuyAssetScreenState extends State<BuyAssetScreen>
               ),
               value: _isEmergencyActive,
               onChanged: (val) => setState(
-                () =>
-                    !widget.isEmergency ? _isEmergencyActive = val : null,
+                () => !widget.isEmergency ? _isEmergencyActive = val : null,
               ),
             );
 
@@ -577,10 +573,13 @@ class _BuyAssetScreenState extends State<BuyAssetScreen>
                   color: colorScheme.onSurfaceVariant,
                 ),
               ),
-              value: _isReservedActive,
+              value: _isSavingsActive,
               onChanged: (val) => setState(() {
-                if (_selectedWallet != null) {
-                  _isReservedActive = val;
+                _isSavingsActive = val;
+                if (!val &&
+                    _selectedWallet != null &&
+                    _selectedWallet!.isSavings) {
+                  _selectedWallet = null;
                 }
               }),
             );
@@ -620,7 +619,9 @@ class _BuyAssetScreenState extends State<BuyAssetScreen>
                           shrinkWrap: true,
                           physics: const NeverScrollableScrollPhysics(),
                           padding: const EdgeInsets.only(
-                            top: 24, bottom: 24, right: 12,
+                            top: 24,
+                            bottom: 24,
+                            right: 12,
                           ),
                           children: [
                             if (!_isHideTab) ...[
@@ -651,7 +652,9 @@ class _BuyAssetScreenState extends State<BuyAssetScreen>
                           shrinkWrap: true,
                           physics: const NeverScrollableScrollPhysics(),
                           padding: const EdgeInsets.only(
-                            top: 24, bottom: 24, left: 12,
+                            top: 24,
+                            bottom: 24,
+                            left: 12,
                           ),
                           children: [
                             walletDropdown,
@@ -689,10 +692,7 @@ class _BuyAssetScreenState extends State<BuyAssetScreen>
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      if (!_isHideTab) ...[
-                        tabBar,
-                        const SizedBox(height: 24),
-                      ],
+                      if (!_isHideTab) ...[tabBar, const SizedBox(height: 24)],
                       if (_isNewAssetTab) ...[
                         nameField,
                         const SizedBox(height: 16),
@@ -712,10 +712,7 @@ class _BuyAssetScreenState extends State<BuyAssetScreen>
                       const SizedBox(height: 16),
                       datePicker,
                       const SizedBox(height: 16),
-                      if (_isNewAssetTab) ...[
-                        dividendSwitch,
-                        emergencySwitch,
-                      ],
+                      if (_isNewAssetTab) ...[dividendSwitch, emergencySwitch],
                       feeSwitch,
                       if (_isFeeActive) ...[
                         const SizedBox(height: 8),
@@ -723,8 +720,7 @@ class _BuyAssetScreenState extends State<BuyAssetScreen>
                         const SizedBox(height: 12),
                         feeNote,
                       ],
-                      if (widget.pendingAllocation == null)
-                        reservedSwitch,
+                      if (widget.pendingAllocation == null) reservedSwitch,
                       roundedSwitch,
                     ],
                   ),
@@ -739,6 +735,7 @@ class _BuyAssetScreenState extends State<BuyAssetScreen>
 
   Widget _buildBottomBar(bool isRpg) {
     final colorScheme = Theme.of(context).colorScheme;
+    final walletController = context.read<WalletController>();
 
     return Container(
       padding: EdgeInsets.only(
@@ -766,14 +763,8 @@ class _BuyAssetScreenState extends State<BuyAssetScreen>
                   ? ScreenDict.getPendingNote(
                       NumberUtils.toIdr(widget.pendingAllocation),
                     )
-                  : _isReservedActive
-                  ? ScreenDict.getHomeNote(
-                      _selectedWallet?.name ?? '',
-                      NumberUtils.toIdr(_selectedWallet?.reservedAmount),
-                      isRpg: isRpg,
-                    )
                   : ScreenDict.getHistoryNote(
-                      _selectedWallet?.name ?? '',
+                      walletController.getDisplayName(_selectedWallet!),
                       NumberUtils.toIdr(_selectedWallet?.amount),
                     ),
               color: colorScheme.onSurfaceVariant,

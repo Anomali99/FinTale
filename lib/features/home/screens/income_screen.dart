@@ -43,7 +43,7 @@ class _IncomeScreenState extends State<IncomeScreen> {
   TransactionCategory? _selectedCategory;
   bool _isFeeActive = false;
   bool _isAllocationActive = false;
-  bool _isReservedActive = false;
+  bool _isSavingsActive = false;
 
   Decimal get _cleanAmount =>
       NumberUtils.parseToDecimal(_amountController.text);
@@ -59,8 +59,6 @@ class _IncomeScreenState extends State<IncomeScreen> {
   }
 
   Decimal? get _maxAmount {
-    if (_isReservedActive) return _selectedWallet?.reservedAmount;
-
     if (widget.isTransfer && _selectedWallet != null) {
       return _selectedWallet?.amount;
     }
@@ -121,7 +119,7 @@ class _IncomeScreenState extends State<IncomeScreen> {
       Navigator.pop(context, {
         "transaction": transaction,
         "auto_allocation": _isAllocationActive,
-        "use_reserved": _isReservedActive,
+        "use_reserved": _isSavingsActive,
       });
     }
   }
@@ -152,7 +150,7 @@ class _IncomeScreenState extends State<IncomeScreen> {
     final settingsController = context.read<SettingsController>();
     final walletController = context.read<WalletController>();
     final colorScheme = Theme.of(context).colorScheme;
-    final wallets = walletController.wallets;
+    final wallets = walletController.allWallets;
     final isRpg = settingsController.isRpgMode;
 
     return Scaffold(
@@ -193,6 +191,12 @@ class _IncomeScreenState extends State<IncomeScreen> {
               },
             );
 
+            final displayWallets = widget.isTransfer
+                ? (_isSavingsActive
+                      ? wallets
+                      : wallets.where((w) => !w.isSavings).toList())
+                : wallets;
+
             final walletDropdown = DropdownButtonFormField<WalletModel>(
               initialValue: _selectedWallet,
               decoration: InputDecoration(
@@ -201,10 +205,10 @@ class _IncomeScreenState extends State<IncomeScreen> {
                     : UiDict.saveTo,
                 border: OutlineInputBorder(),
               ),
-              items: wallets.map((wallet) {
+              items: displayWallets.map((wallet) {
                 return DropdownMenuItem(
                   value: wallet,
-                  child: Text(wallet.name),
+                  child: Text(walletController.getDisplayName(wallet)),
                 );
               }).toList(),
               validator: (value) {
@@ -235,18 +239,16 @@ class _IncomeScreenState extends State<IncomeScreen> {
                 labelText: UiDict.destinationWallet,
                 border: OutlineInputBorder(),
               ),
-              items: wallets
-                  .where((e) => e.id != _selectedWallet?.id)
-                  .map((wallet) {
-                    return DropdownMenuItem(
-                      value: wallet,
-                      child: Text(wallet.name),
-                    );
-                  })
-                  .toList(),
+              items: wallets.where((e) => e.id != _selectedWallet?.id).map((
+                wallet,
+              ) {
+                return DropdownMenuItem(
+                  value: wallet,
+                  child: Text(walletController.getDisplayName(wallet)),
+                );
+              }).toList(),
               validator: (value) {
-                if (widget.isTransfer &&
-                    (value == null || value.id == 0)) {
+                if (widget.isTransfer && (value == null || value.id == 0)) {
                   return UiDict.requiredWalletDest;
                 }
                 return null;
@@ -290,34 +292,35 @@ class _IncomeScreenState extends State<IncomeScreen> {
               },
             );
 
-            final categoryDropdown = DropdownButtonFormField<TransactionCategory>(
-              initialValue: _selectedCategory,
-              decoration: InputDecoration(
-                labelText: UiDict.category,
-                border: OutlineInputBorder(),
-              ),
-              items: [
-                DropdownMenuItem(
-                  value: TransactionCategory.loanDisbursement,
-                  child: Text(CategoryDict.loanDisbursement.get(false)),
-                ),
-                DropdownMenuItem(
-                  value: TransactionCategory.business,
-                  child: Text(CategoryDict.business.get(false)),
-                ),
-                DropdownMenuItem(
-                  value: TransactionCategory.salary,
-                  child: Text(CategoryDict.salary.get(false)),
-                ),
-              ],
-              validator: (value) {
-                if (value == null && !widget.isTransfer) {
-                  return UiDict.requiredCategory;
-                }
-                return null;
-              },
-              onChanged: (val) => setState(() => _selectedCategory = val),
-            );
+            final categoryDropdown =
+                DropdownButtonFormField<TransactionCategory>(
+                  initialValue: _selectedCategory,
+                  decoration: InputDecoration(
+                    labelText: UiDict.category,
+                    border: OutlineInputBorder(),
+                  ),
+                  items: [
+                    DropdownMenuItem(
+                      value: TransactionCategory.loanDisbursement,
+                      child: Text(CategoryDict.loanDisbursement.get(false)),
+                    ),
+                    DropdownMenuItem(
+                      value: TransactionCategory.business,
+                      child: Text(CategoryDict.business.get(false)),
+                    ),
+                    DropdownMenuItem(
+                      value: TransactionCategory.salary,
+                      child: Text(CategoryDict.salary.get(false)),
+                    ),
+                  ],
+                  validator: (value) {
+                    if (value == null && !widget.isTransfer) {
+                      return UiDict.requiredCategory;
+                    }
+                    return null;
+                  },
+                  onChanged: (val) => setState(() => _selectedCategory = val),
+                );
 
             final feeSwitch = SwitchListTile(
               contentPadding: EdgeInsets.zero,
@@ -381,22 +384,18 @@ class _IncomeScreenState extends State<IncomeScreen> {
                   color: colorScheme.onSurfaceVariant,
                 ),
               ),
-              value: _isReservedActive,
+              value: _isSavingsActive,
               onChanged: (val) => setState(() {
-                if (_selectedWallet != null) {
-                  _isReservedActive = val;
-                  _onChanged(
-                    _amountController,
-                    _amountController.text,
-                    max: _selectedWallet?.reservedAmount,
-                  );
-                  _onChanged(
-                    _feeController,
-                    _feeController.text,
-                    max: NumberUtils.parseToDecimal(
-                      _amountController.text,
-                    ),
-                  );
+                _isSavingsActive = val;
+                if (!val &&
+                    _selectedWallet != null &&
+                    _selectedWallet!.isSavings) {
+                  _selectedWallet = null;
+                }
+                if (!val &&
+                    _selectedTarget != null &&
+                    _selectedTarget!.isSavings) {
+                  _selectedTarget = null;
                 }
               }),
             );
@@ -415,8 +414,7 @@ class _IncomeScreenState extends State<IncomeScreen> {
                 ),
               ),
               value: _isAllocationActive,
-              onChanged: (val) =>
-                  setState(() => _isAllocationActive = val),
+              onChanged: (val) => setState(() => _isAllocationActive = val),
             );
 
             final allocationBreakdown = Container(
@@ -433,10 +431,7 @@ class _IncomeScreenState extends State<IncomeScreen> {
                 children: [
                   Text(
                     ScreenDict.homeBreakdown.get(isRpg),
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 12),
                   Divider(
@@ -445,15 +440,11 @@ class _IncomeScreenState extends State<IncomeScreen> {
                   ),
                   const SizedBox(height: 12),
 
-                  if (widget.allocation != null &&
-                      !widget.isTransfer) ...[
+                  if (widget.allocation != null && !widget.isTransfer) ...[
                     ...widget.allocation!.entries.map(
                       (entry) => Padding(
                         padding: const EdgeInsets.only(bottom: 8.0),
-                        child: _buildAllocationRow(
-                          entry.key,
-                          entry.value,
-                        ),
+                        child: _buildAllocationRow(entry.key, entry.value),
                       ),
                     ),
                   ],
@@ -474,7 +465,9 @@ class _IncomeScreenState extends State<IncomeScreen> {
                           shrinkWrap: true,
                           physics: const NeverScrollableScrollPhysics(),
                           padding: const EdgeInsets.only(
-                            top: 24, bottom: 24, right: 12,
+                            top: 24,
+                            bottom: 24,
+                            right: 12,
                           ),
                           children: [
                             titleField,
@@ -502,7 +495,9 @@ class _IncomeScreenState extends State<IncomeScreen> {
                           shrinkWrap: true,
                           physics: const NeverScrollableScrollPhysics(),
                           padding: const EdgeInsets.only(
-                            top: 24, bottom: 24, left: 12,
+                            top: 24,
+                            bottom: 24,
+                            left: 12,
                           ),
                           children: [
                             feeSwitch,
@@ -585,6 +580,7 @@ class _IncomeScreenState extends State<IncomeScreen> {
 
   Widget _buildBottomBar(bool isRpg) {
     final colorScheme = Theme.of(context).colorScheme;
+    final walletController = context.read<WalletController>();
 
     return Container(
       padding: EdgeInsets.only(
@@ -608,16 +604,10 @@ class _IncomeScreenState extends State<IncomeScreen> {
         children: [
           if (_selectedWallet != null) ...[
             NoteContainer(
-              text: _isReservedActive
-                  ? ScreenDict.getHomeNote(
-                      _selectedWallet?.name ?? '',
-                      NumberUtils.toIdr(_selectedWallet?.reservedAmount),
-                      isRpg: isRpg,
-                    )
-                  : ScreenDict.getHistoryNote(
-                      _selectedWallet?.name ?? '',
-                      NumberUtils.toIdr(_selectedWallet?.amount),
-                    ),
+              text: ScreenDict.getHistoryNote(
+                walletController.getDisplayName(_selectedWallet!),
+                NumberUtils.toIdr(_selectedWallet?.amount),
+              ),
               color: colorScheme.onSurfaceVariant,
             ),
             const SizedBox(height: 8),
@@ -627,7 +617,9 @@ class _IncomeScreenState extends State<IncomeScreen> {
             decoration: BoxDecoration(
               color: colorScheme.surfaceContainerHighest,
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: colorScheme.primary.withValues(alpha: 0.2)),
+              border: Border.all(
+                color: colorScheme.primary.withValues(alpha: 0.2),
+              ),
             ),
             child: Column(
               children: [

@@ -46,7 +46,7 @@ class _DailyExpenseScreenState extends State<DailyExpenseScreen> {
 
   Decimal _totalAmount = Decimal.zero;
   bool _isExcludeActive = false;
-  bool _isReservedActive = false;
+  bool _isSavingsActive = false;
   bool _isFeeActive = false;
 
   final List<ExpenseItemForm> _items = [];
@@ -144,7 +144,7 @@ class _DailyExpenseScreenState extends State<DailyExpenseScreen> {
 
       Navigator.pop(context, {
         "transaction": transaction,
-        'use_reserved': _isReservedActive,
+        'use_reserved': _isSavingsActive,
         'exclude_daily': _isExcludeActive,
       });
     }
@@ -155,7 +155,7 @@ class _DailyExpenseScreenState extends State<DailyExpenseScreen> {
     final settingsController = context.read<SettingsController>();
     final walletController = context.read<WalletController>();
     final colorScheme = Theme.of(context).colorScheme;
-    final wallets = walletController.wallets;
+    final wallets = walletController.allWallets;
     final isRpg = settingsController.isRpgMode;
 
     return Scaffold(
@@ -209,9 +209,17 @@ class _DailyExpenseScreenState extends State<DailyExpenseScreen> {
                   labelText: UiDict.sourceFunds,
                   border: OutlineInputBorder(),
                 ),
-                items: wallets.map((entry) {
-                  return DropdownMenuItem(value: entry, child: Text(entry.name));
-                }).toList(),
+                items:
+                    (_isSavingsActive
+                            ? wallets
+                            : wallets.where((w) => !w.isSavings).toList())
+                        .map((entry) {
+                          return DropdownMenuItem(
+                            value: entry,
+                            child: Text(walletController.getDisplayName(entry)),
+                          );
+                        })
+                        .toList(),
                 onChanged: (val) => setState(() => _selectedWallet = val),
                 validator: (val) => val == null ? UiDict.requiredWallet : null,
               ),
@@ -289,11 +297,13 @@ class _DailyExpenseScreenState extends State<DailyExpenseScreen> {
                     color: colorScheme.onSurfaceVariant,
                   ),
                 ),
-                value: _isReservedActive,
+                value: _isSavingsActive,
                 onChanged: (val) => setState(() {
-                  if (_selectedWallet != null) {
-                    _isReservedActive = val;
-                    _isExcludeActive = val;
+                  _isSavingsActive = val;
+                  if (!val &&
+                      _selectedWallet != null &&
+                      _selectedWallet!.isSavings) {
+                    _selectedWallet = null;
                   }
                 }),
               ),
@@ -313,7 +323,10 @@ class _DailyExpenseScreenState extends State<DailyExpenseScreen> {
                 value: _isExcludeActive,
                 onChanged: (val) => setState(() => _isExcludeActive = val),
               ),
-              Divider(height: 1, color: colorScheme.onSurface.withValues(alpha: 0.2)),
+              Divider(
+                height: 1,
+                color: colorScheme.onSurface.withValues(alpha: 0.2),
+              ),
             ];
 
             final detailSection = <Widget>[
@@ -333,7 +346,9 @@ class _DailyExpenseScreenState extends State<DailyExpenseScreen> {
 
                 return Card(
                   elevation: 0,
-                  color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+                  color: colorScheme.surfaceContainerHighest.withValues(
+                    alpha: 0.5,
+                  ),
                   margin: const EdgeInsets.only(bottom: 24),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16),
@@ -355,7 +370,9 @@ class _DailyExpenseScreenState extends State<DailyExpenseScreen> {
                                 vertical: 6,
                               ),
                               decoration: BoxDecoration(
-                                color: colorScheme.primary.withValues(alpha: 0.2),
+                                color: colorScheme.primary.withValues(
+                                  alpha: 0.2,
+                                ),
                                 borderRadius: BorderRadius.circular(8),
                               ),
                               child: Text(
@@ -409,7 +426,8 @@ class _DailyExpenseScreenState extends State<DailyExpenseScreen> {
                             onCalculated: _calculateTotal,
                           ),
                           validator: (val) {
-                            if (val == null || !NumberUtils.isValidAmount(val)) {
+                            if (val == null ||
+                                !NumberUtils.isValidAmount(val)) {
                               return UiDict.requiredPrice;
                             }
                             return null;
@@ -423,13 +441,16 @@ class _DailyExpenseScreenState extends State<DailyExpenseScreen> {
                             labelText: UiDict.category,
                             border: OutlineInputBorder(),
                           ),
-                          items: TransactionCategory.expenseCategories.map((cat) {
+                          items: TransactionCategory.expenseCategories.map((
+                            cat,
+                          ) {
                             return DropdownMenuItem(
                               value: cat,
                               child: Text(cat.categoryDict.get(isRpg)),
                             );
                           }).toList(),
-                          onChanged: (val) => setState(() => item.category = val),
+                          onChanged: (val) =>
+                              setState(() => item.category = val),
                           validator: (val) =>
                               val == null ? UiDict.requiredCategory : null,
                         ),
@@ -475,7 +496,9 @@ class _DailyExpenseScreenState extends State<DailyExpenseScreen> {
                       flex: 5,
                       child: ListView(
                         padding: const EdgeInsets.only(
-                          top: 24, bottom: 24, right: 12,
+                          top: 24,
+                          bottom: 24,
+                          right: 12,
                         ),
                         children: infoSection,
                       ),
@@ -484,7 +507,9 @@ class _DailyExpenseScreenState extends State<DailyExpenseScreen> {
                       flex: 5,
                       child: ListView(
                         padding: const EdgeInsets.only(
-                          top: 24, bottom: 24, left: 12,
+                          top: 24,
+                          bottom: 24,
+                          left: 12,
                         ),
                         children: detailSection,
                       ),
@@ -512,6 +537,7 @@ class _DailyExpenseScreenState extends State<DailyExpenseScreen> {
 
   Widget _buildBottomBar(bool isRpg) {
     final colorScheme = Theme.of(context).colorScheme;
+    final walletController = context.read<WalletController>();
 
     return Container(
       padding: EdgeInsets.only(
@@ -535,16 +561,10 @@ class _DailyExpenseScreenState extends State<DailyExpenseScreen> {
         children: [
           if (_selectedWallet != null) ...[
             NoteContainer(
-              text: _isReservedActive
-                  ? ScreenDict.getHomeNote(
-                      _selectedWallet?.name ?? '',
-                      NumberUtils.toIdr(_selectedWallet?.reservedAmount),
-                      isRpg: isRpg,
-                    )
-                  : ScreenDict.getHistoryNote(
-                      _selectedWallet?.name ?? '',
-                      NumberUtils.toIdr(_selectedWallet?.amount),
-                    ),
+              text: ScreenDict.getHistoryNote(
+                walletController.getDisplayName(_selectedWallet!),
+                NumberUtils.toIdr(_selectedWallet?.amount),
+              ),
               color: colorScheme.onSurfaceVariant,
             ),
             const SizedBox(height: 8),

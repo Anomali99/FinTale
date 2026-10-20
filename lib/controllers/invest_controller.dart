@@ -156,7 +156,7 @@ class InvestController with ChangeNotifier {
       }
 
       final wallet = _walletController.getWalletById(transaction.walletId);
-      wallet.autoExpense(transaction.amount, useReserved: useReserved);
+      wallet.addAmount(transaction.amount, isIncome: false);
 
       if (asset.isEmergency && context.mounted) {
         _userController.addEmergencyTotal(

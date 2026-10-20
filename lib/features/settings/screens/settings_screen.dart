@@ -523,6 +523,28 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ),
                   ListTile(
                     leading: FaIcon(
+                      FontAwesomeIcons.piggyBank,
+                      color: colorScheme.onSurface,
+                      size: 20,
+                    ),
+                    title: const Text('Kecualikan Tabungan'),
+                    subtitle: const Text(
+                      'Kecualikan saldo tabungan dari total saldo di beranda dan detail dompet',
+                    ),
+                    trailing: Switch(
+                      value: !settingsController.isIncludeSavingsInTotal,
+                      activeThumbColor: colorScheme.primary,
+                      onChanged: (val) =>
+                          settingsController.changeIncludeSavingsInTotal(!val),
+                    ),
+                  ),
+                  Divider(
+                    color: colorScheme.onSurface.withValues(alpha: 0.1),
+                    height: 1,
+                    indent: 56,
+                  ),
+                  ListTile(
+                    leading: FaIcon(
                       FontAwesomeIcons.bell,
                       color: colorScheme.onSurface,
                       size: 20,

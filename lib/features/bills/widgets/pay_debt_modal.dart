@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../../../controllers/settings_controller.dart';
+import '../../../controllers/wallet_controller.dart';
 import '../../../core/constants/screen_dict.dart';
 import '../../../core/constants/ui_dict.dart';
 import '../../../core/utils/enum_types.dart';
@@ -49,7 +50,7 @@ class _PayDebtModalState extends State<PayDebtModal>
   DebtModel? _selectedDebt;
   BillModel? _selectedBill;
   Decimal _amount = Decimal.zero;
-  bool _isReservedActive = false;
+  bool _isSavingsActive = false;
   bool _isFeeActive = false;
 
   bool _isBillTab = true;
@@ -114,7 +115,7 @@ class _PayDebtModalState extends State<PayDebtModal>
 
   void _resetForm() {
     _feeController.text = '0';
-    _isReservedActive = false;
+    _isSavingsActive = false;
     _isFeeActive = false;
     if (_isBillTab) {
       NumberUtils.formatInput(
@@ -180,7 +181,7 @@ class _PayDebtModalState extends State<PayDebtModal>
       Navigator.pop(context, {
         "is_bill": _isBillTab,
         "transaction": transaction,
-        'use_reserved': _isReservedActive,
+        'use_reserved': _isSavingsActive,
       });
     }
   }
@@ -189,6 +190,7 @@ class _PayDebtModalState extends State<PayDebtModal>
   Widget build(BuildContext context) {
     final bottomInset = MediaQuery.of(context).viewInsets.bottom;
     final isRpg = context.read<SettingsController>().isRpgMode;
+    final walletController = context.read<WalletController>();
     final colorScheme = Theme.of(context).colorScheme;
 
     return Container(
@@ -346,14 +348,21 @@ class _PayDebtModalState extends State<PayDebtModal>
                   labelText: UiDict.sourceFunds,
                   border: OutlineInputBorder(),
                 ),
-                items: widget.wallets
-                    .map(
-                      (wallet) => DropdownMenuItem(
-                        value: wallet,
-                        child: Text(wallet.name),
-                      ),
-                    )
-                    .toList(),
+                items:
+                    (_isSavingsActive
+                            ? widget.wallets
+                            : widget.wallets
+                                  .where((w) => !w.isSavings)
+                                  .toList())
+                        .map(
+                          (wallet) => DropdownMenuItem(
+                            value: wallet,
+                            child: Text(
+                              walletController.getDisplayName(wallet),
+                            ),
+                          ),
+                        )
+                        .toList(),
                 onChanged: !_isLockWallet
                     ? (val) => setState(() => _selectedWallet = val)
                     : null,
@@ -434,10 +443,13 @@ class _PayDebtModalState extends State<PayDebtModal>
                       color: colorScheme.onSurfaceVariant,
                     ),
                   ),
-                  value: _isReservedActive,
+                  value: _isSavingsActive,
                   onChanged: (val) => setState(() {
-                    if (_selectedWallet != null) {
-                      _isReservedActive = val;
+                    _isSavingsActive = val;
+                    if (!val &&
+                        _selectedWallet != null &&
+                        _selectedWallet!.isSavings) {
+                      _selectedWallet = null;
                     }
                   }),
                 ),
@@ -463,16 +475,10 @@ class _PayDebtModalState extends State<PayDebtModal>
                                 isInvest: false,
                                 isRpg: isRpg,
                               )
-                            : _isReservedActive
-                            ? ScreenDict.getHomeNote(
-                                _selectedWallet?.name ?? '',
-                                NumberUtils.toIdr(
-                                  _selectedWallet?.reservedAmount,
-                                ),
-                                isRpg: isRpg,
-                              )
                             : ScreenDict.getHistoryNote(
-                                _selectedWallet?.name ?? '',
+                                walletController.getDisplayName(
+                                  _selectedWallet!,
+                                ),
                                 NumberUtils.toIdr(_selectedWallet?.amount),
                               ),
                         color: colorScheme.onSurfaceVariant,

@@ -11,7 +11,7 @@ class BalanceCard extends StatelessWidget {
   final bool isRpg;
   final Decimal totalBalance;
   final Decimal unallocatedBalance;
-  final Decimal reservedBalance;
+  final Decimal savingsBalance;
 
   final bool isHideBalance;
   final VoidCallback onToggleHideBalance;
@@ -23,7 +23,7 @@ class BalanceCard extends StatelessWidget {
     super.key,
     required this.totalBalance,
     required this.unallocatedBalance,
-    required this.reservedBalance,
+    required this.savingsBalance,
     required this.isHideBalance,
     required this.onToggleHideBalance,
     required this.showWallets,
@@ -160,7 +160,7 @@ class BalanceCard extends StatelessWidget {
                             ),
                             const SizedBox(height: 4),
                             Text(
-                              _formatBalance(reservedBalance),
+                              _formatBalance(savingsBalance),
                               style: TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.bold,

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../controllers/settings_controller.dart';
+import '../../../controllers/wallet_controller.dart';
 import '../../../core/constants/screen_dict.dart';
 import '../../../core/constants/ui_dict.dart';
 import '../../../core/theme/app_colors.dart';
@@ -143,6 +144,7 @@ class _SellAssetModalState extends State<SellAssetModal> {
   Widget build(BuildContext context) {
     final bottomInset = MediaQuery.of(context).viewInsets.bottom;
     final isRpg = context.read<SettingsController>().isRpgMode;
+    final walletController = context.read<WalletController>();
     final colorScheme = Theme.of(context).colorScheme;
 
     return Container(
@@ -251,7 +253,12 @@ class _SellAssetModalState extends State<SellAssetModal> {
                   border: OutlineInputBorder(),
                 ),
                 items: widget.wallets
-                    .map((w) => DropdownMenuItem(value: w, child: Text(w.name)))
+                    .map(
+                      (w) => DropdownMenuItem(
+                        value: w,
+                        child: Text(walletController.getDisplayName(w)),
+                      ),
+                    )
                     .toList(),
                 onChanged: (val) => setState(() => _selectedWallet = val),
                 validator: (val) =>

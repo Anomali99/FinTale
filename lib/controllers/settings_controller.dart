@@ -41,6 +41,8 @@ class SettingsController with ChangeNotifier {
   bool get isBackupUseCustom => _prefService.isBackupUseCustom;
   String? get backupCustomPassword => _prefService.backupCustomPassword;
 
+  bool get isIncludeSavingsInTotal => _prefService.isIncludeSavingsInTotal;
+
   Future<void> _initHardwareCheck() async {
     final PackageInfo packageInfo = await PackageInfo.fromPlatform();
     appVersion = packageInfo.version;
@@ -173,6 +175,11 @@ class SettingsController with ChangeNotifier {
 
   Future<void> changeBackupCustomPassword(String? value) async {
     await _prefService.setBackupCustomPassword(value);
+    notifyListeners();
+  }
+
+  Future<void> changeIncludeSavingsInTotal(bool value) async {
+    await _prefService.setIncludeSavingsInTotal(value);
     notifyListeners();
   }
 
@@ -405,8 +412,10 @@ class SettingsController with ChangeNotifier {
     try {
       final client = await _authService.getDriveClient();
       if (client != null) {
-        final result = await BackupService()
-            .downloadFromDrive(client, password: password);
+        final result = await BackupService().downloadFromDrive(
+          client,
+          password: password,
+        );
         if (result == null) return {"success": false, "load": false};
         if (result['need_password'] == true) return result;
 

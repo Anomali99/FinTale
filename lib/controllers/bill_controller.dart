@@ -228,7 +228,7 @@ class BillController with ChangeNotifier {
   }) async {
     try {
       final wallet = _walletController.getWalletById(transaction.walletId);
-      wallet.autoExpense(transaction.amount, useReserved: useReserved);
+      wallet.addAmount(transaction.amount, isIncome: false);
 
       if (transaction.debtId != null) {
         final debt = getDebtById(transaction.debtId);
@@ -289,7 +289,7 @@ class BillController with ChangeNotifier {
       final wallet = _walletController.getWalletById(transaction.walletId);
       final debt = getDebtById(transaction.debtId ?? 1);
       await _transactionController.createTransaction(transaction);
-      wallet.autoExpense(transaction.amount, useReserved: useReserved);
+      wallet.addAmount(transaction.amount, isIncome: false);
       debt.addPayment(transaction.detailTransaction[0].amount);
 
       if (debt.bill != null) {
@@ -487,7 +487,7 @@ class BillController with ChangeNotifier {
       }
 
       final wallet = _walletController.getWalletById(transaction.walletId);
-      wallet.autoExpense(transaction.amount, useReserved: useReserved);
+      wallet.addAmount(transaction.amount, isIncome: false);
 
       await _walletController.updateWallet(wallet);
       await _walletController.loadData();

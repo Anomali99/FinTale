@@ -256,7 +256,7 @@ class BillsScreen extends StatelessWidget {
     final historyController = context.read<HistoryController>();
     final analyticsController = context.read<AnalyticsController>();
     final isRpg = context.read<SettingsController>().isRpgMode;
-    final wallets = context.read<WalletController>().wallets;
+    final wallets = context.read<WalletController>().allWallets;
     List<DebtModel> debts = initialDebt != null ? [initialDebt] : [];
     List<BillModel> bills = initialBill != null ? [initialBill] : [];
     final result = await showModalBottomSheet<Map<String, dynamic>>(
@@ -440,174 +440,179 @@ class BillsScreen extends StatelessWidget {
             final billsContent = BillsTab(
               data: bills,
               isRpg: isRpg,
-              onTapCard: (bill) =>
-                  _openBillDetail(context, bill, isRpg),
+              onTapCard: (bill) => _openBillDetail(context, bill, isRpg),
             );
 
             // --- Hutang (Debts) tab content ---
             final debtsContent = DebtsTab(
               data: debts,
               isRpg: isRpg,
-              onTapCard: (debt) =>
-                  _openDebtDetail(context, debt, isRpg),
+              onTapCard: (debt) => _openDebtDetail(context, debt, isRpg),
             );
             final receivablesContent = ReceivablesTab(
               data: groupedReceivables,
               isRpg: isRpg,
               onTapCard: (name, receivable) =>
-                  _openReceivableDetail(
-                    context,
-                    name,
-                    receivable,
-                    isRpg,
-                  ),
+                  _openReceivableDetail(context, name, receivable, isRpg),
             );
 
             if (isWide) {
               return TabBarView(
-                    children: [
-                      // Tagihan tab — side by side
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Padding(
-                                    padding: const EdgeInsets.only(bottom: 8),
-                                    child: Text(
-                                      ScreenDict.billsActive.get(isRpg),
-                                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                                    ),
+                children: [
+                  // Tagihan tab — side by side
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 8,
+                    ),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.only(bottom: 8),
+                                child: Text(
+                                  ScreenDict.billsActive.get(isRpg),
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
                                   ),
-                                  Expanded(child: activeBillsContent),
-                                ],
+                                ),
                               ),
-                            ),
-                            const SizedBox(width: 16),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Padding(
-                                    padding: const EdgeInsets.only(bottom: 8),
-                                    child: Text(
-                                      ScreenDict.billsMaster.get(isRpg),
-                                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                                    ),
-                                  ),
-                                  Expanded(child: billsContent),
-                                ],
-                              ),
-                            ),
-                          ],
+                              Expanded(child: activeBillsContent),
+                            ],
+                          ),
                         ),
-                      ),
-                      // Hutang tab — side by side
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Padding(
-                                    padding: const EdgeInsets.only(bottom: 8),
-                                    child: Text(
-                                      ScreenDict.debtsMaster.get(isRpg),
-                                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                                    ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.only(bottom: 8),
+                                child: Text(
+                                  ScreenDict.billsMaster.get(isRpg),
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
                                   ),
-                                  Expanded(child: debtsContent),
-                                ],
+                                ),
                               ),
-                            ),
-                            const SizedBox(width: 16),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Padding(
-                                    padding: const EdgeInsets.only(bottom: 8),
-                                    child: Text(
-                                      ScreenDict.receivableMaster.get(isRpg),
-                                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                                    ),
-                                  ),
-                                  Expanded(child: receivablesContent),
-                                ],
-                              ),
-                            ),
-                          ],
+                              Expanded(child: billsContent),
+                            ],
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
+                  ),
+                  // Hutang tab — side by side
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 8,
+                    ),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.only(bottom: 8),
+                                child: Text(
+                                  ScreenDict.debtsMaster.get(isRpg),
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                              Expanded(child: debtsContent),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.only(bottom: 8),
+                                child: Text(
+                                  ScreenDict.receivableMaster.get(isRpg),
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                              Expanded(child: receivablesContent),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               );
             }
 
             return ResponsiveContainer(
               child: TabBarView(
-          children: [
-            DefaultTabController(
-              length: 2,
-              child: Column(
                 children: [
-                  Padding(
-                    padding: const EdgeInsets.all(16.0),
+                  DefaultTabController(
+                    length: 2,
+                    child: Column(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.all(16.0),
 
-                    child: CustomTabBar(
-                      tabs: [
-                        ScreenDict.billsActive.get(isRpg),
-                        ScreenDict.billsMaster.get(isRpg),
+                          child: CustomTabBar(
+                            tabs: [
+                              ScreenDict.billsActive.get(isRpg),
+                              ScreenDict.billsMaster.get(isRpg),
+                            ],
+                          ),
+                        ),
+
+                        Expanded(
+                          child: TabBarView(
+                            children: [activeBillsContent, billsContent],
+                          ),
+                        ),
                       ],
                     ),
                   ),
 
-                  Expanded(
-                    child: TabBarView(
+                  DefaultTabController(
+                    length: 2,
+                    child: Column(
                       children: [
-                        activeBillsContent,
-                        billsContent,
+                        Padding(
+                          padding: const EdgeInsets.all(16.0),
+
+                          child: CustomTabBar(
+                            tabs: [
+                              ScreenDict.debtsMaster.get(isRpg),
+                              ScreenDict.receivableMaster.get(isRpg),
+                            ],
+                          ),
+                        ),
+
+                        Expanded(
+                          child: TabBarView(
+                            children: [debtsContent, receivablesContent],
+                          ),
+                        ),
                       ],
                     ),
                   ),
                 ],
               ),
-            ),
-
-            DefaultTabController(
-              length: 2,
-              child: Column(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.all(16.0),
-
-                    child: CustomTabBar(
-                      tabs: [
-                        ScreenDict.debtsMaster.get(isRpg),
-                        ScreenDict.receivableMaster.get(isRpg),
-                      ],
-                    ),
-                  ),
-
-                  Expanded(
-                    child: TabBarView(
-                      children: [
-                        debtsContent,
-                        receivablesContent,
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
             );
           },
         ),

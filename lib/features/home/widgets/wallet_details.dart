@@ -54,10 +54,10 @@ class WalletDetails extends StatelessWidget {
               const SizedBox(height: 24),
 
               if (cash != null)
-                _buildSimpleWalletItem(
+                _buildCashItem(
                   context: context,
                   wallet: cash,
-                  isRpg: isRpg,
+                  walletController: walletController,
                 ),
 
               Divider(
@@ -66,12 +66,13 @@ class WalletDetails extends StatelessWidget {
               ),
 
               if (bank.isNotEmpty) ...[
-                _buildWalletItem(
+                _buildWalletGroup(
                   context: context,
                   icon: FontAwesomeIcons.buildingColumns,
                   title: ScreenDict.walletBank.get(isRpg),
                   totalAmount: totalBank,
-                  wallet: bank,
+                  parents: bank,
+                  walletController: walletController,
                 ),
 
                 Divider(
@@ -81,12 +82,13 @@ class WalletDetails extends StatelessWidget {
               ],
 
               if (eWallet.isNotEmpty) ...[
-                _buildWalletItem(
+                _buildWalletGroup(
                   context: context,
                   icon: FontAwesomeIcons.wallet,
                   title: ScreenDict.walletEwallet.get(isRpg),
                   totalAmount: totalEWallet,
-                  wallet: eWallet,
+                  parents: eWallet,
+                  walletController: walletController,
                 ),
 
                 Divider(
@@ -96,12 +98,13 @@ class WalletDetails extends StatelessWidget {
               ],
 
               if (platform.isNotEmpty) ...[
-                _buildWalletItem(
+                _buildWalletGroup(
                   context: context,
                   icon: FontAwesomeIcons.mobileScreen,
                   title: ScreenDict.walletPlatform.get(isRpg),
                   totalAmount: totalPlatform,
-                  wallet: platform,
+                  parents: platform,
+                  walletController: walletController,
                 ),
 
                 Divider(
@@ -136,12 +139,65 @@ class WalletDetails extends StatelessWidget {
     );
   }
 
-  Widget _buildWalletItem({
+  /// Build the cash row — simple tap to open info.
+  Widget _buildCashItem({
+    required BuildContext context,
+    required WalletModel wallet,
+    required WalletController walletController,
+  }) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final hasPockets = walletController
+        .getPocketsForWallet(wallet.id ?? 0)
+        .isNotEmpty;
+    final displayAmount = hasPockets
+        ? walletController.getParentTotalBalance(wallet.id ?? 0)
+        : wallet.amount;
+
+    return GestureDetector(
+      onTap: () => {Navigator.pop(context), onTap(wallet, lock: true)},
+      child: Row(
+        children: [
+          CircleAvatar(
+            backgroundColor: colorScheme.surfaceContainerHighest,
+            child: FaIcon(wallet.icon, size: 16, color: colorScheme.onSurface),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Flexible(
+                  child: Text(
+                    ScreenDict.walletCash.get(isRpg),
+                    style: const TextStyle(fontSize: 16),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                ..._buildIndicatorIcons(
+                  context: context,
+                  wallet: wallet,
+                  walletController: walletController,
+                ),
+              ],
+            ),
+          ),
+          Text(
+            NumberUtils.toIdr(displayAmount),
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Build an ExpansionTile for bank / eWallet / platform, listing parent wallets inside.
+  Widget _buildWalletGroup({
     required BuildContext context,
     required FaIconData icon,
     required String title,
     required Decimal totalAmount,
-    required List<WalletModel> wallet,
+    required List<WalletModel> parents,
+    required WalletController walletController,
   }) {
     final colorScheme = Theme.of(context).colorScheme;
 
@@ -159,49 +215,30 @@ class WalletDetails extends StatelessWidget {
           style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
         ),
         children: [
-          for (WalletModel entry in wallet)
-            _buildSubWalletItem(context: context, wallet: entry),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSimpleWalletItem({
-    required BuildContext context,
-    required WalletModel wallet,
-    required bool isRpg,
-  }) {
-    final colorScheme = Theme.of(context).colorScheme;
-
-    return GestureDetector(
-      onTap: () => {Navigator.pop(context), onTap(wallet, lock: true)},
-      child: Row(
-        children: [
-          CircleAvatar(
-            backgroundColor: colorScheme.surfaceContainerHighest,
-            child: FaIcon(wallet.icon, size: 16, color: colorScheme.onSurface),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Text(
-              ScreenDict.walletCash.get(isRpg),
-              style: const TextStyle(fontSize: 16),
+          for (WalletModel parent in parents)
+            _buildParentRow(
+              context: context,
+              wallet: parent,
+              walletController: walletController,
             ),
-          ),
-          Text(
-            NumberUtils.toIdr(wallet.amount),
-            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-          ),
         ],
       ),
     );
   }
 
-  Widget _buildSubWalletItem({
+  /// A single parent wallet row inside an ExpansionTile.
+  Widget _buildParentRow({
     required BuildContext context,
     required WalletModel wallet,
+    required WalletController walletController,
   }) {
     final colorScheme = Theme.of(context).colorScheme;
+    final hasPockets = walletController
+        .getPocketsForWallet(wallet.id ?? 0)
+        .isNotEmpty;
+    final displayAmount = hasPockets
+        ? walletController.getParentTotalBalance(wallet.id ?? 0)
+        : wallet.amount;
 
     return GestureDetector(
       onTap: () => {Navigator.pop(context), onTap(wallet)},
@@ -215,13 +252,31 @@ class WalletDetails extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
-              wallet.name,
-              style: TextStyle(color: colorScheme.onSurfaceVariant),
+            Expanded(
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Flexible(
+                    child: Text(
+                      wallet.name,
+                      style: TextStyle(
+                        color: colorScheme.onSurfaceVariant,
+                        fontSize: 14,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  ..._buildIndicatorIcons(
+                    context: context,
+                    wallet: wallet,
+                    walletController: walletController,
+                  ),
+                ],
+              ),
             ),
             Text(
               NumberUtils.toIdr(
-                wallet.amount,
+                displayAmount,
                 decimalDigits: wallet.type == WalletType.platform ? 3 : null,
               ),
               style: TextStyle(color: colorScheme.onSurfaceVariant),
@@ -230,5 +285,38 @@ class WalletDetails extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  /// Build small indicator icons for savings / emergency status.
+  /// Checks the parent itself AND any child pockets.
+  List<Widget> _buildIndicatorIcons({
+    required BuildContext context,
+    required WalletModel wallet,
+    required WalletController walletController,
+  }) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final pockets = walletController.getPocketsForWallet(wallet.id ?? 0);
+
+    final hasSavings = wallet.isSavings || pockets.any((p) => p.isSavings);
+    final hasEmergency =
+        wallet.isEmergency || pockets.any((p) => p.isEmergency);
+
+    final icons = <Widget>[];
+
+    if (hasSavings) {
+      icons.addAll([
+        const SizedBox(width: 4),
+        Icon(Icons.savings_outlined, size: 14, color: colorScheme.primary),
+      ]);
+    }
+
+    if (hasEmergency) {
+      icons.addAll([
+        const SizedBox(width: 4),
+        Icon(Icons.shield_outlined, size: 14, color: colorScheme.primary),
+      ]);
+    }
+
+    return icons;
   }
 }

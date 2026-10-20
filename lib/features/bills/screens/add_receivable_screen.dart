@@ -47,14 +47,13 @@ class _AddReceivableScreenState extends State<AddReceivableScreen> {
   bool _hasTargetDate = false;
   bool _isReminderActive = false;
   bool _isFeeActive = false;
-  bool _isReservedActive = false;
+  bool _isSavingsActive = false;
 
   Decimal get _cleanAmount =>
       NumberUtils.parseToDecimal(_amountController.text);
   Decimal get _cleanFee => NumberUtils.parseToDecimal(_feeController.text);
 
   Decimal? get _maxAmount {
-    if (_isReservedActive) return _selectedWallet?.reservedAmount;
     return _selectedWallet?.amount;
   }
 
@@ -120,7 +119,7 @@ class _AddReceivableScreenState extends State<AddReceivableScreen> {
         Navigator.pop(context, {
           "receivable": receivable,
           "transaction": transaction,
-          "use_reserved": _isReservedActive,
+          "use_reserved": _isSavingsActive,
         });
       } else {
         Navigator.pop(context, {
@@ -138,7 +137,7 @@ class _AddReceivableScreenState extends State<AddReceivableScreen> {
     final walletController = context.read<WalletController>();
     final colorScheme = Theme.of(context).colorScheme;
     final isRpg = settingsController.isRpgMode;
-    final wallets = walletController.wallets;
+    final wallets = walletController.allWallets;
 
     return Scaffold(
       backgroundColor: colorScheme.surface,
@@ -263,12 +262,19 @@ class _AddReceivableScreenState extends State<AddReceivableScreen> {
                       labelText: UiDict.sourceFunds,
                       border: const OutlineInputBorder(),
                     ),
-                    items: wallets.map((wallet) {
-                      return DropdownMenuItem(
-                        value: wallet,
-                        child: Text(wallet.name),
-                      );
-                    }).toList(),
+                    items:
+                        (_isSavingsActive
+                                ? wallets
+                                : wallets.where((w) => !w.isSavings).toList())
+                            .map((wallet) {
+                              return DropdownMenuItem(
+                                value: wallet,
+                                child: Text(
+                                  walletController.getDisplayName(wallet),
+                                ),
+                              );
+                            })
+                            .toList(),
                     validator: (val) =>
                         val == null || widget.initialReceivable != null
                         ? UiDict.requiredWallet
@@ -384,8 +390,7 @@ class _AddReceivableScreenState extends State<AddReceivableScreen> {
                           ),
                         ),
                         value: _isFeeActive,
-                        onChanged: (val) =>
-                            setState(() => _isFeeActive = val),
+                        onChanged: (val) => setState(() => _isFeeActive = val),
                       ),
                       if (_isFeeActive) ...[
                         const SizedBox(height: 8),
@@ -406,8 +411,9 @@ class _AddReceivableScreenState extends State<AddReceivableScreen> {
                               ? UiDict.requiredFee
                               : null,
                           onChanged: (val) {
-                            Decimal currentFee =
-                                NumberUtils.parseToDecimal(val);
+                            Decimal currentFee = NumberUtils.parseToDecimal(
+                              val,
+                            );
                             if (currentFee > _cleanAmount) {
                               currentFee = _cleanAmount;
                             }
@@ -433,11 +439,13 @@ class _AddReceivableScreenState extends State<AddReceivableScreen> {
                             color: colorScheme.onSurfaceVariant,
                           ),
                         ),
-                        value: _isReservedActive,
+                        value: _isSavingsActive,
                         onChanged: (val) => setState(() {
-                          if (_selectedWallet != null) {
-                            _isReservedActive = val;
-                            _onAmountChanged(_amountController.text);
+                          _isSavingsActive = val;
+                          if (!val &&
+                              _selectedWallet != null &&
+                              _selectedWallet!.isSavings) {
+                            _selectedWallet = null;
                           }
                         }),
                       ),
@@ -455,7 +463,9 @@ class _AddReceivableScreenState extends State<AddReceivableScreen> {
                       flex: 5,
                       child: ListView(
                         padding: const EdgeInsets.only(
-                          top: 24, bottom: 24, right: 12,
+                          top: 24,
+                          bottom: 24,
+                          right: 12,
                         ),
                         children: [
                           nameField,
@@ -478,7 +488,9 @@ class _AddReceivableScreenState extends State<AddReceivableScreen> {
                       flex: 5,
                       child: ListView(
                         padding: const EdgeInsets.only(
-                          top: 24, bottom: 24, left: 12,
+                          top: 24,
+                          bottom: 24,
+                          left: 12,
                         ),
                         children: [
                           targetDateSwitch,
@@ -528,6 +540,7 @@ class _AddReceivableScreenState extends State<AddReceivableScreen> {
 
   Widget _buildBottomBar(bool isRpg) {
     final colorScheme = Theme.of(context).colorScheme;
+    final walletController = context.read<WalletController>();
 
     return Container(
       padding: EdgeInsets.only(
@@ -552,16 +565,10 @@ class _AddReceivableScreenState extends State<AddReceivableScreen> {
           if (widget.initialReceivable == null) ...[
             if (_selectedWallet != null) ...[
               NoteContainer(
-                text: _isReservedActive
-                    ? ScreenDict.getHomeNote(
-                        _selectedWallet?.name ?? '',
-                        NumberUtils.toIdr(_selectedWallet?.reservedAmount),
-                        isRpg: isRpg,
-                      )
-                    : ScreenDict.getHistoryNote(
-                        _selectedWallet?.name ?? '',
-                        NumberUtils.toIdr(_selectedWallet?.amount),
-                      ),
+                text: ScreenDict.getHistoryNote(
+                  walletController.getDisplayName(_selectedWallet!),
+                  NumberUtils.toIdr(_selectedWallet?.amount),
+                ),
                 color: colorScheme.onSurfaceVariant,
               ),
               const SizedBox(height: 12),
@@ -571,7 +578,9 @@ class _AddReceivableScreenState extends State<AddReceivableScreen> {
               decoration: BoxDecoration(
                 color: colorScheme.surfaceContainerHighest,
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: colorScheme.primary.withValues(alpha: 0.2)),
+                border: Border.all(
+                  color: colorScheme.primary.withValues(alpha: 0.2),
+                ),
               ),
               child: Column(
                 children: [

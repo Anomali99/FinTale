@@ -39,7 +39,7 @@ class MainLayout extends StatelessWidget {
     final billController = context.read<BillController>();
     final historyController = context.read<HistoryController>();
     final analyticsController = context.read<AnalyticsController>();
-    final wallets = context.read<WalletController>().wallets;
+    final wallets = context.read<WalletController>().allWallets;
     List<DebtModel> debts = [];
     List<BillModel> bills = [];
     for (DebtModel debt in billController.debts) {
