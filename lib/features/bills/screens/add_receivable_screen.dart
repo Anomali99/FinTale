@@ -15,6 +15,7 @@ import '../../../models/wallet_model.dart';
 import '../../../widgets/custom_button.dart';
 import '../../../widgets/custom_date_time_picker.dart';
 import '../../../widgets/note_container.dart';
+import '../../../widgets/responsive_container.dart';
 
 class AddReceivableScreen extends StatefulWidget {
   final ReceivableModel? initialReceivable;
@@ -159,279 +160,367 @@ class _AddReceivableScreenState extends State<AddReceivableScreen> {
       bottomNavigationBar: _buildBottomBar(isRpg),
       body: Form(
         key: _formKey,
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24.0),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Autocomplete<String>(
-                initialValue: TextEditingValue(
-                  text: widget.initialReceivable?.borrowerName ?? '',
-                ),
-                optionsBuilder: (TextEditingValue textEditingValue) {
-                  if (textEditingValue.text.isEmpty) {
-                    return const Iterable<String>.empty();
-                  }
-                  return widget.existingNames.where((String option) {
-                    return option.toLowerCase().contains(
-                      textEditingValue.text.toLowerCase(),
-                    );
-                  });
-                },
-                fieldViewBuilder:
-                    (
-                      context,
-                      textEditingController,
-                      focusNode,
-                      onFieldSubmitted,
-                    ) {
-                      _borrowerController = textEditingController;
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final isWide = constraints.maxWidth >= 700;
 
-                      return TextFormField(
-                        controller: textEditingController,
-                        focusNode: focusNode,
-                        decoration: InputDecoration(
-                          labelText: UiDict.name,
-                          prefixIcon: const Icon(Icons.person_outline),
-                          border: const OutlineInputBorder(),
-                        ),
-                        validator: (val) => val == null || val.trim().isEmpty
-                            ? UiDict.requiredName
-                            : null,
-                        onFieldSubmitted: (String value) => onFieldSubmitted(),
-                      );
-                    },
-                optionsViewBuilder: (context, onSelected, options) {
-                  return Align(
-                    alignment: Alignment.topLeft,
-                    child: Material(
-                      elevation: 4.0,
-                      borderRadius: BorderRadius.circular(12),
-                      color: colorScheme.surfaceContainerHighest,
-                      child: ConstrainedBox(
-                        constraints: BoxConstraints(
-                          maxHeight: 200,
-                          maxWidth: MediaQuery.of(context).size.width - 48,
-                        ),
-                        child: ListView.builder(
-                          padding: const EdgeInsets.symmetric(vertical: 8),
-                          shrinkWrap: true,
-                          itemCount: options.length,
-                          itemBuilder: (BuildContext context, int index) {
-                            final String option = options.elementAt(index);
-                            return InkWell(
-                              onTap: () => onSelected(option),
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 16.0,
-                                  vertical: 12.0,
-                                ),
-                                child: Text(
-                                  option,
-                                  style: TextStyle(
-                                    color: colorScheme.onSurface,
-                                    fontSize: 15,
-                                  ),
+            final nameField = Autocomplete<String>(
+              initialValue: TextEditingValue(
+                text: widget.initialReceivable?.borrowerName ?? '',
+              ),
+              optionsBuilder: (TextEditingValue textEditingValue) {
+                if (textEditingValue.text.isEmpty) {
+                  return const Iterable<String>.empty();
+                }
+                return widget.existingNames.where((String option) {
+                  return option.toLowerCase().contains(
+                    textEditingValue.text.toLowerCase(),
+                  );
+                });
+              },
+              fieldViewBuilder:
+                  (
+                    context,
+                    textEditingController,
+                    focusNode,
+                    onFieldSubmitted,
+                  ) {
+                    _borrowerController = textEditingController;
+
+                    return TextFormField(
+                      controller: textEditingController,
+                      focusNode: focusNode,
+                      decoration: InputDecoration(
+                        labelText: UiDict.name,
+                        prefixIcon: const Icon(Icons.person_outline),
+                        border: const OutlineInputBorder(),
+                      ),
+                      validator: (val) => val == null || val.trim().isEmpty
+                          ? UiDict.requiredName
+                          : null,
+                      onFieldSubmitted: (String value) => onFieldSubmitted(),
+                    );
+                  },
+              optionsViewBuilder: (context, onSelected, options) {
+                return Align(
+                  alignment: Alignment.topLeft,
+                  child: Material(
+                    elevation: 4.0,
+                    borderRadius: BorderRadius.circular(12),
+                    color: colorScheme.surfaceContainerHighest,
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(
+                        maxHeight: 200,
+                        maxWidth: isWide
+                            ? (constraints.maxWidth - 72) / 2
+                            : constraints.maxWidth - 48,
+                      ),
+                      child: ListView.builder(
+                        padding: const EdgeInsets.symmetric(vertical: 8),
+                        shrinkWrap: true,
+                        itemCount: options.length,
+                        itemBuilder: (BuildContext context, int index) {
+                          final String option = options.elementAt(index);
+                          return InkWell(
+                            onTap: () => onSelected(option),
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16.0,
+                                vertical: 12.0,
+                              ),
+                              child: Text(
+                                option,
+                                style: TextStyle(
+                                  color: colorScheme.onSurface,
+                                  fontSize: 15,
                                 ),
                               ),
-                            );
-                          },
-                        ),
+                            ),
+                          );
+                        },
                       ),
                     ),
-                  );
-                },
-              ),
-              const SizedBox(height: 16),
-
-              TextFormField(
-                controller: _titleController,
-                decoration: const InputDecoration(
-                  labelText: UiDict.title,
-                  border: OutlineInputBorder(),
-                ),
-                validator: (val) => val == null || val.trim().isEmpty
-                    ? UiDict.requiredTitle
-                    : null,
-              ),
-              const SizedBox(height: 16),
-              if (widget.initialReceivable == null) ...[
-                DropdownButtonFormField<WalletModel>(
-                  initialValue: _selectedWallet,
-                  decoration: InputDecoration(
-                    labelText: UiDict.sourceFunds,
-                    border: const OutlineInputBorder(),
                   ),
-                  items: wallets.map((wallet) {
-                    return DropdownMenuItem(
-                      value: wallet,
-                      child: Text(wallet.name),
-                    );
-                  }).toList(),
-                  validator: (val) =>
-                      val == null || widget.initialReceivable != null
-                      ? UiDict.requiredWallet
-                      : null,
-                  onChanged: (val) {
-                    setState(() => _selectedWallet = val);
-                    _onAmountChanged(_amountController.text);
-                  },
-                ),
-                const SizedBox(height: 16),
-              ],
-              TextFormField(
-                controller: _amountController,
-                keyboardType: TextInputType.number,
-                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                decoration: InputDecoration(
-                  labelText: UiDict.amount,
-                  prefixText: 'Rp ',
-                  border: const OutlineInputBorder(),
-                ),
-                validator: (val) => val == null || val == '0' || val.isEmpty
-                    ? UiDict.requiredAmount
-                    : null,
-                onChanged: _onAmountChanged,
+                );
+              },
+            );
+
+            final titleField = TextFormField(
+              controller: _titleController,
+              decoration: const InputDecoration(
+                labelText: UiDict.title,
+                border: OutlineInputBorder(),
               ),
-              const SizedBox(height: 16),
+              validator: (val) => val == null || val.trim().isEmpty
+                  ? UiDict.requiredTitle
+                  : null,
+            );
 
-              if (widget.initialReceivable == null) ...[
-                CustomDateTimePicker(
-                  initialDate: _selectedDate,
-                  label: ScreenDict.receivableDate.get(isRpg),
-                  onChanged: (newDate) =>
-                      setState(() => _selectedDate = newDate),
-                ),
-                const SizedBox(height: 12),
-              ],
-
-              SwitchListTile(
-                contentPadding: EdgeInsets.zero,
-                title: Text(
-                  ScreenDict.getTargetDateCheck(isRpg: isRpg),
-                  style: const TextStyle(fontWeight: FontWeight.bold),
-                ),
-                subtitle: Text(
-                  ScreenDict.getDebtBillDesc(isRpg: isRpg),
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: colorScheme.onSurfaceVariant,
-                  ),
-                ),
-                value: _hasTargetDate,
-                onChanged: (val) {
-                  setState(() {
-                    _hasTargetDate = val;
-                    if (val) {
-                      _targetDate = DateTime.now().add(const Duration(days: 7));
-                      _isReminderActive = true;
-                    } else {
-                      _targetDate = null;
-                      _isReminderActive = false;
-                    }
-                  });
-                },
-              ),
-
-              if (_hasTargetDate) ...[
-                const SizedBox(height: 8),
-                CustomDateTimePicker(
-                  initialDate: _targetDate!,
-                  label: ScreenDict.receivableTarget.get(isRpg),
-                  onChanged: (newDate) => setState(() => _targetDate = newDate),
-                ),
-                const SizedBox(height: 8),
-                SwitchListTile(
-                  contentPadding: EdgeInsets.zero,
-                  title: Text(
-                    ScreenDict.notificationCheck,
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  subtitle: Text(
-                    ScreenDict.getNotificationDesc(isRpg: isRpg),
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: colorScheme.onSurfaceVariant,
+            final walletField = widget.initialReceivable == null
+                ? DropdownButtonFormField<WalletModel>(
+                    initialValue: _selectedWallet,
+                    decoration: InputDecoration(
+                      labelText: UiDict.sourceFunds,
+                      border: const OutlineInputBorder(),
                     ),
-                  ),
-                  value: _isReminderActive,
-                  onChanged: (val) => setState(() => _isReminderActive = val),
-                ),
-              ],
-
-              if (widget.initialReceivable == null) ...[
-                const SizedBox(height: 8),
-                SwitchListTile(
-                  contentPadding: EdgeInsets.zero,
-                  title: const Text(
-                    UiDict.feeCheck,
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  subtitle: Text(
-                    "Note: ${ScreenDict.getFeeCheckDesc(isIncome: false, isRpg: isRpg)}",
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: colorScheme.onSurfaceVariant,
-                    ),
-                  ),
-                  value: _isFeeActive,
-                  onChanged: (val) => setState(() => _isFeeActive = val),
-                ),
-
-                if (_isFeeActive) ...[
-                  const SizedBox(height: 8),
-                  TextFormField(
-                    controller: _feeController,
-                    keyboardType: TextInputType.number,
-                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                    decoration: const InputDecoration(
-                      labelText: UiDict.feeAmount,
-                      prefixText: 'Rp ',
-                      border: OutlineInputBorder(),
-                    ),
+                    items: wallets.map((wallet) {
+                      return DropdownMenuItem(
+                        value: wallet,
+                        child: Text(wallet.name),
+                      );
+                    }).toList(),
                     validator: (val) =>
-                        _isFeeActive &&
-                            (val == null || val == '0' || val.isEmpty)
-                        ? UiDict.requiredFee
+                        val == null || widget.initialReceivable != null
+                        ? UiDict.requiredWallet
                         : null,
                     onChanged: (val) {
-                      Decimal currentFee = NumberUtils.parseToDecimal(val);
-                      if (currentFee > _cleanAmount) currentFee = _cleanAmount;
-                      NumberUtils.formatInput(
-                        _feeController,
-                        currentFee.toString(),
-                      );
-                      setState(() {});
-                    },
-                  ),
-                ],
-                const SizedBox(height: 8),
-
-                SwitchListTile(
-                  contentPadding: EdgeInsets.zero,
-                  title: Text(
-                    ScreenDict.getReservedCheck(isRpg: isRpg),
-                    style: const TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  subtitle: Text(
-                    ScreenDict.getReservedCheckDesc(isRpg: isRpg),
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: colorScheme.onSurfaceVariant,
-                    ),
-                  ),
-                  value: _isReservedActive,
-                  onChanged: (val) => setState(() {
-                    if (_selectedWallet != null) {
-                      _isReservedActive = val;
+                      setState(() => _selectedWallet = val);
                       _onAmountChanged(_amountController.text);
-                    }
-                  }),
+                    },
+                  )
+                : null;
+
+            final amountField = TextFormField(
+              controller: _amountController,
+              keyboardType: TextInputType.number,
+              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+              decoration: InputDecoration(
+                labelText: UiDict.amount,
+                prefixText: 'Rp ',
+                border: const OutlineInputBorder(),
+              ),
+              validator: (val) => val == null || val == '0' || val.isEmpty
+                  ? UiDict.requiredAmount
+                  : null,
+              onChanged: _onAmountChanged,
+            );
+
+            final dateField = widget.initialReceivable == null
+                ? CustomDateTimePicker(
+                    initialDate: _selectedDate,
+                    label: ScreenDict.receivableDate.get(isRpg),
+                    onChanged: (newDate) =>
+                        setState(() => _selectedDate = newDate),
+                  )
+                : null;
+
+            final targetDateSwitch = SwitchListTile(
+              contentPadding: EdgeInsets.zero,
+              title: Text(
+                ScreenDict.getTargetDateCheck(isRpg: isRpg),
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
+              subtitle: Text(
+                ScreenDict.getDebtBillDesc(isRpg: isRpg),
+                style: TextStyle(
+                  fontSize: 12,
+                  color: colorScheme.onSurfaceVariant,
                 ),
-              ],
-            ],
-          ),
+              ),
+              value: _hasTargetDate,
+              onChanged: (val) {
+                setState(() {
+                  _hasTargetDate = val;
+                  if (val) {
+                    _targetDate = DateTime.now().add(const Duration(days: 7));
+                    _isReminderActive = true;
+                  } else {
+                    _targetDate = null;
+                    _isReminderActive = false;
+                  }
+                });
+              },
+            );
+
+            final targetDateSection = _hasTargetDate
+                ? Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const SizedBox(height: 8),
+                      CustomDateTimePicker(
+                        initialDate: _targetDate!,
+                        label: ScreenDict.receivableTarget.get(isRpg),
+                        onChanged: (newDate) =>
+                            setState(() => _targetDate = newDate),
+                      ),
+                      const SizedBox(height: 8),
+                      SwitchListTile(
+                        contentPadding: EdgeInsets.zero,
+                        title: Text(
+                          ScreenDict.notificationCheck,
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        subtitle: Text(
+                          ScreenDict.getNotificationDesc(isRpg: isRpg),
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                        value: _isReminderActive,
+                        onChanged: (val) =>
+                            setState(() => _isReminderActive = val),
+                      ),
+                    ],
+                  )
+                : const SizedBox.shrink();
+
+            final feeSection = widget.initialReceivable == null
+                ? Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const SizedBox(height: 8),
+                      SwitchListTile(
+                        contentPadding: EdgeInsets.zero,
+                        title: const Text(
+                          UiDict.feeCheck,
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        subtitle: Text(
+                          "Note: ${ScreenDict.getFeeCheckDesc(isIncome: false, isRpg: isRpg)}",
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                        value: _isFeeActive,
+                        onChanged: (val) =>
+                            setState(() => _isFeeActive = val),
+                      ),
+                      if (_isFeeActive) ...[
+                        const SizedBox(height: 8),
+                        TextFormField(
+                          controller: _feeController,
+                          keyboardType: TextInputType.number,
+                          inputFormatters: [
+                            FilteringTextInputFormatter.digitsOnly,
+                          ],
+                          decoration: const InputDecoration(
+                            labelText: UiDict.feeAmount,
+                            prefixText: 'Rp ',
+                            border: OutlineInputBorder(),
+                          ),
+                          validator: (val) =>
+                              _isFeeActive &&
+                                  (val == null || val == '0' || val.isEmpty)
+                              ? UiDict.requiredFee
+                              : null,
+                          onChanged: (val) {
+                            Decimal currentFee =
+                                NumberUtils.parseToDecimal(val);
+                            if (currentFee > _cleanAmount) {
+                              currentFee = _cleanAmount;
+                            }
+                            NumberUtils.formatInput(
+                              _feeController,
+                              currentFee.toString(),
+                            );
+                            setState(() {});
+                          },
+                        ),
+                      ],
+                      const SizedBox(height: 8),
+                      SwitchListTile(
+                        contentPadding: EdgeInsets.zero,
+                        title: Text(
+                          ScreenDict.getReservedCheck(isRpg: isRpg),
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        subtitle: Text(
+                          ScreenDict.getReservedCheckDesc(isRpg: isRpg),
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                        value: _isReservedActive,
+                        onChanged: (val) => setState(() {
+                          if (_selectedWallet != null) {
+                            _isReservedActive = val;
+                            _onAmountChanged(_amountController.text);
+                          }
+                        }),
+                      ),
+                    ],
+                  )
+                : null;
+
+            if (isWide) {
+              return Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      flex: 5,
+                      child: ListView(
+                        padding: const EdgeInsets.only(
+                          top: 24, bottom: 24, right: 12,
+                        ),
+                        children: [
+                          nameField,
+                          const SizedBox(height: 16),
+                          titleField,
+                          const SizedBox(height: 16),
+                          if (walletField != null) ...[
+                            walletField,
+                            const SizedBox(height: 16),
+                          ],
+                          amountField,
+                          if (dateField != null) ...[
+                            const SizedBox(height: 16),
+                            dateField,
+                          ],
+                        ],
+                      ),
+                    ),
+                    Expanded(
+                      flex: 5,
+                      child: ListView(
+                        padding: const EdgeInsets.only(
+                          top: 24, bottom: 24, left: 12,
+                        ),
+                        children: [
+                          targetDateSwitch,
+                          targetDateSection,
+                          ?feeSection,
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }
+
+            return ResponsiveContainer(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(24.0),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    nameField,
+                    const SizedBox(height: 16),
+                    titleField,
+                    const SizedBox(height: 16),
+                    if (walletField != null) ...[
+                      walletField,
+                      const SizedBox(height: 16),
+                    ],
+                    amountField,
+                    if (dateField != null) ...[
+                      const SizedBox(height: 16),
+                      dateField,
+                    ],
+                    const SizedBox(height: 12),
+                    targetDateSwitch,
+                    targetDateSection,
+                    ?feeSection,
+                  ],
+                ),
+              ),
+            );
+          },
         ),
       ),
     );

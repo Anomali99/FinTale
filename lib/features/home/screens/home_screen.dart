@@ -29,6 +29,7 @@ import '../widgets/allocation_card.dart';
 import '../widgets/balance_card.dart';
 import '../widgets/daily_limit.dart';
 import '../widgets/wallet_details.dart';
+import '../../../widgets/responsive_container.dart';
 import '../widgets/wallet_modal.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -376,10 +377,11 @@ class HomeScreen extends StatelessWidget {
         ],
       ),
 
-      body: ListView(
-        padding: const EdgeInsets.all(24.0),
-        children: [
-          BalanceCard(
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          final isWide = constraints.maxWidth >= 700;
+
+          final balanceCard = BalanceCard(
             totalBalance: totalBalance,
             showWallets: () => _showWalletDetails(context, isRpg),
             openAddIncome: () =>
@@ -392,38 +394,104 @@ class HomeScreen extends StatelessWidget {
             reservedBalance: totalReserved,
             unallocatedBalance: totalUnallocated,
             isRpg: isRpg,
-          ),
+          );
 
-          const SizedBox(height: 32),
-
-          Text(
-            ScreenDict.homeDailyLimit.get(isRpg),
-            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 12),
-          DailyLimit(
-            limit: maxLimit,
-            spent: spentToday,
-            penalty: dailyPenalty,
-            isRpg: isRpg,
-          ),
-
-          if (pendingAllocations.isNotEmpty) ...[
-            const SizedBox(height: 32),
-            Text(
-              ScreenDict.homePending.get(isRpg),
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 12),
-            ...pendingAllocations.map((item) {
-              return AllocationCard(
-                allocation: item,
+          final dailyLimitSection = Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                ScreenDict.homeDailyLimit.get(isRpg),
+                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 12),
+              DailyLimit(
+                limit: maxLimit,
+                spent: spentToday,
+                penalty: dailyPenalty,
                 isRpg: isRpg,
-                onTap: () => _onTapAllocation(context, item),
-              );
-            }),
-          ],
-        ],
+              ),
+            ],
+          );
+
+          final pendingSection = Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                ScreenDict.homePending.get(isRpg),
+                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 12),
+              if (pendingAllocations.isNotEmpty)
+                ...pendingAllocations.map((item) {
+                  return AllocationCard(
+                    allocation: item,
+                    isRpg: isRpg,
+                    onTap: () => _onTapAllocation(context, item),
+                  );
+                })
+              else
+                Center(
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 48),
+                    child: Text(
+                      'Tidak ada alokasi pending',
+                      style: TextStyle(color: colorScheme.onSurfaceVariant),
+                    ),
+                  ),
+                ),
+            ],
+          );
+
+          if (isWide) {
+            return Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24.0),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    flex: 5,
+                    child: ListView(
+                      padding: const EdgeInsets.only(
+                        top: 24, bottom: 24, right: 12,
+                      ),
+                      children: [
+                        balanceCard,
+                        const SizedBox(height: 32),
+                        dailyLimitSection,
+                      ],
+                    ),
+                  ),
+                  Expanded(
+                    flex: 4,
+                    child: ListView(
+                      padding: const EdgeInsets.only(
+                        top: 24, bottom: 24, left: 12,
+                      ),
+                      children: [
+                        pendingSection,
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }
+
+          return ResponsiveContainer(
+            child: ListView(
+              padding: const EdgeInsets.all(24.0),
+              children: [
+                balanceCard,
+                const SizedBox(height: 32),
+                dailyLimitSection,
+                if (pendingAllocations.isNotEmpty) ...[
+                  const SizedBox(height: 32),
+                  pendingSection,
+                ],
+              ],
+            ),
+          );
+        },
       ),
     );
   }

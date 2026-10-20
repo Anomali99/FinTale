@@ -5,6 +5,7 @@ import '../../../core/constants/ui_dict.dart';
 import '../../../core/utils/global_messenger.dart';
 import '../../../core/utils/hash_helper.dart';
 import '../../../services/local_auth_service.dart';
+import '../../../widgets/responsive_container.dart';
 
 class VerifyPinScreen extends StatefulWidget {
   final String savedPinHash;
@@ -132,7 +133,8 @@ class _VerifyPinScreenState extends State<VerifyPinScreen> {
               : null,
         ),
         body: SafeArea(
-          child: Column(
+          child: ResponsiveContainer(
+            child: Column(
             children: [
               const SizedBox(height: 24),
 
@@ -257,6 +259,7 @@ class _VerifyPinScreenState extends State<VerifyPinScreen> {
                   ),
                 ),
             ],
+          ),
           ),
         ),
       ),

@@ -6,6 +6,7 @@ import '../../../controllers/settings_controller.dart';
 import '../../../core/constants/ui_dict.dart';
 import '../../../core/utils/global_messenger.dart';
 import '../../../core/utils/hash_helper.dart';
+import '../../../widgets/responsive_container.dart';
 
 enum PinStep { enterOld, enterNew, confirmNew }
 
@@ -176,7 +177,8 @@ class _CreatePinScreenState extends State<CreatePinScreen> {
         ),
       ),
       body: SafeArea(
-        child: Column(
+        child: ResponsiveContainer(
+          child: Column(
           children: [
             const SizedBox(height: 24),
             Text(
@@ -270,6 +272,7 @@ class _CreatePinScreenState extends State<CreatePinScreen> {
             ),
             const SizedBox(height: 24),
           ],
+        ),
         ),
       ),
     );

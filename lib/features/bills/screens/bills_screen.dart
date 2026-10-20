@@ -20,6 +20,7 @@ import '../../../models/receivable_model.dart';
 import '../../../models/transaction_model.dart';
 import '../../../widgets/custom_bottom_sheet.dart';
 import '../../../widgets/custom_tab_bar.dart';
+import '../../../widgets/responsive_container.dart';
 import '../widgets/active_bills_tab.dart';
 import '../widgets/add_bill_modal.dart';
 import '../widgets/add_debt_modal.dart';
@@ -425,7 +426,132 @@ class BillsScreen extends StatelessWidget {
           ),
         ),
 
-        body: TabBarView(
+        body: LayoutBuilder(
+          builder: (context, constraints) {
+            final isWide = constraints.maxWidth >= 700;
+
+            // --- Tagihan (Bills) tab content ---
+            final activeBillsContent = ActiveBillsTab(
+              data: billTransaction,
+              isRpg: isRpg,
+              onTap: (transaction) =>
+                  _openActiveBillModal(context, transaction),
+            );
+            final billsContent = BillsTab(
+              data: bills,
+              isRpg: isRpg,
+              onTapCard: (bill) =>
+                  _openBillDetail(context, bill, isRpg),
+            );
+
+            // --- Hutang (Debts) tab content ---
+            final debtsContent = DebtsTab(
+              data: debts,
+              isRpg: isRpg,
+              onTapCard: (debt) =>
+                  _openDebtDetail(context, debt, isRpg),
+            );
+            final receivablesContent = ReceivablesTab(
+              data: groupedReceivables,
+              isRpg: isRpg,
+              onTapCard: (name, receivable) =>
+                  _openReceivableDetail(
+                    context,
+                    name,
+                    receivable,
+                    isRpg,
+                  ),
+            );
+
+            if (isWide) {
+              return TabBarView(
+                    children: [
+                      // Tagihan tab — side by side
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.only(bottom: 8),
+                                    child: Text(
+                                      ScreenDict.billsActive.get(isRpg),
+                                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                                    ),
+                                  ),
+                                  Expanded(child: activeBillsContent),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(width: 16),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.only(bottom: 8),
+                                    child: Text(
+                                      ScreenDict.billsMaster.get(isRpg),
+                                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                                    ),
+                                  ),
+                                  Expanded(child: billsContent),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      // Hutang tab — side by side
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.only(bottom: 8),
+                                    child: Text(
+                                      ScreenDict.debtsMaster.get(isRpg),
+                                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                                    ),
+                                  ),
+                                  Expanded(child: debtsContent),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(width: 16),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.only(bottom: 8),
+                                    child: Text(
+                                      ScreenDict.receivableMaster.get(isRpg),
+                                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                                    ),
+                                  ),
+                                  Expanded(child: receivablesContent),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+              );
+            }
+
+            return ResponsiveContainer(
+              child: TabBarView(
           children: [
             DefaultTabController(
               length: 2,
@@ -445,18 +571,8 @@ class BillsScreen extends StatelessWidget {
                   Expanded(
                     child: TabBarView(
                       children: [
-                        ActiveBillsTab(
-                          data: billTransaction,
-                          isRpg: isRpg,
-                          onTap: (transaction) =>
-                              _openActiveBillModal(context, transaction),
-                        ),
-                        BillsTab(
-                          data: bills,
-                          isRpg: isRpg,
-                          onTapCard: (bill) =>
-                              _openBillDetail(context, bill, isRpg),
-                        ),
+                        activeBillsContent,
+                        billsContent,
                       ],
                     ),
                   ),
@@ -482,24 +598,8 @@ class BillsScreen extends StatelessWidget {
                   Expanded(
                     child: TabBarView(
                       children: [
-                        DebtsTab(
-                          data: debts,
-                          isRpg: isRpg,
-                          onTapCard: (debt) =>
-                              _openDebtDetail(context, debt, isRpg),
-                        ),
-
-                        ReceivablesTab(
-                          data: groupedReceivables,
-                          isRpg: isRpg,
-                          onTapCard: (name, receivable) =>
-                              _openReceivableDetail(
-                                context,
-                                name,
-                                receivable,
-                                isRpg,
-                              ),
-                        ),
+                        debtsContent,
+                        receivablesContent,
                       ],
                     ),
                   ),
@@ -507,6 +607,9 @@ class BillsScreen extends StatelessWidget {
               ),
             ),
           ],
+        ),
+            );
+          },
         ),
       ),
     );

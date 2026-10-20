@@ -17,6 +17,7 @@ import '../widgets/allocation_card.dart';
 import '../widgets/daily_missions.dart';
 import '../widgets/edit_modal.dart';
 import '../widgets/profile_card.dart';
+import '../../../widgets/responsive_container.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -116,17 +117,17 @@ class ProfileScreen extends StatelessWidget {
           ),
         ],
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(24.0),
-        children: [
-          ProfileCard(
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          final isWide = constraints.maxWidth >= 700;
+
+          final profileCard = ProfileCard(
             user: currentUser,
             isRpg: isRpg,
             editName: () => _openEditName(context, defaultValue: userName),
-          ),
-          const SizedBox(height: 32),
+          );
 
-          AllocationCard(
+          final allocationCard = AllocationCard(
             livingPercentage: userController.getAllocation(SectorType.living),
             payDebtPercentage: userController.getAllocation(SectorType.payDebt),
             emergencyPercentage: userController.getAllocation(
@@ -137,10 +138,9 @@ class ProfileScreen extends StatelessWidget {
             ),
             onTap: () => Navigator.pushNamed(context, '/skill-tree'),
             isRpg: isRpg,
-          ),
-          const SizedBox(height: 24),
+          );
 
-          _buildSettingCard(
+          final dailyLimitCard = _buildSettingCard(
             context,
             ScreenDict.homeDailyLimit.icon(isRpg),
             ScreenDict.homeDailyLimit.get(isRpg),
@@ -151,9 +151,9 @@ class ProfileScreen extends StatelessWidget {
               function: profileController.saveBaseDailyLimit,
               defaultValue: baseDailyLimit.toString(),
             ),
-          ),
-          const SizedBox(height: 24),
-          _buildSettingCard(
+          );
+
+          final emergencyCard = _buildSettingCard(
             context,
             GamificationDict.skillEmergency.icon(isRpg),
             GamificationDict.skillEmergency.get(isRpg),
@@ -167,10 +167,66 @@ class ProfileScreen extends StatelessWidget {
               function: (Decimal value) =>
                   profileController.saveEmergencyAmount(context, value),
             ),
-          ),
-          const SizedBox(height: 32),
-          DailyMissions(progress: progress, isRpg: isRpg),
-        ],
+          );
+
+          final dailyMissions = DailyMissions(progress: progress, isRpg: isRpg);
+
+          if (isWide) {
+            return Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24.0),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    flex: 5,
+                    child: ListView(
+                      padding: const EdgeInsets.only(
+                        top: 24, bottom: 24, right: 12,
+                      ),
+                      children: [
+                        profileCard,
+                        const SizedBox(height: 24),
+                        allocationCard,
+                        const SizedBox(height: 24),
+                        dailyLimitCard,
+                        const SizedBox(height: 24),
+                        emergencyCard,
+                      ],
+                    ),
+                  ),
+                  Expanded(
+                    flex: 5,
+                    child: ListView(
+                      padding: const EdgeInsets.only(
+                        top: 24, bottom: 24, left: 12,
+                      ),
+                      children: [
+                        dailyMissions,
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }
+
+          return ResponsiveContainer(
+            child: ListView(
+              padding: const EdgeInsets.all(24.0),
+              children: [
+                profileCard,
+                const SizedBox(height: 32),
+                allocationCard,
+                const SizedBox(height: 24),
+                dailyLimitCard,
+                const SizedBox(height: 24),
+                emergencyCard,
+                const SizedBox(height: 32),
+                dailyMissions,
+              ],
+            ),
+          );
+        },
       ),
     );
   }

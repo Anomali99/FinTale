@@ -8,6 +8,7 @@ import '../../../controllers/skill_controller.dart';
 import '../../../core/constants/ui_dict.dart';
 import '../../../core/utils/global_messenger.dart';
 import '../../../widgets/custom_button.dart';
+import '../../../widgets/responsive_container.dart';
 
 class AuthScreen extends StatelessWidget {
   const AuthScreen({super.key});
@@ -40,7 +41,8 @@ class AuthScreen extends StatelessWidget {
 
     return Scaffold(
       body: SafeArea(
-        child: Padding(
+        child: ResponsiveContainer(
+          child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 32.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -107,6 +109,7 @@ class AuthScreen extends StatelessWidget {
               const SizedBox(height: 16),
             ],
           ),
+        ),
         ),
       ),
     );

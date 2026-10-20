@@ -13,6 +13,7 @@ import '../../../core/utils/global_messenger.dart';
 import '../../../models/transaction_model.dart';
 import '../../../widgets/filter_bottom_sheet.dart';
 import '../../../widgets/month_filter.dart';
+import '../../../widgets/responsive_container.dart';
 import '../widgets/cash_flow_card.dart';
 import '../widgets/section_history.dart';
 import '../widgets/transaction_detail_modal.dart';
@@ -144,33 +145,109 @@ class HistoryScreen extends StatelessWidget {
           const SizedBox(width: 8),
         ],
       ),
-      body: CustomScrollView(
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          final isWide = constraints.maxWidth >= 700;
+
+          final headerContent = Column(
+            children: [
+              MonthFilter(
+                selected: getTitleMonth(
+                  selectedMonth: selectedMonth,
+                  customStartDate: customStartDate,
+                  customEndDate: customEndDate,
+                ),
+                onPrev: historyController.onPrev,
+                onNext: historyController.onNext,
+                enabled: customStartDate == null && customEndDate == null,
+              ),
+
+              const SizedBox(height: 16),
+
+              CashFlowCard(
+                totalIncome: income,
+                totalExpense: expense,
+                isRpg: isRpg,
+              ),
+            ],
+          );
+
+          final emptyState = Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                FaIcon(
+                  UiDict.menuHistory.icon(isRpg),
+                  size: 48,
+                  color: colorScheme.surfaceContainerHighest,
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  UiDict.getEmptyDesc(
+                    UiDict.menuHistory.get(isRpg).toLowerCase(),
+                    isRpg: isRpg,
+                  ),
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: colorScheme.onSurfaceVariant),
+                ),
+              ],
+            ),
+          );
+
+          if (isWide) {
+            return Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24.0),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    flex: 4,
+                    child: ListView(
+                      padding: const EdgeInsets.only(
+                        top: 24, bottom: 24, right: 12,
+                      ),
+                      children: [
+                        headerContent,
+                      ],
+                    ),
+                  ),
+                  Expanded(
+                    flex: 6,
+                    child: groupedTransactions.isNotEmpty
+                        ? CustomScrollView(
+                            slivers: [
+                              SliverList.builder(
+                                itemCount: groupedTransactions.length,
+                                itemBuilder: (context, index) {
+                                  final entry = groupedTransactions.entries
+                                      .elementAt(index);
+                                  return SectionHistory(
+                                    title: entry.key,
+                                    transactions: entry.value,
+                                    onTap: (value) =>
+                                        _openDetail(context, value, isRpg),
+                                    isRpg: isRpg,
+                                  );
+                                },
+                              ),
+                              const SliverToBoxAdapter(
+                                  child: SizedBox(height: 100)),
+                            ],
+                          )
+                        : emptyState,
+                  ),
+                ],
+              ),
+            );
+          }
+
+          return ResponsiveContainer(
+            child: CustomScrollView(
         slivers: [
           SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.all(24.0),
-              child: Column(
-                children: [
-                  MonthFilter(
-                    selected: getTitleMonth(
-                      selectedMonth: selectedMonth,
-                      customStartDate: customStartDate,
-                      customEndDate: customEndDate,
-                    ),
-                    onPrev: historyController.onPrev,
-                    onNext: historyController.onNext,
-                    enabled: customStartDate == null && customEndDate == null,
-                  ),
-
-                  const SizedBox(height: 16),
-
-                  CashFlowCard(
-                    totalIncome: income,
-                    totalExpense: expense,
-                    isRpg: isRpg,
-                  ),
-                ],
-              ),
+              child: headerContent,
             ),
           ),
 
@@ -190,31 +267,14 @@ class HistoryScreen extends StatelessWidget {
           ] else ...[
             SliverFillRemaining(
               hasScrollBody: false,
-              child: Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    FaIcon(
-                      UiDict.menuHistory.icon(isRpg),
-                      size: 48,
-                      color: colorScheme.surfaceContainerHighest,
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      UiDict.getEmptyDesc(
-                        UiDict.menuHistory.get(isRpg).toLowerCase(),
-                        isRpg: isRpg,
-                      ),
-                      textAlign: TextAlign.center,
-                      style: TextStyle(color: colorScheme.onSurfaceVariant),
-                    ),
-                  ],
-                ),
-              ),
+              child: emptyState,
             ),
           ],
           const SliverToBoxAdapter(child: SizedBox(height: 100)),
         ],
+      ),
+          );
+        },
       ),
     );
   }

@@ -12,6 +12,7 @@ import '../../../core/models/analytic_model.dart';
 import '../../../core/utils/global_messenger.dart';
 import '../../../widgets/filter_bottom_sheet.dart';
 import '../../../widgets/month_filter.dart';
+import '../../../widgets/responsive_container.dart';
 import '../widgets/detail_card.dart';
 import '../widgets/donut_chart.dart';
 import '../widgets/overview_card.dart';
@@ -116,10 +117,11 @@ class AnalyticsScreen extends StatelessWidget {
           ),
         ],
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(24.0),
-        children: [
-          MonthFilter(
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          final isWide = constraints.maxWidth >= 700;
+
+          final monthFilter = MonthFilter(
             selected: getTitleMonth(
               selectedMonth: selectedMonth,
               customStartDate: customStartDate,
@@ -128,20 +130,16 @@ class AnalyticsScreen extends StatelessWidget {
             onPrev: analyticsController.onPrev,
             onNext: analyticsController.onNext,
             enabled: customStartDate == null && customEndDate == null,
-          ),
+          );
 
-          const SizedBox(height: 24),
-
-          OverviewCard(
+          final overviewCard = OverviewCard(
             totalIncome: totalIncome,
             totalExpense: totalExpense,
             totalInvest: totalInvest,
             isRpg: isRpg,
-          ),
+          );
 
-          const SizedBox(height: 32),
-
-          Container(
+          final toggleContainer = Container(
             decoration: BoxDecoration(
               color: colorScheme.surfaceContainerHighest,
               borderRadius: BorderRadius.circular(12),
@@ -210,62 +208,124 @@ class AnalyticsScreen extends StatelessWidget {
                 ),
               ],
             ),
-          ),
-          const SizedBox(height: 32),
+          );
 
-          if (activeData.isNotEmpty) ...[
-            SizedBox(
-              height: 220,
-              child: DonutChart(
-                activeData: activeData,
-                activeTotal: activeTotal,
-                showExpense: showExpense,
-                isRpg: isRpg,
-                touchedIndex: touchedIndex,
-                activeColor: activeColor,
-                onTouch: analyticsController.onTouchIndex,
+          final donutChart = activeData.isNotEmpty
+              ? SizedBox(
+                  height: 220,
+                  child: DonutChart(
+                    activeData: activeData,
+                    activeTotal: activeTotal,
+                    showExpense: showExpense,
+                    isRpg: isRpg,
+                    touchedIndex: touchedIndex,
+                    activeColor: activeColor,
+                    onTouch: analyticsController.onTouchIndex,
+                  ),
+                )
+              : null;
+
+          final detailCards = activeData.entries.map((entry) {
+            int index = entry.key;
+            AnalyticModel data = entry.value;
+
+            return DetailCard(
+              data: data,
+              activeTotal: activeTotal,
+              isSelected: touchedIndex == index,
+              isRpg: isRpg,
+            );
+          }).toList();
+
+          final emptyState = SizedBox(
+            height: MediaQuery.of(context).size.height * 0.3,
+            child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  FaIcon(
+                    UiDict.menuAnalytics.icon(isRpg),
+                    size: 48,
+                    color: colorScheme.surfaceContainerHighest,
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    UiDict.getEmptyDesc(
+                      UiDict.menuAnalytics.get(isRpg).toLowerCase(),
+                      isRpg: isRpg,
+                    ),
+                    textAlign: TextAlign.center,
+                    style: TextStyle(color: colorScheme.onSurfaceVariant),
+                  ),
+                ],
               ),
             ),
-            const SizedBox(height: 32),
+          );
 
-            ...activeData.entries.map((entry) {
-              int index = entry.key;
-              AnalyticModel data = entry.value;
-
-              return DetailCard(
-                data: data,
-                activeTotal: activeTotal,
-                isSelected: touchedIndex == index,
-                isRpg: isRpg,
-              );
-            }),
-          ] else ...[
-            SizedBox(
-              height: MediaQuery.of(context).size.height * 0.3,
-              child: Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    FaIcon(
-                      UiDict.menuAnalytics.icon(isRpg),
-                      size: 48,
-                      color: colorScheme.surfaceContainerHighest,
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      UiDict.getEmptyDesc(
-                        UiDict.menuAnalytics.get(isRpg).toLowerCase(),
-                        isRpg: isRpg,
+          if (isWide) {
+            return Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24.0),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    flex: 5,
+                    child: ListView(
+                      padding: const EdgeInsets.only(
+                        top: 24, bottom: 24, right: 12,
                       ),
-                      textAlign: TextAlign.center,
-                      style: TextStyle(color: colorScheme.onSurfaceVariant),
+                      children: [
+                        monthFilter,
+                        const SizedBox(height: 24),
+                        overviewCard,
+                        const SizedBox(height: 32),
+                        toggleContainer,
+                        const SizedBox(height: 32),
+                        ?donutChart,
+                      ],
                     ),
-                  ],
-                ),
+                  ),
+                  Expanded(
+                    flex: 5,
+                    child: ListView(
+                      padding: const EdgeInsets.only(
+                        top: 24, bottom: 24, left: 12,
+                      ),
+                      children: [
+                        if (detailCards.isNotEmpty)
+                          ...detailCards
+                        else
+                          emptyState,
+                      ],
+                    ),
+                  ),
+                ],
               ),
+            );
+          }
+
+          return ResponsiveContainer(
+            child: ListView(
+              padding: const EdgeInsets.all(24.0),
+              children: [
+                monthFilter,
+                const SizedBox(height: 24),
+                overviewCard,
+                const SizedBox(height: 32),
+                toggleContainer,
+                const SizedBox(height: 32),
+                if (donutChart != null) ...[
+                  donutChart,
+                  const SizedBox(height: 32),
+                ],
+                if (detailCards.isNotEmpty)
+                  ...detailCards
+                else
+                  emptyState,
+              ],
             ),
-          ],
-        ],
+          );
+        },
       ),
     );
   }

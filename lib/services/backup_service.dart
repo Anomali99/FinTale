@@ -83,12 +83,25 @@ class BackupService {
       FilePickerResult? result = await FilePicker.pickFiles(
         type: FileType.custom,
         allowedExtensions: ['json'],
+        withData: true,
       );
 
-      if (result != null && result.files.single.path != null) {
-        File file = File(result.files.single.path!);
+      if (result != null && result.files.single.size > 0) {
+        final file = result.files.single;
+        String jsonString;
 
-        String jsonString = await file.readAsString();
+        if (file.path != null) {
+          // Primary: read from file path (memory efficient)
+          jsonString = await File(file.path!).readAsString();
+        } else if (file.bytes != null) {
+          // Fallback: read from bytes (for Waydroid, content URIs, etc.)
+          jsonString = utf8.decode(file.bytes!);
+        } else {
+          debugPrint(
+            '[BACKUP ERROR] File tidak dapat dibaca: path dan bytes keduanya null.',
+          );
+          return null;
+        }
 
         Map<String, dynamic> backupData = jsonDecode(jsonString);
 

@@ -8,6 +8,7 @@ import '../../../core/models/mission_model.dart';
 import '../../../core/utils/color_extension.dart';
 import '../../../core/utils/enum_types.dart';
 import '../../../widgets/markdown_text_parser.dart';
+import '../../../widgets/responsive_container.dart';
 
 class InfoScreen extends StatelessWidget {
   const InfoScreen({super.key});
@@ -24,7 +25,8 @@ class InfoScreen extends StatelessWidget {
           ),
         ),
       ),
-      body: ListView(
+      body: ResponsiveContainer(
+        child: ListView(
         padding: const EdgeInsets.all(24.0),
         children: [
           _buildSectionHeader(context, GamificationDict.missionDaily),
@@ -237,6 +239,7 @@ class InfoScreen extends StatelessWidget {
 
           const SizedBox(height: 40),
         ],
+      ),
       ),
     );
   }

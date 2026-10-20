@@ -17,6 +17,7 @@ import '../../../core/utils/color_extension.dart';
 import '../../../core/utils/global_messenger.dart';
 import '../../../models/wallet_model.dart';
 import '../../../widgets/custom_button.dart';
+import '../../../widgets/responsive_container.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
@@ -196,7 +197,8 @@ class SettingsScreen extends StatelessWidget {
           ),
         ),
       ),
-      body: ListView(
+      body: ResponsiveContainer(
+        child: ListView(
         padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 8.0),
         children: [
           _buildSectionHeader(
@@ -417,6 +419,39 @@ class SettingsScreen extends StatelessWidget {
                 ),
                 ListTile(
                   leading: FaIcon(
+                    FontAwesomeIcons.paintbrush,
+                    color: colorScheme.onSurface,
+                    size: 20,
+                  ),
+                  title: Text(UiDict.setTheme),
+                  trailing: DropdownButton<ThemeMode>(
+                    value: settingsController.themeMode,
+                    underline: const SizedBox(),
+                    dropdownColor: colorScheme.surfaceContainerHighest,
+                    items: const [
+                      DropdownMenuItem(
+                        value: ThemeMode.system,
+                        child: Text('System'),
+                      ),
+                      DropdownMenuItem(
+                        value: ThemeMode.dark,
+                        child: Text('Dark'),
+                      ),
+                      DropdownMenuItem(
+                        value: ThemeMode.light,
+                        child: Text('Light'),
+                      ),
+                    ],
+                    onChanged: settingsController.changeThemeMode,
+                  ),
+                ),
+                Divider(
+                  color: colorScheme.onSurface.withValues(alpha: 0.1),
+                  height: 1,
+                  indent: 56,
+                ),
+                ListTile(
+                  leading: FaIcon(
                     FontAwesomeIcons.scaleBalanced,
                     color: colorScheme.onSurface,
                     size: 20,
@@ -621,6 +656,7 @@ class SettingsScreen extends StatelessWidget {
 
           const SizedBox(height: 12),
         ],
+      ),
       ),
     );
   }

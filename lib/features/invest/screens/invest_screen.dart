@@ -22,6 +22,7 @@ import '../widgets/dividend_modal.dart';
 import '../widgets/sell_asset_modal.dart';
 import '../widgets/total_card.dart';
 import '../widgets/update_asset_modal.dart';
+import '../../../widgets/responsive_container.dart';
 
 class InvestScreen extends StatelessWidget {
   const InvestScreen({super.key});
@@ -265,9 +266,11 @@ class InvestScreen extends StatelessWidget {
             const SizedBox(width: 8),
           ],
         ),
-        body: Column(
-          children: [
-            Padding(
+        body: LayoutBuilder(
+          builder: (context, constraints) {
+            final isWide = constraints.maxWidth >= 700;
+
+            final totalCard = Padding(
               padding: const EdgeInsets.all(24.0),
               child: TotalCard(
                 isProfit: isOverallProfit,
@@ -275,13 +278,12 @@ class InvestScreen extends StatelessWidget {
                 totalCurrent: totalValue,
                 percentage: overallPercentage,
               ),
-            ),
+            );
 
-            TabBar(
+            final tabBarWidget = TabBar(
               indicatorColor: colorScheme.primary,
               labelColor: colorScheme.primary,
               unselectedLabelColor: colorScheme.onSurfaceVariant,
-
               tabs: [
                 Tab(
                   icon: FaIcon(CategoryDict.lowRisk.icon(isRpg), size: 16),
@@ -296,9 +298,9 @@ class InvestScreen extends StatelessWidget {
                   text: CategoryDict.highRisk.get(isRpg),
                 ),
               ],
-            ),
+            );
 
-            Expanded(
+            final tabBarViewWidget = Expanded(
               child: TabBarView(
                 children: [
                   AssetTab(
@@ -327,8 +329,49 @@ class InvestScreen extends StatelessWidget {
                   ),
                 ],
               ),
-            ),
-          ],
+            );
+
+            if (isWide) {
+              return Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      flex: 4,
+                      child: ListView(
+                        padding: const EdgeInsets.only(
+                          top: 24, bottom: 24, right: 12,
+                        ),
+                        children: [
+                          totalCard,
+                        ],
+                      ),
+                    ),
+                    Expanded(
+                      flex: 6,
+                      child: Column(
+                        children: [
+                          tabBarWidget,
+                          tabBarViewWidget,
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }
+
+            return ResponsiveContainer(
+              child: Column(
+                children: [
+                  totalCard,
+                  tabBarWidget,
+                  tabBarViewWidget,
+                ],
+              ),
+            );
+          },
         ),
       ),
     );
