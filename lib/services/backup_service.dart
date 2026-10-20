@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -11,9 +12,10 @@ import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 
 import 'backup_migrator.dart';
+import 'crypto_service.dart';
 
 class BackupService {
-  static const String backupFileName = 'FinTale_Backup.json';
+  static const String backupFileName = 'FinTale_Backup.fintale';
 
   Future<Map<String, dynamic>> getFullBackupData(
     Map<String, dynamic> userData,
@@ -40,8 +42,10 @@ class BackupService {
 
   Future<bool> exportData(
     Map<String, dynamic> userData,
-    Map<String, dynamic> databaseData,
-  ) async {
+    Map<String, dynamic> databaseData, {
+    int mode = 0,
+    String? password,
+  }) async {
     try {
       DateTime now = DateTime.now();
       final Map<String, dynamic> fullBackupData = await getFullBackupData(
@@ -51,13 +55,20 @@ class BackupService {
       );
       final String jsonString = jsonEncode(fullBackupData);
 
+      final Uint8List fileBytes = CryptoService.buildFintaleFile(
+        jsonString: jsonString,
+        mode: mode,
+        password: password,
+      );
+
       final Directory directory = await getApplicationDocumentsDirectory();
 
       final String dateStr = DateFormat('ddMMMyyyy').format(now);
-      final String filePath = '${directory.path}/FinTale_Backup_$dateStr.json';
+      final String filePath =
+          '${directory.path}/FinTale_Backup_$dateStr.fintale';
 
       final File backupFile = File(filePath);
-      await backupFile.writeAsString(jsonString);
+      await backupFile.writeAsBytes(fileBytes);
 
       final result = await SharePlus.instance.share(
         ShareParams(
@@ -78,42 +89,100 @@ class BackupService {
     }
   }
 
-  Future<Map<String, dynamic>?> importData() async {
+  /// Pick a file via system file picker and import it.
+  Future<Map<String, dynamic>?> importData({String? storedPassword}) async {
     try {
       FilePickerResult? result = await FilePicker.pickFiles(
-        type: FileType.custom,
-        allowedExtensions: ['json'],
+        type: FileType.any,
         withData: true,
       );
 
-      if (result != null && result.files.single.size > 0) {
-        final file = result.files.single;
-        String jsonString;
+      if (result == null || result.files.single.size == 0) return null;
 
-        if (file.path != null) {
-          // Primary: read from file path (memory efficient)
-          jsonString = await File(file.path!).readAsString();
-        } else if (file.bytes != null) {
-          // Fallback: read from bytes (for Waydroid, content URIs, etc.)
-          jsonString = utf8.decode(file.bytes!);
-        } else {
-          debugPrint(
-            '[BACKUP ERROR] File tidak dapat dibaca: path dan bytes keduanya null.',
-          );
-          return null;
-        }
+      final file = result.files.single;
+      Uint8List fileBytes;
 
-        Map<String, dynamic> backupData = jsonDecode(jsonString);
-
-        if (backupData.containsKey('metadata') &&
-            backupData['metadata']['app'] == 'FinTale') {
-          return backupData;
-        } else {
-          debugPrint("[BACKUP ERROR] File bukan dari FinTale yang valid.");
-          return null;
-        }
+      if (file.path != null) {
+        fileBytes = await File(file.path!).readAsBytes();
+      } else if (file.bytes != null) {
+        fileBytes = file.bytes!;
+      } else {
+        return null;
       }
 
+      return importDataFromBytes(fileBytes, storedPassword: storedPassword);
+    } catch (e) {
+      debugPrint("[BACKUP ERROR] Terjadi kesalahan saat membaca file: $e");
+      return null;
+    }
+  }
+
+  /// Import from raw bytes (used by file picker and intent handler).
+  ///
+  /// Smart decrypt flow for .fintale files:
+  ///   mode 0 → decompress only
+  ///   mode 1 → decrypt with app key
+  ///   mode 2 → try [storedPassword] → try [manualPassword] → ask user
+  ///
+  /// When [manualPassword] is provided it means the user already typed it in.
+  Future<Map<String, dynamic>?> importDataFromBytes(
+    Uint8List fileBytes, {
+    String? storedPassword,
+    String? manualPassword,
+  }) async {
+    try {
+      // Check if it's a .fintale file (magic bytes 'FNTL')
+      if (fileBytes.length > 6 &&
+          utf8.decode(fileBytes.sublist(0, 4), allowMalformed: true) ==
+              'FNTL') {
+        final parsed = CryptoService.parseFintaleFile(fileBytes);
+
+        // mode 0: raw gzip — just decompress
+        if (parsed.mode == 0) {
+          return _tryDecrypt(parsed);
+        }
+
+        // mode 1: app key — decrypt with built-in key
+        if (parsed.mode == 1) {
+          return _tryDecrypt(parsed);
+        }
+
+        // mode 2: user key — smart fallback chain
+        // 1) If manual password supplied (user typed it), try it first
+        if (manualPassword != null && manualPassword.isNotEmpty) {
+          final result = _tryDecrypt(parsed, password: manualPassword);
+          if (result != null && result['data'] != null) return result;
+          // Wrong manual password — ask again, include bytes for retry
+          return {
+            'need_password': true,
+            'wrong_password': true,
+            'file_bytes': fileBytes,
+          };
+        }
+
+        // 2) Try stored password from preferences
+        if (storedPassword != null && storedPassword.isNotEmpty) {
+          final result = _tryDecrypt(parsed, password: storedPassword);
+          if (result != null && result['data'] != null) return result;
+        }
+
+        // 3) Try app key as fallback (maybe user exported from app-key
+        //    device but file header says mode 2 — shouldn't happen, but
+        //    doesn't hurt to try)
+        final appResult = _tryDecrypt(parsed);
+        if (appResult != null && appResult['data'] != null) return appResult;
+
+        // 4) None worked — ask user for password, include bytes for retry
+        return {'need_password': true, 'file_bytes': fileBytes};
+      }
+
+      // Legacy: try parse as raw JSON
+      final String jsonString = utf8.decode(fileBytes);
+      Map<String, dynamic> backupData = jsonDecode(jsonString);
+      if (backupData.containsKey('metadata') &&
+          backupData['metadata']['app'] == 'FinTale') {
+        return {'data': backupData};
+      }
       return null;
     } catch (e) {
       debugPrint("[BACKUP ERROR] Terjadi kesalahan saat membaca file: $e");
@@ -121,11 +190,35 @@ class BackupService {
     }
   }
 
+  /// Attempt decrypt/decompress; returns {'data': ...} on success, null on
+  /// failure (wrong password / corrupt data).
+  Map<String, dynamic>? _tryDecrypt(
+    FintaleParseResult parsed, {
+    String? password,
+  }) {
+    try {
+      final jsonString = CryptoService.decryptPayload(
+        parsed: parsed,
+        password: password,
+      );
+      final Map<String, dynamic> backupData = jsonDecode(jsonString);
+      if (backupData.containsKey('metadata') &&
+          backupData['metadata']['app'] == 'FinTale') {
+        return {'data': backupData};
+      }
+      return null;
+    } catch (_) {
+      return null;
+    }
+  }
+
   Future<bool> uploadToDrive(
     auth.AuthClient client,
     Map<String, dynamic> userData,
-    Map<String, dynamic> databaseData,
-  ) async {
+    Map<String, dynamic> databaseData, {
+    int mode = 0,
+    String? password,
+  }) async {
     try {
       final Map<String, dynamic> fullBackupData = await getFullBackupData(
         userData,
@@ -134,15 +227,25 @@ class BackupService {
       final driveApi = drive.DriveApi(client);
 
       final String jsonString = jsonEncode(fullBackupData);
-      final List<int> dataBytes = utf8.encode(jsonString);
-      final Stream<List<int>> mediaStream = Stream.value(dataBytes);
-      final drive.Media media = drive.Media(mediaStream, dataBytes.length);
+      final Uint8List fileBytes = CryptoService.buildFintaleFile(
+        jsonString: jsonString,
+        mode: mode,
+        password: password,
+      );
 
-      final fileList = await driveApi.files.list(q: "name = '$backupFileName'");
+      final Stream<List<int>> mediaStream = Stream.value(fileBytes);
+      final drive.Media media = drive.Media(mediaStream, fileBytes.length);
+
+      // Search for both legacy .json and new .fintale files
+      const String legacyFileName = 'FinTale_Backup.json';
+      final fileList = await driveApi.files.list(
+        q: "name = '$backupFileName' or name = '$legacyFileName'",
+      );
 
       if (fileList.files != null && fileList.files!.isNotEmpty) {
         final String fileId = fileList.files!.first.id!;
-        await driveApi.files.update(drive.File(), fileId, uploadMedia: media);
+        final drive.File updateFile = drive.File()..name = backupFileName;
+        await driveApi.files.update(updateFile, fileId, uploadMedia: media);
       } else {
         final drive.File fileMetadata = drive.File()..name = backupFileName;
         await driveApi.files.create(fileMetadata, uploadMedia: media);
@@ -155,12 +258,17 @@ class BackupService {
   }
 
   Future<Map<String, dynamic>?> downloadFromDrive(
-    auth.AuthClient client,
-  ) async {
+    auth.AuthClient client, {
+    String? password,
+  }) async {
     try {
       final driveApi = drive.DriveApi(client);
 
-      final fileList = await driveApi.files.list(q: "name = '$backupFileName'");
+      // Search for both legacy .json and new .fintale files
+      const String legacyFileName = 'FinTale_Backup.json';
+      final fileList = await driveApi.files.list(
+        q: "name = '$backupFileName' or name = '$legacyFileName'",
+      );
       if (fileList.files == null || fileList.files!.isEmpty) return null;
 
       final String fileId = fileList.files!.first.id!;
@@ -176,8 +284,46 @@ class BackupService {
         bytes.addAll(data);
       }
 
-      final String jsonString = utf8.decode(bytes);
-      return jsonDecode(jsonString);
+      final Uint8List fileBytes = Uint8List.fromList(bytes);
+
+      // Check if it's a .fintale file (magic bytes 'FNTL')
+      if (fileBytes.length > 6 &&
+          utf8.decode(fileBytes.sublist(0, 4), allowMalformed: true) ==
+              'FNTL') {
+        final parsed = CryptoService.parseFintaleFile(fileBytes);
+
+        if (parsed.mode == 2 && password == null) {
+          return {'need_password': true};
+        }
+
+        try {
+          final jsonString = CryptoService.decryptPayload(
+            parsed: parsed,
+            password: password,
+          );
+          final Map<String, dynamic> backupData = jsonDecode(jsonString);
+
+          if (backupData.containsKey('metadata') &&
+              backupData['metadata']['app'] == 'FinTale') {
+            return {'data': backupData};
+          }
+          return null;
+        } catch (e) {
+          if (parsed.mode == 2) {
+            return {'need_password': true, 'wrong_password': true};
+          }
+          return null;
+        }
+      }
+
+      // Legacy: try parse as raw JSON
+      final String jsonString = utf8.decode(fileBytes);
+      final Map<String, dynamic> backupData = jsonDecode(jsonString);
+      if (backupData.containsKey('metadata') &&
+          backupData['metadata']['app'] == 'FinTale') {
+        return {'data': backupData};
+      }
+      return null;
     } catch (e, stackTrace) {
       debugPrint("[BACKUP] Error downloading from Drive: $e\n$stackTrace");
       return null;

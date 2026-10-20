@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
@@ -34,6 +36,10 @@ class SettingsController with ChangeNotifier {
   String? get currentPinHash => _prefService.pinHash;
   bool get isBiometricActive => _prefService.isBiometric;
   bool get isHardwareBiometricSupported => _isHardwareBiometricSupported;
+
+  bool get isBackupEncryption => _prefService.isBackupEncryption;
+  bool get isBackupUseCustom => _prefService.isBackupUseCustom;
+  String? get backupCustomPassword => _prefService.backupCustomPassword;
 
   Future<void> _initHardwareCheck() async {
     final PackageInfo packageInfo = await PackageInfo.fromPlatform();
@@ -152,6 +158,24 @@ class SettingsController with ChangeNotifier {
     await _prefService.setPinHash(value);
   }
 
+  Future<void> changeBackupEncryption(bool value) async {
+    await _prefService.setBackupEncryption(value);
+    if (!value) {
+      await _prefService.setBackupUseCustom(false);
+    }
+    notifyListeners();
+  }
+
+  Future<void> changeBackupUseCustom(bool value) async {
+    await _prefService.setBackupUseCustom(value);
+    notifyListeners();
+  }
+
+  Future<void> changeBackupCustomPassword(String? value) async {
+    await _prefService.setBackupCustomPassword(value);
+    notifyListeners();
+  }
+
   Future<bool> handleResetPin(BuildContext context) async {
     String? username = _prefService.rawUser?['name'];
     final result =
@@ -242,7 +266,26 @@ class SettingsController with ChangeNotifier {
       final Map<String, dynamic> dbData = await AppDatabase.instance
           .exportAllData();
       final Map<String, dynamic> userData = _prefService.rawUser ?? {};
-      final bool isSuccess = await BackupService().exportData(userData, dbData);
+
+      int mode = 0; // raw
+      String? password;
+      if (isBackupEncryption) {
+        if (isBackupUseCustom &&
+            backupCustomPassword != null &&
+            backupCustomPassword!.isNotEmpty) {
+          mode = 2;
+          password = backupCustomPassword;
+        } else {
+          mode = 1;
+        }
+      }
+
+      final bool isSuccess = await BackupService().exportData(
+        userData,
+        dbData,
+        mode: mode,
+        password: password,
+      );
       return isSuccess;
     } catch (e, stackTrace) {
       debugPrint("[SETTINGS] Error exporting data: $e\n$stackTrace");
@@ -252,12 +295,63 @@ class SettingsController with ChangeNotifier {
     }
   }
 
+  /// Import from file picker — auto-tries stored password and app key before
+  /// asking the user.
   Future<Map<String, dynamic>> handleImportData() async {
     _isBypassLock = true;
     try {
-      final Map<String, dynamic>? backupData = await BackupService()
-          .importData();
-      bool isSuccess = await handleMigrateData(backupData);
+      final result = await BackupService().importData(
+        storedPassword: backupCustomPassword,
+      );
+      if (result == null) return {"success": false, "load": false};
+      if (result['need_password'] == true) return result;
+
+      bool isSuccess = await handleMigrateData(result['data']);
+      return {"success": isSuccess, "load": isSuccess};
+    } catch (e) {
+      return {"success": false, "load": false, "error": 'Error:  $e'};
+    } finally {
+      _isBypassLock = false;
+    }
+  }
+
+  /// Retry decrypt with a user-typed password on already-loaded bytes.
+  Future<Map<String, dynamic>> handleImportWithPassword({
+    required Uint8List fileBytes,
+    required String password,
+  }) async {
+    _isBypassLock = true;
+    try {
+      final result = await BackupService().importDataFromBytes(
+        fileBytes,
+        manualPassword: password,
+      );
+      if (result == null) return {"success": false, "load": false};
+      if (result['need_password'] == true) return result;
+
+      bool isSuccess = await handleMigrateData(result['data']);
+      return {"success": isSuccess, "load": isSuccess};
+    } catch (e) {
+      return {"success": false, "load": false, "error": 'Error:  $e'};
+    } finally {
+      _isBypassLock = false;
+    }
+  }
+
+  /// Import from intent bytes (file opened externally).
+  Future<Map<String, dynamic>> handleImportFromIntent(
+    Uint8List fileBytes,
+  ) async {
+    _isBypassLock = true;
+    try {
+      final result = await BackupService().importDataFromBytes(
+        fileBytes,
+        storedPassword: backupCustomPassword,
+      );
+      if (result == null) return {"success": false, "load": false};
+      if (result['need_password'] == true) return result;
+
+      bool isSuccess = await handleMigrateData(result['data']);
       return {"success": isSuccess, "load": isSuccess};
     } catch (e) {
       return {"success": false, "load": false, "error": 'Error:  $e'};
@@ -275,11 +369,26 @@ class SettingsController with ChangeNotifier {
       final client = await _authService.getDriveClient();
       bool isSuccess = false;
 
+      int mode = 0;
+      String? password;
+      if (isBackupEncryption) {
+        if (isBackupUseCustom &&
+            backupCustomPassword != null &&
+            backupCustomPassword!.isNotEmpty) {
+          mode = 2;
+          password = backupCustomPassword;
+        } else {
+          mode = 1;
+        }
+      }
+
       if (client != null) {
         isSuccess = await BackupService().uploadToDrive(
           client,
           userData,
           dbData,
+          mode: mode,
+          password: password,
         );
       }
       return isSuccess;
@@ -291,14 +400,17 @@ class SettingsController with ChangeNotifier {
     }
   }
 
-  Future<Map<String, dynamic>> handleRestoreData() async {
+  Future<Map<String, dynamic>> handleRestoreData({String? password}) async {
     _isBypassLock = true;
     try {
       final client = await _authService.getDriveClient();
       if (client != null) {
-        final Map<String, dynamic>? backupData = await BackupService()
-            .downloadFromDrive(client);
-        bool isSuccess = await handleMigrateData(backupData);
+        final result = await BackupService()
+            .downloadFromDrive(client, password: password);
+        if (result == null) return {"success": false, "load": false};
+        if (result['need_password'] == true) return result;
+
+        bool isSuccess = await handleMigrateData(result['data']);
         return {"success": isSuccess, "load": isSuccess};
       }
       return {"success": false, "load": false};

@@ -96,7 +96,7 @@ class UiDict {
   static const String setHideBalance = 'Sembunyikan Nominal';
   static const String setAppLock = 'Kunci App';
   static const String setLockDesc = 'Kunci aplikasi dengan PIN/Biometrik.';
-  static const String setExport = 'Export Data (Json)';
+  static const String setExport = 'Export Data';
   static const String setImport = 'Import Data';
   static const String setDataReset = 'Reset Data';
   static const String setWarning = 'Peringatan!';
@@ -119,6 +119,18 @@ class UiDict {
   static const String setFailedExport = 'Gagal mengexport data!';
   static const String setSuccessImport = 'Berhasil mengimport data.';
   static const String setFailedImport = 'Gagal mengimport data!';
+  static const String setBackupEncryption = 'Enkripsi Backup';
+  static const String setBackupEncryptionDesc =
+      'Enkripsi file backup untuk keamanan data.';
+  static const String setBackupUseCustom = 'Gunakan Sandi Sendiri';
+  static const String setBackupUseCustomDesc =
+      'Gunakan sandi Anda sendiri untuk enkripsi backup.';
+  static const String setBackupPassword = 'Sandi Backup';
+  static const String setBackupPasswordHint = 'Masukkan sandi backup';
+  static const String setPasswordRequired =
+      'File ini dienkripsi dengan sandi. Masukkan sandi untuk membuka.';
+  static const String setPasswordWrong = 'Sandi salah, coba lagi.';
+  static const String setPasswordInput = 'Masukkan Sandi';
   static const String transactionMethode = 'Metode transaksi';
   static const String resetSkill = 'Mereset skill sesuai level.';
   static const String transactionType = 'Tipe transaksi';
