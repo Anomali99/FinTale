@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 
+import '../../../controllers/history_controller.dart';
 import '../../../controllers/invest_controller.dart';
+import '../../../controllers/transaction_controller.dart';
 import '../../../controllers/wallet_controller.dart';
 import '../../../core/constants/category_dict.dart';
 import '../../../core/constants/screen_dict.dart';
@@ -281,6 +283,10 @@ class TransactionDetailModal extends StatelessWidget {
   Widget _buildDetailItem(BuildContext context, TransactionDetailModel detail) {
     final colorScheme = Theme.of(context).colorScheme;
 
+    final categories = transaction.type == TransactionType.income
+        ? TransactionCategory.incomeCategories
+        : TransactionCategory.expenseCategories;
+
     return Padding(
       padding: const EdgeInsets.only(bottom: 12.0),
       child: Row(
@@ -289,14 +295,52 @@ class TransactionDetailModal extends StatelessWidget {
           Expanded(
             child: Row(
               children: [
-                FaIcon(
-                  CategoryDict.getByTransactionCategory(
-                    detail.category,
-                  ).icon(isRpg),
-                  size: 14,
-                  color: colorScheme.onSurfaceVariant,
+                InkWell(
+                  onTap: () async {
+                    final selected =
+                        await showModalBottomSheet<TransactionCategory>(
+                          context: context,
+                          builder: (ctx) {
+                            return ListView(
+                              children: categories.map((cat) {
+                                final model =
+                                    CategoryDict.getByTransactionCategory(cat);
+                                return ListTile(
+                                  leading: FaIcon(model.icon(isRpg), size: 20),
+                                  title: Text(model.get(isRpg)),
+                                  trailing: detail.category == cat
+                                      ? const Icon(Icons.check)
+                                      : null,
+                                  onTap: () => Navigator.pop(ctx, cat),
+                                );
+                              }).toList(),
+                            );
+                          },
+                        );
+
+                    if (selected != null && context.mounted) {
+                      detail.category = selected;
+                      final nav = Navigator.of(context);
+                      final trController = context
+                          .read<TransactionController>();
+                      final histController = context.read<HistoryController>();
+                      await trController.createTransaction(transaction);
+                      await histController.applyFilter();
+                      nav.pop();
+                    }
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.all(4.0),
+                    child: FaIcon(
+                      CategoryDict.getByTransactionCategory(
+                        detail.category,
+                      ).icon(isRpg),
+                      size: 18,
+                      color: colorScheme.primary,
+                    ),
+                  ),
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(width: 8),
                 Expanded(
                   child: Text(
                     detail.title,

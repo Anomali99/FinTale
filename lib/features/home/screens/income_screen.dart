@@ -1,6 +1,7 @@
 import 'package:decimal/decimal.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 
 import '../../../controllers/settings_controller.dart';
@@ -292,35 +293,69 @@ class _IncomeScreenState extends State<IncomeScreen> {
               },
             );
 
-            final categoryDropdown =
-                DropdownButtonFormField<TransactionCategory>(
-                  initialValue: _selectedCategory,
-                  decoration: InputDecoration(
-                    labelText: UiDict.category,
-                    border: OutlineInputBorder(),
-                  ),
-                  items: [
-                    DropdownMenuItem(
-                      value: TransactionCategory.loanDisbursement,
-                      child: Text(CategoryDict.loanDisbursement.get(false)),
-                    ),
-                    DropdownMenuItem(
-                      value: TransactionCategory.business,
-                      child: Text(CategoryDict.business.get(false)),
-                    ),
-                    DropdownMenuItem(
-                      value: TransactionCategory.salary,
-                      child: Text(CategoryDict.salary.get(false)),
-                    ),
+            final categoryDropdown = InkWell(
+              onTap: () async {
+                final settingsController = context.read<SettingsController>();
+                final isRpg = settingsController.isRpgMode;
+                final selected =
+                    await showModalBottomSheet<TransactionCategory>(
+                      context: context,
+                      builder: (ctx) {
+                        return ListView(
+                          children: TransactionCategory.incomeCategories.map((
+                            cat,
+                          ) {
+                            final model = CategoryDict.getByTransactionCategory(
+                              cat,
+                            );
+                            return ListTile(
+                              leading: FaIcon(model.icon(isRpg), size: 20),
+                              title: Text(model.get(isRpg)),
+                              trailing: _selectedCategory == cat
+                                  ? const Icon(Icons.check)
+                                  : null,
+                              onTap: () => Navigator.pop(ctx, cat),
+                            );
+                          }).toList(),
+                        );
+                      },
+                    );
+                if (selected != null) {
+                  setState(() => _selectedCategory = selected);
+                }
+              },
+              child: InputDecorator(
+                decoration: const InputDecoration(
+                  labelText: UiDict.category,
+                  border: OutlineInputBorder(),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    if (_selectedCategory != null)
+                      Row(
+                        children: [
+                          FaIcon(
+                            CategoryDict.getByTransactionCategory(
+                              _selectedCategory!,
+                            ).icon(isRpg),
+                            size: 20,
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            CategoryDict.getByTransactionCategory(
+                              _selectedCategory!,
+                            ).get(isRpg),
+                          ),
+                        ],
+                      )
+                    else
+                      const Text('Pilih Kategori'),
+                    const Icon(Icons.arrow_drop_down),
                   ],
-                  validator: (value) {
-                    if (value == null && !widget.isTransfer) {
-                      return UiDict.requiredCategory;
-                    }
-                    return null;
-                  },
-                  onChanged: (val) => setState(() => _selectedCategory = val),
-                );
+                ),
+              ),
+            );
 
             final feeSwitch = SwitchListTile(
               contentPadding: EdgeInsets.zero,

@@ -1,3 +1,4 @@
+import 'package:decimal/decimal.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -9,7 +10,10 @@ import '../../../core/utils/enum_types.dart';
 import '../../../core/utils/number_utils.dart';
 import '../../../models/bill_model.dart';
 import '../../../models/debt_model.dart';
+import '../../../models/transaction_detail_model.dart';
+import '../../../models/transaction_model.dart';
 import '../../../widgets/custom_button.dart';
+import '../../../widgets/custom_date_time_picker.dart';
 
 class AddDebtModal extends StatefulWidget {
   final DebtModel? initialDebt;
@@ -25,13 +29,18 @@ class _AddDebtModalState extends State<AddDebtModal> {
   final _titleController = TextEditingController();
   final _totalAmountController = TextEditingController();
   final _paidAmountController = TextEditingController(text: '0');
-
   final _installmentController = TextEditingController();
+  final _adminFeeController = TextEditingController(text: '0');
 
   DebtType _selectedType = DebtType.other;
   bool _createBill = false;
   TimeType _billFrequency = TimeType.monthly;
   int _billDay = 1;
+
+  // Toggle generate transaksi income saat hutang dibuat
+  bool _generateTransaction = true;
+  DateTime _transactionDate = DateTime.now();
+  bool _hasAdminFee = false;
 
   @override
   void initState() {
@@ -68,6 +77,7 @@ class _AddDebtModalState extends State<AddDebtModal> {
     _totalAmountController.dispose();
     _paidAmountController.dispose();
     _installmentController.dispose();
+    _adminFeeController.dispose();
     super.dispose();
   }
 
@@ -97,7 +107,47 @@ class _AddDebtModalState extends State<AddDebtModal> {
         bill: bill,
       );
 
-      Navigator.pop(context, debt);
+      // Hanya buat transaksi income jika ini debt baru dan toggle aktif
+      TransactionModel? transaction;
+      if (widget.initialDebt == null && _generateTransaction) {
+        final totalAmount = NumberUtils.parseToDecimal(
+          _totalAmountController.text,
+        );
+        final adminFee = _hasAdminFee
+            ? NumberUtils.parseToDecimal(_adminFeeController.text)
+            : null;
+
+        final details = <TransactionDetailModel>[
+          TransactionDetailModel(
+            title: _titleController.text.trim(),
+            amount: totalAmount,
+            flow: FlowType.income,
+            category: TransactionCategory.loanDisbursement,
+          ),
+        ];
+        if (adminFee != null && adminFee > Decimal.zero) {
+          details.add(
+            TransactionDetailModel(
+              title: UiDict.feeAmount,
+              amount: adminFee,
+              flow: FlowType.expense,
+              category: TransactionCategory.utilities,
+            ),
+          );
+        }
+
+        transaction = TransactionModel(
+          type: TransactionType.income,
+          title:
+              '${ScreenDict.debtsMaster.get(false)}: ${_titleController.text.trim()}',
+          amount: totalAmount,
+          status: StatusType.paid,
+          dateTimestamp: _transactionDate.millisecondsSinceEpoch,
+          detailTransaction: details,
+        );
+      }
+
+      Navigator.pop(context, {'debt': debt, 'transaction': transaction});
     }
   }
 
@@ -286,6 +336,78 @@ class _AddDebtModalState extends State<AddDebtModal> {
                     ),
                   ],
                 ),
+              ],
+
+              // ── Toggle generate transaksi income ─────────────────────────
+              if (widget.initialDebt == null) ...[
+                const SizedBox(height: 8),
+                const Divider(),
+                SwitchListTile(
+                  contentPadding: EdgeInsets.zero,
+                  title: Text(
+                    isRpg
+                        ? 'Catat Penerimaan Dana?'
+                        : 'Generate Transaksi Pemasukan?',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  subtitle: Text(
+                    isRpg
+                        ? 'Otomatis catat dana yang masuk ke kas guild saat hutang dibuat.'
+                        : 'Otomatis mencatat pemasukan ke histori saat hutang dicatat.',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                  value: _generateTransaction,
+                  onChanged: (val) =>
+                      setState(() => _generateTransaction = val),
+                ),
+                if (_generateTransaction) ...[
+                  const SizedBox(height: 8),
+                  CustomDateTimePicker(
+                    initialDate: _transactionDate,
+                    label: 'Tanggal Transaksi',
+                    onChanged: (d) => setState(() => _transactionDate = d),
+                  ),
+                  const SizedBox(height: 8),
+                  SwitchListTile(
+                    contentPadding: EdgeInsets.zero,
+                    title: const Text(
+                      UiDict.feeCheck,
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    subtitle: Text(
+                      'Biaya administrasi atau potongan dari pemberi pinjaman.',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                    value: _hasAdminFee,
+                    onChanged: (val) => setState(() => _hasAdminFee = val),
+                  ),
+                  if (_hasAdminFee) ...[
+                    const SizedBox(height: 8),
+                    TextFormField(
+                      controller: _adminFeeController,
+                      keyboardType: TextInputType.number,
+                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                      decoration: const InputDecoration(
+                        labelText: UiDict.feeAmount,
+                        prefixText: 'Rp ',
+                        border: OutlineInputBorder(),
+                      ),
+                      onChanged: (val) =>
+                          NumberUtils.formatInput(_adminFeeController, val),
+                      validator: (val) =>
+                          _hasAdminFee &&
+                              (val == null || !NumberUtils.isValidAmount(val))
+                          ? UiDict.requiredFee
+                          : null,
+                    ),
+                  ],
+                ],
               ],
 
               const SizedBox(height: 32),

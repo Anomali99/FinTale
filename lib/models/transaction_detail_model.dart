@@ -7,9 +7,9 @@ class TransactionDetailModel {
   final String title;
   final Decimal amount;
   final FlowType flow;
-  final TransactionCategory category;
+  TransactionCategory category;
 
-  const TransactionDetailModel({
+  TransactionDetailModel({
     required this.title,
     required this.amount,
     required this.category,

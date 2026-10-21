@@ -167,7 +167,7 @@ class BillsScreen extends StatelessWidget {
 
   void _openAddDebtModal(BuildContext context, {DebtModel? initialDebt}) async {
     final isRpg = context.read<SettingsController>().isRpgMode;
-    final result = await showModalBottomSheet<DebtModel>(
+    final result = await showModalBottomSheet<Map<String, dynamic>>(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
@@ -177,10 +177,22 @@ class BillsScreen extends StatelessWidget {
     );
 
     if (result != null && context.mounted) {
-      bool isSuccess = await context.read<BillController>().createDebt(
-        context,
-        result,
-      );
+      final debt = result['debt'] as DebtModel;
+      final transaction = result['transaction'] as TransactionModel?;
+
+      final billController = context.read<BillController>();
+      final historyController = context.read<HistoryController>();
+      final analyticsController = context.read<AnalyticsController>();
+      final transactionController = context.read<TransactionController>();
+
+      bool isSuccess = await billController.createDebt(context, debt);
+
+      if (isSuccess && transaction != null && context.mounted) {
+        await transactionController.createTransaction(transaction);
+        await historyController.applyFilter();
+        await analyticsController.applyFilter();
+      }
+
       if (!context.mounted) return;
       GlobalMessenger.showMessage(
         context,
@@ -219,15 +231,24 @@ class BillsScreen extends StatelessWidget {
 
     if (result != null && context.mounted) {
       ReceivableModel receivable = result['receivable'];
-      TransactionModel transaction = result['transaction'];
-      bool useReserved = result['use_reserved'];
+      TransactionModel? transaction = result['transaction'];
+      bool? useReserved = result['use_reserved'];
+      bool generateTransaction = result['generate_transaction'] ?? false;
 
-      final isSuccess = await billController.createReceivable(
-        context,
-        transaction,
-        receivable,
-        useReserved: useReserved,
-      );
+      bool isSuccess;
+      if (generateTransaction && transaction != null) {
+        isSuccess = await billController.createReceivable(
+          context,
+          transaction,
+          receivable,
+          useReserved: useReserved ?? false,
+        );
+      } else {
+        isSuccess = await billController.createReceivableOnly(
+          context,
+          receivable,
+        );
+      }
 
       await historyController.applyFilter();
       await analyticsController.applyFilter();

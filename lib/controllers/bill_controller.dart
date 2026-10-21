@@ -507,6 +507,41 @@ class BillController with ChangeNotifier {
     }
   }
 
+  /// Simpan piutang tanpa generate transaksi pengeluaran.
+  Future<bool> createReceivableOnly(
+    BuildContext context,
+    ReceivableModel receivable,
+  ) async {
+    try {
+      int id;
+      if (receivable.id == null) {
+        id = await _receivableDao.create(receivable);
+      } else {
+        id = receivable.id!;
+        await _receivableDao.update(receivable);
+      }
+
+      if (_userController.isNotification &&
+          !receivable.isFinished &&
+          receivable.isReminderActive &&
+          receivable.targetDate != null) {
+        await createReceivableNotification(receivable: receivable, id: id);
+      } else {
+        await NotificationService().cancelNotificationByStringId(
+          'receivable_$id',
+        );
+      }
+
+      await loadReceivableData();
+      return true;
+    } catch (e) {
+      debugPrint("[BILL] An error occurred while create receivable only: $e");
+      return false;
+    } finally {
+      notifyListeners();
+    }
+  }
+
   Future<void> loadData() async {
     try {
       await loadBillData();

@@ -49,6 +49,9 @@ class _AddReceivableScreenState extends State<AddReceivableScreen> {
   bool _isFeeActive = false;
   bool _isSavingsActive = false;
 
+  // Toggle generate transaksi expense saat piutang dicatat
+  bool _generateTransaction = true;
+
   Decimal get _cleanAmount =>
       NumberUtils.parseToDecimal(_amountController.text);
   Decimal get _cleanFee => NumberUtils.parseToDecimal(_feeController.text);
@@ -111,21 +114,26 @@ class _AddReceivableScreenState extends State<AddReceivableScreen> {
       );
 
       if (widget.initialReceivable == null) {
-        TransactionModel transaction = receivable.generateTransaction(
-          walletId: _selectedWallet?.id,
-          feeAmount: _isFeeActive ? _cleanFee : null,
-        );
+        TransactionModel? transaction;
+        if (_generateTransaction) {
+          transaction = receivable.generateTransaction(
+            walletId: _selectedWallet?.id,
+            feeAmount: _isFeeActive ? _cleanFee : null,
+          );
+        }
 
         Navigator.pop(context, {
           "receivable": receivable,
           "transaction": transaction,
-          "use_reserved": _isSavingsActive,
+          "use_reserved": _generateTransaction ? _isSavingsActive : false,
+          "generate_transaction": _generateTransaction,
         });
       } else {
         Navigator.pop(context, {
           "receivable": receivable,
           "transaction": null,
           "use_reserved": null,
+          "generate_transaction": false,
         });
       }
     }
@@ -275,8 +283,7 @@ class _AddReceivableScreenState extends State<AddReceivableScreen> {
                               );
                             })
                             .toList(),
-                    validator: (val) =>
-                        val == null || widget.initialReceivable != null
+                    validator: (val) => _generateTransaction && val == null
                         ? UiDict.requiredWallet
                         : null,
                     onChanged: (val) {
@@ -370,6 +377,37 @@ class _AddReceivableScreenState extends State<AddReceivableScreen> {
                     ],
                   )
                 : const SizedBox.shrink();
+
+            final generateTransactionSection = widget.initialReceivable == null
+                ? Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const SizedBox(height: 8),
+                      const Divider(),
+                      SwitchListTile(
+                        contentPadding: EdgeInsets.zero,
+                        title: Text(
+                          isRpg
+                              ? 'Catat Pengeluaran Dana?'
+                              : 'Generate Transaksi Pengeluaran?',
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        subtitle: Text(
+                          isRpg
+                              ? 'Otomatis catat dana yang keluar dari kas guild saat piutang dicatat.'
+                              : 'Otomatis mencatat pengeluaran ke histori saat piutang dicatat.',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                        value: _generateTransaction,
+                        onChanged: (val) =>
+                            setState(() => _generateTransaction = val),
+                      ),
+                    ],
+                  )
+                : null;
 
             final feeSection = widget.initialReceivable == null
                 ? Column(
@@ -496,6 +534,7 @@ class _AddReceivableScreenState extends State<AddReceivableScreen> {
                           targetDateSwitch,
                           targetDateSection,
                           ?feeSection,
+                          ?generateTransactionSection,
                         ],
                       ),
                     ),
@@ -528,6 +567,7 @@ class _AddReceivableScreenState extends State<AddReceivableScreen> {
                     targetDateSwitch,
                     targetDateSection,
                     ?feeSection,
+                    ?generateTransactionSection,
                   ],
                 ),
               ),
