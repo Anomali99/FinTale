@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../../../controllers/settings_controller.dart';
+import '../../../controllers/wallet_controller.dart';
 import '../../../core/constants/screen_dict.dart';
 import '../../../core/constants/ui_dict.dart';
 import '../../../core/utils/enum_types.dart';
@@ -12,6 +13,7 @@ import '../../../models/bill_model.dart';
 import '../../../models/debt_model.dart';
 import '../../../models/transaction_detail_model.dart';
 import '../../../models/transaction_model.dart';
+import '../../../models/wallet_model.dart';
 import '../../../widgets/custom_button.dart';
 import '../../../widgets/custom_date_time_picker.dart';
 
@@ -37,14 +39,19 @@ class _AddDebtModalState extends State<AddDebtModal> {
   TimeType _billFrequency = TimeType.monthly;
   int _billDay = 1;
 
-  // Toggle generate transaksi income saat hutang dibuat
   bool _generateTransaction = true;
   DateTime _transactionDate = DateTime.now();
   bool _hasAdminFee = false;
+  WalletModel? _selectedWallet;
+  late List<WalletModel> _allWallets;
 
   @override
   void initState() {
     super.initState();
+    _allWallets = context.read<WalletController>().allWallets;
+    if (_allWallets.isNotEmpty) {
+      _selectedWallet = _allWallets.first;
+    }
     final initialValue = widget.initialDebt;
     if (initialValue != null) {
       _titleController.text = initialValue.title;
@@ -107,7 +114,6 @@ class _AddDebtModalState extends State<AddDebtModal> {
         bill: bill,
       );
 
-      // Hanya buat transaksi income jika ini debt baru dan toggle aktif
       TransactionModel? transaction;
       if (widget.initialDebt == null && _generateTransaction) {
         final totalAmount = NumberUtils.parseToDecimal(
@@ -144,6 +150,7 @@ class _AddDebtModalState extends State<AddDebtModal> {
           status: StatusType.paid,
           dateTimestamp: _transactionDate.millisecondsSinceEpoch,
           detailTransaction: details,
+          walletId: _selectedWallet?.id,
         );
       }
 
@@ -338,22 +345,17 @@ class _AddDebtModalState extends State<AddDebtModal> {
                 ),
               ],
 
-              // ── Toggle generate transaksi income ─────────────────────────
               if (widget.initialDebt == null) ...[
                 const SizedBox(height: 8),
                 const Divider(),
                 SwitchListTile(
                   contentPadding: EdgeInsets.zero,
                   title: Text(
-                    isRpg
-                        ? 'Catat Penerimaan Dana?'
-                        : 'Generate Transaksi Pemasukan?',
-                    style: TextStyle(fontWeight: FontWeight.bold),
+                    ScreenDict.debtGenerateIncome.get(isRpg),
+                    style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
                   subtitle: Text(
-                    isRpg
-                        ? 'Otomatis catat dana yang masuk ke kas guild saat hutang dibuat.'
-                        : 'Otomatis mencatat pemasukan ke histori saat hutang dicatat.',
+                    ScreenDict.getDebtGenerateIncomeDesc(isRpg: isRpg),
                     style: TextStyle(
                       fontSize: 12,
                       color: colorScheme.onSurfaceVariant,
@@ -367,8 +369,37 @@ class _AddDebtModalState extends State<AddDebtModal> {
                   const SizedBox(height: 8),
                   CustomDateTimePicker(
                     initialDate: _transactionDate,
-                    label: 'Tanggal Transaksi',
+                    label: ScreenDict.historyTime.get(isRpg),
                     onChanged: (d) => setState(() => _transactionDate = d),
+                  ),
+
+                  const SizedBox(height: 12),
+                  DropdownButtonFormField<WalletModel>(
+                    initialValue: _selectedWallet,
+                    decoration: const InputDecoration(
+                      labelText: UiDict.destinationWallet,
+                      border: OutlineInputBorder(),
+                    ),
+                    items: _allWallets.map((wallet) {
+                      return DropdownMenuItem(
+                        value: wallet,
+                        child: Text(
+                          context.read<WalletController>().getDisplayName(
+                            wallet,
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                    validator: (value) {
+                      if (_generateTransaction &&
+                          (value == null ||
+                              value.id == null ||
+                              value.id == 0)) {
+                        return UiDict.requiredWalletDest;
+                      }
+                      return null;
+                    },
+                    onChanged: (val) => setState(() => _selectedWallet = val),
                   ),
                   const SizedBox(height: 8),
                   SwitchListTile(

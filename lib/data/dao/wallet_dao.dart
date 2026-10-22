@@ -29,8 +29,8 @@ class WalletDao {
         WHEN 'bank' THEN 2
         WHEN 'eWallet' THEN 3
         WHEN 'platform' THEN 4
-        ELSE 5 
-      END ASC, 
+        ELSE 5
+      END ASC,
       created_at DESC
       ''',
     );
@@ -49,8 +49,8 @@ class WalletDao {
         WHEN 'bank' THEN 2
         WHEN 'eWallet' THEN 3
         WHEN 'platform' THEN 4
-        ELSE 5 
-      END ASC, 
+        ELSE 5
+      END ASC,
       created_at DESC
       ''',
     );

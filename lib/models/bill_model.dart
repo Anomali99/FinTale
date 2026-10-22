@@ -100,12 +100,10 @@ extension BillExtension on BillModel {
     DateTime today = DateTime(now.year, now.month, now.day);
     DateTime currentPeriod = _getCurrentPeriodDueDate(now);
 
-    // If the current period due date is today or in the future, use it
     if (!currentPeriod.isBefore(today)) {
       return currentPeriod;
     }
 
-    // Otherwise, calculate the next one
     return _calculateNextDateFrom(currentPeriod);
   }
 

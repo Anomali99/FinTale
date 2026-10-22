@@ -1,12 +1,10 @@
 import 'package:decimal/decimal.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 
 import '../../../controllers/settings_controller.dart';
 import '../../../controllers/wallet_controller.dart';
-import '../../../core/constants/category_dict.dart';
 import '../../../core/constants/screen_dict.dart';
 import '../../../core/constants/ui_dict.dart';
 import '../../../core/utils/enum_types.dart';
@@ -15,6 +13,7 @@ import '../../../models/transaction_detail_model.dart';
 import '../../../models/transaction_model.dart';
 import '../../../models/wallet_model.dart';
 import '../../../widgets/custom_button.dart';
+import '../../../widgets/custom_category_input.dart';
 import '../../../widgets/custom_date_time_picker.dart';
 import '../../../widgets/note_container.dart';
 import '../../../widgets/responsive_container.dart';
@@ -39,33 +38,6 @@ class DailyExpenseScreen extends StatefulWidget {
 }
 
 class _DailyExpenseScreenState extends State<DailyExpenseScreen> {
-  // Helper to show category picker bottom sheet for an expense item
-  Future<void> _selectCategory(ExpenseItemForm item) async {
-    final settingsController = context.read<SettingsController>();
-    final isRpg = settingsController.isRpgMode;
-    final selected = await showModalBottomSheet<TransactionCategory>(
-      context: context,
-      builder: (ctx) {
-        return ListView(
-          children: TransactionCategory.expenseCategories.map((cat) {
-            final model = CategoryDict.getByTransactionCategory(cat);
-            return ListTile(
-              leading: FaIcon(model.icon(isRpg), size: 20),
-              title: Text(model.get(isRpg)),
-              trailing: item.category == cat ? const Icon(Icons.check) : null,
-              onTap: () => Navigator.pop(ctx, cat),
-            );
-          }).toList(),
-        );
-      },
-    );
-    if (selected != null) {
-      setState(() => item.category = selected);
-    }
-  }
-
-  // Existing members continue below
-
   final _formKey = GlobalKey<FormState>();
 
   final _mainTitleController = TextEditingController();
@@ -153,7 +125,7 @@ class _DailyExpenseScreenState extends State<DailyExpenseScreen> {
       if (_isFeeActive) {
         details.add(
           TransactionDetailModel(
-            title: 'Fee',
+            title: UiDict.feeAmount,
             amount: NumberUtils.parseToDecimal(_feeController.text),
             category: TransactionCategory.utilities,
             flow: FlowType.expense,
@@ -252,6 +224,31 @@ class _DailyExpenseScreenState extends State<DailyExpenseScreen> {
                 onChanged: (val) => setState(() => _selectedWallet = val),
                 validator: (val) => val == null ? UiDict.requiredWallet : null,
               ),
+
+              SwitchListTile(
+                contentPadding: EdgeInsets.zero,
+                title: Text(
+                  ScreenDict.getReservedCheck(isRpg: isRpg),
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                subtitle: Text(
+                  ScreenDict.getReservedCheckDesc(isRpg: isRpg),
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: colorScheme.onSurfaceVariant,
+                  ),
+                ),
+                value: _isSavingsActive,
+                onChanged: (val) => setState(() {
+                  _isSavingsActive = val;
+                  if (!val &&
+                      _selectedWallet != null &&
+                      _selectedWallet!.isSavings) {
+                    _selectedWallet = null;
+                  }
+                }),
+              ),
+
               const SizedBox(height: 16),
 
               CustomDateTimePicker(
@@ -313,29 +310,6 @@ class _DailyExpenseScreenState extends State<DailyExpenseScreen> {
                 ),
               ],
 
-              SwitchListTile(
-                contentPadding: EdgeInsets.zero,
-                title: Text(
-                  ScreenDict.getReservedCheck(isRpg: isRpg),
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-                subtitle: Text(
-                  ScreenDict.getReservedCheckDesc(isRpg: isRpg),
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: colorScheme.onSurfaceVariant,
-                  ),
-                ),
-                value: _isSavingsActive,
-                onChanged: (val) => setState(() {
-                  _isSavingsActive = val;
-                  if (!val &&
-                      _selectedWallet != null &&
-                      _selectedWallet!.isSavings) {
-                    _selectedWallet = null;
-                  }
-                }),
-              ),
               SwitchListTile(
                 contentPadding: EdgeInsets.zero,
                 title: Text(
@@ -464,40 +438,14 @@ class _DailyExpenseScreenState extends State<DailyExpenseScreen> {
                         ),
                         const SizedBox(height: 16),
 
-                        // Replaced dropdown with bottom‑sheet category picker
-                        InkWell(
-                          onTap: () => _selectCategory(item),
-                          child: InputDecorator(
-                            decoration: const InputDecoration(
-                              labelText: UiDict.category,
-                              border: OutlineInputBorder(),
-                            ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                if (item.category != null)
-                                  Row(
-                                    children: [
-                                      FaIcon(
-                                        CategoryDict.getByTransactionCategory(
-                                          item.category!,
-                                        ).icon(isRpg),
-                                        size: 20,
-                                      ),
-                                      const SizedBox(width: 8),
-                                      Text(
-                                        CategoryDict.getByTransactionCategory(
-                                          item.category!,
-                                        ).get(isRpg),
-                                      ),
-                                    ],
-                                  )
-                                else
-                                  const Text('Pilih Kategori'),
-                                const Icon(Icons.arrow_drop_down),
-                              ],
-                            ),
-                          ),
+                        CustomCategoryInput(
+                          type: CategoryType.expense,
+                          selectedCategory: item.category,
+                          validator: (val) =>
+                              val == null ? UiDict.requiredCategory : null,
+                          onChanged: (cat) {
+                            setState(() => item.category = cat);
+                          },
                         ),
                       ],
                     ),

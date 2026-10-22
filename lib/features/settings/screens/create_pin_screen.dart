@@ -179,100 +179,103 @@ class _CreatePinScreenState extends State<CreatePinScreen> {
       body: SafeArea(
         child: ResponsiveContainer(
           child: Column(
-          children: [
-            const SizedBox(height: 24),
-            Text(
-              _currentTitle,
-              style: TextStyle(
-                fontFamily: 'Poppins',
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: colorScheme.onSurface,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              _currentSubtitle,
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 14,
-                color: colorScheme.onSurfaceVariant,
-              ),
-            ),
-            const SizedBox(height: 48),
-
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: List.generate(6, (index) {
-                bool isFilled = index < _currentInputText.length;
-                return AnimatedContainer(
-                  duration: const Duration(milliseconds: 150),
-                  margin: const EdgeInsets.symmetric(horizontal: 12),
-                  width: 16,
-                  height: 16,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: isFilled
-                        ? colorScheme.primary
-                        : colorScheme.onSurface.withValues(alpha: 0.1),
-                    border: Border.all(
-                      color: isFilled
-                          ? colorScheme.primary
-                          : colorScheme.onSurfaceVariant.withValues(alpha: 0.3),
-                      width: 1.5,
-                    ),
-                  ),
-                );
-              }),
-            ),
-
-            const Spacer(),
-
-            if (_currentStep == PinStep.enterOld &&
-                widget.userEmail != null &&
-                widget.userEmail!.isNotEmpty)
-              TextButton(
-                onPressed: () {
-                  /* TODO: Implement Send OTP*/
-                },
-                child: Text(
-                  UiDict.forgotPin,
-                  style: TextStyle(
-                    color: colorScheme.primary,
-                    fontWeight: FontWeight.bold,
-                  ),
+            children: [
+              const SizedBox(height: 24),
+              Text(
+                _currentTitle,
+                style: TextStyle(
+                  fontFamily: 'Poppins',
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: colorScheme.onSurface,
                 ),
               ),
-
-            if (!(_currentStep == PinStep.enterOld &&
-                widget.userEmail != null &&
-                widget.userEmail!.isNotEmpty))
+              const SizedBox(height: 8),
+              Text(
+                _currentSubtitle,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 14,
+                  color: colorScheme.onSurfaceVariant,
+                ),
+              ),
               const SizedBox(height: 48),
 
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 24),
-              child: Column(
-                children: [
-                  _buildNumpadRow(['1', '2', '3']),
-                  const SizedBox(height: 20),
-                  _buildNumpadRow(['4', '5', '6']),
-                  const SizedBox(height: 20),
-                  _buildNumpadRow(['7', '8', '9']),
-                  const SizedBox(height: 20),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const SizedBox(width: 68, height: 68),
-                      _buildNumberButton('0'),
-                      _buildBackButton(),
-                    ],
-                  ),
-                ],
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: List.generate(6, (index) {
+                  bool isFilled = index < _currentInputText.length;
+                  return AnimatedContainer(
+                    duration: const Duration(milliseconds: 150),
+                    margin: const EdgeInsets.symmetric(horizontal: 12),
+                    width: 16,
+                    height: 16,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: isFilled
+                          ? colorScheme.primary
+                          : colorScheme.onSurface.withValues(alpha: 0.1),
+                      border: Border.all(
+                        color: isFilled
+                            ? colorScheme.primary
+                            : colorScheme.onSurfaceVariant.withValues(
+                                alpha: 0.3,
+                              ),
+                        width: 1.5,
+                      ),
+                    ),
+                  );
+                }),
               ),
-            ),
-            const SizedBox(height: 24),
-          ],
-        ),
+
+              const Spacer(),
+
+              if (_currentStep == PinStep.enterOld &&
+                  widget.userEmail != null &&
+                  widget.userEmail!.isNotEmpty)
+                TextButton(
+                  onPressed: () {},
+                  child: Text(
+                    UiDict.forgotPin,
+                    style: TextStyle(
+                      color: colorScheme.primary,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+
+              if (!(_currentStep == PinStep.enterOld &&
+                  widget.userEmail != null &&
+                  widget.userEmail!.isNotEmpty))
+                const SizedBox(height: 48),
+
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 40,
+                  vertical: 24,
+                ),
+                child: Column(
+                  children: [
+                    _buildNumpadRow(['1', '2', '3']),
+                    const SizedBox(height: 20),
+                    _buildNumpadRow(['4', '5', '6']),
+                    const SizedBox(height: 20),
+                    _buildNumpadRow(['7', '8', '9']),
+                    const SizedBox(height: 20),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const SizedBox(width: 68, height: 68),
+                        _buildNumberButton('0'),
+                        _buildBackButton(),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 24),
+            ],
+          ),
         ),
       ),
     );

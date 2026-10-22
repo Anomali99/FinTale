@@ -185,7 +185,9 @@ class GlobalMessenger {
             if (description != null && description.isNotEmpty) ...[
               Padding(
                 padding: EdgeInsets.symmetric(vertical: 12.0),
-                child: Divider(color: colorScheme.onSurface.withValues(alpha: 0.12)),
+                child: Divider(
+                  color: colorScheme.onSurface.withValues(alpha: 0.12),
+                ),
               ),
               Text(
                 description,

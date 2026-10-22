@@ -107,7 +107,6 @@ enum TransactionCategory {
   charity,
   utilities,
   debtInstallment,
-  // New expense categories
   fashion,
   gadget,
   streaming,
@@ -163,37 +162,15 @@ enum TransactionCategory {
     socialEvent,
     charity,
     health,
+    lending,
+    transfer,
     utilities,
     other,
   ];
 
   static List<TransactionCategory> get allExpenseCategories => [
-    food,
-    groceries,
-    fashion,
-    gadget,
-    streaming,
-    gaming,
-    hobby,
-    concert,
-    travel,
-    hangout,
-    fuel,
-    vehicleService,
-    rideshare,
-    travelTicket,
-    publicTransport,
-    transport,
-    entertainment,
-    gift,
-    giftGiving,
-    socialEvent,
-    charity,
-    health,
-    utilities,
-    lending,
     debtInstallment,
-    other,
+    ...expenseCategories,
   ];
 
   static List<TransactionCategory> get incomeCategories => [

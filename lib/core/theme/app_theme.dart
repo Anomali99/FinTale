@@ -51,13 +51,13 @@ class AppTheme {
       colorScheme: const ColorScheme.light(
         primary: AppColors.primaryLight,
         onPrimary: Colors.white,
-        secondary: Color(0xFFDAC07A), // muted gold for accents/chips
+        secondary: Color(0xFFDAC07A),
         onSecondary: Color(0xFF3E2C00),
         surface: AppColors.surfaceLight,
         onSurface: AppColors.textLight,
         surfaceContainerHighest: AppColors.surfaceVariantLight,
         onSurfaceVariant: AppColors.textSecondaryLight,
-        outline: Color(0xFFD4CBBE), // warm border color
+        outline: Color(0xFFD4CBBE),
         error: AppColors.error,
       ),
       appBarTheme: const AppBarTheme(

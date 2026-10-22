@@ -15,7 +15,7 @@ class HashHelper {
     }
 
     final bytes = utf8.encode('$salt:$pin');
-    // Multiple rounds to strengthen against brute-force attacks
+
     Digest digest = sha256.convert(bytes);
     for (int i = 0; i < 1000; i++) {
       digest = sha256.convert(digest.bytes + bytes);
@@ -25,7 +25,6 @@ class HashHelper {
   }
 
   static bool verifyPin(String plainPin, String hashedPin) {
-    // Backward compatibility with legacy unsalted SHA-256
     if (!hashedPin.contains(':')) {
       final legacyHash = sha256.convert(utf8.encode(plainPin)).toString();
       return _constantTimeEquals(legacyHash, hashedPin);

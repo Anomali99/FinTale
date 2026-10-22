@@ -82,7 +82,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
     Navigator.pop(context);
 
     if (result['need_password'] == true) {
-      // Pass the cached file bytes so the retry doesn't open the picker again
       final Uint8List? cachedBytes = result['file_bytes'] as Uint8List?;
       _showPasswordDialog(
         context,
@@ -215,7 +214,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
       if (password != null && password.isNotEmpty && context.mounted) {
         final settingsController = context.read<SettingsController>();
         if (fileBytes != null) {
-          // Retry decrypt with the cached file bytes — no picker reopened
           _handleAction(
             context,
             () => settingsController.handleImportWithPassword(
@@ -226,7 +224,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
             onFailed: UiDict.setFailedImport,
           );
         } else {
-          // Fallback: re-pick file (shouldn't happen in normal flow)
           _handleAction(
             context,
             () => settingsController.handleImportData(),
@@ -527,10 +524,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       color: colorScheme.onSurface,
                       size: 20,
                     ),
-                    title: const Text('Kecualikan Tabungan'),
-                    subtitle: const Text(
-                      'Kecualikan saldo tabungan dari total saldo di beranda dan detail dompet',
-                    ),
+                    title: const Text(UiDict.setExcludeSavings),
+                    subtitle: const Text(UiDict.setExcludeSavingsDesc),
                     trailing: Switch(
                       value: !settingsController.isIncludeSavingsInTotal,
                       activeThumbColor: colorScheme.primary,
@@ -593,15 +588,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       items: const [
                         DropdownMenuItem(
                           value: ThemeMode.system,
-                          child: Text('System'),
+                          child: Text(UiDict.themeSystem),
                         ),
                         DropdownMenuItem(
                           value: ThemeMode.dark,
-                          child: Text('Dark'),
+                          child: Text(UiDict.themeDark),
                         ),
                         DropdownMenuItem(
                           value: ThemeMode.light,
-                          child: Text('Light'),
+                          child: Text(UiDict.themeLight),
                         ),
                       ],
                       onChanged: settingsController.changeThemeMode,
@@ -618,8 +613,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       color: colorScheme.onSurface,
                       size: 20,
                     ),
-                    title: const Text('Lisensi Sumber Terbuka'),
-                    subtitle: const Text('Lisensi dan atribusi pustaka'),
+                    title: const Text(UiDict.setLicenses),
+                    subtitle: const Text(UiDict.setLicensesDesc),
                     trailing: Icon(
                       Icons.chevron_right,
                       color: colorScheme.onSurfaceVariant,
@@ -650,7 +645,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
               child: Column(
                 children: [
-                  // Backup Encryption toggle
                   SwitchListTile(
                     secondary: FaIcon(
                       FontAwesomeIcons.shieldHalved,
@@ -840,7 +834,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
             CustomButton(
               icon: FontAwesomeIcons.upload,
-              title: 'Backup ke Cloud',
+              title: UiDict.setBackupCloud,
               color: Colors.greenAccent.adapt(context),
               onTap: () async {
                 bool success = await settingsController.handleBackupData();
@@ -858,7 +852,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             const SizedBox(height: 16),
             CustomButton(
               icon: FontAwesomeIcons.download,
-              title: 'Restore dari Cloud',
+              title: UiDict.setRestoreCloud,
               color: Colors.blueAccent.adapt(context),
               onTap: () => _showWarningDialog(
                 context,

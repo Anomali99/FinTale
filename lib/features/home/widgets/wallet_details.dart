@@ -139,7 +139,6 @@ class WalletDetails extends StatelessWidget {
     );
   }
 
-  /// Build the cash row — simple tap to open info.
   Widget _buildCashItem({
     required BuildContext context,
     required WalletModel wallet,
@@ -190,7 +189,6 @@ class WalletDetails extends StatelessWidget {
     );
   }
 
-  /// Build an ExpansionTile for bank / eWallet / platform, listing parent wallets inside.
   Widget _buildWalletGroup({
     required BuildContext context,
     required FaIconData icon,
@@ -226,7 +224,6 @@ class WalletDetails extends StatelessWidget {
     );
   }
 
-  /// A single parent wallet row inside an ExpansionTile.
   Widget _buildParentRow({
     required BuildContext context,
     required WalletModel wallet,
@@ -287,8 +284,6 @@ class WalletDetails extends StatelessWidget {
     );
   }
 
-  /// Build small indicator icons for savings / emergency status.
-  /// Checks the parent itself AND any child pockets.
   List<Widget> _buildIndicatorIcons({
     required BuildContext context,
     required WalletModel wallet,

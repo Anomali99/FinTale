@@ -451,7 +451,6 @@ class BillsScreen extends StatelessWidget {
           builder: (context, constraints) {
             final isWide = constraints.maxWidth >= 700;
 
-            // --- Tagihan (Bills) tab content ---
             final activeBillsContent = ActiveBillsTab(
               data: billTransaction,
               isRpg: isRpg,
@@ -464,7 +463,6 @@ class BillsScreen extends StatelessWidget {
               onTapCard: (bill) => _openBillDetail(context, bill, isRpg),
             );
 
-            // --- Hutang (Debts) tab content ---
             final debtsContent = DebtsTab(
               data: debts,
               isRpg: isRpg,
@@ -480,7 +478,6 @@ class BillsScreen extends StatelessWidget {
             if (isWide) {
               return TabBarView(
                 children: [
-                  // Tagihan tab — side by side
                   Padding(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 16,
@@ -529,7 +526,7 @@ class BillsScreen extends StatelessWidget {
                       ],
                     ),
                   ),
-                  // Hutang tab — side by side
+
                   Padding(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 16,

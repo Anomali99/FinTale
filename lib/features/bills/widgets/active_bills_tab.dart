@@ -82,7 +82,9 @@ class ActiveBillsTab extends StatelessWidget {
         Row(
           children: [
             Expanded(
-              child: Divider(color: colorScheme.onSurface.withValues(alpha: 0.1)),
+              child: Divider(
+                color: colorScheme.onSurface.withValues(alpha: 0.1),
+              ),
             ),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -95,7 +97,9 @@ class ActiveBillsTab extends StatelessWidget {
               ),
             ),
             Expanded(
-              child: Divider(color: colorScheme.onSurface.withValues(alpha: 0.1)),
+              child: Divider(
+                color: colorScheme.onSurface.withValues(alpha: 0.1),
+              ),
             ),
           ],
         ),

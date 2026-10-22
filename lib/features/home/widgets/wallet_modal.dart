@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 
 import '../../../controllers/settings_controller.dart';
 import '../../../controllers/wallet_controller.dart';
+import '../../../core/constants/gamification_dict.dart';
 import '../../../core/constants/screen_dict.dart';
 import '../../../core/constants/ui_dict.dart';
 import '../../../core/utils/enum_types.dart';
@@ -12,22 +13,10 @@ import '../../../models/wallet_model.dart';
 import '../../../widgets/custom_button.dart';
 import '../../../widgets/custom_table.dart';
 
-/// Modal for create/edit wallet/pocket.
-///
-/// Four modes:
-///   1. Create new (from wallet details) — both tabs visible, nothing locked.
-///   2. Edit parent — tabs hidden, initial-amount hidden, can change name/type/savings/emergency.
-///      Changing type cascades to children.
-///   3. Create pocket (tambah kantong) — tabs hidden, parentId locked to [parentIdForPocket],
-///      user fills name, initial amount, savings/emergency.
-///   4. Edit pocket — tabs hidden, parentId locked, initial-amount hidden,
-///      can change name/savings/emergency.
 class WalletModal extends StatefulWidget {
   final WalletModel? wallet;
   final bool lock;
 
-  /// Non-null when creating a pocket from WalletInfoModal.
-  /// Forces tab=kantong and locks parent to this id.
   final int? parentIdForPocket;
 
   const WalletModal({
@@ -56,13 +45,10 @@ class _WalletModalState extends State<WalletModal>
 
   bool get _isEditing => widget.wallet != null;
 
-  /// True when creating a new pocket via the "Tambah Kantong" button.
   bool get _isCreatingPocket => !_isEditing && widget.parentIdForPocket != null;
 
-  /// True when we should show the tab bar (only fresh create, no parentIdForPocket).
   bool get _showTabs => !_isEditing && !_isCreatingPocket;
 
-  /// True when the initial-amount field should be visible (only on create, not edit).
   bool get _showInitialAmount => !_isEditing;
 
   @override
@@ -71,13 +57,10 @@ class _WalletModalState extends State<WalletModal>
 
     final wallet = widget.wallet;
 
-    // Determine initial tab index.
     if (_isCreatingPocket) {
-      // Create pocket mode: force kantong tab.
       _tabIndex = 1;
       _selectedParentId = widget.parentIdForPocket;
     } else if (wallet != null && wallet.isPocket) {
-      // Edit pocket mode.
       _tabIndex = 1;
       _selectedParentId = wallet.parentId;
     }
@@ -91,7 +74,6 @@ class _WalletModalState extends State<WalletModal>
       wallet?.amount.toString() ?? '0',
     );
 
-    // Only build tab controller when tabs are visible.
     if (_showTabs) {
       _tabController = TabController(
         length: 2,
@@ -158,9 +140,8 @@ class _WalletModalState extends State<WalletModal>
         .where((w) => w.isParent)
         .toList();
 
-    // Whether it's a pocket (either editing a pocket or creating one).
     final bool isPocketMode = _tabIndex == 1;
-    // Whether the parent dropdown should be locked.
+
     final bool lockParent = _isEditing || _isCreatingPocket;
 
     return Container(
@@ -181,7 +162,6 @@ class _WalletModalState extends State<WalletModal>
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Title
               Text(
                 _buildTitle(isRpg),
                 style: const TextStyle(
@@ -191,7 +171,6 @@ class _WalletModalState extends State<WalletModal>
               ),
               const SizedBox(height: 16),
 
-              // Tab bar — only for fresh create (mode 1)
               if (_showTabs) ...[
                 Container(
                   height: 45,
@@ -217,21 +196,20 @@ class _WalletModalState extends State<WalletModal>
                       fontSize: 13,
                     ),
                     unselectedLabelColor: colorScheme.onSurfaceVariant,
-                    tabs: const [
-                      Tab(text: 'Dompet'),
-                      Tab(text: 'Kantong'),
+                    tabs: [
+                      Tab(text: UiDict.wallet),
+                      Tab(text: ScreenDict.pocket),
                     ],
                   ),
                 ),
                 const SizedBox(height: 16),
               ],
 
-              // Parent wallet dropdown — only when in pocket mode
               if (isPocketMode) ...[
                 DropdownButtonFormField<int>(
                   initialValue: _selectedParentId,
                   decoration: InputDecoration(
-                    labelText: 'Dompet Induk',
+                    labelText: ScreenDict.walletParent,
                     border: OutlineInputBorder(),
                   ),
                   items: parentWallets
@@ -243,18 +221,18 @@ class _WalletModalState extends State<WalletModal>
                   onChanged: lockParent
                       ? null
                       : (val) => setState(() => _selectedParentId = val),
-                  validator: (val) => val == null ? 'Pilih dompet induk' : null,
+                  validator: (val) =>
+                      val == null ? ScreenDict.requiredWalletParent : null,
                 ),
 
                 const SizedBox(height: 16),
               ],
 
-              // Name field — always visible
               TextFormField(
                 controller: _nameController,
                 decoration: InputDecoration(
                   labelText: isPocketMode
-                      ? 'Nama Kantong'
+                      ? ScreenDict.pocketName
                       : ScreenDict.walletName,
                   border: const OutlineInputBorder(),
                 ),
@@ -262,7 +240,6 @@ class _WalletModalState extends State<WalletModal>
                     value == null || value.isEmpty ? UiDict.requiredName : null,
               ),
 
-              // Wallet type dropdown — only for parent mode (tab 0)
               if (!isPocketMode) ...[
                 const SizedBox(height: 16),
 
@@ -276,28 +253,29 @@ class _WalletModalState extends State<WalletModal>
                     if (widget.lock)
                       DropdownMenuItem(
                         value: WalletType.cash,
-                        child: Text('Cash'),
+                        child: Text(ScreenDict.walletCash.get(isRpg)),
                       ),
                     DropdownMenuItem(
                       value: WalletType.bank,
-                      child: Text('Bank'),
+                      child: Text(ScreenDict.walletBank.get(isRpg)),
                     ),
                     DropdownMenuItem(
                       value: WalletType.eWallet,
-                      child: Text('e-Wallet'),
+                      child: Text(ScreenDict.walletEwallet.get(isRpg)),
                     ),
                     DropdownMenuItem(
                       value: WalletType.platform,
-                      child: Text('Platform (RDN)'),
+                      child: Text(ScreenDict.walletPlatform.get(isRpg)),
                     ),
                   ],
                   onChanged: !widget.lock
                       ? (val) => setState(() => _selectedType = val!)
                       : null,
-                  validator: (val) => val == null ? 'Pilih jenis dompet' : null,
+                  validator: (val) =>
+                      val == null ? ScreenDict.requiredWalletType : null,
                 ),
               ],
-              // Initial amount — only when creating (not editing)
+
               if (_showInitialAmount) ...[
                 const SizedBox(height: 16),
                 TextFormField(
@@ -314,16 +292,15 @@ class _WalletModalState extends State<WalletModal>
                 ),
               ],
 
-              // isSavings switch
               const SizedBox(height: 8),
               SwitchListTile(
                 contentPadding: EdgeInsets.zero,
-                title: const Text(
-                  'Tabungan',
-                  style: TextStyle(fontWeight: FontWeight.bold),
+                title: Text(
+                  ScreenDict.homeSavings.normal,
+                  style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
                 subtitle: Text(
-                  'Tandai sebagai tabungan',
+                  ScreenDict.markAsSavings,
                   style: TextStyle(
                     fontSize: 12,
                     color: colorScheme.onSurfaceVariant,
@@ -338,15 +315,14 @@ class _WalletModalState extends State<WalletModal>
                 },
               ),
 
-              // isEmergency switch — only enabled when isSavings is true
               SwitchListTile(
                 contentPadding: EdgeInsets.zero,
-                title: const Text(
-                  'Dana Darurat',
-                  style: TextStyle(fontWeight: FontWeight.bold),
+                title: Text(
+                  GamificationDict.skillEmergency.get(isRpg),
+                  style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
                 subtitle: Text(
-                  'Tandai sebagai dana darurat',
+                  ScreenDict.markAsEmergency,
                   style: TextStyle(
                     fontSize: 12,
                     color: colorScheme.onSurfaceVariant,
@@ -358,7 +334,6 @@ class _WalletModalState extends State<WalletModal>
                     : null,
               ),
 
-              // Balance info table — only when editing
               if (_isEditing) ...[
                 const SizedBox(height: 24),
                 _buildBalanceTable(colorScheme, walletController),
@@ -394,7 +369,7 @@ class _WalletModalState extends State<WalletModal>
       borderColor: colorScheme.primary,
       children: [
         CustomRowTable(
-          label: 'Saldo',
+          label: UiDict.balance,
           value: NumberUtils.toIdr(wallet.amount, decimalDigits: decimalDigits),
           valueColor: colorScheme.onSurface,
           boldValue: true,
@@ -408,7 +383,7 @@ class _WalletModalState extends State<WalletModal>
             ),
           ),
           CustomRowTable(
-            label: 'Total (termasuk kantong)',
+            label: ScreenDict.totalWithPockets,
             value: NumberUtils.toIdr(
               walletController.getParentTotalBalance(walletId),
               decimalDigits: decimalDigits,

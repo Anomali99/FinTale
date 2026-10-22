@@ -3,7 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 
+import '../../../controllers/settings_controller.dart';
 import '../../../controllers/wallet_controller.dart';
+import '../../../core/constants/screen_dict.dart';
+import '../../../core/constants/ui_dict.dart';
 import '../../../core/utils/enum_types.dart';
 import '../../../core/utils/number_utils.dart';
 import '../../../models/wallet_model.dart';
@@ -17,6 +20,7 @@ class WalletInfoModal extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isRpg = context.read<SettingsController>().isRpgMode;
     final walletController = context.read<WalletController>();
     final colorScheme = Theme.of(context).colorScheme;
     final pockets = walletController.getPocketsForWallet(wallet.id ?? 0);
@@ -37,7 +41,6 @@ class WalletInfoModal extends StatelessWidget {
             controller: controller,
             padding: const EdgeInsets.all(24.0),
             children: [
-              // Drag handle
               Center(
                 child: Container(
                   width: 40,
@@ -50,7 +53,6 @@ class WalletInfoModal extends StatelessWidget {
                 ),
               ),
 
-              // Header: wallet name + type label
               Row(
                 children: [
                   CircleAvatar(
@@ -74,7 +76,7 @@ class WalletInfoModal extends StatelessWidget {
                           ),
                         ),
                         Text(
-                          _walletTypeLabel(wallet.type),
+                          _walletTypeLabel(wallet.type, isRpg),
                           style: TextStyle(
                             fontSize: 13,
                             color: colorScheme.onSurfaceVariant,
@@ -88,7 +90,6 @@ class WalletInfoModal extends StatelessWidget {
 
               const SizedBox(height: 24),
 
-              // Body
               if (hasPockets)
                 _buildPocketBreakdown(
                   context: context,
@@ -100,7 +101,6 @@ class WalletInfoModal extends StatelessWidget {
 
               const SizedBox(height: 24),
 
-              // Action buttons
               Row(
                 children: [
                   Expanded(
@@ -115,7 +115,7 @@ class WalletInfoModal extends StatelessWidget {
                         color: colorScheme.primary,
                       ),
                       label: Text(
-                        'Edit Dompet',
+                        UiDict.getEdit(UiDict.wallet),
                         style: TextStyle(color: colorScheme.primary),
                       ),
                       style: OutlinedButton.styleFrom(
@@ -140,7 +140,7 @@ class WalletInfoModal extends StatelessWidget {
                         color: colorScheme.primary,
                       ),
                       label: Text(
-                        'Tambah Kantong',
+                        ScreenDict.addPocket,
                         style: TextStyle(color: colorScheme.primary),
                       ),
                       style: OutlinedButton.styleFrom(
@@ -169,7 +169,7 @@ class WalletInfoModal extends StatelessWidget {
       borderColor: colorScheme.primary,
       children: [
         CustomRowTable(
-          label: 'Saldo',
+          label: UiDict.balance,
           value: NumberUtils.toIdr(
             wallet.amount,
             decimalDigits: wallet.type == WalletType.platform ? 3 : null,
@@ -188,11 +188,9 @@ class WalletInfoModal extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
     final total = walletController.getParentTotalBalance(wallet.id ?? 0);
 
-    // Calculate sub-totals
     Decimal savingsTotal = Decimal.zero;
     Decimal nonSavingsTotal = Decimal.zero;
 
-    // Parent main pocket
     if (wallet.isSavings) {
       savingsTotal += wallet.amount;
     } else {
@@ -211,10 +209,9 @@ class WalletInfoModal extends StatelessWidget {
       color: colorScheme.primary,
       borderColor: colorScheme.primary,
       children: [
-        // Main pocket row
         _buildPocketRow(
           context: context,
-          label: 'Kantong Utama',
+          label: ScreenDict.mainPocket,
           amount: wallet.amount,
           isSavings: wallet.isSavings,
           isEmergency: wallet.isEmergency,
@@ -223,7 +220,6 @@ class WalletInfoModal extends StatelessWidget {
 
         const SizedBox(height: 4),
 
-        // Each pocket
         for (final pocket in pockets) ...[
           _buildPocketRow(
             context: context,
@@ -244,7 +240,7 @@ class WalletInfoModal extends StatelessWidget {
         ),
 
         CustomRowTable(
-          label: 'Sub Total Kecuali Tabungan',
+          label: ScreenDict.subTotalNonSavings,
           value: NumberUtils.toIdr(
             nonSavingsTotal,
             decimalDigits: wallet.type == WalletType.platform ? 3 : null,
@@ -252,7 +248,7 @@ class WalletInfoModal extends StatelessWidget {
         ),
         const SizedBox(height: 4),
         CustomRowTable(
-          label: 'Sub Total Tabungan',
+          label: ScreenDict.subTotalSavings,
           value: NumberUtils.toIdr(
             savingsTotal,
             decimalDigits: wallet.type == WalletType.platform ? 3 : null,
@@ -265,7 +261,7 @@ class WalletInfoModal extends StatelessWidget {
         ),
 
         CustomRowTable(
-          label: 'Total',
+          label: UiDict.total,
           value: NumberUtils.toIdr(
             total,
             decimalDigits: wallet.type == WalletType.platform ? 3 : null,
@@ -346,16 +342,16 @@ class WalletInfoModal extends StatelessWidget {
     );
   }
 
-  String _walletTypeLabel(WalletType type) {
+  String _walletTypeLabel(WalletType type, bool isRpg) {
     switch (type) {
       case WalletType.cash:
-        return 'Uang Tunai';
+        return ScreenDict.walletCash.get(isRpg);
       case WalletType.bank:
-        return 'Rekening Bank';
+        return ScreenDict.walletBank.get(isRpg);
       case WalletType.eWallet:
-        return 'Dompet Digital';
+        return ScreenDict.walletEwallet.get(isRpg);
       case WalletType.platform:
-        return 'Platform';
+        return ScreenDict.walletPlatform.get(isRpg);
     }
   }
 }

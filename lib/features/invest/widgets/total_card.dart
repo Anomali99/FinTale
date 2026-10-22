@@ -61,7 +61,10 @@ class TotalCard extends StatelessWidget {
                   : colorScheme.error,
             ),
           ),
-          Divider(color: colorScheme.onSurface.withValues(alpha: 0.1), height: 32),
+          Divider(
+            color: colorScheme.onSurface.withValues(alpha: 0.1),
+            height: 32,
+          ),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [

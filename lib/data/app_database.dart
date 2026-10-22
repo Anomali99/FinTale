@@ -198,12 +198,7 @@ class AppDatabase {
     }
   }
 
-  /// Migration from schema v2 to v3:
-  /// - Add parent_id, is_savings, is_emergency columns
-  /// - Migrate reserved_amount > 0 into savings pocket rows
-  /// - Remove reserved_amount column via table recreation
   Future _migrateV2ToV3(Database db) async {
-    // Step 1: Add new columns
     await db.execute('ALTER TABLE wallets ADD COLUMN parent_id INTEGER;');
     await db.execute(
       'ALTER TABLE wallets ADD COLUMN is_savings INTEGER NOT NULL DEFAULT 0;',
@@ -212,7 +207,6 @@ class AppDatabase {
       'ALTER TABLE wallets ADD COLUMN is_emergency INTEGER NOT NULL DEFAULT 0;',
     );
 
-    // Step 2: Create savings pockets for wallets with reserved_amount > 0
     final walletsWithReserved = await db.rawQuery(
       "SELECT id, name, type, reserved_amount, created_at FROM wallets "
       "WHERE CAST(reserved_amount AS REAL) > 0 AND deleted_at IS NULL",
@@ -233,8 +227,6 @@ class AppDatabase {
       });
     }
 
-    // Step 3: Subtract reserved_amount from parent wallet amount.
-    // Use Dart-side Decimal arithmetic to preserve precision.
     for (final row in walletsWithReserved) {
       final int walletId = row['id'] as int;
       final Decimal amount = Decimal.parse((row['amount'] ?? '0').toString());
@@ -248,10 +240,6 @@ class AppDatabase {
       ]);
     }
 
-    // Step 4: Recreate table without reserved_amount
-    // (SQLite < 3.35 does not support DROP COLUMN)
-    // Disable FK constraints to allow DROP TABLE while transactions
-    // still reference wallets.
     await db.execute('PRAGMA foreign_keys = OFF;');
 
     await db.execute('''
@@ -280,10 +268,8 @@ class AppDatabase {
     await db.execute('DROP TABLE wallets');
     await db.execute('ALTER TABLE wallets_new RENAME TO wallets');
 
-    // Re-enable FK constraints
     await db.execute('PRAGMA foreign_keys = ON;');
 
-    // Step 5: Create parent index
     await db.execute(
       'CREATE INDEX IF NOT EXISTS idx_wallets_parent ON wallets (parent_id);',
     );
@@ -319,14 +305,10 @@ class AppDatabase {
   Future<bool> importDatabase(Map<String, dynamic> databaseData) async {
     final db = await instance.database;
     try {
-      // Sanitize: strip unknown columns so old/future backups
-      // don't cause "has no column named X" errors.
       final Map<String, dynamic> safeData = BackupMigrator.sanitizeDatabase(
         databaseData,
       );
 
-      // Disable FK checks BEFORE the transaction — SQLite does not
-      // allow changing PRAGMA foreign_keys inside a transaction.
       await db.execute('PRAGMA foreign_keys = OFF;');
 
       await db.transaction((txn) async {
@@ -364,12 +346,10 @@ class AppDatabase {
         }
       });
 
-      // Re-enable FK checks after the transaction completes
       await db.execute('PRAGMA foreign_keys = ON;');
 
       return true;
     } catch (e, stackTrace) {
-      // Ensure FK checks are re-enabled even on failure
       try {
         await db.execute('PRAGMA foreign_keys = ON;');
       } catch (_) {}

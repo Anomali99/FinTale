@@ -94,7 +94,9 @@ class ReceivableDetailCard extends StatelessWidget {
                       vertical: 4,
                     ),
                     decoration: BoxDecoration(
-                      color: Colors.blueAccent.adapt(context).withValues(alpha: 0.15),
+                      color: Colors.blueAccent
+                          .adapt(context)
+                          .withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: FaIcon(

@@ -91,7 +91,7 @@ class _PayBillModalState extends State<PayBillModal> {
       if (_isFeeActive) {
         newDetail.add(
           TransactionDetailModel(
-            title: 'Fee',
+            title: UiDict.feeAmount,
             amount: NumberUtils.parseToDecimal(_feeController.text),
             category: TransactionCategory.utilities,
             flow: FlowType.expense,

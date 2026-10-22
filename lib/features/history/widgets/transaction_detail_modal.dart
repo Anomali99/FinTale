@@ -16,6 +16,7 @@ import '../../../models/assets_model.dart';
 import '../../../models/transaction_detail_model.dart';
 import '../../../models/transaction_model.dart';
 import '../../../models/wallet_model.dart';
+import '../../../widgets/custom_category_input.dart';
 
 class TransactionDetailModal extends StatelessWidget {
   final TransactionModel transaction;
@@ -297,26 +298,12 @@ class TransactionDetailModal extends StatelessWidget {
               children: [
                 InkWell(
                   onTap: () async {
-                    final selected =
-                        await showModalBottomSheet<TransactionCategory>(
-                          context: context,
-                          builder: (ctx) {
-                            return ListView(
-                              children: categories.map((cat) {
-                                final model =
-                                    CategoryDict.getByTransactionCategory(cat);
-                                return ListTile(
-                                  leading: FaIcon(model.icon(isRpg), size: 20),
-                                  title: Text(model.get(isRpg)),
-                                  trailing: detail.category == cat
-                                      ? const Icon(Icons.check)
-                                      : null,
-                                  onTap: () => Navigator.pop(ctx, cat),
-                                );
-                              }).toList(),
-                            );
-                          },
-                        );
+                    final selected = await CustomCategoryInput.showPicker(
+                      context,
+                      categories: categories,
+                      selectedCategory: detail.category,
+                      isRpg: isRpg,
+                    );
 
                     if (selected != null && context.mounted) {
                       detail.category = selected;
@@ -332,9 +319,7 @@ class TransactionDetailModal extends StatelessWidget {
                   child: Padding(
                     padding: const EdgeInsets.all(4.0),
                     child: FaIcon(
-                      CategoryDict.getByTransactionCategory(
-                        detail.category,
-                      ).icon(isRpg),
+                      detail.category.categoryDict.icon(isRpg),
                       size: 18,
                       color: colorScheme.primary,
                     ),

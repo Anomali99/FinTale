@@ -187,7 +187,7 @@ class TransactionDao {
     final idPlaceholders = List.filled(transactionIds.length, '?').join(',');
     final detailsSql =
         '''
-      SELECT * FROM transaction_details 
+      SELECT * FROM transaction_details
       WHERE transaction_id IN ($idPlaceholders)
     ''';
     final detailsResult = await database.rawQuery(detailsSql, transactionIds);

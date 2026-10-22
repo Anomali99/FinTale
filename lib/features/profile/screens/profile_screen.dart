@@ -181,7 +181,9 @@ class ProfileScreen extends StatelessWidget {
                     flex: 5,
                     child: ListView(
                       padding: const EdgeInsets.only(
-                        top: 24, bottom: 24, right: 12,
+                        top: 24,
+                        bottom: 24,
+                        right: 12,
                       ),
                       children: [
                         profileCard,
@@ -198,11 +200,11 @@ class ProfileScreen extends StatelessWidget {
                     flex: 5,
                     child: ListView(
                       padding: const EdgeInsets.only(
-                        top: 24, bottom: 24, left: 12,
+                        top: 24,
+                        bottom: 24,
+                        left: 12,
                       ),
-                      children: [
-                        dailyMissions,
-                      ],
+                      children: [dailyMissions],
                     ),
                   ),
                 ],

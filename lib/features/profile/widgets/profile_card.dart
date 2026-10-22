@@ -102,7 +102,9 @@ class ProfileCard extends StatelessWidget {
                         email ?? '',
                         style: TextStyle(
                           fontSize: 12,
-                          color: colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
+                          color: colorScheme.onSurfaceVariant.withValues(
+                            alpha: 0.8,
+                          ),
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,

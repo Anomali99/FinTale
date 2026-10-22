@@ -111,120 +111,126 @@ class _SkillTreeScreenState extends State<SkillTreeScreen> {
       ),
       body: ResponsiveContainer(
         child: Stack(
-        children: [
-          SingleChildScrollView(
-            child: Stack(
-              key: _stackKey,
-              children: [
-                Positioned.fill(
-                  child: CustomPaint(
-                    painter: DynamicSkillTreePainter(
-                      context: context,
-                      positions: _nodePositions,
-                      radii: _nodeRadii,
-                      selectedId: skillController.selectedNode,
+          children: [
+            SingleChildScrollView(
+              child: Stack(
+                key: _stackKey,
+                children: [
+                  Positioned.fill(
+                    child: CustomPaint(
+                      painter: DynamicSkillTreePainter(
+                        context: context,
+                        positions: _nodePositions,
+                        radii: _nodeRadii,
+                        selectedId: skillController.selectedNode,
+                      ),
                     ),
                   ),
-                ),
-                Center(
-                  child: Column(
-                    children: [
-                      const SizedBox(height: 60),
-                      _buildNode(null, UiDict.income, 100, isRpg, isRoot: true),
-                      const SizedBox(height: 100),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          _buildNode(
-                            SectorType.living,
-                            GamificationDict.skillDaily,
-                            allocs[SectorType.living],
-                            isRpg,
-                          ),
-                          _buildNode(
-                            SectorType.payDebt,
-                            GamificationDict.skillDebt,
-                            allocs[SectorType.payDebt],
-                            isRpg,
-                          ),
-                          _buildNode(
-                            SectorType.emergency,
-                            GamificationDict.skillEmergency,
-                            allocs[SectorType.emergency],
-                            isRpg,
-                          ),
-                          _buildNode(
-                            SectorType.investment,
-                            GamificationDict.skillInvestment,
-                            allocs[SectorType.investment],
-                            isRpg,
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 100),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 15),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  Center(
+                    child: Column(
+                      children: [
+                        const SizedBox(height: 60),
+                        _buildNode(
+                          null,
+                          UiDict.income,
+                          100,
+                          isRpg,
+                          isRoot: true,
+                        ),
+                        const SizedBox(height: 100),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: [
                             _buildNode(
-                              SubSectorType.essentials,
-                              GamificationDict.skillRoutine,
-                              allocs[SubSectorType.essentials],
+                              SectorType.living,
+                              GamificationDict.skillDaily,
+                              allocs[SectorType.living],
                               isRpg,
-                              size: 48,
                             ),
                             _buildNode(
-                              SubSectorType.dreamFund,
-                              GamificationDict.skillDream,
-                              allocs[SubSectorType.dreamFund],
+                              SectorType.payDebt,
+                              GamificationDict.skillDebt,
+                              allocs[SectorType.payDebt],
                               isRpg,
-                              size: 48,
                             ),
                             _buildNode(
-                              SubSectorType.lowRisk,
-                              CategoryDict.lowRisk,
-                              allocs[SubSectorType.lowRisk],
+                              SectorType.emergency,
+                              GamificationDict.skillEmergency,
+                              allocs[SectorType.emergency],
                               isRpg,
-                              size: 48,
                             ),
                             _buildNode(
-                              SubSectorType.mediumRisk,
-                              CategoryDict.mediumRisk,
-                              allocs[SubSectorType.mediumRisk],
+                              SectorType.investment,
+                              GamificationDict.skillInvestment,
+                              allocs[SectorType.investment],
                               isRpg,
-                              size: 48,
-                            ),
-                            _buildNode(
-                              SubSectorType.highRisk,
-                              CategoryDict.highRisk,
-                              allocs[SubSectorType.highRisk],
-                              isRpg,
-                              size: 48,
                             ),
                           ],
                         ),
-                      ),
-                      AnimatedContainer(
-                        duration: const Duration(milliseconds: 300),
-                        curve: Curves.easeInOut,
+                        const SizedBox(height: 100),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 15),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              _buildNode(
+                                SubSectorType.essentials,
+                                GamificationDict.skillRoutine,
+                                allocs[SubSectorType.essentials],
+                                isRpg,
+                                size: 48,
+                              ),
+                              _buildNode(
+                                SubSectorType.dreamFund,
+                                GamificationDict.skillDream,
+                                allocs[SubSectorType.dreamFund],
+                                isRpg,
+                                size: 48,
+                              ),
+                              _buildNode(
+                                SubSectorType.lowRisk,
+                                CategoryDict.lowRisk,
+                                allocs[SubSectorType.lowRisk],
+                                isRpg,
+                                size: 48,
+                              ),
+                              _buildNode(
+                                SubSectorType.mediumRisk,
+                                CategoryDict.mediumRisk,
+                                allocs[SubSectorType.mediumRisk],
+                                isRpg,
+                                size: 48,
+                              ),
+                              _buildNode(
+                                SubSectorType.highRisk,
+                                CategoryDict.highRisk,
+                                allocs[SubSectorType.highRisk],
+                                isRpg,
+                                size: 48,
+                              ),
+                            ],
+                          ),
+                        ),
+                        AnimatedContainer(
+                          duration: const Duration(milliseconds: 300),
+                          curve: Curves.easeInOut,
 
-                        height: skillController.selectedNode != null
-                            ? 250
-                            : 150,
-                      ),
-                    ],
+                          height: skillController.selectedNode != null
+                              ? 250
+                              : 150,
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
 
-          if (skillController.selectedNode != null) ...[
-            _buildControlPanel(skillController, allocs),
+            if (skillController.selectedNode != null) ...[
+              _buildControlPanel(skillController, allocs),
+            ],
           ],
-        ],
-      ),
+        ),
       ),
     );
   }
@@ -458,7 +464,9 @@ class _SkillTreeScreenState extends State<SkillTreeScreen> {
                     GamificationDict.lockedSkillDesc,
                     style: TextStyle(
                       fontSize: 10,
-                      color: colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
+                      color: colorScheme.onSurfaceVariant.withValues(
+                        alpha: 0.5,
+                      ),
                     ),
                   ),
                 ),

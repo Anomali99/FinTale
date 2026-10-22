@@ -15,8 +15,11 @@ class UiDict {
   static const String feeAmount = 'Biaya Admin';
 
   static const String category = 'Kategori';
+  static const String selectCategory = 'Pilih Kategori';
   static const String status = 'Status';
   static const String wallet = 'Dompet';
+  static const String balance = 'Saldo';
+  static const String total = 'Total';
   static const String sourceFunds = 'Sumber Dana';
   static const String sourceFundsShort = 'Dari';
   static const String destinationWallet = 'Dompet Tujuan';
@@ -91,6 +94,16 @@ class UiDict {
   static const String setSync = 'Sinkronkan ke Cloud';
   static const String setNotification = 'Notifikasi';
   static const String setTheme = 'Tema';
+  static const String themeSystem = 'System';
+  static const String themeDark = 'Dark';
+  static const String themeLight = 'Light';
+  static const String setLicenses = 'Lisensi Sumber Terbuka';
+  static const String setLicensesDesc = 'Lisensi dan atribusi pustaka';
+  static const String setExcludeSavings = 'Kecualikan Tabungan';
+  static const String setExcludeSavingsDesc =
+      'Kecualikan saldo tabungan dari total saldo di beranda dan detail dompet';
+  static const String setBackupCloud = 'Backup ke Cloud';
+  static const String setRestoreCloud = 'Restore dari Cloud';
   static const String setRpg = 'Gamification Mode';
   static const String setRpgDesc = 'Gunakan istilah ala game.';
   static const String setHideBalance = 'Sembunyikan Nominal';

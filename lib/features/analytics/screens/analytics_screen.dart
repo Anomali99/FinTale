@@ -272,7 +272,9 @@ class AnalyticsScreen extends StatelessWidget {
                     flex: 5,
                     child: ListView(
                       padding: const EdgeInsets.only(
-                        top: 24, bottom: 24, right: 12,
+                        top: 24,
+                        bottom: 24,
+                        right: 12,
                       ),
                       children: [
                         monthFilter,
@@ -289,7 +291,9 @@ class AnalyticsScreen extends StatelessWidget {
                     flex: 5,
                     child: ListView(
                       padding: const EdgeInsets.only(
-                        top: 24, bottom: 24, left: 12,
+                        top: 24,
+                        bottom: 24,
+                        left: 12,
                       ),
                       children: [
                         if (detailCards.isNotEmpty)
@@ -318,10 +322,7 @@ class AnalyticsScreen extends StatelessWidget {
                   donutChart,
                   const SizedBox(height: 32),
                 ],
-                if (detailCards.isNotEmpty)
-                  ...detailCards
-                else
-                  emptyState,
+                if (detailCards.isNotEmpty) ...detailCards else emptyState,
               ],
             ),
           );

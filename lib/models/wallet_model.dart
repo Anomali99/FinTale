@@ -52,17 +52,12 @@ class WalletModel {
 }
 
 extension WalletExtension on WalletModel {
-  /// Whether this wallet is a pocket (child of a parent wallet).
   bool get isPocket => parentId != null;
 
-  /// Whether this wallet is a parent (top-level) wallet.
   bool get isParent => parentId == null;
 
-  /// Backward-compat: reservedAmount is always zero in the new model.
-  /// Savings are now stored in separate pocket rows.
   Decimal get reservedAmount => Decimal.zero;
 
-  /// Backward-compat: regularAmount = amount (no reserved deduction).
   Decimal get regularAmount => amount;
 
   void addAmount(Decimal amount, {bool isIncome = true}) {

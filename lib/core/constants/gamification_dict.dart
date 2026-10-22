@@ -15,6 +15,10 @@ class GamificationDict {
 
   static const String skillPoint = 'Poin Reguler';
   static const String skillExtraPoint = 'Poin Ekstra';
+  static const String skillAdjustedEmergency =
+      'Status dana darurat berubah, skill disesuaikan';
+  static const String skillAdjustedDebt =
+      'Status hutang berubah, skill disesuaikan';
 
   static const String lockedSkill = 'Skill Terkunci';
 

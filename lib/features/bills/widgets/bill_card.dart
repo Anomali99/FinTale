@@ -145,7 +145,9 @@ class BillCard extends StatelessWidget {
                         decoration: BoxDecoration(
                           color: mainColor.withValues(alpha: 0.15),
                           borderRadius: BorderRadius.circular(4),
-                          border: Border.all(color: mainColor.withValues(alpha: 0.5)),
+                          border: Border.all(
+                            color: mainColor.withValues(alpha: 0.5),
+                          ),
                         ),
                         child: Padding(
                           padding: const EdgeInsets.symmetric(vertical: 1),
@@ -166,7 +168,9 @@ class BillCard extends StatelessWidget {
                       decoration: BoxDecoration(
                         color: mainColor.withValues(alpha: 0.15),
                         borderRadius: BorderRadius.circular(4),
-                        border: Border.all(color: mainColor.withValues(alpha: 0.5)),
+                        border: Border.all(
+                          color: mainColor.withValues(alpha: 0.5),
+                        ),
                       ),
                       child: Text(
                         data.tier.rank,

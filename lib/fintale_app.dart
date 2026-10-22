@@ -58,7 +58,7 @@ class _FinTaleAppState extends State<FinTaleApp> {
   Future<dynamic> _handleMethodCall(MethodCall call) async {
     if (call.method == 'importFile') {
       final Uint8List fileBytes = call.arguments as Uint8List;
-      // Delay briefly to ensure context is ready
+
       WidgetsBinding.instance.addPostFrameCallback((_) {
         _handleIncomingFile(fileBytes);
       });
@@ -128,7 +128,6 @@ class _FinTaleAppState extends State<FinTaleApp> {
     final colorScheme = Theme.of(context).colorScheme;
     final settingsController = context.read<SettingsController>();
 
-    // Show loading spinner
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -150,7 +149,7 @@ class _FinTaleAppState extends State<FinTaleApp> {
     final result = await settingsController.handleImportFromIntent(fileBytes);
 
     if (!context.mounted) return;
-    Navigator.pop(context); // dismiss spinner
+    Navigator.pop(context);
 
     if (result['need_password'] == true) {
       final Uint8List? cachedBytes = result['file_bytes'] as Uint8List?;

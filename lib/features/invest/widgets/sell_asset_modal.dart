@@ -113,7 +113,7 @@ class _SellAssetModalState extends State<SellAssetModal> {
       if (_isFeeActive) {
         details.add(
           TransactionDetailModel(
-            title: 'Fee',
+            title: UiDict.feeAmount,
             amount: feeAmount,
             category: TransactionCategory.utilities,
             flow: FlowType.expense,

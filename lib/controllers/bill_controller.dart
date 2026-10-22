@@ -177,7 +177,6 @@ class BillController with ChangeNotifier {
         return false;
       }
 
-      // Ensure nextDueDate is set before generating the transaction
       if (bill.nextDueDate == null) {
         bill.nextDueDate = bill.targetDate.millisecondsSinceEpoch;
         if (bill.debtId == null) {
@@ -418,9 +417,15 @@ class BillController with ChangeNotifier {
         ids = await _debtDao.create(debt);
         if (context.mounted) {
           _userController.updateFreeDebt(context, false);
+          await _userController.processRecordTransaction(context);
+          if (context.mounted) {
+            await _userController.processDebtPayment(context);
+          }
+          await _userController.saveUser();
         }
       } else {
         ids = await _debtDao.update(debt);
+        await _userController.saveUser();
       }
 
       if (_userController.isNotification &&
@@ -507,7 +512,6 @@ class BillController with ChangeNotifier {
     }
   }
 
-  /// Simpan piutang tanpa generate transaksi pengeluaran.
   Future<bool> createReceivableOnly(
     BuildContext context,
     ReceivableModel receivable,

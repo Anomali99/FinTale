@@ -28,7 +28,9 @@ class ActiveBillCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: data.status.getCardColor(context),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: color.withValues(alpha: isCleared ? 0.2 : 0.5)),
+        border: Border.all(
+          color: color.withValues(alpha: isCleared ? 0.2 : 0.5),
+        ),
       ),
       child: InkWell(
         borderRadius: BorderRadius.circular(16),

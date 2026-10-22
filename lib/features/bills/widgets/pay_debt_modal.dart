@@ -168,7 +168,7 @@ class _PayDebtModalState extends State<PayDebtModal>
       if (_isFeeActive) {
         transaction.detailTransaction.add(
           TransactionDetailModel(
-            title: 'Fee',
+            title: UiDict.feeAmount,
             amount: NumberUtils.parseToDecimal(_feeController.text),
             category: TransactionCategory.utilities,
             flow: FlowType.expense,
@@ -368,6 +368,32 @@ class _PayDebtModalState extends State<PayDebtModal>
                     : null,
                 validator: (val) => val == null ? UiDict.requiredWallet : null,
               ),
+
+              if (widget.pendingAllocation == null)
+                SwitchListTile(
+                  contentPadding: EdgeInsets.zero,
+                  title: Text(
+                    ScreenDict.getReservedCheck(isRpg: isRpg),
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  subtitle: Text(
+                    ScreenDict.getReservedCheckDesc(isRpg: isRpg),
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                  value: _isSavingsActive,
+                  onChanged: (val) => setState(() {
+                    _isSavingsActive = val;
+                    if (!val &&
+                        _selectedWallet != null &&
+                        _selectedWallet!.isSavings) {
+                      _selectedWallet = null;
+                    }
+                  }),
+                ),
+
               const SizedBox(height: 16),
 
               CustomDateTimePicker(
@@ -429,30 +455,6 @@ class _PayDebtModalState extends State<PayDebtModal>
                 ),
               ],
 
-              if (widget.pendingAllocation == null)
-                SwitchListTile(
-                  contentPadding: EdgeInsets.zero,
-                  title: Text(
-                    ScreenDict.getReservedCheck(isRpg: isRpg),
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  subtitle: Text(
-                    ScreenDict.getReservedCheckDesc(isRpg: isRpg),
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: colorScheme.onSurfaceVariant,
-                    ),
-                  ),
-                  value: _isSavingsActive,
-                  onChanged: (val) => setState(() {
-                    _isSavingsActive = val;
-                    if (!val &&
-                        _selectedWallet != null &&
-                        _selectedWallet!.isSavings) {
-                      _selectedWallet = null;
-                    }
-                  }),
-                ),
               Container(
                 decoration: BoxDecoration(
                   color: colorScheme.surface,

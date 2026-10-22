@@ -232,7 +232,7 @@ class _BuyAssetScreenState extends State<BuyAssetScreen>
       if (_isFeeActive) {
         details.add(
           TransactionDetailModel(
-            title: 'Fee',
+            title: UiDict.feeAmount,
             amount: NumberUtils.parseToDecimal(_feeController.text),
             category: TransactionCategory.utilities,
             flow: FlowType.expense,
@@ -658,6 +658,8 @@ class _BuyAssetScreenState extends State<BuyAssetScreen>
                           ),
                           children: [
                             walletDropdown,
+                            if (widget.pendingAllocation == null)
+                              reservedSwitch,
                             const SizedBox(height: 16),
                             datePicker,
                             const SizedBox(height: 16),
@@ -672,8 +674,7 @@ class _BuyAssetScreenState extends State<BuyAssetScreen>
                               const SizedBox(height: 12),
                               feeNote,
                             ],
-                            if (widget.pendingAllocation == null)
-                              reservedSwitch,
+
                             roundedSwitch,
                           ],
                         ),
@@ -709,6 +710,7 @@ class _BuyAssetScreenState extends State<BuyAssetScreen>
                       priceField,
                       const SizedBox(height: 16),
                       walletDropdown,
+                      if (widget.pendingAllocation == null) reservedSwitch,
                       const SizedBox(height: 16),
                       datePicker,
                       const SizedBox(height: 16),
@@ -720,7 +722,6 @@ class _BuyAssetScreenState extends State<BuyAssetScreen>
                         const SizedBox(height: 12),
                         feeNote,
                       ],
-                      if (widget.pendingAllocation == null) reservedSwitch,
                       roundedSwitch,
                     ],
                   ),

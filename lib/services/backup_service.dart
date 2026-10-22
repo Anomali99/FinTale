@@ -89,7 +89,6 @@ class BackupService {
     }
   }
 
-  /// Pick a file via system file picker and import it.
   Future<Map<String, dynamic>?> importData({String? storedPassword}) async {
     try {
       FilePickerResult? result = await FilePicker.pickFiles(
@@ -117,42 +116,29 @@ class BackupService {
     }
   }
 
-  /// Import from raw bytes (used by file picker and intent handler).
-  ///
-  /// Smart decrypt flow for .fintale files:
-  ///   mode 0 → decompress only
-  ///   mode 1 → decrypt with app key
-  ///   mode 2 → try [storedPassword] → try [manualPassword] → ask user
-  ///
-  /// When [manualPassword] is provided it means the user already typed it in.
   Future<Map<String, dynamic>?> importDataFromBytes(
     Uint8List fileBytes, {
     String? storedPassword,
     String? manualPassword,
   }) async {
     try {
-      // Check if it's a .fintale file (magic bytes 'FNTL')
       if (fileBytes.length > 6 &&
           utf8.decode(fileBytes.sublist(0, 4), allowMalformed: true) ==
               'FNTL') {
         final parsed = CryptoService.parseFintaleFile(fileBytes);
 
-        // mode 0: raw gzip — just decompress
         if (parsed.mode == 0) {
           return _tryDecrypt(parsed);
         }
 
-        // mode 1: app key — decrypt with built-in key
         if (parsed.mode == 1) {
           return _tryDecrypt(parsed);
         }
 
-        // mode 2: user key — smart fallback chain
-        // 1) If manual password supplied (user typed it), try it first
         if (manualPassword != null && manualPassword.isNotEmpty) {
           final result = _tryDecrypt(parsed, password: manualPassword);
           if (result != null && result['data'] != null) return result;
-          // Wrong manual password — ask again, include bytes for retry
+
           return {
             'need_password': true,
             'wrong_password': true,
@@ -160,23 +146,17 @@ class BackupService {
           };
         }
 
-        // 2) Try stored password from preferences
         if (storedPassword != null && storedPassword.isNotEmpty) {
           final result = _tryDecrypt(parsed, password: storedPassword);
           if (result != null && result['data'] != null) return result;
         }
 
-        // 3) Try app key as fallback (maybe user exported from app-key
-        //    device but file header says mode 2 — shouldn't happen, but
-        //    doesn't hurt to try)
         final appResult = _tryDecrypt(parsed);
         if (appResult != null && appResult['data'] != null) return appResult;
 
-        // 4) None worked — ask user for password, include bytes for retry
         return {'need_password': true, 'file_bytes': fileBytes};
       }
 
-      // Legacy: try parse as raw JSON
       final String jsonString = utf8.decode(fileBytes);
       Map<String, dynamic> backupData = jsonDecode(jsonString);
       if (backupData.containsKey('metadata') &&
@@ -190,8 +170,6 @@ class BackupService {
     }
   }
 
-  /// Attempt decrypt/decompress; returns {'data': ...} on success, null on
-  /// failure (wrong password / corrupt data).
   Map<String, dynamic>? _tryDecrypt(
     FintaleParseResult parsed, {
     String? password,
@@ -236,7 +214,6 @@ class BackupService {
       final Stream<List<int>> mediaStream = Stream.value(fileBytes);
       final drive.Media media = drive.Media(mediaStream, fileBytes.length);
 
-      // Search for both legacy .json and new .fintale files
       const String legacyFileName = 'FinTale_Backup.json';
       final fileList = await driveApi.files.list(
         q: "name = '$backupFileName' or name = '$legacyFileName'",
@@ -264,7 +241,6 @@ class BackupService {
     try {
       final driveApi = drive.DriveApi(client);
 
-      // Search for both legacy .json and new .fintale files
       const String legacyFileName = 'FinTale_Backup.json';
       final fileList = await driveApi.files.list(
         q: "name = '$backupFileName' or name = '$legacyFileName'",
@@ -286,7 +262,6 @@ class BackupService {
 
       final Uint8List fileBytes = Uint8List.fromList(bytes);
 
-      // Check if it's a .fintale file (magic bytes 'FNTL')
       if (fileBytes.length > 6 &&
           utf8.decode(fileBytes.sublist(0, 4), allowMalformed: true) ==
               'FNTL') {
@@ -316,7 +291,6 @@ class BackupService {
         }
       }
 
-      // Legacy: try parse as raw JSON
       final String jsonString = utf8.decode(fileBytes);
       final Map<String, dynamic> backupData = jsonDecode(jsonString);
       if (backupData.containsKey('metadata') &&

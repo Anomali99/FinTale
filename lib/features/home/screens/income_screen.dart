@@ -1,12 +1,10 @@
 import 'package:decimal/decimal.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 
 import '../../../controllers/settings_controller.dart';
 import '../../../controllers/wallet_controller.dart';
-import '../../../core/constants/category_dict.dart';
 import '../../../core/constants/gamification_dict.dart';
 import '../../../core/constants/screen_dict.dart';
 import '../../../core/constants/ui_dict.dart';
@@ -17,6 +15,7 @@ import '../../../models/transaction_detail_model.dart';
 import '../../../models/transaction_model.dart';
 import '../../../models/wallet_model.dart';
 import '../../../widgets/custom_button.dart';
+import '../../../widgets/custom_category_input.dart';
 import '../../../widgets/custom_date_time_picker.dart';
 import '../../../widgets/note_container.dart';
 import '../../../widgets/responsive_container.dart';
@@ -96,7 +95,7 @@ class _IncomeScreenState extends State<IncomeScreen> {
         amount -= _cleanFee;
         details.add(
           TransactionDetailModel(
-            title: 'Fee',
+            title: UiDict.feeAmount,
             amount: _cleanFee,
             category: TransactionCategory.utilities,
             flow: FlowType.expense,
@@ -293,68 +292,11 @@ class _IncomeScreenState extends State<IncomeScreen> {
               },
             );
 
-            final categoryDropdown = InkWell(
-              onTap: () async {
-                final settingsController = context.read<SettingsController>();
-                final isRpg = settingsController.isRpgMode;
-                final selected =
-                    await showModalBottomSheet<TransactionCategory>(
-                      context: context,
-                      builder: (ctx) {
-                        return ListView(
-                          children: TransactionCategory.incomeCategories.map((
-                            cat,
-                          ) {
-                            final model = CategoryDict.getByTransactionCategory(
-                              cat,
-                            );
-                            return ListTile(
-                              leading: FaIcon(model.icon(isRpg), size: 20),
-                              title: Text(model.get(isRpg)),
-                              trailing: _selectedCategory == cat
-                                  ? const Icon(Icons.check)
-                                  : null,
-                              onTap: () => Navigator.pop(ctx, cat),
-                            );
-                          }).toList(),
-                        );
-                      },
-                    );
-                if (selected != null) {
-                  setState(() => _selectedCategory = selected);
-                }
-              },
-              child: InputDecorator(
-                decoration: const InputDecoration(
-                  labelText: UiDict.category,
-                  border: OutlineInputBorder(),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    if (_selectedCategory != null)
-                      Row(
-                        children: [
-                          FaIcon(
-                            CategoryDict.getByTransactionCategory(
-                              _selectedCategory!,
-                            ).icon(isRpg),
-                            size: 20,
-                          ),
-                          const SizedBox(width: 8),
-                          Text(
-                            CategoryDict.getByTransactionCategory(
-                              _selectedCategory!,
-                            ).get(isRpg),
-                          ),
-                        ],
-                      )
-                    else
-                      const Text('Pilih Kategori'),
-                    const Icon(Icons.arrow_drop_down),
-                  ],
-                ),
-              ),
+            final categoryDropdown = CustomCategoryInput(
+              type: CategoryType.income,
+              selectedCategory: _selectedCategory,
+              validator: (cat) => cat == null ? UiDict.requiredCategory : null,
+              onChanged: (cat) => setState(() => _selectedCategory = cat),
             );
 
             final feeSwitch = SwitchListTile(
@@ -508,8 +450,8 @@ class _IncomeScreenState extends State<IncomeScreen> {
                             titleField,
                             const SizedBox(height: 16),
                             walletDropdown,
-                            const SizedBox(height: 16),
                             if (widget.isTransfer) ...[
+                              reservedSwitch,
                               targetWalletDropdown,
                               const SizedBox(height: 16),
                             ],
@@ -543,9 +485,7 @@ class _IncomeScreenState extends State<IncomeScreen> {
                               feeNote,
                             ],
                             const SizedBox(height: 12),
-                            if (widget.isTransfer) ...[
-                              reservedSwitch,
-                            ] else ...[
+                            if (!widget.isTransfer) ...[
                               allocationSwitch,
                               if (_isAllocationActive) ...[
                                 const SizedBox(height: 12),
@@ -572,8 +512,8 @@ class _IncomeScreenState extends State<IncomeScreen> {
                       titleField,
                       const SizedBox(height: 16),
                       walletDropdown,
-                      const SizedBox(height: 16),
                       if (widget.isTransfer) ...[
+                        reservedSwitch,
                         targetWalletDropdown,
                         const SizedBox(height: 16),
                       ],
@@ -593,9 +533,7 @@ class _IncomeScreenState extends State<IncomeScreen> {
                         feeNote,
                       ],
                       const SizedBox(height: 12),
-                      if (widget.isTransfer) ...[
-                        reservedSwitch,
-                      ] else ...[
+                      if (!widget.isTransfer) ...[
                         allocationSwitch,
                         if (_isAllocationActive) ...[
                           const SizedBox(height: 12),

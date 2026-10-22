@@ -204,11 +204,11 @@ class HistoryScreen extends StatelessWidget {
                     flex: 4,
                     child: ListView(
                       padding: const EdgeInsets.only(
-                        top: 24, bottom: 24, right: 12,
+                        top: 24,
+                        bottom: 24,
+                        right: 12,
                       ),
-                      children: [
-                        headerContent,
-                      ],
+                      children: [headerContent],
                     ),
                   ),
                   Expanded(
@@ -231,7 +231,8 @@ class HistoryScreen extends StatelessWidget {
                                 },
                               ),
                               const SliverToBoxAdapter(
-                                  child: SizedBox(height: 100)),
+                                child: SizedBox(height: 100),
+                              ),
                             ],
                           )
                         : emptyState,
@@ -243,36 +244,35 @@ class HistoryScreen extends StatelessWidget {
 
           return ResponsiveContainer(
             child: CustomScrollView(
-        slivers: [
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.all(24.0),
-              child: headerContent,
-            ),
-          ),
+              slivers: [
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.all(24.0),
+                    child: headerContent,
+                  ),
+                ),
 
-          if (groupedTransactions.isNotEmpty) ...[
-            SliverList.builder(
-              itemCount: groupedTransactions.length,
-              itemBuilder: (context, index) {
-                final entry = groupedTransactions.entries.elementAt(index);
-                return SectionHistory(
-                  title: entry.key,
-                  transactions: entry.value,
-                  onTap: (value) => _openDetail(context, value, isRpg),
-                  isRpg: isRpg,
-                );
-              },
+                if (groupedTransactions.isNotEmpty) ...[
+                  SliverList.builder(
+                    itemCount: groupedTransactions.length,
+                    itemBuilder: (context, index) {
+                      final entry = groupedTransactions.entries.elementAt(
+                        index,
+                      );
+                      return SectionHistory(
+                        title: entry.key,
+                        transactions: entry.value,
+                        onTap: (value) => _openDetail(context, value, isRpg),
+                        isRpg: isRpg,
+                      );
+                    },
+                  ),
+                ] else ...[
+                  SliverFillRemaining(hasScrollBody: false, child: emptyState),
+                ],
+                const SliverToBoxAdapter(child: SizedBox(height: 100)),
+              ],
             ),
-          ] else ...[
-            SliverFillRemaining(
-              hasScrollBody: false,
-              child: emptyState,
-            ),
-          ],
-          const SliverToBoxAdapter(child: SizedBox(height: 100)),
-        ],
-      ),
           );
         },
       ),

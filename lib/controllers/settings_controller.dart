@@ -241,13 +241,11 @@ class SettingsController with ChangeNotifier {
   Future<bool> handleMigrateData(Map<String, dynamic>? backupData) async {
     if (backupData == null) return false;
 
-    // Migrate backup from any older schema version to current
     final Map<String, dynamic> migrated = BackupMigrator.migrate(backupData);
 
     final Map<String, dynamic> dbData = migrated['database'] ?? {};
     final Map<String, dynamic> rawUserData = migrated['user'] ?? {};
 
-    // Sanitize user data so fromJson won't crash on missing fields
     final Map<String, dynamic> userData = BackupMigrator.sanitizeUserData(
       rawUserData,
     );
@@ -274,7 +272,7 @@ class SettingsController with ChangeNotifier {
           .exportAllData();
       final Map<String, dynamic> userData = _prefService.rawUser ?? {};
 
-      int mode = 0; // raw
+      int mode = 0;
       String? password;
       if (isBackupEncryption) {
         if (isBackupUseCustom &&
@@ -302,8 +300,6 @@ class SettingsController with ChangeNotifier {
     }
   }
 
-  /// Import from file picker — auto-tries stored password and app key before
-  /// asking the user.
   Future<Map<String, dynamic>> handleImportData() async {
     _isBypassLock = true;
     try {
@@ -322,7 +318,6 @@ class SettingsController with ChangeNotifier {
     }
   }
 
-  /// Retry decrypt with a user-typed password on already-loaded bytes.
   Future<Map<String, dynamic>> handleImportWithPassword({
     required Uint8List fileBytes,
     required String password,
@@ -345,7 +340,6 @@ class SettingsController with ChangeNotifier {
     }
   }
 
-  /// Import from intent bytes (file opened externally).
   Future<Map<String, dynamic>> handleImportFromIntent(
     Uint8List fileBytes,
   ) async {

@@ -135,131 +135,133 @@ class _VerifyPinScreenState extends State<VerifyPinScreen> {
         body: SafeArea(
           child: ResponsiveContainer(
             child: Column(
-            children: [
-              const SizedBox(height: 24),
+              children: [
+                const SizedBox(height: 24),
 
-              Text(
-                widget.title ?? UiDict.pinInput,
-                style: TextStyle(
-                  fontFamily: 'Poppins',
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
-                  color: colorScheme.onSurface,
+                Text(
+                  widget.title ?? UiDict.pinInput,
+                  style: TextStyle(
+                    fontFamily: 'Poppins',
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                    color: colorScheme.onSurface,
+                  ),
                 ),
-              ),
-              const SizedBox(height: 16),
+                const SizedBox(height: 16),
 
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 8,
-                ),
-                decoration: BoxDecoration(
-                  color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      Icons.account_circle,
-                      size: 24,
-                      color: colorScheme.primary,
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
+                  ),
+                  decoration: BoxDecoration(
+                    color: colorScheme.surfaceContainerHighest.withValues(
+                      alpha: 0.5,
                     ),
-                    const SizedBox(width: 8),
-                    Text(
-                      widget.userEmail ?? 'Anonymous',
-                      style: TextStyle(color: colorScheme.onSurfaceVariant),
-                    ),
-                  ],
-                ),
-              ),
-
-              const SizedBox(height: 48),
-
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: List.generate(6, (index) {
-                  bool isFilled = index < _pinInput.length;
-                  return AnimatedContainer(
-                    duration: const Duration(milliseconds: 150),
-                    margin: const EdgeInsets.symmetric(horizontal: 16),
-                    width: 14,
-                    height: 14,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: isFilled
-                          ? colorScheme.primary
-                          : colorScheme.onSurfaceVariant.withValues(alpha: 0.3),
-                    ),
-                  );
-                }),
-              ),
-
-              const Spacer(),
-
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 40,
-                  vertical: 24,
-                ),
-                child: Column(
-                  children: [
-                    _buildNumpadRow(['1', '2', '3']),
-                    const SizedBox(height: 24),
-                    _buildNumpadRow(['4', '5', '6']),
-                    const SizedBox(height: 24),
-                    _buildNumpadRow(['7', '8', '9']),
-                    const SizedBox(height: 24),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        widget.isBiometricEnabled
-                            ? _buildFingerprintButton()
-                            : const SizedBox(width: 68, height: 68),
-
-                        _buildNumberButton('0'),
-                        _buildBackButton(),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-
-              if (!widget.isCancelable)
-                Padding(
-                  padding: const EdgeInsets.only(
-                    bottom: 24,
-                    left: 24,
-                    right: 24,
+                    borderRadius: BorderRadius.circular(20),
                   ),
                   child: Row(
-                    mainAxisAlignment: widget.userEmail != null
-                        ? MainAxisAlignment.spaceBetween
-                        : MainAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      if (widget.userEmail != null)
-                        TextButton(
-                          onPressed: () {
-                            /* TODO: Lupa PIN Logic */
-                          },
-                          child: Text(
-                            UiDict.forgotPin,
-                            style: TextStyle(color: colorScheme.onSurface),
-                          ),
-                        ),
-                      TextButton(
-                        onPressed: () {},
-                        child: Text(
-                          UiDict.changeAcount,
-                          style: TextStyle(color: colorScheme.onSurface),
-                        ),
+                      Icon(
+                        Icons.account_circle,
+                        size: 24,
+                        color: colorScheme.primary,
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        widget.userEmail ?? 'Anonymous',
+                        style: TextStyle(color: colorScheme.onSurfaceVariant),
                       ),
                     ],
                   ),
                 ),
-            ],
-          ),
+
+                const SizedBox(height: 48),
+
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: List.generate(6, (index) {
+                    bool isFilled = index < _pinInput.length;
+                    return AnimatedContainer(
+                      duration: const Duration(milliseconds: 150),
+                      margin: const EdgeInsets.symmetric(horizontal: 16),
+                      width: 14,
+                      height: 14,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: isFilled
+                            ? colorScheme.primary
+                            : colorScheme.onSurfaceVariant.withValues(
+                                alpha: 0.3,
+                              ),
+                      ),
+                    );
+                  }),
+                ),
+
+                const Spacer(),
+
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 40,
+                    vertical: 24,
+                  ),
+                  child: Column(
+                    children: [
+                      _buildNumpadRow(['1', '2', '3']),
+                      const SizedBox(height: 24),
+                      _buildNumpadRow(['4', '5', '6']),
+                      const SizedBox(height: 24),
+                      _buildNumpadRow(['7', '8', '9']),
+                      const SizedBox(height: 24),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          widget.isBiometricEnabled
+                              ? _buildFingerprintButton()
+                              : const SizedBox(width: 68, height: 68),
+
+                          _buildNumberButton('0'),
+                          _buildBackButton(),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+
+                if (!widget.isCancelable)
+                  Padding(
+                    padding: const EdgeInsets.only(
+                      bottom: 24,
+                      left: 24,
+                      right: 24,
+                    ),
+                    child: Row(
+                      mainAxisAlignment: widget.userEmail != null
+                          ? MainAxisAlignment.spaceBetween
+                          : MainAxisAlignment.center,
+                      children: [
+                        if (widget.userEmail != null)
+                          TextButton(
+                            onPressed: () {},
+                            child: Text(
+                              UiDict.forgotPin,
+                              style: TextStyle(color: colorScheme.onSurface),
+                            ),
+                          ),
+                        TextButton(
+                          onPressed: () {},
+                          child: Text(
+                            UiDict.changeAcount,
+                            style: TextStyle(color: colorScheme.onSurface),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+              ],
+            ),
           ),
         ),
       ),

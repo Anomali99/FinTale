@@ -49,7 +49,6 @@ class _AddReceivableScreenState extends State<AddReceivableScreen> {
   bool _isFeeActive = false;
   bool _isSavingsActive = false;
 
-  // Toggle generate transaksi expense saat piutang dicatat
   bool _generateTransaction = true;
 
   Decimal get _cleanAmount =>
@@ -113,7 +112,7 @@ class _AddReceivableScreenState extends State<AddReceivableScreen> {
         targetDate: _targetDate?.millisecondsSinceEpoch,
       );
 
-      if (widget.initialReceivable == null) {
+      if (widget.initialReceivable == null && _generateTransaction) {
         TransactionModel? transaction;
         if (_generateTransaction) {
           transaction = receivable.generateTransaction(
@@ -263,7 +262,8 @@ class _AddReceivableScreenState extends State<AddReceivableScreen> {
                   : null,
             );
 
-            final walletField = widget.initialReceivable == null
+            final walletField =
+                (widget.initialReceivable == null && _generateTransaction)
                 ? DropdownButtonFormField<WalletModel>(
                     initialValue: _selectedWallet,
                     decoration: InputDecoration(
@@ -387,15 +387,13 @@ class _AddReceivableScreenState extends State<AddReceivableScreen> {
                       SwitchListTile(
                         contentPadding: EdgeInsets.zero,
                         title: Text(
-                          isRpg
-                              ? 'Catat Pengeluaran Dana?'
-                              : 'Generate Transaksi Pengeluaran?',
+                          ScreenDict.receivableGenerateExpense.get(isRpg),
                           style: const TextStyle(fontWeight: FontWeight.bold),
                         ),
                         subtitle: Text(
-                          isRpg
-                              ? 'Otomatis catat dana yang keluar dari kas guild saat piutang dicatat.'
-                              : 'Otomatis mencatat pengeluaran ke histori saat piutang dicatat.',
+                          ScreenDict.getReceivableGenerateExpenseDesc(
+                            isRpg: isRpg,
+                          ),
                           style: TextStyle(
                             fontSize: 12,
                             color: colorScheme.onSurfaceVariant,
@@ -405,88 +403,91 @@ class _AddReceivableScreenState extends State<AddReceivableScreen> {
                         onChanged: (val) =>
                             setState(() => _generateTransaction = val),
                       ),
-                    ],
-                  )
-                : null;
-
-            final feeSection = widget.initialReceivable == null
-                ? Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const SizedBox(height: 8),
-                      SwitchListTile(
-                        contentPadding: EdgeInsets.zero,
-                        title: const Text(
-                          UiDict.feeCheck,
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                        subtitle: Text(
-                          "Note: ${ScreenDict.getFeeCheckDesc(isIncome: false, isRpg: isRpg)}",
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: colorScheme.onSurfaceVariant,
-                          ),
-                        ),
-                        value: _isFeeActive,
-                        onChanged: (val) => setState(() => _isFeeActive = val),
-                      ),
-                      if (_isFeeActive) ...[
+                      if (_generateTransaction) ...[
                         const SizedBox(height: 8),
-                        TextFormField(
-                          controller: _feeController,
-                          keyboardType: TextInputType.number,
-                          inputFormatters: [
-                            FilteringTextInputFormatter.digitsOnly,
-                          ],
-                          decoration: const InputDecoration(
-                            labelText: UiDict.feeAmount,
-                            prefixText: 'Rp ',
-                            border: OutlineInputBorder(),
+                        if (walletField != null) ...[
+                          walletField,
+                          const SizedBox(height: 8),
+
+                          SwitchListTile(
+                            contentPadding: EdgeInsets.zero,
+                            title: Text(
+                              ScreenDict.getReservedCheck(isRpg: isRpg),
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            subtitle: Text(
+                              ScreenDict.getReservedCheckDesc(isRpg: isRpg),
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: colorScheme.onSurfaceVariant,
+                              ),
+                            ),
+                            value: _isSavingsActive,
+                            onChanged: (val) => setState(() {
+                              _isSavingsActive = val;
+                              if (!val &&
+                                  _selectedWallet != null &&
+                                  _selectedWallet!.isSavings) {
+                                _selectedWallet = null;
+                              }
+                            }),
                           ),
-                          validator: (val) =>
-                              _isFeeActive &&
-                                  (val == null || val == '0' || val.isEmpty)
-                              ? UiDict.requiredFee
-                              : null,
-                          onChanged: (val) {
-                            Decimal currentFee = NumberUtils.parseToDecimal(
-                              val,
-                            );
-                            if (currentFee > _cleanAmount) {
-                              currentFee = _cleanAmount;
-                            }
-                            NumberUtils.formatInput(
-                              _feeController,
-                              currentFee.toString(),
-                            );
-                            setState(() {});
-                          },
+                        ],
+                        const SizedBox(height: 8),
+
+                        SwitchListTile(
+                          contentPadding: EdgeInsets.zero,
+                          title: const Text(
+                            UiDict.feeCheck,
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          subtitle: Text(
+                            "Note: ${ScreenDict.getFeeCheckDesc(isIncome: false, isRpg: isRpg)}",
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: colorScheme.onSurfaceVariant,
+                            ),
+                          ),
+                          value: _isFeeActive,
+                          onChanged: (val) =>
+                              setState(() => _isFeeActive = val),
                         ),
+                        if (_isFeeActive) ...[
+                          const SizedBox(height: 8),
+                          TextFormField(
+                            controller: _feeController,
+                            keyboardType: TextInputType.number,
+                            inputFormatters: [
+                              FilteringTextInputFormatter.digitsOnly,
+                            ],
+                            decoration: const InputDecoration(
+                              labelText: UiDict.feeAmount,
+                              prefixText: 'Rp ',
+                              border: OutlineInputBorder(),
+                            ),
+                            validator: (val) =>
+                                _isFeeActive &&
+                                    (val == null || val == '0' || val.isEmpty)
+                                ? UiDict.requiredFee
+                                : null,
+                            onChanged: (val) {
+                              Decimal currentFee = NumberUtils.parseToDecimal(
+                                val,
+                              );
+                              if (currentFee > _cleanAmount) {
+                                currentFee = _cleanAmount;
+                              }
+                              NumberUtils.formatInput(
+                                _feeController,
+                                currentFee.toString(),
+                              );
+                              setState(() {});
+                            },
+                          ),
+                        ],
                       ],
-                      const SizedBox(height: 8),
-                      SwitchListTile(
-                        contentPadding: EdgeInsets.zero,
-                        title: Text(
-                          ScreenDict.getReservedCheck(isRpg: isRpg),
-                          style: const TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                        subtitle: Text(
-                          ScreenDict.getReservedCheckDesc(isRpg: isRpg),
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: colorScheme.onSurfaceVariant,
-                          ),
-                        ),
-                        value: _isSavingsActive,
-                        onChanged: (val) => setState(() {
-                          _isSavingsActive = val;
-                          if (!val &&
-                              _selectedWallet != null &&
-                              _selectedWallet!.isSavings) {
-                            _selectedWallet = null;
-                          }
-                        }),
-                      ),
                     ],
                   )
                 : null;
@@ -510,11 +511,6 @@ class _AddReceivableScreenState extends State<AddReceivableScreen> {
                           const SizedBox(height: 16),
                           titleField,
                           const SizedBox(height: 16),
-                          if (walletField != null) ...[
-                            walletField,
-                            const SizedBox(height: 16),
-                          ],
-                          amountField,
                           if (dateField != null) ...[
                             const SizedBox(height: 16),
                             dateField,
@@ -533,7 +529,6 @@ class _AddReceivableScreenState extends State<AddReceivableScreen> {
                         children: [
                           targetDateSwitch,
                           targetDateSection,
-                          ?feeSection,
                           ?generateTransactionSection,
                         ],
                       ),
@@ -554,10 +549,6 @@ class _AddReceivableScreenState extends State<AddReceivableScreen> {
                     const SizedBox(height: 16),
                     titleField,
                     const SizedBox(height: 16),
-                    if (walletField != null) ...[
-                      walletField,
-                      const SizedBox(height: 16),
-                    ],
                     amountField,
                     if (dateField != null) ...[
                       const SizedBox(height: 16),
@@ -566,7 +557,6 @@ class _AddReceivableScreenState extends State<AddReceivableScreen> {
                     const SizedBox(height: 12),
                     targetDateSwitch,
                     targetDateSection,
-                    ?feeSection,
                     ?generateTransactionSection,
                   ],
                 ),

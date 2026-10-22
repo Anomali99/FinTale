@@ -146,7 +146,7 @@ class CategoryDict {
   static const CategoryModel transfer = CategoryModel(
     type: 'transfer',
     color: Colors.blueGrey,
-    terminology: TermModel(normal: 'Transfer Dompet', rpg: 'Karavan Suplai'),
+    terminology: TermModel(normal: 'Transfer Uang', rpg: 'Karavan Suplai'),
     icons: IconModel(
       normal: FontAwesomeIcons.arrowRightArrowLeft,
       rpg: FontAwesomeIcons.dolly,
@@ -198,8 +198,6 @@ class CategoryDict {
       rpg: FontAwesomeIcons.dragon,
     ),
   );
-
-  // ── Kategori Expense Baru ──────────────────────────────────────────────────
 
   static const CategoryModel fashion = CategoryModel(
     type: 'expense',
@@ -366,8 +364,6 @@ class CategoryDict {
       rpg: FontAwesomeIcons.question,
     ),
   );
-
-  // ── Kategori Income Baru ───────────────────────────────────────────────────
 
   static const CategoryModel gift = CategoryModel(
     type: 'income',

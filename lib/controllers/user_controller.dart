@@ -60,8 +60,10 @@ class UserController with ChangeNotifier {
   }) => currentUser?.addEmergencyTotal(context, amount, isIncome: isIncome);
   void updateEmergencyAmount(BuildContext context, Decimal amount) =>
       currentUser?.updateEmergencyAmount(context, amount);
-  void updateFreeDebt(BuildContext context, bool value) =>
-      currentUser?.updateFreeDebt(context, value);
+  void updateFreeDebt(BuildContext context, bool value) {
+    currentUser?.updateFreeDebt(context, value);
+    notifyListeners();
+  }
 
   void updateBaseDailyLimit(Decimal amount) =>
       budget.updateBaseDailyLimit(amount);

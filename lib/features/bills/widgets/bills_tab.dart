@@ -51,11 +51,7 @@ class BillsTab extends StatelessWidget {
       itemCount: data.length,
       itemBuilder: (context, index) {
         final item = data[index];
-        return BillCard(
-          data: item,
-          isRpg: isRpg,
-          onTap: () => onTapCard(item),
-        );
+        return BillCard(data: item, isRpg: isRpg, onTap: () => onTapCard(item));
       },
     );
   }

@@ -110,7 +110,7 @@ class _ReceivableDetailScreenState extends State<ReceivableDetailScreen> {
         amount -= fee;
         details.add(
           TransactionDetailModel(
-            title: 'Fee',
+            title: UiDict.feeAmount,
             amount: fee,
             category: TransactionCategory.utilities,
             flow: FlowType.expense,

@@ -78,7 +78,9 @@ class AllocationCard extends StatelessWidget {
                         subSectorName,
                         style: TextStyle(
                           fontSize: 13,
-                          color: colorScheme.onSurfaceVariant.withValues(alpha: 0.6),
+                          color: colorScheme.onSurfaceVariant.withValues(
+                            alpha: 0.6,
+                          ),
                           fontWeight: FontWeight.w500,
                         ),
                       ),

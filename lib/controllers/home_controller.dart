@@ -109,7 +109,6 @@ class HomeController with ChangeNotifier {
           await _userController.processCreateWallet(context);
         }
 
-        // New wallet marked as emergency: add its initial amount to target.
         if (wallet.isEmergency &&
             wallet.amount > Decimal.zero &&
             context.mounted) {
@@ -121,14 +120,12 @@ class HomeController with ChangeNotifier {
           await _userController.saveUser();
         }
       } else {
-        // Editing an existing wallet — check for isEmergency change.
         final oldWallet = _walletController.getWalletById(wallet.id);
         final bool wasEmergency = oldWallet.isEmergency;
         final bool nowEmergency = wallet.isEmergency;
 
         await _walletController.updateWallet(wallet);
 
-        // If a parent changed type, cascade to all its pockets.
         if (wallet.isParent && oldWallet.type != wallet.type) {
           final pockets = _walletController.getPocketsForWallet(wallet.id!);
           for (final pocket in pockets) {
@@ -145,9 +142,7 @@ class HomeController with ChangeNotifier {
           }
         }
 
-        // Adjust emergency fund when the flag changed.
         if (wasEmergency != nowEmergency && context.mounted) {
-          // Calculate total amount of this wallet (itself + pockets if parent).
           Decimal totalAmount = wallet.amount;
           if (wallet.isParent) {
             final pockets = _walletController.getPocketsForWallet(wallet.id!);
@@ -162,7 +157,7 @@ class HomeController with ChangeNotifier {
             _userController.addEmergencyTotal(
               context,
               totalAmount,
-              isIncome: nowEmergency, // true=add to total, false=subtract
+              isIncome: nowEmergency,
             );
             await _userController.saveUser();
           }
@@ -220,9 +215,6 @@ class HomeController with ChangeNotifier {
               investLowRiskPct = totalLowRisk - emergencyLimit;
             }
           }
-
-          // DreamFund allocation: no longer adds to reservedAmount.
-          // Pocket-based savings allocation will be handled in Phase 2.
 
           void processAllocation(
             SectorType sector,
@@ -293,7 +285,6 @@ class HomeController with ChangeNotifier {
 
       await _walletController.updateWallet(wallet);
 
-      // Track emergency fund progress
       if (context.mounted) {
         if (transaction.type == TransactionType.income) {
           if (wallet.isEmergency) {
@@ -304,7 +295,6 @@ class HomeController with ChangeNotifier {
             );
           }
         } else if (transaction.type == TransactionType.transfer) {
-          // wallet = source (expense side)
           if (wallet.isEmergency) {
             Decimal expenseAmount = transaction.detailTransaction.isNotEmpty
                 ? transaction.detailTransaction[0].amount
@@ -315,7 +305,7 @@ class HomeController with ChangeNotifier {
               isIncome: false,
             );
           }
-          // walletTarget = destination (income side)
+
           if (walletTarget!.isEmergency) {
             _userController.addEmergencyTotal(
               context,
@@ -324,7 +314,6 @@ class HomeController with ChangeNotifier {
             );
           }
         } else {
-          // expense / debt — money leaves wallet
           if (wallet.isEmergency) {
             _userController.addEmergencyTotal(
               context,

@@ -341,21 +341,16 @@ class InvestScreen extends StatelessWidget {
                       flex: 4,
                       child: ListView(
                         padding: const EdgeInsets.only(
-                          top: 24, bottom: 24, right: 12,
+                          top: 24,
+                          bottom: 24,
+                          right: 12,
                         ),
-                        children: [
-                          totalCard,
-                        ],
+                        children: [totalCard],
                       ),
                     ),
                     Expanded(
                       flex: 6,
-                      child: Column(
-                        children: [
-                          tabBarWidget,
-                          tabBarViewWidget,
-                        ],
-                      ),
+                      child: Column(children: [tabBarWidget, tabBarViewWidget]),
                     ),
                   ],
                 ),
@@ -364,11 +359,7 @@ class InvestScreen extends StatelessWidget {
 
             return ResponsiveContainer(
               child: Column(
-                children: [
-                  totalCard,
-                  tabBarWidget,
-                  tabBarViewWidget,
-                ],
+                children: [totalCard, tabBarWidget, tabBarViewWidget],
               ),
             );
           },

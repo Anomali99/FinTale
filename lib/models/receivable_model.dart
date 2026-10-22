@@ -104,7 +104,7 @@ extension ReceivableExtension on ReceivableModel {
     if (feeAmount != null) {
       details.add(
         TransactionDetailModel(
-          title: 'Fee',
+          title: UiDict.feeAmount,
           amount: feeAmount,
           category: TransactionCategory.utilities,
           flow: FlowType.expense,

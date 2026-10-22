@@ -9,6 +9,18 @@ import 'ui_dict.dart';
 class ScreenDict {
   static const String walletName = 'Nama Dompet';
   static const String walletType = 'Jenis Dompet';
+  static const String pocket = 'Kantong';
+  static const String walletParent = 'Dompet Induk';
+  static const String pocketName = 'Nama Kantong';
+  static const String requiredWalletParent = 'Pilih dompet induk';
+  static const String requiredWalletType = 'Pilih jenis dompet';
+  static const String markAsSavings = 'Tandai sebagai tabungan';
+  static const String markAsEmergency = 'Tandai sebagai dana darurat';
+  static const String totalWithPockets = 'Total (termasuk kantong)';
+  static const String mainPocket = 'Kantong Utama';
+  static const String subTotalNonSavings = 'Sub Total Kecuali Tabungan';
+  static const String subTotalSavings = 'Sub Total Tabungan';
+  static const String addPocket = 'Tambah Kantong';
   static const String homePenalty = 'Penalti Kemarin';
 
   static const String investClaim = 'Klaim';
@@ -221,6 +233,14 @@ class ScreenDict {
     normal: 'Generate Tagihan (Draf)',
     rpg: 'Aktifkan Quest (Draf)',
   );
+  static const TermModel debtGenerateIncome = TermModel(
+    normal: 'Generate Transaksi Pemasukan?',
+    rpg: 'Catat Penerimaan Dana?',
+  );
+  static const TermModel receivableGenerateExpense = TermModel(
+    normal: 'Generate Transaksi Pengeluaran?',
+    rpg: 'Catat Pengeluaran Dana?',
+  );
 
   static const TermModel investModal = TermModel(
     normal: 'Modal Diinvestasikan',
@@ -416,10 +436,10 @@ class ScreenDict {
       'Kecualikan ${historyTransaction.get(isRpg)}?';
 
   static String getReservedCheckDesc({bool isRpg = false}) =>
-      'Kurangi jumlah ini dari alokasi ${homeSavings.get(isRpg).toLowerCase()} Anda, bukan dari saldo aktif Anda.';
+      'Aktifkian jika ingin menggunakan ${homeSavings.get(isRpg).toLowerCase()}, filter ${homeSavings.get(isRpg).toLowerCase()} akan off dan menampilkan semua dompet';
 
   static String getExcludeDailyCheckDesc({bool isRpg = false}) =>
-      'Kurangi jumlah ini dari alokasi ${homeSavings.get(isRpg).toLowerCase()} Anda, bukan dari saldo aktif Anda.';
+      'Kecualikan jumlah ini dari perhitungan ${homeDailyLimit.get(isRpg).toLowerCase()}, agar transaksi ini tidak memotong jatah ${UiDict.expense.get(isRpg)} harian Anda.';
 
   static String getRoundedCheckDesc({bool isRpg = false}) =>
       'Membulatkan ${expenseAmount.get(isRpg).toLowerCase()} ke atas untuk menghilangkan fraksi desimal pada saldo akhir dompet.';
@@ -428,6 +448,14 @@ class ScreenDict {
 
   static String getDebtBillDesc({bool isRpg = false}) =>
       'Aktifkan jika ${isRpg ? 'ada pejanjian kontrak selesai' : 'peminjam menjanjikan tanggal pelunasan'}.';
+
+  static String getDebtGenerateIncomeDesc({bool isRpg = false}) => isRpg
+      ? 'Otomatis catat dana yang masuk ke kas guild saat hutang dibuat.'
+      : 'Otomatis mencatat pemasukan ke histori saat hutang dicatat.';
+
+  static String getReceivableGenerateExpenseDesc({bool isRpg = false}) => isRpg
+      ? 'Otomatis catat dana yang keluar dari kas guild saat piutang dicatat.'
+      : 'Otomatis mencatat pengeluaran ke histori saat piutang dicatat.';
 
   static String getTargetDateDesc({bool isRpg = false}) =>
       'Aktifkan untuk notifikasi atau ${billsMaster.get(isRpg)} otomatis generate setiap periode tertentu.';
