@@ -8,6 +8,7 @@ import '../../../core/models/mission_model.dart';
 import '../../../core/utils/color_extension.dart';
 import '../../../core/utils/enum_types.dart';
 import '../../../widgets/markdown_text_parser.dart';
+import '../../../widgets/responsive_container.dart';
 
 class InfoScreen extends StatelessWidget {
   const InfoScreen({super.key});
@@ -24,219 +25,221 @@ class InfoScreen extends StatelessWidget {
           ),
         ),
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(24.0),
-        children: [
-          _buildSectionHeader(context, GamificationDict.missionDaily),
-          const SizedBox(height: 16),
-          for (MissionModel mission in GamificationDict.allMission)
-            _buildMissionCard(context, mission: mission),
+      body: ResponsiveContainer(
+        child: ListView(
+          padding: const EdgeInsets.all(24.0),
+          children: [
+            _buildSectionHeader(context, GamificationDict.missionDaily),
+            const SizedBox(height: 16),
+            for (MissionModel mission in GamificationDict.allMission)
+              _buildMissionCard(context, mission: mission),
 
-          const SizedBox(height: 32),
+            const SizedBox(height: 32),
 
-          _buildSectionHeader(context, GamificationDict.titleSystem),
-          const SizedBox(height: 16),
-          _buildTitleTable(context),
+            _buildSectionHeader(context, GamificationDict.titleSystem),
+            const SizedBox(height: 16),
+            _buildTitleTable(context),
 
-          const SizedBox(height: 32),
+            const SizedBox(height: 32),
 
-          _buildSectionHeader(context, GamificationDict.allocationGuide),
-          const SizedBox(height: 16),
+            _buildSectionHeader(context, GamificationDict.allocationGuide),
+            const SizedBox(height: 16),
 
-          _buildLevelTierCard(
-            context,
-            level: '1 - 10',
-            title: GamificationDict.titleNovice.get(false),
-            skills: {
-              SectorType.living: {
-                "value": "55% ± 5%",
-                "sub": {
-                  SubSectorType.essentials: "DEFAULT",
-                  SubSectorType.dreamFund: "OPTIONAL",
+            _buildLevelTierCard(
+              context,
+              level: '1 - 10',
+              title: GamificationDict.titleNovice.get(false),
+              skills: {
+                SectorType.living: {
+                  "value": "55% ± 5%",
+                  "sub": {
+                    SubSectorType.essentials: "DEFAULT",
+                    SubSectorType.dreamFund: "OPTIONAL",
+                  },
+                },
+                SectorType.payDebt: {"value": "25% ± 3%", "sub": null},
+                SectorType.emergency: {
+                  "value": "20% ± 3%",
+                  "sub": {SubSectorType.lowRisk: "20% ± 3%"},
+                },
+                SectorType.investment: {
+                  "value": null,
+                  "sub": {
+                    SubSectorType.lowRisk: null,
+                    SubSectorType.mediumRisk: null,
+                    SubSectorType.highRisk: null,
+                  },
                 },
               },
-              SectorType.payDebt: {"value": "25% ± 3%", "sub": null},
-              SectorType.emergency: {
-                "value": "20% ± 3%",
-                "sub": {SubSectorType.lowRisk: "20% ± 3%"},
-              },
-              SectorType.investment: {
-                "value": null,
-                "sub": {
-                  SubSectorType.lowRisk: null,
-                  SubSectorType.mediumRisk: null,
-                  SubSectorType.highRisk: null,
-                },
-              },
-            },
-          ),
+            ),
 
-          _buildLevelTierCard(
-            context,
-            level: '11 - 20',
-            title: GamificationDict.titleSmart.get(false),
-            skills: {
-              SectorType.living: {
-                "value": "50% ± 5%",
-                "sub": {
-                  SubSectorType.essentials: "DEFAULT",
-                  SubSectorType.dreamFund: "OPTIONAL",
+            _buildLevelTierCard(
+              context,
+              level: '11 - 20',
+              title: GamificationDict.titleSmart.get(false),
+              skills: {
+                SectorType.living: {
+                  "value": "50% ± 5%",
+                  "sub": {
+                    SubSectorType.essentials: "DEFAULT",
+                    SubSectorType.dreamFund: "OPTIONAL",
+                  },
+                },
+                SectorType.payDebt: {"value": "20% ± 3%", "sub": null},
+                SectorType.emergency: {
+                  "value": "20% ± 4%",
+                  "sub": {SubSectorType.lowRisk: "20% ± 4%"},
+                },
+                SectorType.investment: {
+                  "value": "10% ± 2%",
+                  "sub": {
+                    SubSectorType.lowRisk: "OPTIONAL",
+                    SubSectorType.mediumRisk: "10% ± 2%",
+                    SubSectorType.highRisk: null,
+                  },
                 },
               },
-              SectorType.payDebt: {"value": "20% ± 3%", "sub": null},
-              SectorType.emergency: {
-                "value": "20% ± 4%",
-                "sub": {SubSectorType.lowRisk: "20% ± 4%"},
-              },
-              SectorType.investment: {
-                "value": "10% ± 2%",
-                "sub": {
-                  SubSectorType.lowRisk: "OPTIONAL",
-                  SubSectorType.mediumRisk: "10% ± 2%",
-                  SubSectorType.highRisk: null,
-                },
-              },
-            },
-          ),
+            ),
 
-          _buildLevelTierCard(
-            context,
-            level: '21 - 30',
-            title: GamificationDict.titleWise.get(false),
-            skills: {
-              SectorType.living: {
-                "value": "45% ± 7%",
-                "sub": {
-                  SubSectorType.essentials: "DEFAULT",
-                  SubSectorType.dreamFund: "OPTIONAL",
+            _buildLevelTierCard(
+              context,
+              level: '21 - 30',
+              title: GamificationDict.titleWise.get(false),
+              skills: {
+                SectorType.living: {
+                  "value": "45% ± 7%",
+                  "sub": {
+                    SubSectorType.essentials: "DEFAULT",
+                    SubSectorType.dreamFund: "OPTIONAL",
+                  },
+                },
+                SectorType.payDebt: {"value": "15% ± 5%", "sub": null},
+                SectorType.emergency: {
+                  "value": "20% ± 4%",
+                  "sub": {SubSectorType.lowRisk: "20% ± 4%"},
+                },
+                SectorType.investment: {
+                  "value": "20% ± 7%",
+                  "sub": {
+                    SubSectorType.lowRisk: "OPTIONAL",
+                    SubSectorType.mediumRisk: "15% ± 5%",
+                    SubSectorType.highRisk: "5% ± 2%",
+                  },
                 },
               },
-              SectorType.payDebt: {"value": "15% ± 5%", "sub": null},
-              SectorType.emergency: {
-                "value": "20% ± 4%",
-                "sub": {SubSectorType.lowRisk: "20% ± 4%"},
-              },
-              SectorType.investment: {
-                "value": "20% ± 7%",
-                "sub": {
-                  SubSectorType.lowRisk: "OPTIONAL",
-                  SubSectorType.mediumRisk: "15% ± 5%",
-                  SubSectorType.highRisk: "5% ± 2%",
-                },
-              },
-            },
-          ),
+            ),
 
-          _buildLevelTierCard(
-            context,
-            level: '31 - 40',
-            title: GamificationDict.titleWealth.get(false),
-            skills: {
-              SectorType.living: {
-                "value": "40% ± 7%",
-                "sub": {
-                  SubSectorType.essentials: "DEFAULT",
-                  SubSectorType.dreamFund: "OPTIONAL",
+            _buildLevelTierCard(
+              context,
+              level: '31 - 40',
+              title: GamificationDict.titleWealth.get(false),
+              skills: {
+                SectorType.living: {
+                  "value": "40% ± 7%",
+                  "sub": {
+                    SubSectorType.essentials: "DEFAULT",
+                    SubSectorType.dreamFund: "OPTIONAL",
+                  },
+                },
+                SectorType.payDebt: {"value": "10% ± 5%", "sub": null},
+                SectorType.emergency: {
+                  "value": "25% ± 5%",
+                  "sub": {SubSectorType.lowRisk: "25% ± 5%"},
+                },
+                SectorType.investment: {
+                  "value": "25% ± 10%",
+                  "sub": {
+                    SubSectorType.lowRisk: "OPTIONAL",
+                    SubSectorType.mediumRisk: "15% ± 5%",
+                    SubSectorType.highRisk: "10% ± 5%",
+                  },
                 },
               },
-              SectorType.payDebt: {"value": "10% ± 5%", "sub": null},
-              SectorType.emergency: {
-                "value": "25% ± 5%",
-                "sub": {SubSectorType.lowRisk: "25% ± 5%"},
-              },
-              SectorType.investment: {
-                "value": "25% ± 10%",
-                "sub": {
-                  SubSectorType.lowRisk: "OPTIONAL",
-                  SubSectorType.mediumRisk: "15% ± 5%",
-                  SubSectorType.highRisk: "10% ± 5%",
-                },
-              },
-            },
-          ),
+            ),
 
-          _buildLevelTierCard(
-            context,
-            level: '41 - 49',
-            title: GamificationDict.titleWealth.get(false),
-            skills: {
-              SectorType.living: {
-                "value": "35% ± 10%",
-                "sub": {
-                  SubSectorType.essentials: "DEFAULT",
-                  SubSectorType.dreamFund: "OPTIONAL",
+            _buildLevelTierCard(
+              context,
+              level: '41 - 49',
+              title: GamificationDict.titleWealth.get(false),
+              skills: {
+                SectorType.living: {
+                  "value": "35% ± 10%",
+                  "sub": {
+                    SubSectorType.essentials: "DEFAULT",
+                    SubSectorType.dreamFund: "OPTIONAL",
+                  },
+                },
+                SectorType.payDebt: {"value": "5% ± 5%", "sub": null},
+                SectorType.emergency: {
+                  "value": "30% ± 10%",
+                  "sub": {SubSectorType.lowRisk: "30% ± 10%"},
+                },
+                SectorType.investment: {
+                  "value": "30% ± 10%",
+                  "sub": {
+                    SubSectorType.lowRisk: "OPTIONAL",
+                    SubSectorType.mediumRisk: "15% ± 5%",
+                    SubSectorType.highRisk: "15% ± 5%",
+                  },
                 },
               },
-              SectorType.payDebt: {"value": "5% ± 5%", "sub": null},
-              SectorType.emergency: {
-                "value": "30% ± 10%",
-                "sub": {SubSectorType.lowRisk: "30% ± 10%"},
-              },
-              SectorType.investment: {
-                "value": "30% ± 10%",
-                "sub": {
-                  SubSectorType.lowRisk: "OPTIONAL",
-                  SubSectorType.mediumRisk: "15% ± 5%",
-                  SubSectorType.highRisk: "15% ± 5%",
+            ),
+
+            _buildLevelTierCard(
+              context,
+              level: '50+',
+              title: GamificationDict.titleMaster.get(false),
+              skills: {
+                SectorType.living: {
+                  "value": "CUSTOM",
+                  "sub": {
+                    SubSectorType.essentials: "CUSTOM",
+                    SubSectorType.dreamFund: "CUSTOM",
+                  },
+                },
+                SectorType.payDebt: {"value": "CUSTOM", "sub": null},
+                SectorType.emergency: {
+                  "value": "CUSTOM",
+                  "sub": {SubSectorType.lowRisk: "CUSTOM"},
+                },
+                SectorType.investment: {
+                  "value": "CUSTOM",
+                  "sub": {
+                    SubSectorType.lowRisk: "CUSTOM",
+                    SubSectorType.mediumRisk: "CUSTOM",
+                    SubSectorType.highRisk: "CUSTOM",
+                  },
                 },
               },
-            },
-          ),
+            ),
 
-          _buildLevelTierCard(
-            context,
-            level: '50+',
-            title: GamificationDict.titleMaster.get(false),
-            skills: {
-              SectorType.living: {
-                "value": "CUSTOM",
-                "sub": {
-                  SubSectorType.essentials: "CUSTOM",
-                  SubSectorType.dreamFund: "CUSTOM",
-                },
-              },
-              SectorType.payDebt: {"value": "CUSTOM", "sub": null},
-              SectorType.emergency: {
-                "value": "CUSTOM",
-                "sub": {SubSectorType.lowRisk: "CUSTOM"},
-              },
-              SectorType.investment: {
-                "value": "CUSTOM",
-                "sub": {
-                  SubSectorType.lowRisk: "CUSTOM",
-                  SubSectorType.mediumRisk: "CUSTOM",
-                  SubSectorType.highRisk: "CUSTOM",
-                },
-              },
-            },
-          ),
+            const SizedBox(height: 24),
 
-          const SizedBox(height: 24),
+            _buildSectionHeader(context, GamificationDict.allocationRules),
+            const SizedBox(height: 12),
+            _buildMechanismCard(
+              context,
+              GamificationDict.missionNote1Title,
+              GamificationDict.missionNote1,
+              icon: FontAwesomeIcons.arrowsDownToLine,
+            ),
+            _buildMechanismCard(
+              context,
+              GamificationDict.missionNote2Title,
+              GamificationDict.missionNote2,
+              icon: FontAwesomeIcons.handHoldingHeart,
+            ),
+            _buildMechanismCard(
+              context,
+              GamificationDict.missionNote3Title,
+              GamificationDict.missionNote3,
+              icon: FontAwesomeIcons.fire,
+              color: Colors.orange.adapt(context),
+            ),
 
-          _buildSectionHeader(context, GamificationDict.allocationRules),
-          const SizedBox(height: 12),
-          _buildMechanismCard(
-            context,
-            GamificationDict.missionNote1Title,
-            GamificationDict.missionNote1,
-            icon: FontAwesomeIcons.arrowsDownToLine,
-          ),
-          _buildMechanismCard(
-            context,
-            GamificationDict.missionNote2Title,
-            GamificationDict.missionNote2,
-            icon: FontAwesomeIcons.handHoldingHeart,
-          ),
-          _buildMechanismCard(
-            context,
-            GamificationDict.missionNote3Title,
-            GamificationDict.missionNote3,
-            icon: FontAwesomeIcons.fire,
-            color: Colors.orange.adapt(context),
-          ),
-
-          const SizedBox(height: 40),
-        ],
+            const SizedBox(height: 40),
+          ],
+        ),
       ),
     );
   }
@@ -269,7 +272,7 @@ class InfoScreen extends StatelessWidget {
       decoration: BoxDecoration(
         color: colorScheme.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: colorScheme.onSurface.withOpacity(0.1)),
+        border: Border.all(color: colorScheme.onSurface.withValues(alpha: 0.1)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -277,7 +280,7 @@ class InfoScreen extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             decoration: BoxDecoration(
-              color: colorScheme.primary.withOpacity(0.15),
+              color: colorScheme.primary.withValues(alpha: 0.15),
               borderRadius: const BorderRadius.vertical(
                 top: Radius.circular(16),
               ),
@@ -443,7 +446,7 @@ class InfoScreen extends StatelessWidget {
               fontSize: 11,
               color: isLocked
                   ? colorScheme.onSurfaceVariant
-                  : colorScheme.onSurfaceVariant.withOpacity(0.5),
+                  : colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
             ),
           ),
           Text(
@@ -452,7 +455,7 @@ class InfoScreen extends StatelessWidget {
               fontSize: 11,
               color: isLocked
                   ? colorScheme.onSurfaceVariant
-                  : colorScheme.onSurfaceVariant.withOpacity(0.5),
+                  : colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
             ),
           ),
         ],
@@ -471,7 +474,7 @@ class InfoScreen extends StatelessWidget {
       decoration: BoxDecoration(
         color: colorScheme.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: mission.color.withOpacity(0.3)),
+        border: Border.all(color: mission.color.withValues(alpha: 0.3)),
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(20),
@@ -483,7 +486,7 @@ class InfoScreen extends StatelessWidget {
               child: FaIcon(
                 mission.icon(false),
                 size: 80,
-                color: mission.color.withOpacity(0.05),
+                color: mission.color.withValues(alpha: 0.05),
               ),
             ),
             Padding(
@@ -521,7 +524,7 @@ class InfoScreen extends StatelessWidget {
                           vertical: 4,
                         ),
                         decoration: BoxDecoration(
-                          color: mission.color.withOpacity(0.2),
+                          color: mission.color.withValues(alpha: 0.2),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(
@@ -579,7 +582,7 @@ class InfoScreen extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: colorScheme.surfaceContainerHighest,
-        border: Border.all(color: colorScheme.onSurface.withOpacity(0.1)),
+        border: Border.all(color: colorScheme.onSurface.withValues(alpha: 0.1)),
         borderRadius: BorderRadius.circular(16),
       ),
       child: ClipRRect(
@@ -637,7 +640,7 @@ class InfoScreen extends StatelessWidget {
     return TableRow(
       decoration: BoxDecoration(
         color: isHeader
-            ? colorScheme.primary.withOpacity(0.1)
+            ? colorScheme.primary.withValues(alpha: 0.1)
             : Colors.transparent,
       ),
       children: cells.map((cell) {
@@ -671,8 +674,8 @@ class InfoScreen extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: mainColor.withOpacity(0.03),
-        border: Border.all(color: mainColor.withOpacity(0.2)),
+        color: mainColor.withValues(alpha: 0.03),
+        border: Border.all(color: mainColor.withValues(alpha: 0.2)),
         borderRadius: BorderRadius.circular(16),
       ),
       child: Row(

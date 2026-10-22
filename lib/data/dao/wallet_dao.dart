@@ -23,15 +23,48 @@ class WalletDao {
       'wallets',
       where: 'deleted_at IS NULL',
       orderBy: '''
+      parent_id IS NOT NULL ASC,
       CASE type
         WHEN 'cash' THEN 1
         WHEN 'bank' THEN 2
         WHEN 'eWallet' THEN 3
         WHEN 'platform' THEN 4
-        ELSE 5 
-      END ASC, 
+        ELSE 5
+      END ASC,
       created_at DESC
       ''',
+    );
+
+    return result.map((json) => WalletModel.fromMap(json)).toList();
+  }
+
+  Future<List<WalletModel>> readParentWallets() async {
+    final database = await _database;
+    final result = await database.query(
+      'wallets',
+      where: 'parent_id IS NULL AND deleted_at IS NULL',
+      orderBy: '''
+      CASE type
+        WHEN 'cash' THEN 1
+        WHEN 'bank' THEN 2
+        WHEN 'eWallet' THEN 3
+        WHEN 'platform' THEN 4
+        ELSE 5
+      END ASC,
+      created_at DESC
+      ''',
+    );
+
+    return result.map((json) => WalletModel.fromMap(json)).toList();
+  }
+
+  Future<List<WalletModel>> readPocketsByParentId(int parentId) async {
+    final database = await _database;
+    final result = await database.query(
+      'wallets',
+      where: 'parent_id = ? AND deleted_at IS NULL',
+      whereArgs: [parentId],
+      orderBy: 'created_at DESC',
     );
 
     return result.map((json) => WalletModel.fromMap(json)).toList();

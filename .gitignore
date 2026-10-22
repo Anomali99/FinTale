@@ -51,3 +51,4 @@ android/app/*.jks
 lib/firebase_options.dart
 .env
 update.md
+audit/**

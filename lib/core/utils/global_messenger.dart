@@ -67,12 +67,12 @@ class GlobalMessenger {
             color: colorScheme.surface,
             borderRadius: BorderRadius.circular(30),
             border: Border.all(
-              color: colorScheme.onSurface.withOpacity(0.12),
+              color: colorScheme.onSurface.withValues(alpha: 0.12),
               width: 1,
             ),
             boxShadow: [
               BoxShadow(
-                color: colorScheme.onPrimary.withOpacity(0.3),
+                color: colorScheme.onPrimary.withValues(alpha: 0.3),
                 blurRadius: 10,
                 offset: const Offset(0, 4),
               ),
@@ -141,12 +141,12 @@ class GlobalMessenger {
           color: colorScheme.surface,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: Colors.blueAccent..adapt(context).withOpacity(0.5),
+            color: Colors.blueAccent.adapt(context).withValues(alpha: 0.5),
             width: 1.5,
           ),
           boxShadow: [
             BoxShadow(
-              color: Colors.blueAccent..adapt(context).withOpacity(0.2),
+              color: Colors.blueAccent.adapt(context).withValues(alpha: 0.2),
               blurRadius: 20,
               spreadRadius: 2,
             ),
@@ -185,14 +185,16 @@ class GlobalMessenger {
             if (description != null && description.isNotEmpty) ...[
               Padding(
                 padding: EdgeInsets.symmetric(vertical: 12.0),
-                child: Divider(color: colorScheme.onSurface.withOpacity(0.12)),
+                child: Divider(
+                  color: colorScheme.onSurface.withValues(alpha: 0.12),
+                ),
               ),
               Text(
                 description,
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontFamily: 'Poppins',
-                  color: colorScheme.onSurface.withOpacity(0.7),
+                  color: colorScheme.onSurface.withValues(alpha: 0.7),
                   fontWeight: FontWeight.w500,
                   fontSize: 13,
                   height: 1.5,

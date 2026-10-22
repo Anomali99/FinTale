@@ -1,7 +1,9 @@
 import 'package:decimal/decimal.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
 
+import '../../../controllers/wallet_controller.dart';
 import '../../../core/constants/screen_dict.dart';
 import '../../../core/constants/ui_dict.dart';
 import '../../../core/theme/app_colors.dart';
@@ -62,6 +64,7 @@ class _PayReceivableModalState extends State<PayReceivableModal> {
   @override
   Widget build(BuildContext context) {
     final bottomInset = MediaQuery.of(context).viewInsets.bottom;
+    final walletController = context.read<WalletController>();
     final colorScheme = Theme.of(context).colorScheme;
 
     return Container(
@@ -88,7 +91,7 @@ class _PayReceivableModalState extends State<PayReceivableModal> {
                   height: 4,
                   margin: const EdgeInsets.only(bottom: 16),
                   decoration: BoxDecoration(
-                    color: colorScheme.onSurface.withOpacity(0.2),
+                    color: colorScheme.onSurface.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(4),
                   ),
                 ),
@@ -129,7 +132,7 @@ class _PayReceivableModalState extends State<PayReceivableModal> {
                 items: widget.wallets.map((wallet) {
                   return DropdownMenuItem(
                     value: wallet,
-                    child: Text(wallet.name),
+                    child: Text(walletController.getDisplayName(wallet)),
                   );
                 }).toList(),
                 onChanged: (val) => setState(() => _selectedWallet = val),
@@ -200,7 +203,7 @@ class _PayReceivableModalState extends State<PayReceivableModal> {
                   color: colorScheme.surfaceContainerHighest,
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(
-                    color: colorScheme.primary.withOpacity(0.2),
+                    color: colorScheme.primary.withValues(alpha: 0.2),
                   ),
                 ),
                 child: Column(

@@ -1,4 +1,3 @@
-import 'package:decimal/decimal.dart';
 import 'package:flutter/material.dart';
 
 import '../controllers/transaction_controller.dart';
@@ -41,21 +40,18 @@ class LayoutController extends ChangeNotifier with WidgetsBindingObserver {
     try {
       final wallet = _walletController.getWalletById(transaction.walletId);
       await _transactionController.createTransaction(transaction);
-      Decimal deductedFromReserved = wallet.autoExpanse(
-        transaction.amount,
-        useReserved: useReserved,
-      );
+      wallet.addAmount(transaction.amount, isIncome: false);
 
       await _walletController.updateWallet(wallet);
       await _walletController.loadData();
 
-      Decimal deductedFromRegular = transaction.amount - deductedFromReserved;
-
-      if (deductedFromRegular > Decimal.zero && !excludeDaily) {
-        _userController.useDaily(deductedFromRegular);
+      if (!excludeDaily) {
+        _userController.useDaily(transaction.amount);
       }
 
-      await _userController.processRecordTransaction(context);
+      if (context.mounted) {
+        await _userController.processRecordTransaction(context);
+      }
       await _userController.saveUser();
       await _userController.loadData();
       return true;

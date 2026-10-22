@@ -177,6 +177,13 @@ class BillController with ChangeNotifier {
         return false;
       }
 
+      if (bill.nextDueDate == null) {
+        bill.nextDueDate = bill.targetDate.millisecondsSinceEpoch;
+        if (bill.debtId == null) {
+          await _billDao.update(bill);
+        }
+      }
+
       if (status == StatusType.overdue) {
         if (existingPendingTransaction != null) {
           existingPendingTransaction.status = StatusType.overdue;
@@ -220,7 +227,7 @@ class BillController with ChangeNotifier {
   }) async {
     try {
       final wallet = _walletController.getWalletById(transaction.walletId);
-      wallet.autoExpanse(transaction.amount, useReserved: useReserved);
+      wallet.addAmount(transaction.amount, isIncome: false);
 
       if (transaction.debtId != null) {
         final debt = getDebtById(transaction.debtId);
@@ -232,7 +239,9 @@ class BillController with ChangeNotifier {
           debt.bill?.advanceToNextBill();
         }
         await _debtDao.update(debt);
-        await _userController.processDebtPayment(context);
+        if (context.mounted) {
+          await _userController.processDebtPayment(context);
+        }
       } else {
         final bill = getBillById(transaction.billId ?? 1);
         bill.advanceToNextBill();
@@ -253,8 +262,10 @@ class BillController with ChangeNotifier {
       await _walletController.updateWallet(wallet);
       await loadDebtData();
 
-      _userController.updateFreeDebt(context, isFreeDebt);
-      await _userController.processRecordTransaction(context);
+      if (context.mounted) {
+        _userController.updateFreeDebt(context, isFreeDebt);
+        await _userController.processRecordTransaction(context);
+      }
       await _userController.saveUser();
       await _walletController.loadData();
       await _userController.loadData();
@@ -277,7 +288,7 @@ class BillController with ChangeNotifier {
       final wallet = _walletController.getWalletById(transaction.walletId);
       final debt = getDebtById(transaction.debtId ?? 1);
       await _transactionController.createTransaction(transaction);
-      wallet.autoExpanse(transaction.amount, useReserved: useReserved);
+      wallet.addAmount(transaction.amount, isIncome: false);
       debt.addPayment(transaction.detailTransaction[0].amount);
 
       if (debt.bill != null) {
@@ -291,9 +302,13 @@ class BillController with ChangeNotifier {
       await _walletController.updateWallet(wallet);
       await loadDebtData();
 
-      _userController.updateFreeDebt(context, isFreeDebt);
-      await _userController.processRecordTransaction(context);
-      await _userController.processDebtPayment(context);
+      if (context.mounted) {
+        _userController.updateFreeDebt(context, isFreeDebt);
+        await _userController.processRecordTransaction(context);
+        if (context.mounted) {
+          await _userController.processDebtPayment(context);
+        }
+      }
       await _userController.saveUser();
       await _walletController.loadData();
       return true;
@@ -342,7 +357,9 @@ class BillController with ChangeNotifier {
       await _walletController.updateMultipleWallet(wallets.values.toList());
       await _walletController.loadData();
       await _transactionController.createMultipleTransaction(transactions);
-      await _userController.processRecordTransaction(context);
+      if (context.mounted) {
+        await _userController.processRecordTransaction(context);
+      }
       await _userController.saveUser();
       await loadReceivableData();
 
@@ -398,9 +415,17 @@ class BillController with ChangeNotifier {
       List<int> ids;
       if (debt.id == null) {
         ids = await _debtDao.create(debt);
-        _userController.updateFreeDebt(context, false);
+        if (context.mounted) {
+          _userController.updateFreeDebt(context, false);
+          await _userController.processRecordTransaction(context);
+          if (context.mounted) {
+            await _userController.processDebtPayment(context);
+          }
+          await _userController.saveUser();
+        }
       } else {
         ids = await _debtDao.update(debt);
+        await _userController.saveUser();
       }
 
       if (_userController.isNotification &&
@@ -467,12 +492,14 @@ class BillController with ChangeNotifier {
       }
 
       final wallet = _walletController.getWalletById(transaction.walletId);
-      wallet.autoExpanse(transaction.amount, useReserved: useReserved);
+      wallet.addAmount(transaction.amount, isIncome: false);
 
       await _walletController.updateWallet(wallet);
       await _walletController.loadData();
       await _transactionController.createTransaction(transaction);
-      await _userController.processRecordTransaction(context);
+      if (context.mounted) {
+        await _userController.processRecordTransaction(context);
+      }
       await _userController.saveUser();
       await loadReceivableData();
 
@@ -485,8 +512,43 @@ class BillController with ChangeNotifier {
     }
   }
 
+  Future<bool> createReceivableOnly(
+    BuildContext context,
+    ReceivableModel receivable,
+  ) async {
+    try {
+      int id;
+      if (receivable.id == null) {
+        id = await _receivableDao.create(receivable);
+      } else {
+        id = receivable.id!;
+        await _receivableDao.update(receivable);
+      }
+
+      if (_userController.isNotification &&
+          !receivable.isFinished &&
+          receivable.isReminderActive &&
+          receivable.targetDate != null) {
+        await createReceivableNotification(receivable: receivable, id: id);
+      } else {
+        await NotificationService().cancelNotificationByStringId(
+          'receivable_$id',
+        );
+      }
+
+      await loadReceivableData();
+      return true;
+    } catch (e) {
+      debugPrint("[BILL] An error occurred while create receivable only: $e");
+      return false;
+    } finally {
+      notifyListeners();
+    }
+  }
+
   Future<void> loadData() async {
     try {
+      await loadBillData();
       await loadDebtData();
       await loadReceivableData();
       await _transactionController.loadBillTransaction();
@@ -517,17 +579,6 @@ class BillController with ChangeNotifier {
   Future<void> loadDebtData() async {
     try {
       debts = await _debtDao.readAllActiveData();
-      await loadBillData();
-      Map<int, BillModel> billMap = {};
-      for (var row in bills) {
-        if (row.debtId != null) {
-          billMap[row.debtId!] = row;
-        }
-      }
-      debts = debts.map((e) {
-        e.updateBill(billMap[e.id]);
-        return e;
-      }).toList();
     } catch (e) {
       debugPrint("[BILL] An error occurred while loading debt: $e");
     } finally {

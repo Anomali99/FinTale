@@ -9,14 +9,14 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/number_utils.dart';
 
 class TotalCard extends StatelessWidget {
-  final bool isProvit;
+  final bool isProfit;
   final Decimal totalCapital;
   final Decimal totalCurrent;
   final double percentage;
 
   const TotalCard({
     super.key,
-    required this.isProvit,
+    required this.isProfit,
     required this.totalCapital,
     required this.totalCurrent,
     required this.percentage,
@@ -37,9 +37,9 @@ class TotalCard extends StatelessWidget {
         ),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: isProvit
-              ? AppColors.getSuccess(context).withOpacity(0.3)
-              : colorScheme.error.withOpacity(0.3),
+          color: isProfit
+              ? AppColors.getSuccess(context).withValues(alpha: 0.3)
+              : colorScheme.error.withValues(alpha: 0.3),
         ),
       ),
       child: Column(
@@ -56,12 +56,15 @@ class TotalCard extends StatelessWidget {
               fontFamily: 'Poppins',
               fontSize: 32,
               fontWeight: FontWeight.bold,
-              color: isProvit
+              color: isProfit
                   ? AppColors.getSuccess(context)
                   : colorScheme.error,
             ),
           ),
-          Divider(color: colorScheme.onSurface.withOpacity(0.1), height: 32),
+          Divider(
+            color: colorScheme.onSurface.withValues(alpha: 0.1),
+            height: 32,
+          ),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -90,27 +93,27 @@ class TotalCard extends StatelessWidget {
                   vertical: 6,
                 ),
                 decoration: BoxDecoration(
-                  color: isProvit
-                      ? AppColors.getSuccess(context).withOpacity(0.2)
-                      : colorScheme.error.withOpacity(0.2),
+                  color: isProfit
+                      ? AppColors.getSuccess(context).withValues(alpha: 0.2)
+                      : colorScheme.error.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Row(
                   children: [
                     FaIcon(
-                      isProvit
+                      isProfit
                           ? FontAwesomeIcons.arrowTrendUp
                           : FontAwesomeIcons.arrowTrendDown,
-                      color: isProvit
+                      color: isProfit
                           ? AppColors.getSuccess(context)
                           : colorScheme.error,
                       size: 12,
                     ),
                     const SizedBox(width: 6),
                     Text(
-                      '${isProvit ? '+' : ''}${percentage.toStringAsFixed(2)}%',
+                      '${isProfit ? '+' : ''}${percentage.toStringAsFixed(2)}%',
                       style: TextStyle(
-                        color: isProvit
+                        color: isProfit
                             ? AppColors.getSuccess(context)
                             : colorScheme.error,
                         fontWeight: FontWeight.bold,

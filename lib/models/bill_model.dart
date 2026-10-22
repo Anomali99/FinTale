@@ -91,9 +91,21 @@ extension BillExtension on BillModel {
     }
   }
 
-  DateTime get targetDate => nextDueDate != null
-      ? DateTime.fromMillisecondsSinceEpoch(nextDueDate!)
-      : _calculateNextDateFrom(DateTime.now());
+  DateTime get targetDate {
+    if (nextDueDate != null) {
+      return DateTime.fromMillisecondsSinceEpoch(nextDueDate!);
+    }
+
+    DateTime now = DateTime.now();
+    DateTime today = DateTime(now.year, now.month, now.day);
+    DateTime currentPeriod = _getCurrentPeriodDueDate(now);
+
+    if (!currentPeriod.isBefore(today)) {
+      return currentPeriod;
+    }
+
+    return _calculateNextDateFrom(currentPeriod);
+  }
 
   String getTargetTitle({DateTime? targetDate}) {
     DateTime target = targetDate ?? this.targetDate;
@@ -237,18 +249,12 @@ extension BillExtension on BillModel {
   }
 
   void advanceToNextBill() {
-    DateTime currentTarget = nextDueDate != null
-        ? DateTime.fromMillisecondsSinceEpoch(nextDueDate!)
-        : _calculateNextDateFrom(DateTime.now());
-
+    DateTime currentTarget = targetDate;
     nextDueDate = _calculateNextDateFrom(currentTarget).millisecondsSinceEpoch;
   }
 
   void revertToPreviousBill() {
-    DateTime currentTarget = nextDueDate != null
-        ? DateTime.fromMillisecondsSinceEpoch(nextDueDate!)
-        : _calculateNextDateFrom(DateTime.now());
-
+    DateTime currentTarget = targetDate;
     nextDueDate = _calculatePreviousDateFrom(
       currentTarget,
     ).millisecondsSinceEpoch;

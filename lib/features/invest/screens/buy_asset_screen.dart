@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../controllers/settings_controller.dart';
+import '../../../controllers/wallet_controller.dart';
 import '../../../core/constants/category_dict.dart';
 import '../../../core/constants/screen_dict.dart';
 import '../../../core/constants/ui_dict.dart';
@@ -16,6 +17,7 @@ import '../../../widgets/custom_button.dart';
 import '../../../widgets/custom_date_time_picker.dart';
 import '../../../widgets/custom_tab_bar.dart';
 import '../../../widgets/note_container.dart';
+import '../../../widgets/responsive_container.dart';
 
 class BuyAssetScreen extends StatefulWidget {
   final List<WalletModel> wallets;
@@ -57,7 +59,7 @@ class _BuyAssetScreenState extends State<BuyAssetScreen>
   RiskType? _selectedRisk;
   Decimal _amount = Decimal.zero;
   bool _isRoundedActive = false;
-  bool _isReservedActive = false;
+  bool _isSavingsActive = false;
   bool _isDevidenActive = false;
   bool _isEmergencyActive = false;
   bool _isFeeActive = false;
@@ -140,7 +142,7 @@ class _BuyAssetScreenState extends State<BuyAssetScreen>
     _priceController.text = '0';
     _feeController.text = '0';
     _amount = Decimal.zero;
-    _isReservedActive = false;
+    _isSavingsActive = false;
     _isFeeActive = false;
     _isDevidenActive = false;
     if (_isNewAssetTab) {
@@ -230,7 +232,7 @@ class _BuyAssetScreenState extends State<BuyAssetScreen>
       if (_isFeeActive) {
         details.add(
           TransactionDetailModel(
-            title: 'Fee',
+            title: UiDict.feeAmount,
             amount: NumberUtils.parseToDecimal(_feeController.text),
             category: TransactionCategory.utilities,
             flow: FlowType.expense,
@@ -252,7 +254,7 @@ class _BuyAssetScreenState extends State<BuyAssetScreen>
       Navigator.pop(context, {
         "asset": assetToReturn,
         "transaction": transaction,
-        'use_reserved': _isReservedActive,
+        'use_reserved': _isSavingsActive,
       });
     }
   }
@@ -260,6 +262,7 @@ class _BuyAssetScreenState extends State<BuyAssetScreen>
   @override
   Widget build(BuildContext context) {
     final isRpg = context.read<SettingsController>().isRpgMode;
+    final walletController = context.read<WalletController>();
     final colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
@@ -284,350 +287,448 @@ class _BuyAssetScreenState extends State<BuyAssetScreen>
       bottomNavigationBar: _buildBottomBar(isRpg),
       body: Form(
         key: _formKey,
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.all(24.0),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final isWide = constraints.maxWidth >= 700;
+
+            final tabBar = CustomTabBar(
+              controller: _tabController,
+              tabs: [
+                ScreenDict.investNewAsset.get(isRpg),
+                ScreenDict.investAddModal.get(isRpg),
+              ],
+            );
+
+            final nameField = TextFormField(
+              controller: _nameController,
+              decoration: InputDecoration(
+                labelText: UiDict.name,
+                border: OutlineInputBorder(),
+              ),
+              validator: (val) => val == null || val.trim().isEmpty
+                  ? UiDict.requiredName
+                  : null,
+            );
+
+            final categoryDropdown = DropdownButtonFormField<AssetsCategory>(
+              initialValue: _selectedCategory,
+              decoration: InputDecoration(
+                labelText: UiDict.category,
+                border: OutlineInputBorder(),
+              ),
+              items: AssetsCategory.values
+                  .map(
+                    (cat) => DropdownMenuItem(
+                      value: cat,
+                      child: Text(cat.value, overflow: TextOverflow.ellipsis),
+                    ),
+                  )
+                  .toList(),
+              onChanged: (val) => setState(() => _selectedCategory = val),
+              validator: (val) => val == null ? UiDict.requiredCategory : null,
+            );
+
+            final riskDropdown = DropdownButtonFormField<RiskType>(
+              initialValue: _selectedRisk,
+              decoration: InputDecoration(
+                labelText: ScreenDict.investRisk.get(isRpg),
+                border: OutlineInputBorder(),
+              ),
+              items: RiskType.values
+                  .map(
+                    (risk) => DropdownMenuItem(
+                      value: risk,
+                      child: Text(
+                        CategoryDict.getAssetByEnum(
+                          risk,
+                        ).get(isRpg).toUpperCase(),
+                      ),
+                    ),
+                  )
+                  .toList(),
+              onChanged: !_isLockRisk
+                  ? (val) => setState(() => _selectedRisk = val)
+                  : null,
+              validator: (val) =>
+                  val == null ? ScreenDict.investRiskRequired.get(isRpg) : null,
+            );
+
+            final assetDropdown = DropdownButtonFormField<AssetsModel>(
+              isExpanded: true,
+              menuMaxHeight: 300,
+              initialValue: _selectedAsset,
+              decoration: InputDecoration(
+                labelText: ScreenDict.investAsset.get(isRpg),
+                border: OutlineInputBorder(),
+              ),
+              items: widget.assets
+                  .map(
+                    (a) => DropdownMenuItem(
+                      value: a,
+                      child: Text(a.name, overflow: TextOverflow.ellipsis),
+                    ),
+                  )
+                  .toList(),
+              onChanged: widget.initialAsset == null
+                  ? (val) => setState(() {
+                      _selectedAsset = val;
+                      _unitNameController.text = val?.unitName ?? 'Unit';
+                    })
+                  : null,
+              validator: (val) => val == null && !_isNewAssetTab
+                  ? ScreenDict.investAssetRequired.get(isRpg)
+                  : null,
+            );
+
+            final unitRow = Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                if (!_isHideTab) ...[
-                  CustomTabBar(
-                    controller: _tabController,
-                    tabs: [
-                      ScreenDict.investNewAsset.get(isRpg),
-                      ScreenDict.investAddModal.get(isRpg),
-                    ],
-                  ),
-                  const SizedBox(height: 24),
-                ],
-
-                if (_isNewAssetTab) ...[
-                  TextFormField(
-                    controller: _nameController,
+                Expanded(
+                  flex: 2,
+                  child: TextFormField(
+                    controller: _unitAmountController,
+                    keyboardType: const TextInputType.numberWithOptions(
+                      decimal: true,
+                    ),
                     decoration: InputDecoration(
-                      labelText: UiDict.name,
+                      labelText: UiDict.amount,
                       border: OutlineInputBorder(),
                     ),
-                    validator: (val) => val == null || val.trim().isEmpty
-                        ? UiDict.requiredName
-                        : null,
-                  ),
-                  const SizedBox(height: 16),
-
-                  DropdownButtonFormField<AssetsCategory>(
-                    initialValue: _selectedCategory,
-                    decoration: InputDecoration(
-                      labelText: UiDict.category,
-                      border: OutlineInputBorder(),
-                    ),
-                    items: AssetsCategory.values
-                        .map(
-                          (cat) => DropdownMenuItem(
-                            value: cat,
-                            child: Text(
-                              cat.value,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                        )
-                        .toList(),
-                    onChanged: (val) => setState(() => _selectedCategory = val),
-                    validator: (val) =>
-                        val == null ? UiDict.requiredCategory : null,
-                  ),
-                  const SizedBox(height: 16),
-                  DropdownButtonFormField<RiskType>(
-                    initialValue: _selectedRisk,
-                    decoration: InputDecoration(
-                      labelText: ScreenDict.investRisk.get(isRpg),
-                      border: OutlineInputBorder(),
-                    ),
-                    items: RiskType.values
-                        .map(
-                          (risk) => DropdownMenuItem(
-                            value: risk,
-                            child: Text(
-                              CategoryDict.getAssetByEnum(
-                                risk,
-                              ).get(isRpg).toUpperCase(),
-                            ),
-                          ),
-                        )
-                        .toList(),
-                    onChanged: !_isLockRisk
-                        ? (val) => setState(() => _selectedRisk = val)
-                        : null,
-                    validator: (val) => val == null
-                        ? ScreenDict.investRiskRequired.get(isRpg)
-                        : null,
-                  ),
-                  const SizedBox(height: 16),
-                ] else ...[
-                  DropdownButtonFormField<AssetsModel>(
-                    isExpanded: true,
-                    menuMaxHeight: 300,
-                    initialValue: _selectedAsset,
-                    decoration: InputDecoration(
-                      labelText: ScreenDict.investAsset.get(isRpg),
-                      border: OutlineInputBorder(),
-                    ),
-                    items: widget.assets
-                        .map(
-                          (a) => DropdownMenuItem(
-                            value: a,
-                            child: Text(
-                              a.name,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                        )
-                        .toList(),
-                    onChanged: widget.initialAsset == null
-                        ? (val) => setState(() {
-                            _selectedAsset = val;
-                            _unitNameController.text = val?.unitName ?? 'Unit';
-                          })
-                        : null,
-                    validator: (val) => val == null && !_isNewAssetTab
-                        ? ScreenDict.investAssetRequired.get(isRpg)
-                        : null,
-                  ),
-                  const SizedBox(height: 16),
-                ],
-
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      flex: 2,
-                      child: TextFormField(
-                        controller: _unitAmountController,
-                        keyboardType: const TextInputType.numberWithOptions(
-                          decimal: true,
-                        ),
-                        decoration: InputDecoration(
-                          labelText: UiDict.amount,
-                          border: OutlineInputBorder(),
-                        ),
-                        onChanged: (val) => NumberUtils.formatInput(
-                          _unitAmountController,
-                          val,
-                          isDecimal: true,
-                          onCalculated: _calculateTotal,
-                        ),
-                        validator: (val) =>
-                            val == null || !NumberUtils.isValidAmount(val)
-                            ? UiDict.requiredAmount
-                            : null,
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      flex: 1,
-                      child: TextFormField(
-                        controller: _unitNameController,
-                        decoration: InputDecoration(
-                          labelText: ScreenDict.investUnit.get(isRpg),
-                          border: OutlineInputBorder(),
-                        ),
-                        readOnly: !_isNewAssetTab,
-                        onChanged: (val) => setState(() {}),
-                        validator: (val) => val == null || val.isEmpty
-                            ? ScreenDict.investUnitRequired.get(isRpg)
-                            : null,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-
-                TextFormField(
-                  controller: _priceController,
-                  keyboardType: TextInputType.number,
-                  decoration: InputDecoration(
-                    labelText: ScreenDict.getInvestPricePerUnit(
-                      _unitNameController.text.trim(),
-                    ),
-                    prefixText: 'Rp ',
-                    border: OutlineInputBorder(),
-                  ),
-                  onChanged: (val) => NumberUtils.formatInput(
-                    _priceController,
-                    val,
-                    isDecimal: true,
-                    onCalculated: _calculateTotal,
-                  ),
-                  validator: (val) =>
-                      val == null || val.isEmpty ? UiDict.requiredPrice : null,
-                ),
-                const SizedBox(height: 16),
-
-                DropdownButtonFormField<WalletModel>(
-                  initialValue: _selectedWallet,
-                  decoration: InputDecoration(
-                    labelText: UiDict.sourceFunds,
-                    border: OutlineInputBorder(),
-                  ),
-                  items: widget.wallets
-                      .map(
-                        (wallet) => DropdownMenuItem(
-                          value: wallet,
-                          child: Text(wallet.name),
-                        ),
-                      )
-                      .toList(),
-                  onChanged: !_isLockWallet
-                      ? (val) => setState(() => _selectedWallet = val)
-                      : null,
-                  validator: (val) =>
-                      val == null ? UiDict.requiredWallet : null,
-                ),
-                const SizedBox(height: 16),
-
-                CustomDateTimePicker(
-                  initialDate: _selectedDate,
-                  label: ScreenDict.historyTime.get(isRpg),
-                  onChanged: (newDate) {
-                    setState(() {
-                      _selectedDate = newDate;
-                    });
-                  },
-                ),
-                const SizedBox(height: 16),
-
-                if (_isNewAssetTab) ...[
-                  SwitchListTile(
-                    contentPadding: EdgeInsets.zero,
-                    title: Text(
-                      ScreenDict.getDevidenCheck(isRpg: isRpg),
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    subtitle: Text(
-                      ScreenDict.getDevidenCheckDesc(isRpg: isRpg),
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: colorScheme.onSurfaceVariant,
-                      ),
-                    ),
-                    value: _isDevidenActive,
-                    onChanged: (val) => setState(() => _isDevidenActive = val),
-                  ),
-                  SwitchListTile(
-                    contentPadding: EdgeInsets.zero,
-                    title: Text(
-                      ScreenDict.getEmergencyCheck(isRpg: isRpg),
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    subtitle: Text(
-                      ScreenDict.getEmergencyCheckDesc(isRpg: isRpg),
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: colorScheme.onSurfaceVariant,
-                      ),
-                    ),
-                    value: _isEmergencyActive,
-                    onChanged: (val) => setState(
-                      () =>
-                          !widget.isEmergency ? _isEmergencyActive = val : null,
-                    ),
-                  ),
-                ],
-
-                SwitchListTile(
-                  contentPadding: EdgeInsets.zero,
-                  title: const Text(
-                    UiDict.feeCheck,
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  subtitle: Text(
-                    ScreenDict.getFeeCheckDesc(isRpg: isRpg),
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: colorScheme.onSurfaceVariant,
-                    ),
-                  ),
-                  value: _isFeeActive,
-                  onChanged: (val) => setState(() => _isFeeActive = val),
-                ),
-
-                if (_isFeeActive) ...[
-                  const SizedBox(height: 8),
-                  TextFormField(
-                    controller: _feeController,
-                    keyboardType: TextInputType.number,
-                    decoration: InputDecoration(
-                      labelText: UiDict.feeAmount,
-                      prefixText: 'Rp ',
-                      border: OutlineInputBorder(),
-                    ),
-                    validator: (value) {
-                      if (_isFeeActive &&
-                          (value == null || value.isEmpty || value == '0')) {
-                        return UiDict.requiredFee;
-                      }
-                      return null;
-                    },
-                    onChanged: (value) => NumberUtils.formatInput(
-                      _feeController,
-                      value,
+                    onChanged: (val) => NumberUtils.formatInput(
+                      _unitAmountController,
+                      val,
                       isDecimal: true,
                       onCalculated: _calculateTotal,
                     ),
+                    validator: (val) =>
+                        val == null || !NumberUtils.isValidAmount(val)
+                        ? UiDict.requiredAmount
+                        : null,
                   ),
-                  const SizedBox(height: 12),
-                  NoteContainer(
-                    text: "Note: ${ScreenDict.getFeeCheckDesc(isRpg: isRpg)}",
-                    color: colorScheme.onSurfaceVariant,
-                  ),
-                ],
-
-                if (widget.pendingAllocation == null)
-                  SwitchListTile(
-                    contentPadding: EdgeInsets.zero,
-                    title: Text(
-                      ScreenDict.getReservedCheck(isRpg: isRpg),
-                      style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  flex: 1,
+                  child: TextFormField(
+                    controller: _unitNameController,
+                    decoration: InputDecoration(
+                      labelText: ScreenDict.investUnit.get(isRpg),
+                      border: OutlineInputBorder(),
                     ),
-                    subtitle: Text(
-                      ScreenDict.getReservedCheckDesc(isRpg: isRpg),
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: colorScheme.onSurfaceVariant,
-                      ),
-                    ),
-                    value: _isReservedActive,
-                    onChanged: (val) => setState(() {
-                      if (_selectedWallet != null) {
-                        _isReservedActive = val;
-                      }
-                    }),
+                    readOnly: !_isNewAssetTab,
+                    onChanged: (val) => setState(() {}),
+                    validator: (val) => val == null || val.isEmpty
+                        ? ScreenDict.investUnitRequired.get(isRpg)
+                        : null,
                   ),
-
-                SwitchListTile(
-                  contentPadding: EdgeInsets.zero,
-                  title: Text(
-                    ScreenDict.roundedCheck,
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  subtitle: Text(
-                    ScreenDict.getRoundedCheckDesc(isRpg: isRpg),
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: colorScheme.onSurfaceVariant,
-                    ),
-                  ),
-                  value: _isRoundedActive,
-                  onChanged: (val) {
-                    setState(() {
-                      _isRoundedActive = val;
-                    });
-                    _calculateTotal();
-                  },
                 ),
               ],
-            ),
-          ),
+            );
+
+            final priceField = TextFormField(
+              controller: _priceController,
+              keyboardType: TextInputType.number,
+              decoration: InputDecoration(
+                labelText: ScreenDict.getInvestPricePerUnit(
+                  _unitNameController.text.trim(),
+                ),
+                prefixText: 'Rp ',
+                border: OutlineInputBorder(),
+              ),
+              onChanged: (val) => NumberUtils.formatInput(
+                _priceController,
+                val,
+                isDecimal: true,
+                onCalculated: _calculateTotal,
+              ),
+              validator: (val) =>
+                  val == null || val.isEmpty ? UiDict.requiredPrice : null,
+            );
+
+            final displayWallets = _isSavingsActive
+                ? widget.wallets
+                : widget.wallets.where((w) => !w.isSavings).toList();
+
+            final walletDropdown = DropdownButtonFormField<WalletModel>(
+              initialValue: _selectedWallet,
+              decoration: InputDecoration(
+                labelText: UiDict.sourceFunds,
+                border: OutlineInputBorder(),
+              ),
+              items: displayWallets
+                  .map(
+                    (wallet) => DropdownMenuItem(
+                      value: wallet,
+                      child: Text(walletController.getDisplayName(wallet)),
+                    ),
+                  )
+                  .toList(),
+              onChanged: !_isLockWallet
+                  ? (val) => setState(() => _selectedWallet = val)
+                  : null,
+              validator: (val) => val == null ? UiDict.requiredWallet : null,
+            );
+
+            final datePicker = CustomDateTimePicker(
+              initialDate: _selectedDate,
+              label: ScreenDict.historyTime.get(isRpg),
+              onChanged: (newDate) {
+                setState(() {
+                  _selectedDate = newDate;
+                });
+              },
+            );
+
+            final dividendSwitch = SwitchListTile(
+              contentPadding: EdgeInsets.zero,
+              title: Text(
+                ScreenDict.getDevidenCheck(isRpg: isRpg),
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              subtitle: Text(
+                ScreenDict.getDevidenCheckDesc(isRpg: isRpg),
+                style: TextStyle(
+                  fontSize: 12,
+                  color: colorScheme.onSurfaceVariant,
+                ),
+              ),
+              value: _isDevidenActive,
+              onChanged: (val) => setState(() => _isDevidenActive = val),
+            );
+
+            final emergencySwitch = SwitchListTile(
+              contentPadding: EdgeInsets.zero,
+              title: Text(
+                ScreenDict.getEmergencyCheck(isRpg: isRpg),
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              subtitle: Text(
+                ScreenDict.getEmergencyCheckDesc(isRpg: isRpg),
+                style: TextStyle(
+                  fontSize: 12,
+                  color: colorScheme.onSurfaceVariant,
+                ),
+              ),
+              value: _isEmergencyActive,
+              onChanged: (val) => setState(
+                () => !widget.isEmergency ? _isEmergencyActive = val : null,
+              ),
+            );
+
+            final feeSwitch = SwitchListTile(
+              contentPadding: EdgeInsets.zero,
+              title: const Text(
+                UiDict.feeCheck,
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              subtitle: Text(
+                ScreenDict.getFeeCheckDesc(isRpg: isRpg),
+                style: TextStyle(
+                  fontSize: 12,
+                  color: colorScheme.onSurfaceVariant,
+                ),
+              ),
+              value: _isFeeActive,
+              onChanged: (val) => setState(() => _isFeeActive = val),
+            );
+
+            final feeField = TextFormField(
+              controller: _feeController,
+              keyboardType: TextInputType.number,
+              decoration: InputDecoration(
+                labelText: UiDict.feeAmount,
+                prefixText: 'Rp ',
+                border: OutlineInputBorder(),
+              ),
+              validator: (value) {
+                if (_isFeeActive &&
+                    (value == null || value.isEmpty || value == '0')) {
+                  return UiDict.requiredFee;
+                }
+                return null;
+              },
+              onChanged: (value) => NumberUtils.formatInput(
+                _feeController,
+                value,
+                isDecimal: true,
+                onCalculated: _calculateTotal,
+              ),
+            );
+
+            final feeNote = NoteContainer(
+              text: "Note: ${ScreenDict.getFeeCheckDesc(isRpg: isRpg)}",
+              color: colorScheme.onSurfaceVariant,
+            );
+
+            final reservedSwitch = SwitchListTile(
+              contentPadding: EdgeInsets.zero,
+              title: Text(
+                ScreenDict.getReservedCheck(isRpg: isRpg),
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              subtitle: Text(
+                ScreenDict.getReservedCheckDesc(isRpg: isRpg),
+                style: TextStyle(
+                  fontSize: 12,
+                  color: colorScheme.onSurfaceVariant,
+                ),
+              ),
+              value: _isSavingsActive,
+              onChanged: (val) => setState(() {
+                _isSavingsActive = val;
+                if (!val &&
+                    _selectedWallet != null &&
+                    _selectedWallet!.isSavings) {
+                  _selectedWallet = null;
+                }
+              }),
+            );
+
+            final roundedSwitch = SwitchListTile(
+              contentPadding: EdgeInsets.zero,
+              title: Text(
+                ScreenDict.roundedCheck,
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              subtitle: Text(
+                ScreenDict.getRoundedCheckDesc(isRpg: isRpg),
+                style: TextStyle(
+                  fontSize: 12,
+                  color: colorScheme.onSurfaceVariant,
+                ),
+              ),
+              value: _isRoundedActive,
+              onChanged: (val) {
+                setState(() {
+                  _isRoundedActive = val;
+                });
+                _calculateTotal();
+              },
+            );
+
+            if (isWide) {
+              return SingleChildScrollView(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        flex: 5,
+                        child: ListView(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          padding: const EdgeInsets.only(
+                            top: 24,
+                            bottom: 24,
+                            right: 12,
+                          ),
+                          children: [
+                            if (!_isHideTab) ...[
+                              tabBar,
+                              const SizedBox(height: 24),
+                            ],
+                            if (_isNewAssetTab) ...[
+                              nameField,
+                              const SizedBox(height: 16),
+                              categoryDropdown,
+                              const SizedBox(height: 16),
+                              riskDropdown,
+                              const SizedBox(height: 16),
+                            ] else ...[
+                              assetDropdown,
+                              const SizedBox(height: 16),
+                            ],
+                            unitRow,
+                            const SizedBox(height: 16),
+                            priceField,
+                            const SizedBox(height: 16),
+                          ],
+                        ),
+                      ),
+                      Expanded(
+                        flex: 5,
+                        child: ListView(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          padding: const EdgeInsets.only(
+                            top: 24,
+                            bottom: 24,
+                            left: 12,
+                          ),
+                          children: [
+                            walletDropdown,
+                            if (widget.pendingAllocation == null)
+                              reservedSwitch,
+                            const SizedBox(height: 16),
+                            datePicker,
+                            const SizedBox(height: 16),
+                            if (_isNewAssetTab) ...[
+                              dividendSwitch,
+                              emergencySwitch,
+                            ],
+                            feeSwitch,
+                            if (_isFeeActive) ...[
+                              const SizedBox(height: 8),
+                              feeField,
+                              const SizedBox(height: 12),
+                              feeNote,
+                            ],
+
+                            roundedSwitch,
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            }
+
+            return SingleChildScrollView(
+              child: ResponsiveContainer(
+                child: Padding(
+                  padding: const EdgeInsets.all(24.0),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      if (!_isHideTab) ...[tabBar, const SizedBox(height: 24)],
+                      if (_isNewAssetTab) ...[
+                        nameField,
+                        const SizedBox(height: 16),
+                        categoryDropdown,
+                        const SizedBox(height: 16),
+                        riskDropdown,
+                        const SizedBox(height: 16),
+                      ] else ...[
+                        assetDropdown,
+                        const SizedBox(height: 16),
+                      ],
+                      unitRow,
+                      const SizedBox(height: 16),
+                      priceField,
+                      const SizedBox(height: 16),
+                      walletDropdown,
+                      if (widget.pendingAllocation == null) reservedSwitch,
+                      const SizedBox(height: 16),
+                      datePicker,
+                      const SizedBox(height: 16),
+                      if (_isNewAssetTab) ...[dividendSwitch, emergencySwitch],
+                      feeSwitch,
+                      if (_isFeeActive) ...[
+                        const SizedBox(height: 8),
+                        feeField,
+                        const SizedBox(height: 12),
+                        feeNote,
+                      ],
+                      roundedSwitch,
+                    ],
+                  ),
+                ),
+              ),
+            );
+          },
         ),
       ),
     );
@@ -635,6 +736,7 @@ class _BuyAssetScreenState extends State<BuyAssetScreen>
 
   Widget _buildBottomBar(bool isRpg) {
     final colorScheme = Theme.of(context).colorScheme;
+    final walletController = context.read<WalletController>();
 
     return Container(
       padding: EdgeInsets.only(
@@ -647,7 +749,7 @@ class _BuyAssetScreenState extends State<BuyAssetScreen>
         color: colorScheme.surface,
         boxShadow: [
           BoxShadow(
-            color: colorScheme.onPrimary.withOpacity(0.2),
+            color: colorScheme.onPrimary.withValues(alpha: 0.2),
             offset: const Offset(0, -4),
             blurRadius: 12,
           ),
@@ -662,14 +764,8 @@ class _BuyAssetScreenState extends State<BuyAssetScreen>
                   ? ScreenDict.getPendingNote(
                       NumberUtils.toIdr(widget.pendingAllocation),
                     )
-                  : _isReservedActive
-                  ? ScreenDict.getHomeNote(
-                      _selectedWallet?.name ?? '',
-                      NumberUtils.toIdr(_selectedWallet?.reservedAmount),
-                      isRpg: isRpg,
-                    )
                   : ScreenDict.getHistoryNote(
-                      _selectedWallet?.name ?? '',
+                      walletController.getDisplayName(_selectedWallet!),
                       NumberUtils.toIdr(_selectedWallet?.amount),
                     ),
               color: colorScheme.onSurfaceVariant,

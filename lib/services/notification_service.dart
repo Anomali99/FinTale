@@ -23,9 +23,9 @@ class NotificationService {
     try {
       final TimezoneInfo timeZoneName =
           await FlutterTimezone.getLocalTimezone();
-      tz.setLocalLocation(
-        tz.getLocation(timeZoneName.localizedName?.name ?? "Asia/Jakarta"),
-      );
+      final String ianaName =
+          timeZoneName.localizedName?.name ?? 'Asia/Jakarta';
+      tz.setLocalLocation(tz.getLocation(ianaName));
     } catch (e) {
       tz.setLocalLocation(tz.getLocation('Asia/Jakarta'));
     }
@@ -96,14 +96,12 @@ class NotificationService {
         'Instant Notifications',
         importance: Importance.max,
         priority: Priority.high,
-        // icon: '@drawable/ic_notification',
-        // largeIcon: DrawableResourceAndroidBitmap('fintale_logo'),
       ),
       iOS: DarwinNotificationDetails(),
     );
 
     await _notificationsPlugin.show(
-      id: stringId.hashCode,
+      id: _toNotificationId(stringId),
       title: title,
       body: body,
       notificationDetails: details,
@@ -120,7 +118,7 @@ class NotificationService {
   }) async {
     if (!_isInitialized) await init();
 
-    int notificationId = stringId.hashCode;
+    int notificationId = _toNotificationId(stringId);
     tz.TZDateTime scheduledDate = tz.TZDateTime.from(scheduledTime, tz.local);
 
     if (scheduledDate.isBefore(tz.TZDateTime.now(tz.local))) return;
@@ -136,8 +134,6 @@ class NotificationService {
           'Scheduled Notifications',
           importance: Importance.max,
           priority: Priority.high,
-          // icon: '@drawable/ic_notification',
-          // largeIcon: DrawableResourceAndroidBitmap('fintale_logo'),
         ),
         iOS: DarwinNotificationDetails(),
       ),
@@ -156,7 +152,7 @@ class NotificationService {
   }) async {
     if (!_isInitialized) await init();
 
-    int notificationId = stringId.hashCode;
+    int notificationId = _toNotificationId(stringId);
 
     if (await isNotificationScheduled(notificationId)) return;
 
@@ -171,8 +167,6 @@ class NotificationService {
           'Routine Notifications',
           importance: Importance.max,
           priority: Priority.high,
-          // icon: '@drawable/ic_notification',
-          // largeIcon: DrawableResourceAndroidBitmap('fintale_logo'),
         ),
         iOS: DarwinNotificationDetails(),
       ),
@@ -188,7 +182,7 @@ class NotificationService {
 
   Future<void> cancelNotificationByStringId(String stringId) async {
     if (!_isInitialized) await init();
-    await _notificationsPlugin.cancel(id: stringId.hashCode);
+    await _notificationsPlugin.cancel(id: _toNotificationId(stringId));
   }
 
   Future<bool> isNotificationScheduled(int id) async {
@@ -196,6 +190,14 @@ class NotificationService {
     final List<PendingNotificationRequest> pendingNotifications =
         await _notificationsPlugin.pendingNotificationRequests();
     return pendingNotifications.any((notification) => notification.id == id);
+  }
+
+  int _toNotificationId(String stringId) {
+    var hash = 0;
+    for (var codeUnit in stringId.codeUnits) {
+      hash = (31 * hash + codeUnit) & 0x7FFFFFFF;
+    }
+    return hash;
   }
 
   tz.TZDateTime _nextInstanceOfTime(int hour, int minute) {

@@ -37,7 +37,7 @@ class ProfileCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: colorScheme.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: colorScheme.primary.withOpacity(0.3)),
+        border: Border.all(color: colorScheme.primary.withValues(alpha: 0.3)),
       ),
       child: Column(
         children: [
@@ -45,7 +45,7 @@ class ProfileCard extends StatelessWidget {
             children: [
               CircleAvatar(
                 radius: 30,
-                backgroundColor: colorScheme.primary.withOpacity(0.2),
+                backgroundColor: colorScheme.primary.withValues(alpha: 0.2),
                 child: FaIcon(
                   FontAwesomeIcons.userAstronaut,
                   color: colorScheme.primary,
@@ -102,7 +102,9 @@ class ProfileCard extends StatelessWidget {
                         email ?? '',
                         style: TextStyle(
                           fontSize: 12,
-                          color: colorScheme.onSurfaceVariant.withOpacity(0.8),
+                          color: colorScheme.onSurfaceVariant.withValues(
+                            alpha: 0.8,
+                          ),
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,

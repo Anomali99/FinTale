@@ -8,7 +8,9 @@ class WalletModel {
   final String name;
   final WalletType type;
   Decimal amount;
-  Decimal reservedAmount;
+  final int? parentId;
+  bool isSavings;
+  bool isEmergency;
 
   WalletModel({
     required this.name,
@@ -16,8 +18,10 @@ class WalletModel {
     required this.amount,
 
     this.id,
-    Decimal? reservedAmount,
-  }) : reservedAmount = reservedAmount ?? Decimal.zero;
+    this.parentId,
+    this.isSavings = false,
+    this.isEmergency = false,
+  });
 
   Map<String, dynamic> toMap() {
     return {
@@ -25,7 +29,9 @@ class WalletModel {
       'name': name,
       'type': type.name,
       'amount': amount.toString(),
-      'reserved_amount': reservedAmount.toString(),
+      'parent_id': parentId,
+      'is_savings': isSavings ? 1 : 0,
+      'is_emergency': isEmergency ? 1 : 0,
     };
   }
 
@@ -38,14 +44,21 @@ class WalletModel {
         orElse: () => WalletType.cash,
       ),
       amount: Decimal.parse(map['amount'] ?? '0'),
-      reservedAmount: Decimal.parse(map['reserved_amount'] ?? '0'),
+      parentId: map['parent_id'],
+      isSavings: (map['is_savings'] ?? 0) == 1,
+      isEmergency: (map['is_emergency'] ?? 0) == 1,
     );
   }
 }
 
 extension WalletExtension on WalletModel {
-  Decimal get regularAmount =>
-      amount > Decimal.zero ? amount - reservedAmount : Decimal.zero;
+  bool get isPocket => parentId != null;
+
+  bool get isParent => parentId == null;
+
+  Decimal get reservedAmount => Decimal.zero;
+
+  Decimal get regularAmount => amount;
 
   void addAmount(Decimal amount, {bool isIncome = true}) {
     if (isIncome) {
@@ -53,36 +66,6 @@ extension WalletExtension on WalletModel {
     } else {
       this.amount -= amount;
     }
-  }
-
-  void addReserved(Decimal amount, {bool isIncome = true}) {
-    if (isIncome) {
-      reservedAmount += amount;
-    } else {
-      reservedAmount -= amount;
-    }
-  }
-
-  Decimal autoExpanse(Decimal amount, {bool useReserved = false}) {
-    Decimal availableAmount = this.amount - reservedAmount;
-    Decimal deductedFromReserved = Decimal.zero;
-
-    if (useReserved) {
-      deductedFromReserved = amount > reservedAmount ? reservedAmount : amount;
-
-      addReserved(deductedFromReserved, isIncome: false);
-    } else if (amount > availableAmount) {
-      Decimal overflowAmount = amount - availableAmount;
-
-      deductedFromReserved = overflowAmount > reservedAmount
-          ? reservedAmount
-          : overflowAmount;
-
-      addReserved(deductedFromReserved, isIncome: false);
-    }
-
-    addAmount(amount, isIncome: false);
-    return deductedFromReserved;
   }
 
   FaIconData get icon {

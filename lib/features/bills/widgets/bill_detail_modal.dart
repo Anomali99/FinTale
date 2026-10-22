@@ -41,7 +41,7 @@ class BillDetailModal extends StatelessWidget {
                 height: 4,
                 margin: const EdgeInsets.only(bottom: 24),
                 decoration: BoxDecoration(
-                  color: colorScheme.onSurface.withOpacity(0.2),
+                  color: colorScheme.onSurface.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(4),
                 ),
               ),
@@ -52,7 +52,7 @@ class BillDetailModal extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: mainColor.withOpacity(0.15),
+                    color: mainColor.withValues(alpha: 0.15),
                     shape: BoxShape.circle,
                   ),
                   child: FaIcon(
@@ -76,10 +76,10 @@ class BillDetailModal extends StatelessWidget {
                               vertical: 2,
                             ),
                             decoration: BoxDecoration(
-                              color: mainColor.withOpacity(0.15),
+                              color: mainColor.withValues(alpha: 0.15),
                               borderRadius: BorderRadius.circular(4),
                               border: Border.all(
-                                color: mainColor.withOpacity(0.5),
+                                color: mainColor.withValues(alpha: 0.5),
                               ),
                             ),
                             child: Text(
@@ -99,8 +99,8 @@ class BillDetailModal extends StatelessWidget {
                                 vertical: 2,
                               ),
                               decoration: BoxDecoration(
-                                color: colorScheme.onSurfaceVariant.withOpacity(
-                                  0.2,
+                                color: colorScheme.onSurfaceVariant.withValues(
+                                  alpha: 0.2,
                                 ),
                                 borderRadius: BorderRadius.circular(4),
                               ),
@@ -143,7 +143,7 @@ class BillDetailModal extends StatelessWidget {
                 Padding(
                   padding: EdgeInsets.symmetric(vertical: 12),
                   child: Divider(
-                    color: colorScheme.onSurface.withOpacity(0.1),
+                    color: colorScheme.onSurface.withValues(alpha: 0.1),
                     height: 1,
                   ),
                 ),

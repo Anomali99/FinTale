@@ -85,7 +85,8 @@ class InvestController with ChangeNotifier {
         return true;
       }
       return false;
-    } catch (e) {
+    } catch (e, stackTrace) {
+      debugPrint("[INVEST] Error updating asset: $e\n$stackTrace");
       return false;
     }
   }
@@ -98,7 +99,8 @@ class InvestController with ChangeNotifier {
       await _walletController.updateWallet(wallet);
       await _walletController.loadData();
       return true;
-    } catch (e) {
+    } catch (e, stackTrace) {
+      debugPrint("[INVEST] Error claiming deviden: $e\n$stackTrace");
       return false;
     }
   }
@@ -115,7 +117,7 @@ class InvestController with ChangeNotifier {
       final wallet = _walletController.getWalletById(transaction.walletId);
       wallet.addAmount(transaction.amount, isIncome: true);
 
-      if (asset.isEmergency) {
+      if (asset.isEmergency && context.mounted) {
         _userController.addEmergencyTotal(
           context,
           emergencyDeduction,
@@ -126,7 +128,9 @@ class InvestController with ChangeNotifier {
       await _walletController.updateWallet(wallet);
       await _walletController.loadData();
       await _transactionController.createTransaction(transaction);
-      await _userController.processRecordTransaction(context);
+      if (context.mounted) {
+        await _userController.processRecordTransaction(context);
+      }
       await _userController.saveUser();
       await loadData();
 
@@ -152,9 +156,9 @@ class InvestController with ChangeNotifier {
       }
 
       final wallet = _walletController.getWalletById(transaction.walletId);
-      wallet.autoExpanse(transaction.amount, useReserved: useReserved);
+      wallet.addAmount(transaction.amount, isIncome: false);
 
-      if (asset.isEmergency) {
+      if (asset.isEmergency && context.mounted) {
         _userController.addEmergencyTotal(
           context,
           transaction.detailTransaction[0].amount,
@@ -165,7 +169,9 @@ class InvestController with ChangeNotifier {
       await _walletController.updateWallet(wallet);
       await _walletController.loadData();
       await _transactionController.createTransaction(transaction);
-      await _userController.processRecordTransaction(context);
+      if (context.mounted) {
+        await _userController.processRecordTransaction(context);
+      }
       await _userController.saveUser();
       await loadData();
       return true;

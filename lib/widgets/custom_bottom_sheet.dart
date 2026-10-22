@@ -46,7 +46,7 @@ class CustomBottomSheet extends StatelessWidget {
             width: 40,
             height: 4,
             decoration: BoxDecoration(
-              color: colorScheme.onSurfaceVariant.withOpacity(0.7),
+              color: colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
               borderRadius: BorderRadius.circular(2),
             ),
           ),
@@ -67,11 +67,11 @@ class CustomBottomSheet extends StatelessWidget {
 
           for (BottomSheetChild data in children) ...[
             if (!hideDriver)
-              Divider(color: colorScheme.onSurface.withOpacity(0.1)),
+              Divider(color: colorScheme.onSurface.withValues(alpha: 0.1)),
 
             ListTile(
               leading: CircleAvatar(
-                backgroundColor: data.color.withOpacity(0.2),
+                backgroundColor: data.color.withValues(alpha: 0.2),
                 child: FaIcon(data.icon, color: data.color, size: 18),
               ),
               title: Text(

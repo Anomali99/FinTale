@@ -20,6 +20,7 @@ import '../../../models/receivable_model.dart';
 import '../../../models/transaction_model.dart';
 import '../../../widgets/custom_bottom_sheet.dart';
 import '../../../widgets/custom_tab_bar.dart';
+import '../../../widgets/responsive_container.dart';
 import '../widgets/active_bills_tab.dart';
 import '../widgets/add_bill_modal.dart';
 import '../widgets/add_debt_modal.dart';
@@ -64,6 +65,7 @@ class BillsScreen extends StatelessWidget {
 
       await historyController.applyFilter();
       await analyticsController.applyFilter();
+      if (!context.mounted) return;
 
       GlobalMessenger.showMessage(
         context,
@@ -123,6 +125,7 @@ class BillsScreen extends StatelessWidget {
         bool isSuccess = await context.read<BillController>().generateBillDraft(
           data,
         );
+        if (!context.mounted) return;
         GlobalMessenger.showMessage(
           context,
           message: isSuccess
@@ -149,6 +152,7 @@ class BillsScreen extends StatelessWidget {
 
     if (result != null && context.mounted) {
       bool isSuccess = await context.read<BillController>().createBill(result);
+      if (!context.mounted) return;
       GlobalMessenger.showMessage(
         context,
         message: UiDict.getSaveNotif(
@@ -163,7 +167,7 @@ class BillsScreen extends StatelessWidget {
 
   void _openAddDebtModal(BuildContext context, {DebtModel? initialDebt}) async {
     final isRpg = context.read<SettingsController>().isRpgMode;
-    final result = await showModalBottomSheet<DebtModel>(
+    final result = await showModalBottomSheet<Map<String, dynamic>>(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
@@ -173,10 +177,23 @@ class BillsScreen extends StatelessWidget {
     );
 
     if (result != null && context.mounted) {
-      bool isSuccess = await context.read<BillController>().createDebt(
-        context,
-        result,
-      );
+      final debt = result['debt'] as DebtModel;
+      final transaction = result['transaction'] as TransactionModel?;
+
+      final billController = context.read<BillController>();
+      final historyController = context.read<HistoryController>();
+      final analyticsController = context.read<AnalyticsController>();
+      final transactionController = context.read<TransactionController>();
+
+      bool isSuccess = await billController.createDebt(context, debt);
+
+      if (isSuccess && transaction != null && context.mounted) {
+        await transactionController.createTransaction(transaction);
+        await historyController.applyFilter();
+        await analyticsController.applyFilter();
+      }
+
+      if (!context.mounted) return;
       GlobalMessenger.showMessage(
         context,
         message: UiDict.getSaveNotif(
@@ -214,18 +231,28 @@ class BillsScreen extends StatelessWidget {
 
     if (result != null && context.mounted) {
       ReceivableModel receivable = result['receivable'];
-      TransactionModel transaction = result['transaction'];
-      bool useReserved = result['use_reserved'];
+      TransactionModel? transaction = result['transaction'];
+      bool? useReserved = result['use_reserved'];
+      bool generateTransaction = result['generate_transaction'] ?? false;
 
-      final isSuccess = await billController.createReceivable(
-        context,
-        transaction,
-        receivable,
-        useReserved: useReserved,
-      );
+      bool isSuccess;
+      if (generateTransaction && transaction != null) {
+        isSuccess = await billController.createReceivable(
+          context,
+          transaction,
+          receivable,
+          useReserved: useReserved ?? false,
+        );
+      } else {
+        isSuccess = await billController.createReceivableOnly(
+          context,
+          receivable,
+        );
+      }
 
       await historyController.applyFilter();
       await analyticsController.applyFilter();
+      if (!context.mounted) return;
 
       GlobalMessenger.showMessage(
         context,
@@ -250,7 +277,7 @@ class BillsScreen extends StatelessWidget {
     final historyController = context.read<HistoryController>();
     final analyticsController = context.read<AnalyticsController>();
     final isRpg = context.read<SettingsController>().isRpgMode;
-    final wallets = context.read<WalletController>().wallets;
+    final wallets = context.read<WalletController>().allWallets;
     List<DebtModel> debts = initialDebt != null ? [initialDebt] : [];
     List<BillModel> bills = initialBill != null ? [initialBill] : [];
     final result = await showModalBottomSheet<Map<String, dynamic>>(
@@ -294,6 +321,7 @@ class BillsScreen extends StatelessWidget {
       }
       await historyController.applyFilter();
       await analyticsController.applyFilter();
+      if (!context.mounted) return;
       GlobalMessenger.showMessage(
         context,
         message: message,
@@ -419,88 +447,192 @@ class BillsScreen extends StatelessWidget {
           ),
         ),
 
-        body: TabBarView(
-          children: [
-            DefaultTabController(
-              length: 2,
-              child: Column(
+        body: LayoutBuilder(
+          builder: (context, constraints) {
+            final isWide = constraints.maxWidth >= 700;
+
+            final activeBillsContent = ActiveBillsTab(
+              data: billTransaction,
+              isRpg: isRpg,
+              onTap: (transaction) =>
+                  _openActiveBillModal(context, transaction),
+            );
+            final billsContent = BillsTab(
+              data: bills,
+              isRpg: isRpg,
+              onTapCard: (bill) => _openBillDetail(context, bill, isRpg),
+            );
+
+            final debtsContent = DebtsTab(
+              data: debts,
+              isRpg: isRpg,
+              onTapCard: (debt) => _openDebtDetail(context, debt, isRpg),
+            );
+            final receivablesContent = ReceivablesTab(
+              data: groupedReceivables,
+              isRpg: isRpg,
+              onTapCard: (name, receivable) =>
+                  _openReceivableDetail(context, name, receivable, isRpg),
+            );
+
+            if (isWide) {
+              return TabBarView(
                 children: [
                   Padding(
-                    padding: const EdgeInsets.all(16.0),
-
-                    child: CustomTabBar(
-                      tabs: [
-                        ScreenDict.billsActive.get(isRpg),
-                        ScreenDict.billsMaster.get(isRpg),
-                      ],
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 8,
                     ),
-                  ),
-
-                  Expanded(
-                    child: TabBarView(
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        ActiveBillsTab(
-                          data: billTransaction,
-                          isRpg: isRpg,
-                          onTap: (transaction) =>
-                              _openActiveBillModal(context, transaction),
-                        ),
-                        BillsTab(
-                          data: bills,
-                          isRpg: isRpg,
-                          onTapCard: (bill) =>
-                              _openBillDetail(context, bill, isRpg),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-            DefaultTabController(
-              length: 2,
-              child: Column(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.all(16.0),
-
-                    child: CustomTabBar(
-                      tabs: [
-                        ScreenDict.debtsMaster.get(isRpg),
-                        ScreenDict.receivableMaster.get(isRpg),
-                      ],
-                    ),
-                  ),
-
-                  Expanded(
-                    child: TabBarView(
-                      children: [
-                        DebtsTab(
-                          data: debts,
-                          isRpg: isRpg,
-                          onTapCard: (debt) =>
-                              _openDebtDetail(context, debt, isRpg),
-                        ),
-
-                        ReceivablesTab(
-                          data: groupedReceivables,
-                          isRpg: isRpg,
-                          onTapCard: (name, receivable) =>
-                              _openReceivableDetail(
-                                context,
-                                name,
-                                receivable,
-                                isRpg,
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.only(bottom: 8),
+                                child: Text(
+                                  ScreenDict.billsActive.get(isRpg),
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
                               ),
+                              Expanded(child: activeBillsContent),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.only(bottom: 8),
+                                child: Text(
+                                  ScreenDict.billsMaster.get(isRpg),
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                              Expanded(child: billsContent),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 8,
+                    ),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.only(bottom: 8),
+                                child: Text(
+                                  ScreenDict.debtsMaster.get(isRpg),
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                              Expanded(child: debtsContent),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.only(bottom: 8),
+                                child: Text(
+                                  ScreenDict.receivableMaster.get(isRpg),
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                              Expanded(child: receivablesContent),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              );
+            }
+
+            return ResponsiveContainer(
+              child: TabBarView(
+                children: [
+                  DefaultTabController(
+                    length: 2,
+                    child: Column(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.all(16.0),
+
+                          child: CustomTabBar(
+                            tabs: [
+                              ScreenDict.billsActive.get(isRpg),
+                              ScreenDict.billsMaster.get(isRpg),
+                            ],
+                          ),
+                        ),
+
+                        Expanded(
+                          child: TabBarView(
+                            children: [activeBillsContent, billsContent],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  DefaultTabController(
+                    length: 2,
+                    child: Column(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.all(16.0),
+
+                          child: CustomTabBar(
+                            tabs: [
+                              ScreenDict.debtsMaster.get(isRpg),
+                              ScreenDict.receivableMaster.get(isRpg),
+                            ],
+                          ),
+                        ),
+
+                        Expanded(
+                          child: TabBarView(
+                            children: [debtsContent, receivablesContent],
+                          ),
                         ),
                       ],
                     ),
                   ),
                 ],
               ),
-            ),
-          ],
+            );
+          },
         ),
       ),
     );

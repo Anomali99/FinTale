@@ -5,6 +5,7 @@ import '../../../core/constants/ui_dict.dart';
 import '../../../core/utils/global_messenger.dart';
 import '../../../core/utils/hash_helper.dart';
 import '../../../services/local_auth_service.dart';
+import '../../../widgets/responsive_container.dart';
 
 class VerifyPinScreen extends StatefulWidget {
   final String savedPinHash;
@@ -28,6 +29,23 @@ class VerifyPinScreen extends StatefulWidget {
 
 class _VerifyPinScreenState extends State<VerifyPinScreen> {
   String _pinInput = '';
+  int _failedAttempts = 0;
+  int _lockoutSeconds = 0;
+
+  void _startLockout() {
+    setState(() {
+      _lockoutSeconds = 30;
+      _pinInput = '';
+    });
+    Future.doWhile(() async {
+      await Future.delayed(const Duration(seconds: 1));
+      if (!mounted) return false;
+      setState(() {
+        _lockoutSeconds--;
+      });
+      return _lockoutSeconds > 0;
+    });
+  }
 
   @override
   void initState() {
@@ -46,6 +64,7 @@ class _VerifyPinScreenState extends State<VerifyPinScreen> {
   }
 
   void _onNumberPressed(String number) {
+    if (_lockoutSeconds > 0) return;
     setState(() {
       if (_pinInput.length < 6) {
         _pinInput += number;
@@ -57,6 +76,7 @@ class _VerifyPinScreenState extends State<VerifyPinScreen> {
   }
 
   void _onBackPressed() {
+    if (_lockoutSeconds > 0) return;
     setState(() {
       if (_pinInput.isNotEmpty) {
         _pinInput = _pinInput.substring(0, _pinInput.length - 1);
@@ -68,17 +88,27 @@ class _VerifyPinScreenState extends State<VerifyPinScreen> {
     bool isMatch = HashHelper.verifyPin(_pinInput, widget.savedPinHash);
 
     if (isMatch) {
+      _failedAttempts = 0;
       Navigator.pop(context, true);
     } else {
+      _failedAttempts++;
+      final bool shouldLock = _failedAttempts >= 5;
+
       GlobalMessenger.showMessage(
         context,
-        message: UiDict.pinWrong,
-        isSuccess: true,
+        message: shouldLock
+            ? 'Terlalu banyak percobaan. Tunggu 30 detik.'
+            : UiDict.pinWrong,
+        isSuccess: false,
       );
 
-      setState(() {
-        _pinInput = '';
-      });
+      if (shouldLock) {
+        _startLockout();
+      } else {
+        setState(() {
+          _pinInput = '';
+        });
+      }
     }
   }
 
@@ -103,131 +133,135 @@ class _VerifyPinScreenState extends State<VerifyPinScreen> {
               : null,
         ),
         body: SafeArea(
-          child: Column(
-            children: [
-              const SizedBox(height: 24),
+          child: ResponsiveContainer(
+            child: Column(
+              children: [
+                const SizedBox(height: 24),
 
-              Text(
-                widget.title ?? UiDict.pinInput,
-                style: TextStyle(
-                  fontFamily: 'Poppins',
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
-                  color: colorScheme.onSurface,
+                Text(
+                  widget.title ?? UiDict.pinInput,
+                  style: TextStyle(
+                    fontFamily: 'Poppins',
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                    color: colorScheme.onSurface,
+                  ),
                 ),
-              ),
-              const SizedBox(height: 16),
+                const SizedBox(height: 16),
 
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 8,
-                ),
-                decoration: BoxDecoration(
-                  color: colorScheme.surfaceContainerHighest.withOpacity(0.5),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      Icons.account_circle,
-                      size: 24,
-                      color: colorScheme.primary,
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
+                  ),
+                  decoration: BoxDecoration(
+                    color: colorScheme.surfaceContainerHighest.withValues(
+                      alpha: 0.5,
                     ),
-                    const SizedBox(width: 8),
-                    Text(
-                      widget.userEmail ?? 'Anonymous',
-                      style: TextStyle(color: colorScheme.onSurfaceVariant),
-                    ),
-                  ],
-                ),
-              ),
-
-              const SizedBox(height: 48),
-
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: List.generate(6, (index) {
-                  bool isFilled = index < _pinInput.length;
-                  return AnimatedContainer(
-                    duration: const Duration(milliseconds: 150),
-                    margin: const EdgeInsets.symmetric(horizontal: 16),
-                    width: 14,
-                    height: 14,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: isFilled
-                          ? colorScheme.primary
-                          : colorScheme.onSurfaceVariant.withOpacity(0.3),
-                    ),
-                  );
-                }),
-              ),
-
-              const Spacer(),
-
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 40,
-                  vertical: 24,
-                ),
-                child: Column(
-                  children: [
-                    _buildNumpadRow(['1', '2', '3']),
-                    const SizedBox(height: 24),
-                    _buildNumpadRow(['4', '5', '6']),
-                    const SizedBox(height: 24),
-                    _buildNumpadRow(['7', '8', '9']),
-                    const SizedBox(height: 24),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        widget.isBiometricEnabled
-                            ? _buildFingerprintButton()
-                            : const SizedBox(width: 68, height: 68),
-
-                        _buildNumberButton('0'),
-                        _buildBackButton(),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-
-              if (!widget.isCancelable)
-                Padding(
-                  padding: const EdgeInsets.only(
-                    bottom: 24,
-                    left: 24,
-                    right: 24,
+                    borderRadius: BorderRadius.circular(20),
                   ),
                   child: Row(
-                    mainAxisAlignment: widget.userEmail != null
-                        ? MainAxisAlignment.spaceBetween
-                        : MainAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      if (widget.userEmail != null)
-                        TextButton(
-                          onPressed: () {
-                            /* TODO: Lupa PIN Logic */
-                          },
-                          child: Text(
-                            UiDict.forgotPin,
-                            style: TextStyle(color: colorScheme.onSurface),
-                          ),
-                        ),
-                      TextButton(
-                        onPressed: () {},
-                        child: Text(
-                          UiDict.changeAcount,
-                          style: TextStyle(color: colorScheme.onSurface),
-                        ),
+                      Icon(
+                        Icons.account_circle,
+                        size: 24,
+                        color: colorScheme.primary,
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        widget.userEmail ?? 'Anonymous',
+                        style: TextStyle(color: colorScheme.onSurfaceVariant),
                       ),
                     ],
                   ),
                 ),
-            ],
+
+                const SizedBox(height: 48),
+
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: List.generate(6, (index) {
+                    bool isFilled = index < _pinInput.length;
+                    return AnimatedContainer(
+                      duration: const Duration(milliseconds: 150),
+                      margin: const EdgeInsets.symmetric(horizontal: 16),
+                      width: 14,
+                      height: 14,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: isFilled
+                            ? colorScheme.primary
+                            : colorScheme.onSurfaceVariant.withValues(
+                                alpha: 0.3,
+                              ),
+                      ),
+                    );
+                  }),
+                ),
+
+                const Spacer(),
+
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 40,
+                    vertical: 24,
+                  ),
+                  child: Column(
+                    children: [
+                      _buildNumpadRow(['1', '2', '3']),
+                      const SizedBox(height: 24),
+                      _buildNumpadRow(['4', '5', '6']),
+                      const SizedBox(height: 24),
+                      _buildNumpadRow(['7', '8', '9']),
+                      const SizedBox(height: 24),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          widget.isBiometricEnabled
+                              ? _buildFingerprintButton()
+                              : const SizedBox(width: 68, height: 68),
+
+                          _buildNumberButton('0'),
+                          _buildBackButton(),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+
+                if (!widget.isCancelable)
+                  Padding(
+                    padding: const EdgeInsets.only(
+                      bottom: 24,
+                      left: 24,
+                      right: 24,
+                    ),
+                    child: Row(
+                      mainAxisAlignment: widget.userEmail != null
+                          ? MainAxisAlignment.spaceBetween
+                          : MainAxisAlignment.center,
+                      children: [
+                        if (widget.userEmail != null)
+                          TextButton(
+                            onPressed: () {},
+                            child: Text(
+                              UiDict.forgotPin,
+                              style: TextStyle(color: colorScheme.onSurface),
+                            ),
+                          ),
+                        TextButton(
+                          onPressed: () {},
+                          child: Text(
+                            UiDict.changeAcount,
+                            style: TextStyle(color: colorScheme.onSurface),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+              ],
+            ),
           ),
         ),
       ),
@@ -237,7 +271,7 @@ class _VerifyPinScreenState extends State<VerifyPinScreen> {
   Widget _buildNumpadRow(List<String> numbers) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: numbers.map((num) => _buildNumberButton(num)).toList(),
+      children: numbers.map((n) => _buildNumberButton(n)).toList(),
     );
   }
 

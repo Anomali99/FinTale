@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 
+import '../../../controllers/history_controller.dart';
 import '../../../controllers/invest_controller.dart';
+import '../../../controllers/transaction_controller.dart';
 import '../../../controllers/wallet_controller.dart';
 import '../../../core/constants/category_dict.dart';
 import '../../../core/constants/screen_dict.dart';
@@ -14,6 +16,7 @@ import '../../../models/assets_model.dart';
 import '../../../models/transaction_detail_model.dart';
 import '../../../models/transaction_model.dart';
 import '../../../models/wallet_model.dart';
+import '../../../widgets/custom_category_input.dart';
 
 class TransactionDetailModal extends StatelessWidget {
   final TransactionModel transaction;
@@ -60,7 +63,7 @@ class TransactionDetailModal extends StatelessWidget {
               width: 48,
               height: 4,
               decoration: BoxDecoration(
-                color: colorScheme.onSurface.withOpacity(0.2),
+                color: colorScheme.onSurface.withValues(alpha: 0.2),
                 borderRadius: BorderRadius.circular(4),
               ),
             ),
@@ -108,7 +111,7 @@ class TransactionDetailModal extends StatelessWidget {
                 color: colorScheme.surfaceContainerHighest,
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(
-                  color: colorScheme.onSurface.withOpacity(0.1),
+                  color: colorScheme.onSurface.withValues(alpha: 0.1),
                 ),
               ),
               child: Column(
@@ -155,7 +158,7 @@ class TransactionDetailModal extends StatelessWidget {
                               vertical: 4,
                             ),
                             decoration: BoxDecoration(
-                              color: status.color?.withOpacity(0.2),
+                              color: status.color?.withValues(alpha: 0.2),
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: Text(
@@ -175,7 +178,7 @@ class TransactionDetailModal extends StatelessWidget {
                   Padding(
                     padding: EdgeInsets.symmetric(vertical: 12.0),
                     child: Divider(
-                      color: colorScheme.onSurface.withOpacity(0.1),
+                      color: colorScheme.onSurface.withValues(alpha: 0.1),
                       height: 1,
                     ),
                   ),
@@ -199,7 +202,7 @@ class TransactionDetailModal extends StatelessWidget {
                         : transaction.type == TransactionType.transfer
                         ? UiDict.originWallet
                         : UiDict.sourceFunds,
-                    value: wallet.name,
+                    value: walletController.getDisplayName(wallet),
                     icon: wallet.icon,
                   ),
 
@@ -209,7 +212,7 @@ class TransactionDetailModal extends StatelessWidget {
                     _buildWalletRow(
                       context,
                       label: UiDict.destinationWallet,
-                      value: walletTarget.name,
+                      value: walletController.getDisplayName(walletTarget),
                       icon: walletTarget.icon,
                     ),
                   ],
@@ -281,6 +284,10 @@ class TransactionDetailModal extends StatelessWidget {
   Widget _buildDetailItem(BuildContext context, TransactionDetailModel detail) {
     final colorScheme = Theme.of(context).colorScheme;
 
+    final categories = transaction.type == TransactionType.income
+        ? TransactionCategory.incomeCategories
+        : TransactionCategory.expenseCategories;
+
     return Padding(
       padding: const EdgeInsets.only(bottom: 12.0),
       child: Row(
@@ -289,14 +296,36 @@ class TransactionDetailModal extends StatelessWidget {
           Expanded(
             child: Row(
               children: [
-                FaIcon(
-                  CategoryDict.getByTransactionCategory(
-                    detail.category,
-                  ).icon(isRpg),
-                  size: 14,
-                  color: colorScheme.onSurfaceVariant,
+                InkWell(
+                  onTap: () async {
+                    final selected = await CustomCategoryInput.showPicker(
+                      context,
+                      categories: categories,
+                      selectedCategory: detail.category,
+                      isRpg: isRpg,
+                    );
+
+                    if (selected != null && context.mounted) {
+                      detail.category = selected;
+                      final nav = Navigator.of(context);
+                      final trController = context
+                          .read<TransactionController>();
+                      final histController = context.read<HistoryController>();
+                      await trController.createTransaction(transaction);
+                      await histController.applyFilter();
+                      nav.pop();
+                    }
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.all(4.0),
+                    child: FaIcon(
+                      detail.category.categoryDict.icon(isRpg),
+                      size: 18,
+                      color: colorScheme.primary,
+                    ),
+                  ),
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(width: 8),
                 Expanded(
                   child: Text(
                     detail.title,

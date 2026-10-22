@@ -26,13 +26,14 @@ class CustomTable extends StatelessWidget {
           decoration ??
           BoxDecoration(
             color:
-                color?.withOpacity(0.05) ?? colorScheme.surfaceContainerHighest,
+                color?.withValues(alpha: 0.05) ??
+                colorScheme.surfaceContainerHighest,
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
               color:
-                  borderColor?.withOpacity(0.3) ??
-                  (color?.withOpacity(0.3) ??
-                      colorScheme.primary.withOpacity(0.3)),
+                  borderColor?.withValues(alpha: 0.3) ??
+                  (color?.withValues(alpha: 0.3) ??
+                      colorScheme.primary.withValues(alpha: 0.3)),
             ),
           ),
       child: Column(children: children),

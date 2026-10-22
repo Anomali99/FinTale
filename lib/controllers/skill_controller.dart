@@ -190,8 +190,9 @@ class SkillController with ChangeNotifier {
           (extraFreeAllocationLv1[SectorType.investment] ?? 0.0);
       if (invCake <= 0) {
         double low = skillAllocations[SubSectorType.lowRisk] ?? 0.0;
-        if (low > 0)
+        if (low > 0) {
           _userController.updateSkillByKey(SubSectorType.lowRisk, low - 1);
+        }
       }
     } else if (sector == SectorType.investment) {
       double high = skillAllocations[SubSectorType.highRisk] ?? 0.0;
@@ -289,7 +290,9 @@ class SkillController with ChangeNotifier {
     if (current < 100) {
       _userController.updateSkillByKey(selectedNode!, current + 1);
       await _userController.saveUser();
-      await _userController.processSetAllocation(context);
+      if (context.mounted) {
+        await _userController.processSetAllocation(context);
+      }
       await loadData();
       notifyListeners();
     }
@@ -329,7 +332,7 @@ class SkillController with ChangeNotifier {
   }
 
   Future<void> resetAllocation() async {
-    _userController.resetSkillAlocaton();
+    _userController.resetSkillAllocation();
     await _userController.saveUser();
     await loadData();
     notifyListeners();

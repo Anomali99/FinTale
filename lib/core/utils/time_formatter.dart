@@ -1,6 +1,56 @@
 import 'package:intl/intl.dart';
 
 class TimeFormatter {
+  static final List<DateFormat> _ocrDatePatterns = [
+    DateFormat('d MMM yyyy HH:mm', 'en'),
+    DateFormat('d MMM yyyy', 'en'),
+    DateFormat('dd/MM/yyyy HH:mm'),
+    DateFormat('dd/MM/yyyy'),
+    DateFormat('dd/MM/yy HH:mm'),
+    DateFormat('dd/MM/yy'),
+    DateFormat('dd.MM.yy-HH:mm'),
+    DateFormat('dd.MM.yy'),
+    DateFormat('d.M.yyyy HH:mm'),
+    DateFormat('d.M.yyyy'),
+  ];
+
+  static final RegExp _dayNamePrefixPattern = RegExp(
+    r'^('
+    r'Senin|Sen|'
+    r'Selasa|Sel|'
+    r'Rabu|Rab|'
+    r'Kamis|Kam|'
+    r"Jum'at|Jumat|Jum|"
+    r'Sabtu|Sab|'
+    r'Minggu|Min|'
+    r'Monday|Mon|'
+    r'Tuesday|Tues|Tue|'
+    r'Wednesday|Wed|'
+    r'Thursday|Thurs|Thu|'
+    r'Friday|Fri|'
+    r'Saturday|Sat|'
+    r'Sunday|Sun'
+    r'),?\s*',
+    caseSensitive: false,
+  );
+
+  static DateTime? parseFromOcrText(String rawText) {
+    String cleaned = rawText.trim();
+
+    cleaned = cleaned.replaceFirst(_dayNamePrefixPattern, '');
+    cleaned = cleaned.replaceAll('. ', ' ').trim();
+
+    for (final pattern in _ocrDatePatterns) {
+      try {
+        return pattern.parseStrict(cleaned);
+      } catch (_) {
+        continue;
+      }
+    }
+
+    return null;
+  }
+
   static DateTime toDate(int timestamp) {
     return DateTime.fromMillisecondsSinceEpoch(timestamp);
   }

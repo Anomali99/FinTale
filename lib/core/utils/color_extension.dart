@@ -7,10 +7,10 @@ extension AdaptiveColor on Color {
 
     final hsl = HSLColor.fromColor(this);
 
-    if (hsl.lightness > 0.4) {
+    if (hsl.lightness > 0.5) {
       return hsl
-          .withLightness(0.35)
-          .withSaturation((hsl.saturation + 0.15).clamp(0.0, 1.0))
+          .withLightness(0.42)
+          .withSaturation((hsl.saturation + 0.1).clamp(0.0, 1.0))
           .toColor();
     }
 

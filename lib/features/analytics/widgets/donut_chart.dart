@@ -54,7 +54,7 @@ class DonutChart extends StatelessWidget {
           color: colorScheme.onSurface,
           shadows: [
             Shadow(
-              color: colorScheme.onSurface.withOpacity(0.45),
+              color: colorScheme.onSurface.withValues(alpha: 0.45),
               blurRadius: 2,
             ),
           ],
@@ -87,8 +87,8 @@ class DonutChart extends StatelessWidget {
             centerSpaceRadius: 60,
             sections: _buildPieChartSections(context),
           ),
-          swapAnimationDuration: const Duration(milliseconds: 500),
-          swapAnimationCurve: Curves.easeInOut,
+          duration: const Duration(milliseconds: 500),
+          curve: Curves.easeInOut,
         ),
 
         Center(
@@ -97,7 +97,7 @@ class DonutChart extends StatelessWidget {
             children: [
               Text(
                 showExpense
-                    ? UiDict.getTotal(UiDict.income.get(isRpg))
+                    ? UiDict.getTotal(UiDict.expense.get(isRpg))
                     : UiDict.getTotal(UiDict.menuInvest.get(isRpg)),
                 style: TextStyle(
                   fontSize: 10,

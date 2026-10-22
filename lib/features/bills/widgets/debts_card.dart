@@ -34,10 +34,10 @@ class DebtsCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: colorScheme.surfaceContainerHighest,
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: colorScheme.error.withOpacity(0.3)),
+          border: Border.all(color: colorScheme.error.withValues(alpha: 0.3)),
           boxShadow: [
             BoxShadow(
-              color: colorScheme.error.withOpacity(0.1),
+              color: colorScheme.error.withValues(alpha: 0.1),
               blurRadius: 10,
               spreadRadius: 2,
             ),
@@ -50,7 +50,7 @@ class DebtsCard extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: colorScheme.error.withOpacity(0.2),
+                    color: colorScheme.error.withValues(alpha: 0.2),
                     shape: BoxShape.circle,
                   ),
                   child: FaIcon(

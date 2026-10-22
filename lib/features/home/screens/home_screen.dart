@@ -24,11 +24,13 @@ import '../../../models/debt_model.dart';
 import '../../../models/transaction_model.dart';
 import '../../../models/user_model.dart';
 import '../../../models/wallet_model.dart';
+import '../../../widgets/responsive_container.dart';
 import '../../bills/widgets/pay_debt_modal.dart';
 import '../widgets/allocation_card.dart';
 import '../widgets/balance_card.dart';
 import '../widgets/daily_limit.dart';
 import '../widgets/wallet_details.dart';
+import '../widgets/wallet_info_modal.dart';
 import '../widgets/wallet_modal.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -48,10 +50,42 @@ class HomeScreen extends StatelessWidget {
       builder: (_) => WalletDetails(
         wallets: walletController.wallets,
         onTap: (value, {lock}) =>
-            _openUpdateOrAddWallet(context, wallet: value, lock: lock),
+            _showWalletInfo(context, wallet: value, lock: lock),
         isRpg: isRpg,
       ),
     );
+  }
+
+  void _showWalletInfo(
+    BuildContext context, {
+    WalletModel? wallet,
+    bool? lock,
+  }) async {
+    if (wallet == null) {
+      _openUpdateOrAddWallet(context);
+      return;
+    }
+    final result = await showModalBottomSheet<Map<String, dynamic>>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) =>
+          WalletInfoModal(wallet: wallet, lock: lock ?? false),
+    );
+    if (result != null && context.mounted) {
+      if (result['action'] == 'edit') {
+        _openUpdateOrAddWallet(
+          context,
+          wallet: result['wallet'] as WalletModel,
+          lock: lock,
+        );
+      } else if (result['action'] == 'add_pocket') {
+        _openUpdateOrAddWallet(
+          context,
+          parentIdForPocket: result['parentId'] as int?,
+        );
+      }
+    }
   }
 
   Future<Decimal?> _openPayDebt(
@@ -103,6 +137,7 @@ class HomeScreen extends StatelessWidget {
             useReserved: useReserved,
           );
         }
+        if (!context.mounted) return transaction.amount;
         GlobalMessenger.showMessage(
           context,
           message: ScreenDict.getDebtNotif(isSuccess: isSuccess, isRpg: isRpg),
@@ -159,6 +194,7 @@ class HomeScreen extends StatelessWidget {
       if (isSuccess) {
         await skillController.loadData();
       }
+      if (!context.mounted) return transaction.amount;
       GlobalMessenger.showMessage(
         context,
         message: UiDict.getSaveNotif(
@@ -214,12 +250,17 @@ class HomeScreen extends StatelessWidget {
     BuildContext context, {
     WalletModel? wallet,
     bool? lock,
+    int? parentIdForPocket,
   }) async {
     final WalletModel? result = await showModalBottomSheet<WalletModel>(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) => WalletModal(wallet: wallet, lock: lock ?? false),
+      builder: (context) => WalletModal(
+        wallet: wallet,
+        lock: lock ?? false,
+        parentIdForPocket: parentIdForPocket,
+      ),
     );
 
     if (result != null && context.mounted) {
@@ -227,6 +268,7 @@ class HomeScreen extends StatelessWidget {
         context,
         result,
       );
+      if (!context.mounted) return;
       GlobalMessenger.showMessage(
         context,
         message: UiDict.getSaveNotif(
@@ -268,6 +310,7 @@ class HomeScreen extends StatelessWidget {
       );
       await historyController.applyFilter();
       await analyticsController.applyFilter();
+      if (!context.mounted) return;
       GlobalMessenger.showMessage(
         context,
         message: UiDict.getSaveNotif(
@@ -281,26 +324,49 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final settingsController = context.watch<SettingsController>();
-    final userController = context.watch<UserController>();
-    final walletController = context.watch<WalletController>();
-    final homeController = context.watch<HomeController>();
     final colorScheme = Theme.of(context).colorScheme;
 
-    final isRpg = settingsController.isRpgMode;
-    final userName = userController.userName;
-    final userTitle = userController.userTitle;
-    final userLevel = userController.userLevel;
-    final maxLimit = userController.currentDailyLimit;
-    final dailyPenalty = userController.dailyPenalty;
-    final spentToday = userController.todayUsage;
-    final xpPercentage = userController.xpPercentage;
+    final isRpg = context.select<SettingsController, bool>((s) => s.isRpgMode);
 
-    final totalBalance = walletController.totalBalance;
-    final totalReserved = walletController.totalReserved;
-    final isHideBalance = homeController.isHideBalance;
-    final pendingAllocations = homeController.pendingAllocations;
-    final totalUnallocated = homeController.totalUnallocated;
+    final userName = context.select<UserController, String>((u) => u.userName);
+    final userTitle = context.select<UserController, TitleType>(
+      (u) => u.userTitle,
+    );
+    final userLevel = context.select<UserController, int>((u) => u.userLevel);
+    final maxLimit = context.select<UserController, Decimal>(
+      (u) => u.currentDailyLimit,
+    );
+    final dailyPenalty = context.select<UserController, Decimal>(
+      (u) => u.dailyPenalty,
+    );
+    final spentToday = context.select<UserController, Decimal>(
+      (u) => u.todayUsage,
+    );
+    final xpPercentage = context.select<UserController, double>(
+      (u) => u.xpPercentage,
+    );
+
+    final totalBalance = context.select<WalletController, Decimal>(
+      (w) => w.totalBalance,
+    );
+    final totalSavings = context.select<WalletController, Decimal>(
+      (w) => w.totalSavings,
+    );
+
+    final excludeSavings = !context.select<SettingsController, bool>(
+      (s) => s.isIncludeSavingsInTotal,
+    );
+
+    final isHideBalance = context.select<HomeController, bool>(
+      (h) => h.isHideBalance,
+    );
+    final pendingAllocations = context
+        .select<HomeController, List<AllocationModel>>(
+          (h) => h.pendingAllocations,
+        );
+    final totalUnallocated = context.select<HomeController, Decimal>(
+      (h) => h.totalUnallocated,
+    );
 
     return Scaffold(
       appBar: AppBar(
@@ -357,60 +423,139 @@ class HomeScreen extends StatelessWidget {
             icon: const FaIcon(FontAwesomeIcons.gear, size: 20),
             onPressed: () async {
               await Navigator.pushNamed(context, '/settings');
-              if (context.mounted) homeController.loadData();
+              if (context.mounted) context.read<HomeController>().loadData();
             },
           ),
           const SizedBox(width: 8),
         ],
       ),
 
-      body: ListView(
-        padding: const EdgeInsets.all(24.0),
-        children: [
-          BalanceCard(
-            totalBalance: totalBalance,
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          final isWide = constraints.maxWidth >= 700;
+
+          final balanceCard = BalanceCard(
+            totalBalance: excludeSavings
+                ? (totalBalance - totalSavings)
+                : totalBalance,
             showWallets: () => _showWalletDetails(context, isRpg),
             openAddIncome: () =>
                 _openAddIncomeOrTransfer(context, isTransfer: false),
             openTransfer: () =>
                 _openAddIncomeOrTransfer(context, isTransfer: true),
-            onToggleHideBalance: homeController.toggleHideBalance,
+            onToggleHideBalance: context
+                .read<HomeController>()
+                .toggleHideBalance,
             isHideBalance: isHideBalance,
-            reservedBalance: totalReserved,
+            savingsBalance: totalSavings,
             unallocatedBalance: totalUnallocated,
             isRpg: isRpg,
-          ),
+          );
 
-          const SizedBox(height: 32),
-
-          Text(
-            ScreenDict.homeDailyLimit.get(isRpg),
-            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 12),
-          DailyLimit(
-            limit: maxLimit,
-            spent: spentToday,
-            penalty: dailyPenalty,
-            isRpg: isRpg,
-          ),
-
-          if (pendingAllocations.isNotEmpty) ...[
-            const SizedBox(height: 32),
-            Text(
-              ScreenDict.homePending.get(isRpg),
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 12),
-            ...pendingAllocations.map((item) {
-              return AllocationCard(
-                allocation: item,
+          final dailyLimitSection = Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                ScreenDict.homeDailyLimit.get(isRpg),
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 12),
+              DailyLimit(
+                limit: maxLimit,
+                spent: spentToday,
+                penalty: dailyPenalty,
                 isRpg: isRpg,
-                onTap: () => _onTapAllocation(context, item),
-              );
-            }),
-          ],
-        ],
+              ),
+            ],
+          );
+
+          final pendingSection = Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                ScreenDict.homePending.get(isRpg),
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 12),
+              if (pendingAllocations.isNotEmpty)
+                ...pendingAllocations.map((item) {
+                  return AllocationCard(
+                    allocation: item,
+                    isRpg: isRpg,
+                    onTap: () => _onTapAllocation(context, item),
+                  );
+                })
+              else
+                Center(
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 48),
+                    child: Text(
+                      'Tidak ada alokasi pending',
+                      style: TextStyle(color: colorScheme.onSurfaceVariant),
+                    ),
+                  ),
+                ),
+            ],
+          );
+
+          if (isWide) {
+            return Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24.0),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    flex: 5,
+                    child: ListView(
+                      padding: const EdgeInsets.only(
+                        top: 24,
+                        bottom: 24,
+                        right: 12,
+                      ),
+                      children: [
+                        balanceCard,
+                        const SizedBox(height: 32),
+                        dailyLimitSection,
+                      ],
+                    ),
+                  ),
+                  Expanded(
+                    flex: 4,
+                    child: ListView(
+                      padding: const EdgeInsets.only(
+                        top: 24,
+                        bottom: 24,
+                        left: 12,
+                      ),
+                      children: [pendingSection],
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }
+
+          return ResponsiveContainer(
+            child: ListView(
+              padding: const EdgeInsets.all(24.0),
+              children: [
+                balanceCard,
+                const SizedBox(height: 32),
+                dailyLimitSection,
+                if (pendingAllocations.isNotEmpty) ...[
+                  const SizedBox(height: 32),
+                  pendingSection,
+                ],
+              ],
+            ),
+          );
+        },
       ),
     );
   }

@@ -126,7 +126,7 @@ class OverviewCard extends StatelessWidget {
                                 : 100.0)
                             .toInt(),
                     child: Container(
-                      color: colorScheme.onSurface.withOpacity(0.2),
+                      color: colorScheme.onSurface.withValues(alpha: 0.2),
                     ),
                   ),
                 ],
@@ -152,7 +152,7 @@ class OverviewCard extends StatelessWidget {
               ),
               _buildLegendItem(
                 context,
-                color: colorScheme.onSurface.withOpacity(0.2),
+                color: colorScheme.onSurface.withValues(alpha: 0.2),
                 label: UiDict.unallocated.get(isRpg),
                 amount: unallocated,
               ),

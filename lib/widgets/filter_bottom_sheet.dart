@@ -82,8 +82,8 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
             ),
 
             datePickerTheme: DatePickerThemeData(
-              rangeSelectionBackgroundColor: colorScheme.primary.withOpacity(
-                0.15,
+              rangeSelectionBackgroundColor: colorScheme.primary.withValues(
+                alpha: 0.15,
               ),
 
               headerBackgroundColor: colorScheme.surfaceContainerHighest,
@@ -131,7 +131,7 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
     final colorScheme = Theme.of(context).colorScheme;
     final isRpg = settingsController.isRpgMode;
     final enableFeatures = widget.features ?? FilterFeatures();
-    final wallets = walletController.wallets;
+    final wallets = walletController.allWallets;
     String dateText = UiDict.setDate;
     if (_startDate != null && _endDate != null) {
       dateText =
@@ -201,7 +201,7 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
                   border: Border.all(
                     color: _startDate != null
                         ? colorScheme.primary
-                        : colorScheme.onSurface.withOpacity(0.3),
+                        : colorScheme.onSurface.withValues(alpha: 0.3),
                   ),
                   borderRadius: BorderRadius.circular(4),
                 ),
@@ -271,7 +271,10 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
                       ),
                     ] else ...[
                       for (var entry in wallets)
-                        _buildWalletCheckbox(entry.name, entry.id ?? 0),
+                        _buildWalletCheckbox(
+                          walletController.getDisplayName(entry),
+                          entry.id ?? 0,
+                        ),
                     ],
                     const SizedBox(height: 24),
                   ],

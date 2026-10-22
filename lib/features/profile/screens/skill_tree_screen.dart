@@ -11,6 +11,7 @@ import '../../../core/models/category_model.dart';
 import '../../../core/utils/color_extension.dart';
 import '../../../core/utils/enum_types.dart';
 import '../../../core/utils/global_messenger.dart';
+import '../../../widgets/responsive_container.dart';
 
 class SkillTreeScreen extends StatefulWidget {
   const SkillTreeScreen({super.key});
@@ -92,6 +93,7 @@ class _SkillTreeScreenState extends State<SkillTreeScreen> {
           IconButton(
             onPressed: () async {
               await skillController.resetAllocation();
+              if (!context.mounted) return;
               GlobalMessenger.showMessage(
                 context,
                 message: UiDict.resetSkill,
@@ -107,120 +109,128 @@ class _SkillTreeScreenState extends State<SkillTreeScreen> {
           SizedBox(width: 10),
         ],
       ),
-      body: Stack(
-        children: [
-          SingleChildScrollView(
-            child: Stack(
-              key: _stackKey,
-              children: [
-                Positioned.fill(
-                  child: CustomPaint(
-                    painter: DynamicSkillTreePainter(
-                      context: context,
-                      positions: _nodePositions,
-                      radii: _nodeRadii,
-                      selectedId: skillController.selectedNode,
+      body: ResponsiveContainer(
+        child: Stack(
+          children: [
+            SingleChildScrollView(
+              child: Stack(
+                key: _stackKey,
+                children: [
+                  Positioned.fill(
+                    child: CustomPaint(
+                      painter: DynamicSkillTreePainter(
+                        context: context,
+                        positions: _nodePositions,
+                        radii: _nodeRadii,
+                        selectedId: skillController.selectedNode,
+                      ),
                     ),
                   ),
-                ),
-                Center(
-                  child: Column(
-                    children: [
-                      const SizedBox(height: 60),
-                      _buildNode(null, UiDict.income, 100, isRpg, isRoot: true),
-                      const SizedBox(height: 100),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          _buildNode(
-                            SectorType.living,
-                            GamificationDict.skillDaily,
-                            allocs[SectorType.living],
-                            isRpg,
-                          ),
-                          _buildNode(
-                            SectorType.payDebt,
-                            GamificationDict.skillDebt,
-                            allocs[SectorType.payDebt],
-                            isRpg,
-                          ),
-                          _buildNode(
-                            SectorType.emergency,
-                            GamificationDict.skillEmergency,
-                            allocs[SectorType.emergency],
-                            isRpg,
-                          ),
-                          _buildNode(
-                            SectorType.investment,
-                            GamificationDict.skillInvestment,
-                            allocs[SectorType.investment],
-                            isRpg,
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 100),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 15),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  Center(
+                    child: Column(
+                      children: [
+                        const SizedBox(height: 60),
+                        _buildNode(
+                          null,
+                          UiDict.income,
+                          100,
+                          isRpg,
+                          isRoot: true,
+                        ),
+                        const SizedBox(height: 100),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: [
                             _buildNode(
-                              SubSectorType.essentials,
-                              GamificationDict.skillRoutine,
-                              allocs[SubSectorType.essentials],
+                              SectorType.living,
+                              GamificationDict.skillDaily,
+                              allocs[SectorType.living],
                               isRpg,
-                              size: 48,
                             ),
                             _buildNode(
-                              SubSectorType.dreamFund,
-                              GamificationDict.skillDream,
-                              allocs[SubSectorType.dreamFund],
+                              SectorType.payDebt,
+                              GamificationDict.skillDebt,
+                              allocs[SectorType.payDebt],
                               isRpg,
-                              size: 48,
                             ),
                             _buildNode(
-                              SubSectorType.lowRisk,
-                              CategoryDict.lowRisk,
-                              allocs[SubSectorType.lowRisk],
+                              SectorType.emergency,
+                              GamificationDict.skillEmergency,
+                              allocs[SectorType.emergency],
                               isRpg,
-                              size: 48,
                             ),
                             _buildNode(
-                              SubSectorType.mediumRisk,
-                              CategoryDict.mediumRisk,
-                              allocs[SubSectorType.mediumRisk],
+                              SectorType.investment,
+                              GamificationDict.skillInvestment,
+                              allocs[SectorType.investment],
                               isRpg,
-                              size: 48,
-                            ),
-                            _buildNode(
-                              SubSectorType.highRisk,
-                              CategoryDict.highRisk,
-                              allocs[SubSectorType.highRisk],
-                              isRpg,
-                              size: 48,
                             ),
                           ],
                         ),
-                      ),
-                      AnimatedContainer(
-                        duration: const Duration(milliseconds: 300),
-                        curve: Curves.easeInOut,
+                        const SizedBox(height: 100),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 15),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              _buildNode(
+                                SubSectorType.essentials,
+                                GamificationDict.skillRoutine,
+                                allocs[SubSectorType.essentials],
+                                isRpg,
+                                size: 48,
+                              ),
+                              _buildNode(
+                                SubSectorType.dreamFund,
+                                GamificationDict.skillDream,
+                                allocs[SubSectorType.dreamFund],
+                                isRpg,
+                                size: 48,
+                              ),
+                              _buildNode(
+                                SubSectorType.lowRisk,
+                                CategoryDict.lowRisk,
+                                allocs[SubSectorType.lowRisk],
+                                isRpg,
+                                size: 48,
+                              ),
+                              _buildNode(
+                                SubSectorType.mediumRisk,
+                                CategoryDict.mediumRisk,
+                                allocs[SubSectorType.mediumRisk],
+                                isRpg,
+                                size: 48,
+                              ),
+                              _buildNode(
+                                SubSectorType.highRisk,
+                                CategoryDict.highRisk,
+                                allocs[SubSectorType.highRisk],
+                                isRpg,
+                                size: 48,
+                              ),
+                            ],
+                          ),
+                        ),
+                        AnimatedContainer(
+                          duration: const Duration(milliseconds: 300),
+                          curve: Curves.easeInOut,
 
-                        height: skillController.selectedNode != null
-                            ? 250
-                            : 150,
-                      ),
-                    ],
+                          height: skillController.selectedNode != null
+                              ? 250
+                              : 150,
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
 
-          if (skillController.selectedNode != null) ...[
-            _buildControlPanel(skillController, allocs),
+            if (skillController.selectedNode != null) ...[
+              _buildControlPanel(skillController, allocs),
+            ],
           ],
-        ],
+        ),
       ),
     );
   }
@@ -250,7 +260,7 @@ class _SkillTreeScreenState extends State<SkillTreeScreen> {
             decoration: BoxDecoration(
               color: isLocked
                   ? colorScheme.onPrimary
-                  : (isSelected ? col : col.withOpacity(0.2)),
+                  : (isSelected ? col : col.withValues(alpha: 0.2)),
               shape: BoxShape.circle,
               border: Border.all(
                 color: isSelected
@@ -261,7 +271,7 @@ class _SkillTreeScreenState extends State<SkillTreeScreen> {
               boxShadow: isSelected
                   ? [
                       BoxShadow(
-                        color: col.withOpacity(0.6),
+                        color: col.withValues(alpha: 0.6),
                         blurRadius: 15,
                         spreadRadius: 2,
                       ),
@@ -398,10 +408,10 @@ class _SkillTreeScreenState extends State<SkillTreeScreen> {
         decoration: BoxDecoration(
           color: colorScheme.surfaceContainerHighest,
           borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: colorScheme.primary.withOpacity(0.5)),
+          border: Border.all(color: colorScheme.primary.withValues(alpha: 0.5)),
           boxShadow: [
             BoxShadow(
-              color: colorScheme.onSurface.withOpacity(0.54),
+              color: colorScheme.onSurface.withValues(alpha: 0.54),
               blurRadius: 20,
             ),
           ],
@@ -416,12 +426,12 @@ class _SkillTreeScreenState extends State<SkillTreeScreen> {
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 10,
-                  color: colorScheme.onSurfaceVariant.withOpacity(0.3),
+                  color: colorScheme.onSurfaceVariant.withValues(alpha: 0.3),
                 ),
               ),
               Divider(
                 height: 24,
-                color: colorScheme.onSurface.withOpacity(0.2),
+                color: colorScheme.onSurface.withValues(alpha: 0.2),
               ),
             ],
 
@@ -430,10 +440,10 @@ class _SkillTreeScreenState extends State<SkillTreeScreen> {
                 padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 4),
                 width: double.infinity,
                 decoration: BoxDecoration(
-                  color: colorScheme.onSurface.withOpacity(0.12),
+                  color: colorScheme.onSurface.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(
-                    color: colorScheme.onSurface.withOpacity(0.1),
+                    color: colorScheme.onSurface.withValues(alpha: 0.1),
                   ),
                 ),
                 child: ListTile(
@@ -454,7 +464,9 @@ class _SkillTreeScreenState extends State<SkillTreeScreen> {
                     GamificationDict.lockedSkillDesc,
                     style: TextStyle(
                       fontSize: 10,
-                      color: colorScheme.onSurfaceVariant.withOpacity(0.5),
+                      color: colorScheme.onSurfaceVariant.withValues(
+                        alpha: 0.5,
+                      ),
                     ),
                   ),
                 ),
@@ -557,7 +569,7 @@ class _SkillTreeScreenState extends State<SkillTreeScreen> {
 
                       color: canDecrease
                           ? colorScheme.primary
-                          : colorScheme.onSurfaceVariant.withOpacity(0.7),
+                          : colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
                       size: 32,
                     ),
                     onPressed: canDecrease
@@ -580,7 +592,7 @@ class _SkillTreeScreenState extends State<SkillTreeScreen> {
 
                       color: canIncrease
                           ? colorScheme.primary
-                          : colorScheme.onSurfaceVariant.withOpacity(0.7),
+                          : colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
                       size: 32,
                     ),
                     onPressed: canIncrease
@@ -616,12 +628,12 @@ class DynamicSkillTreePainter extends CustomPainter {
     final colorScheme = Theme.of(context).colorScheme;
 
     final paintNormal = Paint()
-      ..color = colorScheme.onSurface.withOpacity(0.1)
+      ..color = colorScheme.onSurface.withValues(alpha: 0.1)
       ..strokeWidth = 2
       ..style = PaintingStyle.stroke;
 
     final paintHighlight = Paint()
-      ..color = colorScheme.primary.withOpacity(0.8)
+      ..color = colorScheme.primary.withValues(alpha: 0.8)
       ..strokeWidth = 3
       ..style = PaintingStyle.stroke
       ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 3);

@@ -1,29 +1,70 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
-import 'package:fintale/fintale_app.dart';
+import 'package:decimal/decimal.dart';
+import 'package:fintale/core/utils/hash_helper.dart';
+import 'package:fintale/core/utils/number_utils.dart';
+import 'package:fintale/widgets/custom_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const FinTaleApp());
+  group('NumberUtils Unit Tests', () {
+    test('parseToDecimal handles Indonesian currency formatting', () {
+      expect(NumberUtils.parseToDecimal('Rp 50.000'), Decimal.parse('50000'));
+      expect(NumberUtils.parseToDecimal('1.500.000,50'), Decimal.parse('1500000.50'));
+      expect(NumberUtils.parseToDecimal(''), Decimal.zero);
+    });
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+    test('toIdr formats decimals correctly', () {
+      final formatted = NumberUtils.toIdr(Decimal.parse('50000'));
+      expect(formatted.contains('50.000'), isTrue);
+    });
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
+    test('calculatePercentage handles division and zero total', () {
+      expect(NumberUtils.calculatePercentage(50, 100), 50.0);
+      expect(NumberUtils.calculatePercentage(10, 0), 0.0);
+    });
+  });
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+  group('HashHelper Unit Tests', () {
+    test('hashPin produces salted hash and verifyPin succeeds', () {
+      const pin = '123456';
+      final hashed = HashHelper.hashPin(pin);
+
+      expect(hashed.contains(':'), isTrue);
+      expect(HashHelper.verifyPin(pin, hashed), isTrue);
+      expect(HashHelper.verifyPin('654321', hashed), isFalse);
+    });
+
+    test('verifyPin supports legacy unsalted SHA-256 for backward compatibility', () {
+      // sha256('123456') = 8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92
+      const legacyHash = '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92';
+      expect(HashHelper.verifyPin('123456', legacyHash), isTrue);
+      expect(HashHelper.verifyPin('000000', legacyHash), isFalse);
+    });
+  });
+
+  group('Widget Smoke Tests', () {
+    testWidgets('CustomButton renders title and responds to tap', (WidgetTester tester) async {
+      bool tapped = false;
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: CustomButton(
+              color: Colors.blue,
+              title: 'Simpan',
+              onTap: () {
+                tapped = true;
+              },
+            ),
+          ),
+        ),
+      );
+
+      expect(find.text('Simpan'), findsOneWidget);
+      await tester.tap(find.text('Simpan'));
+      await tester.pump();
+
+      expect(tapped, isTrue);
+    });
   });
 }

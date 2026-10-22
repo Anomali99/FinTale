@@ -26,7 +26,7 @@ class MonthFilter extends StatelessWidget {
             icon: Icon(
               Icons.chevron_left,
               color: onPrev == null
-                  ? colorScheme.onSurfaceVariant.withOpacity(0.3)
+                  ? colorScheme.onSurfaceVariant.withValues(alpha: 0.3)
                   : colorScheme.onSurfaceVariant,
             ),
             onPressed: onPrev,
@@ -46,7 +46,7 @@ class MonthFilter extends StatelessWidget {
             icon: Icon(
               Icons.chevron_right,
               color: onNext == null
-                  ? colorScheme.onSurfaceVariant.withOpacity(0.3)
+                  ? colorScheme.onSurfaceVariant.withValues(alpha: 0.3)
                   : colorScheme.onSurfaceVariant,
             ),
             onPressed: onNext,

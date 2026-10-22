@@ -17,6 +17,10 @@ class PrefService {
   static const String _keyNotification = 'is_notification';
   static const String _keyThemeMode = 'theme_mode';
   static const String _keyPinHash = 'pin_hash';
+  static const String _keyBackupEncryption = 'backup_encryption';
+  static const String _keyBackupCustomPassword = 'backup_custom_password';
+  static const String _keyBackupUseCustom = 'backup_use_custom';
+  static const String _keyIncludeSavingsInTotal = 'include_savings_in_total';
 
   Future<void> saveUser(UserModel user) async {
     String jsonString = jsonEncode(user.toJson());
@@ -97,6 +101,29 @@ class PrefService {
   Future<void> setPinHash(String? value) async => value == null
       ? await _prefs.remove(_keyPinHash)
       : await _prefs.setString(_keyPinHash, value);
+
+  bool get isBackupEncryption => _prefs.getBool(_keyBackupEncryption) ?? true;
+
+  Future<void> setBackupEncryption(bool value) async =>
+      await _prefs.setBool(_keyBackupEncryption, value);
+
+  bool get isBackupUseCustom => _prefs.getBool(_keyBackupUseCustom) ?? false;
+
+  Future<void> setBackupUseCustom(bool value) async =>
+      await _prefs.setBool(_keyBackupUseCustom, value);
+
+  String? get backupCustomPassword =>
+      _prefs.getString(_keyBackupCustomPassword);
+
+  Future<void> setBackupCustomPassword(String? value) async => value == null
+      ? await _prefs.remove(_keyBackupCustomPassword)
+      : await _prefs.setString(_keyBackupCustomPassword, value);
+
+  bool get isIncludeSavingsInTotal =>
+      _prefs.getBool(_keyIncludeSavingsInTotal) ?? true;
+
+  Future<void> setIncludeSavingsInTotal(bool value) async =>
+      await _prefs.setBool(_keyIncludeSavingsInTotal, value);
 
   Future<void> clearAll() async {
     await _prefs.clear();

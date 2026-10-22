@@ -79,7 +79,9 @@ class CustomDateTimePicker extends StatelessWidget {
         Container(
           height: 51,
           decoration: BoxDecoration(
-            border: Border.all(color: colorScheme.onSurface.withOpacity(0.38)),
+            border: Border.all(
+              color: colorScheme.onSurface.withValues(alpha: 0.38),
+            ),
             borderRadius: BorderRadius.circular(4),
           ),
           child: IconButton(

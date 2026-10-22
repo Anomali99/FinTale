@@ -13,8 +13,10 @@ import '../../../models/transaction_detail_model.dart';
 import '../../../models/transaction_model.dart';
 import '../../../models/wallet_model.dart';
 import '../../../widgets/custom_button.dart';
+import '../../../widgets/custom_category_input.dart';
 import '../../../widgets/custom_date_time_picker.dart';
 import '../../../widgets/note_container.dart';
+import '../../../widgets/responsive_container.dart';
 
 class ExpenseItemForm {
   TextEditingController titleController;
@@ -45,7 +47,7 @@ class _DailyExpenseScreenState extends State<DailyExpenseScreen> {
 
   Decimal _totalAmount = Decimal.zero;
   bool _isExcludeActive = false;
-  bool _isReservedActive = false;
+  bool _isSavingsActive = false;
   bool _isFeeActive = false;
 
   final List<ExpenseItemForm> _items = [];
@@ -123,7 +125,7 @@ class _DailyExpenseScreenState extends State<DailyExpenseScreen> {
       if (_isFeeActive) {
         details.add(
           TransactionDetailModel(
-            title: 'Fee',
+            title: UiDict.feeAmount,
             amount: NumberUtils.parseToDecimal(_feeController.text),
             category: TransactionCategory.utilities,
             flow: FlowType.expense,
@@ -143,7 +145,7 @@ class _DailyExpenseScreenState extends State<DailyExpenseScreen> {
 
       Navigator.pop(context, {
         "transaction": transaction,
-        'use_reserved': _isReservedActive,
+        'use_reserved': _isSavingsActive,
         'exclude_daily': _isExcludeActive,
       });
     }
@@ -154,7 +156,7 @@ class _DailyExpenseScreenState extends State<DailyExpenseScreen> {
     final settingsController = context.read<SettingsController>();
     final walletController = context.read<WalletController>();
     final colorScheme = Theme.of(context).colorScheme;
-    final wallets = walletController.wallets;
+    final wallets = walletController.allWallets;
     final isRpg = settingsController.isRpgMode;
 
     return Scaffold(
@@ -175,292 +177,352 @@ class _DailyExpenseScreenState extends State<DailyExpenseScreen> {
       bottomNavigationBar: _buildBottomBar(isRpg),
       body: Form(
         key: _formKey,
-        child: ListView(
-          padding: const EdgeInsets.all(24.0),
-          children: [
-            Text(
-              ScreenDict.historyInformation,
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: colorScheme.primary,
-              ),
-            ),
-            const SizedBox(height: 16),
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final isWide = constraints.maxWidth >= 700;
 
-            TextFormField(
-              controller: _mainTitleController,
-              decoration: const InputDecoration(
-                labelText: UiDict.title,
-                border: OutlineInputBorder(),
-              ),
-              validator: (val) => val == null || val.trim().isEmpty
-                  ? UiDict.requiredTitle
-                  : null,
-            ),
-            const SizedBox(height: 16),
-
-            DropdownButtonFormField<WalletModel>(
-              initialValue: _selectedWallet,
-              decoration: const InputDecoration(
-                labelText: UiDict.sourceFunds,
-                border: OutlineInputBorder(),
-              ),
-              items: wallets.map((entry) {
-                return DropdownMenuItem(value: entry, child: Text(entry.name));
-              }).toList(),
-              onChanged: (val) => setState(() => _selectedWallet = val),
-              validator: (val) => val == null ? UiDict.requiredWallet : null,
-            ),
-            const SizedBox(height: 16),
-
-            CustomDateTimePicker(
-              initialDate: _selectedDate,
-              label: ScreenDict.historyTime.get(isRpg),
-              onChanged: (newDate) {
-                setState(() {
-                  _selectedDate = newDate;
-                });
-              },
-            ),
-
-            const SizedBox(height: 16),
-            SwitchListTile(
-              contentPadding: EdgeInsets.zero,
-              title: const Text(
-                UiDict.feeCheck,
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-              subtitle: Text(
-                ScreenDict.getFeeCheckDesc(isRpg: isRpg),
+            final infoSection = <Widget>[
+              Text(
+                ScreenDict.historyInformation,
                 style: TextStyle(
-                  fontSize: 12,
-                  color: colorScheme.onSurfaceVariant,
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: colorScheme.primary,
                 ),
               ),
-              value: _isFeeActive,
-              onChanged: (val) => setState(() => _isFeeActive = val),
-            ),
+              const SizedBox(height: 16),
 
-            if (_isFeeActive) ...[
-              const SizedBox(height: 8),
               TextFormField(
-                controller: _feeController,
-                keyboardType: TextInputType.number,
-                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                decoration: InputDecoration(
-                  labelText: UiDict.feeAmount,
-                  prefixText: 'Rp ',
+                controller: _mainTitleController,
+                decoration: const InputDecoration(
+                  labelText: UiDict.title,
                   border: OutlineInputBorder(),
                 ),
-                onChanged: (val) => NumberUtils.formatInput(
-                  _feeController,
-                  val,
-                  onCalculated: _calculateTotal,
+                validator: (val) => val == null || val.trim().isEmpty
+                    ? UiDict.requiredTitle
+                    : null,
+              ),
+              const SizedBox(height: 16),
+
+              DropdownButtonFormField<WalletModel>(
+                initialValue: _selectedWallet,
+                decoration: const InputDecoration(
+                  labelText: UiDict.sourceFunds,
+                  border: OutlineInputBorder(),
                 ),
-                validator: (val) {
-                  if (_isFeeActive &&
-                      (val == null || !NumberUtils.isValidAmount(val))) {
-                    return UiDict.requiredFee;
+                items:
+                    (_isSavingsActive
+                            ? wallets
+                            : wallets.where((w) => !w.isSavings).toList())
+                        .map((entry) {
+                          return DropdownMenuItem(
+                            value: entry,
+                            child: Text(walletController.getDisplayName(entry)),
+                          );
+                        })
+                        .toList(),
+                onChanged: (val) => setState(() => _selectedWallet = val),
+                validator: (val) => val == null ? UiDict.requiredWallet : null,
+              ),
+
+              SwitchListTile(
+                contentPadding: EdgeInsets.zero,
+                title: Text(
+                  ScreenDict.getReservedCheck(isRpg: isRpg),
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                subtitle: Text(
+                  ScreenDict.getReservedCheckDesc(isRpg: isRpg),
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: colorScheme.onSurfaceVariant,
+                  ),
+                ),
+                value: _isSavingsActive,
+                onChanged: (val) => setState(() {
+                  _isSavingsActive = val;
+                  if (!val &&
+                      _selectedWallet != null &&
+                      _selectedWallet!.isSavings) {
+                    _selectedWallet = null;
                   }
-                  return null;
+                }),
+              ),
+
+              const SizedBox(height: 16),
+
+              CustomDateTimePicker(
+                initialDate: _selectedDate,
+                label: ScreenDict.historyTime.get(isRpg),
+                onChanged: (newDate) {
+                  setState(() {
+                    _selectedDate = newDate;
+                  });
                 },
               ),
-              const SizedBox(height: 12),
-              NoteContainer(
-                text: "Note: ${ScreenDict.getFeeCheckDesc(isRpg: isRpg)}",
-                color: colorScheme.onSurfaceVariant,
-              ),
-            ],
 
-            SwitchListTile(
-              contentPadding: EdgeInsets.zero,
-              title: Text(
-                ScreenDict.getReservedCheck(isRpg: isRpg),
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-              subtitle: Text(
-                ScreenDict.getReservedCheckDesc(isRpg: isRpg),
-                style: TextStyle(
-                  fontSize: 12,
-                  color: colorScheme.onSurfaceVariant,
+              const SizedBox(height: 16),
+              SwitchListTile(
+                contentPadding: EdgeInsets.zero,
+                title: const Text(
+                  UiDict.feeCheck,
+                  style: TextStyle(fontWeight: FontWeight.bold),
                 ),
-              ),
-              value: _isReservedActive,
-              onChanged: (val) => setState(() {
-                if (_selectedWallet != null) {
-                  _isReservedActive = val;
-                  _isExcludeActive = val;
-                }
-              }),
-            ),
-            SwitchListTile(
-              contentPadding: EdgeInsets.zero,
-              title: Text(
-                ScreenDict.getExcludeDailyCheck(isRpg: isRpg),
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-              subtitle: Text(
-                ScreenDict.getExcludeDailyCheckDesc(isRpg: isRpg),
-                style: TextStyle(
-                  fontSize: 12,
-                  color: colorScheme.onSurfaceVariant,
-                ),
-              ),
-              value: _isExcludeActive,
-              onChanged: (val) => setState(() => _isExcludeActive = val),
-            ),
-
-            Divider(height: 1, color: colorScheme.onSurface.withOpacity(0.2)),
-            const SizedBox(height: 32),
-
-            Text(
-              ScreenDict.breakdownDetail,
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: colorScheme.primary,
-              ),
-            ),
-            const SizedBox(height: 16),
-
-            ..._items.asMap().entries.map((entry) {
-              int index = entry.key;
-              ExpenseItemForm item = entry.value;
-
-              return Card(
-                elevation: 0,
-                color: colorScheme.surfaceContainerHighest.withOpacity(0.5),
-                margin: const EdgeInsets.only(bottom: 24),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
-                  side: BorderSide(
-                    color: colorScheme.onSurface.withOpacity(0.1),
+                subtitle: Text(
+                  ScreenDict.getFeeCheckDesc(isRpg: isRpg),
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: colorScheme.onSurfaceVariant,
                   ),
                 ),
-                child: Padding(
-                  padding: const EdgeInsets.all(20.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 6,
-                            ),
-                            decoration: BoxDecoration(
-                              color: colorScheme.primary.withOpacity(0.2),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Text(
-                              'Item #${index + 1}',
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: colorScheme.primary,
-                                fontSize: 12,
+                value: _isFeeActive,
+                onChanged: (val) => setState(() => _isFeeActive = val),
+              ),
+
+              if (_isFeeActive) ...[
+                const SizedBox(height: 8),
+                TextFormField(
+                  controller: _feeController,
+                  keyboardType: TextInputType.number,
+                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                  decoration: InputDecoration(
+                    labelText: UiDict.feeAmount,
+                    prefixText: 'Rp ',
+                    border: OutlineInputBorder(),
+                  ),
+                  onChanged: (val) => NumberUtils.formatInput(
+                    _feeController,
+                    val,
+                    onCalculated: _calculateTotal,
+                  ),
+                  validator: (val) {
+                    if (_isFeeActive &&
+                        (val == null || !NumberUtils.isValidAmount(val))) {
+                      return UiDict.requiredFee;
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 12),
+                NoteContainer(
+                  text: "Note: ${ScreenDict.getFeeCheckDesc(isRpg: isRpg)}",
+                  color: colorScheme.onSurfaceVariant,
+                ),
+              ],
+
+              SwitchListTile(
+                contentPadding: EdgeInsets.zero,
+                title: Text(
+                  ScreenDict.getExcludeDailyCheck(isRpg: isRpg),
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                subtitle: Text(
+                  ScreenDict.getExcludeDailyCheckDesc(isRpg: isRpg),
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: colorScheme.onSurfaceVariant,
+                  ),
+                ),
+                value: _isExcludeActive,
+                onChanged: (val) => setState(() => _isExcludeActive = val),
+              ),
+              Divider(
+                height: 1,
+                color: colorScheme.onSurface.withValues(alpha: 0.2),
+              ),
+            ];
+
+            final detailSection = <Widget>[
+              Text(
+                ScreenDict.breakdownDetail,
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: colorScheme.primary,
+                ),
+              ),
+              const SizedBox(height: 16),
+
+              ..._items.asMap().entries.map((entry) {
+                int index = entry.key;
+                ExpenseItemForm item = entry.value;
+
+                return Card(
+                  elevation: 0,
+                  color: colorScheme.surfaceContainerHighest.withValues(
+                    alpha: 0.5,
+                  ),
+                  margin: const EdgeInsets.only(bottom: 24),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                    side: BorderSide(
+                      color: colorScheme.onSurface.withValues(alpha: 0.1),
+                    ),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(20.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 6,
+                              ),
+                              decoration: BoxDecoration(
+                                color: colorScheme.primary.withValues(
+                                  alpha: 0.2,
+                                ),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Text(
+                                'Item #${index + 1}',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: colorScheme.primary,
+                                  fontSize: 12,
+                                ),
                               ),
                             ),
+                            if (_items.length > 1)
+                              IconButton(
+                                icon: Icon(
+                                  Icons.delete_outline,
+                                  color: colorScheme.error,
+                                ),
+                                onPressed: () => _removeItem(index),
+                                tooltip: UiDict.deleteItem,
+                              ),
+                          ],
+                        ),
+                        const SizedBox(height: 20),
+
+                        TextFormField(
+                          controller: item.titleController,
+                          decoration: const InputDecoration(
+                            labelText: UiDict.name,
+                            border: OutlineInputBorder(),
                           ),
-                          if (_items.length > 1)
-                            IconButton(
-                              icon: Icon(
-                                Icons.delete_outline,
-                                color: colorScheme.error,
-                              ),
-                              onPressed: () => _removeItem(index),
-                              tooltip: UiDict.deleteItem,
-                            ),
-                        ],
-                      ),
-                      const SizedBox(height: 20),
+                          validator: (val) => val == null || val.trim().isEmpty
+                              ? UiDict.requiredName
+                              : null,
+                        ),
+                        const SizedBox(height: 16),
 
-                      TextFormField(
-                        controller: item.titleController,
-                        decoration: const InputDecoration(
-                          labelText: UiDict.name,
-                          border: OutlineInputBorder(),
+                        TextFormField(
+                          controller: item.amountController,
+                          keyboardType: TextInputType.number,
+                          inputFormatters: [
+                            FilteringTextInputFormatter.digitsOnly,
+                          ],
+                          decoration: const InputDecoration(
+                            labelText: UiDict.price,
+                            prefixText: 'Rp ',
+                            border: OutlineInputBorder(),
+                          ),
+                          onChanged: (val) => NumberUtils.formatInput(
+                            item.amountController,
+                            val,
+                            onCalculated: _calculateTotal,
+                          ),
+                          validator: (val) {
+                            if (val == null ||
+                                !NumberUtils.isValidAmount(val)) {
+                              return UiDict.requiredPrice;
+                            }
+                            return null;
+                          },
                         ),
-                        validator: (val) => val == null || val.trim().isEmpty
-                            ? UiDict.requiredName
-                            : null,
-                      ),
-                      const SizedBox(height: 16),
+                        const SizedBox(height: 16),
 
-                      TextFormField(
-                        controller: item.amountController,
-                        keyboardType: TextInputType.number,
-                        inputFormatters: [
-                          FilteringTextInputFormatter.digitsOnly,
-                        ],
-                        decoration: const InputDecoration(
-                          labelText: UiDict.price,
-                          prefixText: 'Rp ',
-                          border: OutlineInputBorder(),
+                        CustomCategoryInput(
+                          type: CategoryType.expense,
+                          selectedCategory: item.category,
+                          validator: (val) =>
+                              val == null ? UiDict.requiredCategory : null,
+                          onChanged: (cat) {
+                            setState(() => item.category = cat);
+                          },
                         ),
-                        onChanged: (val) => NumberUtils.formatInput(
-                          item.amountController,
-                          val,
-                          onCalculated: _calculateTotal,
-                        ),
-                        validator: (val) {
-                          if (val == null || !NumberUtils.isValidAmount(val)) {
-                            return UiDict.requiredPrice;
-                          }
-                          return null;
-                        },
-                      ),
-                      const SizedBox(height: 16),
-
-                      DropdownButtonFormField<TransactionCategory>(
-                        initialValue: item.category,
-                        decoration: const InputDecoration(
-                          labelText: UiDict.category,
-                          border: OutlineInputBorder(),
-                        ),
-                        items: TransactionCategory.expenseCategories.map((cat) {
-                          return DropdownMenuItem(
-                            value: cat,
-                            child: Text(cat.categoryDict.get(isRpg)),
-                          );
-                        }).toList(),
-                        onChanged: (val) => setState(() => item.category = val),
-                        validator: (val) =>
-                            val == null ? UiDict.requiredCategory : null,
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
+                );
+              }),
+
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8.0),
+                child: OutlinedButton.icon(
+                  onPressed: _addNewItem,
+                  style: OutlinedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    side: BorderSide(
+                      color: colorScheme.primary,
+                      style: BorderStyle.solid,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  icon: Icon(Icons.add, color: colorScheme.primary),
+                  label: Text(
+                    UiDict.addItem,
+                    style: TextStyle(
+                      color: colorScheme.primary,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+            ];
+
+            if (isWide) {
+              return Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      flex: 5,
+                      child: ListView(
+                        padding: const EdgeInsets.only(
+                          top: 24,
+                          bottom: 24,
+                          right: 12,
+                        ),
+                        children: infoSection,
+                      ),
+                    ),
+                    Expanded(
+                      flex: 5,
+                      child: ListView(
+                        padding: const EdgeInsets.only(
+                          top: 24,
+                          bottom: 24,
+                          left: 12,
+                        ),
+                        children: detailSection,
+                      ),
+                    ),
+                  ],
                 ),
               );
-            }),
+            }
 
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8.0),
-              child: OutlinedButton.icon(
-                onPressed: _addNewItem,
-                style: OutlinedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  side: BorderSide(
-                    color: colorScheme.primary,
-                    style: BorderStyle.solid,
-                  ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-                icon: Icon(Icons.add, color: colorScheme.primary),
-                label: Text(
-                  UiDict.addItem,
-                  style: TextStyle(
-                    color: colorScheme.primary,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
+            return ResponsiveContainer(
+              child: ListView(
+                padding: const EdgeInsets.all(24.0),
+                children: [
+                  ...infoSection,
+                  const SizedBox(height: 32),
+                  ...detailSection,
+                ],
               ),
-            ),
-          ],
+            );
+          },
         ),
       ),
     );
@@ -468,6 +530,7 @@ class _DailyExpenseScreenState extends State<DailyExpenseScreen> {
 
   Widget _buildBottomBar(bool isRpg) {
     final colorScheme = Theme.of(context).colorScheme;
+    final walletController = context.read<WalletController>();
 
     return Container(
       padding: EdgeInsets.only(
@@ -480,7 +543,7 @@ class _DailyExpenseScreenState extends State<DailyExpenseScreen> {
         color: colorScheme.surface,
         boxShadow: [
           BoxShadow(
-            color: colorScheme.onPrimary.withOpacity(0.2),
+            color: colorScheme.onPrimary.withValues(alpha: 0.2),
             offset: const Offset(0, -4),
             blurRadius: 12,
           ),
@@ -491,16 +554,10 @@ class _DailyExpenseScreenState extends State<DailyExpenseScreen> {
         children: [
           if (_selectedWallet != null) ...[
             NoteContainer(
-              text: _isReservedActive
-                  ? ScreenDict.getHomeNote(
-                      _selectedWallet?.name ?? '',
-                      NumberUtils.toIdr(_selectedWallet?.reservedAmount),
-                      isRpg: isRpg,
-                    )
-                  : ScreenDict.getHistoryNote(
-                      _selectedWallet?.name ?? '',
-                      NumberUtils.toIdr(_selectedWallet?.amount),
-                    ),
+              text: ScreenDict.getHistoryNote(
+                walletController.getDisplayName(_selectedWallet!),
+                NumberUtils.toIdr(_selectedWallet?.amount),
+              ),
               color: colorScheme.onSurfaceVariant,
             ),
             const SizedBox(height: 8),

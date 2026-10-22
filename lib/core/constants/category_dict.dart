@@ -146,7 +146,7 @@ class CategoryDict {
   static const CategoryModel transfer = CategoryModel(
     type: 'transfer',
     color: Colors.blueGrey,
-    terminology: TermModel(normal: 'Transfer Dompet', rpg: 'Karavan Suplai'),
+    terminology: TermModel(normal: 'Transfer Uang', rpg: 'Karavan Suplai'),
     icons: IconModel(
       normal: FontAwesomeIcons.arrowRightArrowLeft,
       rpg: FontAwesomeIcons.dolly,
@@ -196,6 +196,195 @@ class CategoryDict {
     icons: IconModel(
       normal: FontAwesomeIcons.handHoldingDollar,
       rpg: FontAwesomeIcons.dragon,
+    ),
+  );
+
+  static const CategoryModel fashion = CategoryModel(
+    type: 'expense',
+    color: Colors.pinkAccent,
+    terminology: TermModel(normal: 'Fashion & Pakaian', rpg: 'Armor & Kostum'),
+    icons: IconModel(
+      normal: FontAwesomeIcons.shirt,
+      rpg: FontAwesomeIcons.hatWizard,
+    ),
+  );
+
+  static const CategoryModel gadget = CategoryModel(
+    type: 'expense',
+    color: Colors.blueAccent,
+    terminology: TermModel(
+      normal: 'Gadget & Elektronik',
+      rpg: 'Artefak Teknologi',
+    ),
+    icons: IconModel(
+      normal: FontAwesomeIcons.laptop,
+      rpg: FontAwesomeIcons.wandMagicSparkles,
+    ),
+  );
+
+  static const CategoryModel streaming = CategoryModel(
+    type: 'expense',
+    color: Colors.deepPurpleAccent,
+    terminology: TermModel(
+      normal: 'Layanan Streaming',
+      rpg: 'Gulungan Pengetahuan',
+    ),
+    icons: IconModel(
+      normal: FontAwesomeIcons.tv,
+      rpg: FontAwesomeIcons.bookOpen,
+    ),
+  );
+
+  static const CategoryModel gaming = CategoryModel(
+    type: 'expense',
+    color: Colors.indigoAccent,
+    terminology: TermModel(normal: 'Games & Gaming', rpg: 'Arena Pertempuran'),
+    icons: IconModel(
+      normal: FontAwesomeIcons.gamepad,
+      rpg: FontAwesomeIcons.diceD20,
+    ),
+  );
+
+  static const CategoryModel hobby = CategoryModel(
+    type: 'expense',
+    color: Colors.teal,
+    terminology: TermModel(normal: 'Hobi & Koleksi', rpg: 'Koleksi Relik'),
+    icons: IconModel(
+      normal: FontAwesomeIcons.palette,
+      rpg: FontAwesomeIcons.dragon,
+    ),
+  );
+
+  static const CategoryModel concert = CategoryModel(
+    type: 'expense',
+    color: Colors.amber,
+    terminology: TermModel(normal: 'Konser & Event', rpg: 'Festival Kerajaan'),
+    icons: IconModel(
+      normal: FontAwesomeIcons.ticketSimple,
+      rpg: FontAwesomeIcons.crown,
+    ),
+  );
+
+  static const CategoryModel travel = CategoryModel(
+    type: 'expense',
+    color: Colors.cyan,
+    terminology: TermModel(normal: 'Liburan & Wisata', rpg: 'Ekspedisi Dunia'),
+    icons: IconModel(
+      normal: FontAwesomeIcons.earthAsia,
+      rpg: FontAwesomeIcons.mapLocationDot,
+    ),
+  );
+
+  static const CategoryModel hangout = CategoryModel(
+    type: 'expense',
+    color: Colors.orangeAccent,
+    terminology: TermModel(normal: 'Nongkrong & Kafe', rpg: 'Pertemuan Tavern'),
+    icons: IconModel(
+      normal: FontAwesomeIcons.mugHot,
+      rpg: FontAwesomeIcons.beerMugEmpty,
+    ),
+  );
+
+  static const CategoryModel fuel = CategoryModel(
+    type: 'expense',
+    color: Colors.deepOrangeAccent,
+    terminology: TermModel(normal: 'Bensin & Parkir', rpg: 'Bahan Bakar Mount'),
+    icons: IconModel(
+      normal: FontAwesomeIcons.gasPump,
+      rpg: FontAwesomeIcons.fire,
+    ),
+  );
+
+  static const CategoryModel vehicleService = CategoryModel(
+    type: 'expense',
+    color: Colors.blueGrey,
+    terminology: TermModel(normal: 'Servis Kendaraan', rpg: 'Perawatan Mount'),
+    icons: IconModel(
+      normal: FontAwesomeIcons.screwdriverWrench,
+      rpg: FontAwesomeIcons.hammer,
+    ),
+  );
+
+  static const CategoryModel rideshare = CategoryModel(
+    type: 'expense',
+    color: Colors.lightGreenAccent,
+    terminology: TermModel(normal: 'Taksi & Ojol', rpg: 'Kurir Guild'),
+    icons: IconModel(
+      normal: FontAwesomeIcons.motorcycle,
+      rpg: FontAwesomeIcons.personRunning,
+    ),
+  );
+
+  static const CategoryModel travelTicket = CategoryModel(
+    type: 'expense',
+    color: Colors.lightBlueAccent,
+    terminology: TermModel(normal: 'Tiket Perjalanan', rpg: 'Surat Izin Jalan'),
+    icons: IconModel(
+      normal: FontAwesomeIcons.planeDeparture,
+      rpg: FontAwesomeIcons.scroll,
+    ),
+  );
+
+  static const CategoryModel publicTransport = CategoryModel(
+    type: 'expense',
+    color: Colors.indigoAccent,
+    terminology: TermModel(normal: 'Transportasi Umum', rpg: 'Kapal Publik'),
+    icons: IconModel(
+      normal: FontAwesomeIcons.trainSubway,
+      rpg: FontAwesomeIcons.ship,
+    ),
+  );
+
+  static const CategoryModel giftGiving = CategoryModel(
+    type: 'expense',
+    color: Colors.pinkAccent,
+    terminology: TermModel(normal: 'Hadiah & Kado', rpg: 'Persembahan'),
+    icons: IconModel(
+      normal: FontAwesomeIcons.gift,
+      rpg: FontAwesomeIcons.boxOpen,
+    ),
+  );
+
+  static const CategoryModel socialEvent = CategoryModel(
+    type: 'expense',
+    color: Colors.purpleAccent,
+    terminology: TermModel(normal: 'Acara Sosial', rpg: 'Pesta Perayaan'),
+    icons: IconModel(
+      normal: FontAwesomeIcons.peopleGroup,
+      rpg: FontAwesomeIcons.wineGlass,
+    ),
+  );
+
+  static const CategoryModel other = CategoryModel(
+    type: 'expense',
+    color: Colors.grey,
+    terminology: TermModel(normal: 'Lainnya', rpg: 'Pengeluaran Misterius'),
+    icons: IconModel(
+      normal: FontAwesomeIcons.ellipsis,
+      rpg: FontAwesomeIcons.question,
+    ),
+  );
+
+  static const CategoryModel gift = CategoryModel(
+    type: 'income',
+    color: Colors.pinkAccent,
+    terminology: TermModel(normal: 'Hadiah & Bonus', rpg: 'Loot Tak Terduga'),
+    icons: IconModel(
+      normal: FontAwesomeIcons.gift,
+      rpg: FontAwesomeIcons.wandMagicSparkles,
+    ),
+  );
+
+  static const CategoryModel otherIncome = CategoryModel(
+    type: 'income',
+    color: Colors.grey,
+    terminology: TermModel(
+      normal: 'Pendapatan Lainnya',
+      rpg: 'Pendapatan Misterius',
+    ),
+    icons: IconModel(
+      normal: FontAwesomeIcons.ellipsis,
+      rpg: FontAwesomeIcons.question,
     ),
   );
 
@@ -274,18 +463,36 @@ class CategoryDict {
   static List<CategoryModel> get all => [
     food,
     groceries,
+    fashion,
+    gadget,
+    streaming,
+    gaming,
+    hobby,
+    concert,
+    travel,
+    hangout,
+    fuel,
+    vehicleService,
+    rideshare,
+    travelTicket,
+    publicTransport,
     transport,
     entertainment,
-    health,
-    lending,
+    giftGiving,
+    socialEvent,
     charity,
+    health,
     utilities,
+    lending,
     debtInstallment,
+    other,
     salary,
     business,
     loanDisbursement,
     debtCollection,
     dividend,
+    gift,
+    otherIncome,
     transfer,
     lowRisk,
     mediumRisk,
@@ -351,6 +558,38 @@ class CategoryDict {
         return utilities;
       case TransactionCategory.debtInstallment:
         return debtInstallment;
+      case TransactionCategory.fashion:
+        return fashion;
+      case TransactionCategory.gadget:
+        return gadget;
+      case TransactionCategory.streaming:
+        return streaming;
+      case TransactionCategory.gaming:
+        return gaming;
+      case TransactionCategory.hobby:
+        return hobby;
+      case TransactionCategory.concert:
+        return concert;
+      case TransactionCategory.travel:
+        return travel;
+      case TransactionCategory.hangout:
+        return hangout;
+      case TransactionCategory.fuel:
+        return fuel;
+      case TransactionCategory.vehicleService:
+        return vehicleService;
+      case TransactionCategory.rideshare:
+        return rideshare;
+      case TransactionCategory.travelTicket:
+        return travelTicket;
+      case TransactionCategory.publicTransport:
+        return publicTransport;
+      case TransactionCategory.giftGiving:
+        return giftGiving;
+      case TransactionCategory.socialEvent:
+        return socialEvent;
+      case TransactionCategory.other:
+        return other;
       case TransactionCategory.salary:
         return salary;
       case TransactionCategory.business:
@@ -361,6 +600,10 @@ class CategoryDict {
         return debtCollection;
       case TransactionCategory.dividend:
         return dividend;
+      case TransactionCategory.gift:
+        return gift;
+      case TransactionCategory.otherIncome:
+        return otherIncome;
       case TransactionCategory.transfer:
         return transfer;
       case TransactionCategory.lowRisk:

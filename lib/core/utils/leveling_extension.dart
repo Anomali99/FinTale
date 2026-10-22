@@ -2,6 +2,7 @@ import 'package:decimal/decimal.dart';
 import 'package:flutter/material.dart';
 
 import '../../models/user_model.dart';
+import '../constants/gamification_dict.dart';
 import 'enum_types.dart';
 import 'global_messenger.dart';
 
@@ -40,7 +41,7 @@ extension LevelingExtension on UserModel {
       );
       GlobalMessenger.showSleekNotification(
         context,
-        message: 'Status dana darurat berubah, skill disesuikan',
+        message: GamificationDict.skillAdjustedEmergency,
       );
     }
   }
@@ -58,7 +59,7 @@ extension LevelingExtension on UserModel {
       );
       GlobalMessenger.showSleekNotification(
         context,
-        message: 'Status dana darurat berubah, skill disesuikan',
+        message: GamificationDict.skillAdjustedEmergency,
       );
     }
   }
@@ -75,7 +76,7 @@ extension LevelingExtension on UserModel {
 
       GlobalMessenger.showSleekNotification(
         context,
-        message: 'Status hutang berubah, skill disesuikan',
+        message: GamificationDict.skillAdjustedDebt,
       );
     }
     budget.updateFreeDebt(value);
@@ -125,7 +126,7 @@ extension LevelingExtension on UserModel {
     }
   }
 
-  void resetSkillAlocaton() {
+  void resetSkillAllocation() {
     allocation.updateSkill(
       AllocationMap.getAllocationByLevel(
         level,

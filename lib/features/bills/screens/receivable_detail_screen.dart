@@ -12,6 +12,7 @@ import '../../../models/receivable_model.dart';
 import '../../../models/transaction_detail_model.dart';
 import '../../../models/transaction_model.dart';
 import '../../../widgets/custom_button.dart';
+import '../../../widgets/responsive_container.dart';
 import '../widgets/pay_receivable_modal.dart';
 import '../widgets/receivable_detail_card.dart';
 
@@ -109,7 +110,7 @@ class _ReceivableDetailScreenState extends State<ReceivableDetailScreen> {
         amount -= fee;
         details.add(
           TransactionDetailModel(
-            title: 'Fee',
+            title: UiDict.feeAmount,
             amount: fee,
             category: TransactionCategory.utilities,
             flow: FlowType.expense,
@@ -168,25 +169,68 @@ class _ReceivableDetailScreenState extends State<ReceivableDetailScreen> {
       backgroundColor: colorScheme.surface,
       appBar: AppBar(title: Text(widget.borrowerName), centerTitle: true),
       bottomNavigationBar: _hasChanges ? _buildBottomBar(isRpg) : null,
-      body: ListView.builder(
-        padding: const EdgeInsets.all(24.0),
-        itemCount: _records.length,
-        itemBuilder: (context, index) {
-          final item = _records[index];
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          final isWide = constraints.maxWidth >= 700;
 
-          return ReceivableDetailCard(
-            data: item,
-            isRpg: isRpg,
-            onPay: () => _openPayReceivableModal(
-              context,
-              index: index,
-              id: item.id,
-              title: item.title,
-            ),
-            onEdit: () => _openUpdateReceivableModal(
-              context,
-              index: index,
-              initialReceivable: item,
+          if (isWide) {
+            return Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24.0),
+              child: GridView.builder(
+                padding: const EdgeInsets.symmetric(vertical: 24.0),
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  crossAxisSpacing: 16,
+                  mainAxisSpacing: 0,
+                  childAspectRatio: 1.6,
+                ),
+                itemCount: _records.length,
+                itemBuilder: (context, index) {
+                  final item = _records[index];
+
+                  return ReceivableDetailCard(
+                    data: item,
+                    isRpg: isRpg,
+                    onPay: () => _openPayReceivableModal(
+                      context,
+                      index: index,
+                      id: item.id,
+                      title: item.title,
+                    ),
+                    onEdit: () => _openUpdateReceivableModal(
+                      context,
+                      index: index,
+                      initialReceivable: item,
+                    ),
+                  );
+                },
+              ),
+            );
+          }
+
+          return ResponsiveContainer(
+            child: ListView.builder(
+              padding: const EdgeInsets.all(24.0),
+              itemCount: _records.length,
+              itemBuilder: (context, index) {
+                final item = _records[index];
+
+                return ReceivableDetailCard(
+                  data: item,
+                  isRpg: isRpg,
+                  onPay: () => _openPayReceivableModal(
+                    context,
+                    index: index,
+                    id: item.id,
+                    title: item.title,
+                  ),
+                  onEdit: () => _openUpdateReceivableModal(
+                    context,
+                    index: index,
+                    initialReceivable: item,
+                  ),
+                );
+              },
             ),
           );
         },
@@ -208,7 +252,7 @@ class _ReceivableDetailScreenState extends State<ReceivableDetailScreen> {
         color: colorScheme.surface,
         boxShadow: [
           BoxShadow(
-            color: colorScheme.onPrimary.withOpacity(0.2),
+            color: colorScheme.onPrimary.withValues(alpha: 0.2),
             offset: const Offset(0, -4),
             blurRadius: 12,
           ),

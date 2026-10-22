@@ -1,3 +1,4 @@
+import 'package:decimal/decimal.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
@@ -12,6 +13,7 @@ import '../../../core/utils/global_messenger.dart';
 import '../../../models/transaction_model.dart';
 import '../../../widgets/filter_bottom_sheet.dart';
 import '../../../widgets/month_filter.dart';
+import '../../../widgets/responsive_container.dart';
 import '../widgets/cash_flow_card.dart';
 import '../widgets/section_history.dart';
 import '../widgets/transaction_detail_modal.dart';
@@ -49,6 +51,7 @@ class HistoryScreen extends StatelessWidget {
         );
       }
       await historyController.applyFilter();
+      if (!context.mounted) return;
       GlobalMessenger.showMessage(
         context,
         message: UiDict.applyFilterNotif,
@@ -92,16 +95,17 @@ class HistoryScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final userController = context.watch<UserController>();
-    final settingsController = context.watch<SettingsController>();
-    final transactionController = context.watch<TransactionController>();
     final historyController = context.watch<HistoryController>();
     final colorScheme = Theme.of(context).colorScheme;
 
-    final isRpg = settingsController.isRpgMode;
+    final isRpg = context.select<SettingsController, bool>((s) => s.isRpgMode);
 
-    final income = transactionController.income;
-    final expense = transactionController.expense;
+    final income = context.select<TransactionController, Decimal>(
+      (t) => t.income,
+    );
+    final expense = context.select<TransactionController, Decimal>(
+      (t) => t.expense,
+    );
 
     final selectedMonth = historyController.selectedMonth;
     final groupedTransactions = historyController.groupedTransactions;
@@ -129,83 +133,148 @@ class HistoryScreen extends StatelessWidget {
               color: colorScheme.primary,
             ),
             onPressed: () async {
+              final userController = context.read<UserController>();
               await userController.processMonthlyReview(context);
               await userController.loadData();
-              Navigator.pushNamed(context, '/analytics');
+              if (context.mounted) {
+                Navigator.pushNamed(context, '/analytics');
+              }
             },
             tooltip: UiDict.menuAnalytics.get(isRpg),
           ),
           const SizedBox(width: 8),
         ],
       ),
-      body: CustomScrollView(
-        slivers: [
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.all(24.0),
-              child: Column(
-                children: [
-                  MonthFilter(
-                    selected: getTitleMonth(
-                      selectedMonth: selectedMonth,
-                      customStartDate: customStartDate,
-                      customEndDate: customEndDate,
-                    ),
-                    onPrev: historyController.onPrev,
-                    onNext: historyController.onNext,
-                    enabled: customStartDate == null && customEndDate == null,
-                  ),
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          final isWide = constraints.maxWidth >= 700;
 
-                  const SizedBox(height: 16),
+          final headerContent = Column(
+            children: [
+              MonthFilter(
+                selected: getTitleMonth(
+                  selectedMonth: selectedMonth,
+                  customStartDate: customStartDate,
+                  customEndDate: customEndDate,
+                ),
+                onPrev: historyController.onPrev,
+                onNext: historyController.onNext,
+                enabled: customStartDate == null && customEndDate == null,
+              ),
 
-                  CashFlowCard(
-                    totalIncome: income,
-                    totalExpense: expense,
+              const SizedBox(height: 16),
+
+              CashFlowCard(
+                totalIncome: income,
+                totalExpense: expense,
+                isRpg: isRpg,
+              ),
+            ],
+          );
+
+          final emptyState = Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                FaIcon(
+                  UiDict.menuHistory.icon(isRpg),
+                  size: 48,
+                  color: colorScheme.surfaceContainerHighest,
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  UiDict.getEmptyDesc(
+                    UiDict.menuHistory.get(isRpg).toLowerCase(),
                     isRpg: isRpg,
+                  ),
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: colorScheme.onSurfaceVariant),
+                ),
+              ],
+            ),
+          );
+
+          if (isWide) {
+            return Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24.0),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    flex: 4,
+                    child: ListView(
+                      padding: const EdgeInsets.only(
+                        top: 24,
+                        bottom: 24,
+                        right: 12,
+                      ),
+                      children: [headerContent],
+                    ),
+                  ),
+                  Expanded(
+                    flex: 6,
+                    child: groupedTransactions.isNotEmpty
+                        ? CustomScrollView(
+                            slivers: [
+                              SliverList.builder(
+                                itemCount: groupedTransactions.length,
+                                itemBuilder: (context, index) {
+                                  final entry = groupedTransactions.entries
+                                      .elementAt(index);
+                                  return SectionHistory(
+                                    title: entry.key,
+                                    transactions: entry.value,
+                                    onTap: (value) =>
+                                        _openDetail(context, value, isRpg),
+                                    isRpg: isRpg,
+                                  );
+                                },
+                              ),
+                              const SliverToBoxAdapter(
+                                child: SizedBox(height: 100),
+                              ),
+                            ],
+                          )
+                        : emptyState,
                   ),
                 ],
               ),
-            ),
-          ),
+            );
+          }
 
-          if (groupedTransactions.isNotEmpty) ...[
-            for (var entry in groupedTransactions.entries)
-              SliverToBoxAdapter(
-                child: SectionHistory(
-                  title: entry.key,
-                  transactions: entry.value,
-                  onTap: (value) => _openDetail(context, value, isRpg),
-                  isRpg: isRpg,
+          return ResponsiveContainer(
+            child: CustomScrollView(
+              slivers: [
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.all(24.0),
+                    child: headerContent,
+                  ),
                 ),
-              ),
-          ] else ...[
-            SliverFillRemaining(
-              hasScrollBody: false,
-              child: Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    FaIcon(
-                      UiDict.menuHistory.icon(isRpg),
-                      size: 48,
-                      color: colorScheme.surfaceContainerHighest,
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      UiDict.getEmptyDesc(
-                        UiDict.menuHistory.get(isRpg).toLowerCase(),
+
+                if (groupedTransactions.isNotEmpty) ...[
+                  SliverList.builder(
+                    itemCount: groupedTransactions.length,
+                    itemBuilder: (context, index) {
+                      final entry = groupedTransactions.entries.elementAt(
+                        index,
+                      );
+                      return SectionHistory(
+                        title: entry.key,
+                        transactions: entry.value,
+                        onTap: (value) => _openDetail(context, value, isRpg),
                         isRpg: isRpg,
-                      ),
-                      textAlign: TextAlign.center,
-                      style: TextStyle(color: colorScheme.onSurfaceVariant),
-                    ),
-                  ],
-                ),
-              ),
+                      );
+                    },
+                  ),
+                ] else ...[
+                  SliverFillRemaining(hasScrollBody: false, child: emptyState),
+                ],
+                const SliverToBoxAdapter(child: SizedBox(height: 100)),
+              ],
             ),
-          ],
-          const SliverToBoxAdapter(child: SizedBox(height: 100)),
-        ],
+          );
+        },
       ),
     );
   }

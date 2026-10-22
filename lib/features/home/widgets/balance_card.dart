@@ -11,7 +11,7 @@ class BalanceCard extends StatelessWidget {
   final bool isRpg;
   final Decimal totalBalance;
   final Decimal unallocatedBalance;
-  final Decimal reservedBalance;
+  final Decimal savingsBalance;
 
   final bool isHideBalance;
   final VoidCallback onToggleHideBalance;
@@ -23,7 +23,7 @@ class BalanceCard extends StatelessWidget {
     super.key,
     required this.totalBalance,
     required this.unallocatedBalance,
-    required this.reservedBalance,
+    required this.savingsBalance,
     required this.isHideBalance,
     required this.onToggleHideBalance,
     required this.showWallets,
@@ -45,7 +45,7 @@ class BalanceCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: colorScheme.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: colorScheme.primary.withOpacity(0.3)),
+        border: Border.all(color: colorScheme.primary.withValues(alpha: 0.3)),
       ),
       child: Column(
         children: [
@@ -115,7 +115,7 @@ class BalanceCard extends StatelessWidget {
                   ),
 
                   const SizedBox(height: 5),
-                  Divider(color: colorScheme.onSurface.withOpacity(0.1)),
+                  Divider(color: colorScheme.onSurface.withValues(alpha: 0.1)),
                   const SizedBox(height: 6),
 
                   Row(
@@ -160,7 +160,7 @@ class BalanceCard extends StatelessWidget {
                             ),
                             const SizedBox(height: 4),
                             Text(
-                              _formatBalance(reservedBalance),
+                              _formatBalance(savingsBalance),
                               style: TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.bold,
@@ -180,7 +180,7 @@ class BalanceCard extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(vertical: 14),
             decoration: BoxDecoration(
-              color: colorScheme.primary.withOpacity(0.05),
+              color: colorScheme.primary.withValues(alpha: 0.05),
               borderRadius: const BorderRadius.only(
                 bottomLeft: Radius.circular(20),
                 bottomRight: Radius.circular(20),
@@ -215,7 +215,7 @@ class BalanceCard extends StatelessWidget {
                     ),
                   ),
                   VerticalDivider(
-                    color: colorScheme.onSurface.withOpacity(0.1),
+                    color: colorScheme.onSurface.withValues(alpha: 0.1),
                   ),
                   Expanded(
                     child: InkWell(

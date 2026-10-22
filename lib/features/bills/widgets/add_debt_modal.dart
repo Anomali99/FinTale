@@ -1,15 +1,21 @@
+import 'package:decimal/decimal.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../../../controllers/settings_controller.dart';
+import '../../../controllers/wallet_controller.dart';
 import '../../../core/constants/screen_dict.dart';
 import '../../../core/constants/ui_dict.dart';
 import '../../../core/utils/enum_types.dart';
 import '../../../core/utils/number_utils.dart';
 import '../../../models/bill_model.dart';
 import '../../../models/debt_model.dart';
+import '../../../models/transaction_detail_model.dart';
+import '../../../models/transaction_model.dart';
+import '../../../models/wallet_model.dart';
 import '../../../widgets/custom_button.dart';
+import '../../../widgets/custom_date_time_picker.dart';
 
 class AddDebtModal extends StatefulWidget {
   final DebtModel? initialDebt;
@@ -25,17 +31,27 @@ class _AddDebtModalState extends State<AddDebtModal> {
   final _titleController = TextEditingController();
   final _totalAmountController = TextEditingController();
   final _paidAmountController = TextEditingController(text: '0');
-
   final _installmentController = TextEditingController();
+  final _adminFeeController = TextEditingController(text: '0');
 
   DebtType _selectedType = DebtType.other;
   bool _createBill = false;
   TimeType _billFrequency = TimeType.monthly;
   int _billDay = 1;
 
+  bool _generateTransaction = true;
+  DateTime _transactionDate = DateTime.now();
+  bool _hasAdminFee = false;
+  WalletModel? _selectedWallet;
+  late List<WalletModel> _allWallets;
+
   @override
   void initState() {
     super.initState();
+    _allWallets = context.read<WalletController>().allWallets;
+    if (_allWallets.isNotEmpty) {
+      _selectedWallet = _allWallets.first;
+    }
     final initialValue = widget.initialDebt;
     if (initialValue != null) {
       _titleController.text = initialValue.title;
@@ -68,6 +84,7 @@ class _AddDebtModalState extends State<AddDebtModal> {
     _totalAmountController.dispose();
     _paidAmountController.dispose();
     _installmentController.dispose();
+    _adminFeeController.dispose();
     super.dispose();
   }
 
@@ -97,7 +114,47 @@ class _AddDebtModalState extends State<AddDebtModal> {
         bill: bill,
       );
 
-      Navigator.pop(context, debt);
+      TransactionModel? transaction;
+      if (widget.initialDebt == null && _generateTransaction) {
+        final totalAmount = NumberUtils.parseToDecimal(
+          _totalAmountController.text,
+        );
+        final adminFee = _hasAdminFee
+            ? NumberUtils.parseToDecimal(_adminFeeController.text)
+            : null;
+
+        final details = <TransactionDetailModel>[
+          TransactionDetailModel(
+            title: _titleController.text.trim(),
+            amount: totalAmount,
+            flow: FlowType.income,
+            category: TransactionCategory.loanDisbursement,
+          ),
+        ];
+        if (adminFee != null && adminFee > Decimal.zero) {
+          details.add(
+            TransactionDetailModel(
+              title: UiDict.feeAmount,
+              amount: adminFee,
+              flow: FlowType.expense,
+              category: TransactionCategory.utilities,
+            ),
+          );
+        }
+
+        transaction = TransactionModel(
+          type: TransactionType.income,
+          title:
+              '${ScreenDict.debtsMaster.get(false)}: ${_titleController.text.trim()}',
+          amount: totalAmount,
+          status: StatusType.paid,
+          dateTimestamp: _transactionDate.millisecondsSinceEpoch,
+          detailTransaction: details,
+          walletId: _selectedWallet?.id,
+        );
+      }
+
+      Navigator.pop(context, {'debt': debt, 'transaction': transaction});
     }
   }
 
@@ -131,7 +188,7 @@ class _AddDebtModalState extends State<AddDebtModal> {
                   height: 4,
                   margin: const EdgeInsets.only(bottom: 16),
                   decoration: BoxDecoration(
-                    color: colorScheme.onSurface.withOpacity(0.2),
+                    color: colorScheme.onSurface.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(4),
                   ),
                 ),
@@ -286,6 +343,102 @@ class _AddDebtModalState extends State<AddDebtModal> {
                     ),
                   ],
                 ),
+              ],
+
+              if (widget.initialDebt == null) ...[
+                const SizedBox(height: 8),
+                const Divider(),
+                SwitchListTile(
+                  contentPadding: EdgeInsets.zero,
+                  title: Text(
+                    ScreenDict.debtGenerateIncome.get(isRpg),
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  subtitle: Text(
+                    ScreenDict.getDebtGenerateIncomeDesc(isRpg: isRpg),
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                  value: _generateTransaction,
+                  onChanged: (val) =>
+                      setState(() => _generateTransaction = val),
+                ),
+                if (_generateTransaction) ...[
+                  const SizedBox(height: 8),
+                  CustomDateTimePicker(
+                    initialDate: _transactionDate,
+                    label: ScreenDict.historyTime.get(isRpg),
+                    onChanged: (d) => setState(() => _transactionDate = d),
+                  ),
+
+                  const SizedBox(height: 12),
+                  DropdownButtonFormField<WalletModel>(
+                    initialValue: _selectedWallet,
+                    decoration: const InputDecoration(
+                      labelText: UiDict.destinationWallet,
+                      border: OutlineInputBorder(),
+                    ),
+                    items: _allWallets.map((wallet) {
+                      return DropdownMenuItem(
+                        value: wallet,
+                        child: Text(
+                          context.read<WalletController>().getDisplayName(
+                            wallet,
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                    validator: (value) {
+                      if (_generateTransaction &&
+                          (value == null ||
+                              value.id == null ||
+                              value.id == 0)) {
+                        return UiDict.requiredWalletDest;
+                      }
+                      return null;
+                    },
+                    onChanged: (val) => setState(() => _selectedWallet = val),
+                  ),
+                  const SizedBox(height: 8),
+                  SwitchListTile(
+                    contentPadding: EdgeInsets.zero,
+                    title: const Text(
+                      UiDict.feeCheck,
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    subtitle: Text(
+                      'Biaya administrasi atau potongan dari pemberi pinjaman.',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                    value: _hasAdminFee,
+                    onChanged: (val) => setState(() => _hasAdminFee = val),
+                  ),
+                  if (_hasAdminFee) ...[
+                    const SizedBox(height: 8),
+                    TextFormField(
+                      controller: _adminFeeController,
+                      keyboardType: TextInputType.number,
+                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                      decoration: const InputDecoration(
+                        labelText: UiDict.feeAmount,
+                        prefixText: 'Rp ',
+                        border: OutlineInputBorder(),
+                      ),
+                      onChanged: (val) =>
+                          NumberUtils.formatInput(_adminFeeController, val),
+                      validator: (val) =>
+                          _hasAdminFee &&
+                              (val == null || !NumberUtils.isValidAmount(val))
+                          ? UiDict.requiredFee
+                          : null,
+                    ),
+                  ],
+                ],
               ],
 
               const SizedBox(height: 32),

@@ -23,9 +23,11 @@ class DetailCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    double percentage = NumberUtils.calculatePercentage(
+    double progress = NumberUtils.calculateProgres(data.amount, activeTotal);
+    String percentage = NumberUtils.calculateStrPercentage(
       data.amount,
       activeTotal,
+      fractionDigits: 2,
     );
 
     return Container(
@@ -33,12 +35,12 @@ class DetailCard extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: isSelected
-            ? data.getColor(context).withOpacity(0.1)
+            ? data.getColor(context).withValues(alpha: 0.1)
             : colorScheme.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: isSelected
-              ? data.getColor(context).withOpacity(0.5)
+              ? data.getColor(context).withValues(alpha: 0.5)
               : Colors.transparent,
         ),
       ),
@@ -48,7 +50,7 @@ class DetailCard extends StatelessWidget {
             children: [
               CircleAvatar(
                 radius: 16,
-                backgroundColor: data.getColor(context).withOpacity(0.2),
+                backgroundColor: data.getColor(context).withValues(alpha: 0.2),
                 child: FaIcon(
                   data.icon(isRpg),
                   color: data.getColor(context),
@@ -77,7 +79,7 @@ class DetailCard extends StatelessWidget {
               SizedBox(
                 width: 40,
                 child: Text(
-                  '${(percentage).toStringAsFixed(1)}%',
+                  '$percentage%',
                   style: TextStyle(
                     fontSize: 10,
                     color: data.getColor(context),
@@ -89,7 +91,7 @@ class DetailCard extends StatelessWidget {
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(4),
                   child: LinearProgressIndicator(
-                    value: percentage,
+                    value: progress,
                     backgroundColor: theme.scaffoldBackgroundColor,
                     color: data.getColor(context),
                     minHeight: 6,

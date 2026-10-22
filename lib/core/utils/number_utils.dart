@@ -166,4 +166,15 @@ class NumberUtils {
 
     return result.toStringAsFixed(fractionDigits);
   }
+
+  static double calculateProgres(dynamic amount, dynamic total) {
+    Decimal decAmount = _toDecimal(amount);
+    Decimal decTotal = _toDecimal(total);
+
+    if (decTotal <= Decimal.zero || decAmount <= Decimal.zero) {
+      return 0.0;
+    }
+
+    return (decAmount.toDouble() / decTotal.toDouble()).clamp(0.0, 1.0);
+  }
 }

@@ -8,6 +8,7 @@ import '../../../controllers/skill_controller.dart';
 import '../../../core/constants/ui_dict.dart';
 import '../../../core/utils/global_messenger.dart';
 import '../../../widgets/custom_button.dart';
+import '../../../widgets/responsive_container.dart';
 
 class AuthScreen extends StatelessWidget {
   const AuthScreen({super.key});
@@ -40,72 +41,79 @@ class AuthScreen extends StatelessWidget {
 
     return Scaffold(
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 32.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'FinTale',
-                style: TextStyle(
-                  fontFamily: 'Montserrat',
-                  color: colorScheme.primary,
-                  fontWeight: FontWeight.w900,
-                  fontSize: 34.0,
-                  letterSpacing: 2.0,
-                ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                UiDict.authJourney,
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: colorScheme.onSurfaceVariant,
-                ),
-              ),
-
-              const Spacer(flex: 1),
-              Center(
-                child: SizedBox(
-                  width: screenHeight * 0.4,
-                  height: screenHeight * 0.4,
-                  child: SvgPicture.asset(
-                    'assets/images/in_app_icon.svg',
-                    fit: BoxFit.contain,
+        child: ResponsiveContainer(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: 24.0,
+              vertical: 32.0,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'FinTale',
+                  style: TextStyle(
+                    fontFamily: 'Montserrat',
+                    color: colorScheme.primary,
+                    fontWeight: FontWeight.w900,
+                    fontSize: 34.0,
+                    letterSpacing: 2.0,
                   ),
                 ),
-              ),
-
-              const Spacer(flex: 1),
-              Text(
-                UiDict.authWelcome,
-                style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: colorScheme.onSurface,
+                const SizedBox(height: 4),
+                Text(
+                  UiDict.authJourney,
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: colorScheme.onSurfaceVariant,
+                  ),
                 ),
-              ),
-              const Spacer(flex: 1),
-              Text(
-                UiDict.authDesc,
-                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                  color: colorScheme.onSurfaceVariant,
-                  height: 1.5,
-                ),
-              ),
-              const Spacer(flex: 2),
 
-              if (authController.isLoading)
+                const Spacer(flex: 1),
                 Center(
-                  child: CircularProgressIndicator(color: colorScheme.primary),
-                )
-              else
-                CustomButton(
-                  title: UiDict.authSkip,
-                  color: colorScheme.primary,
-                  icon: FontAwesomeIcons.khanda,
-                  onTap: () => _loginHandle(context),
+                  child: SizedBox(
+                    width: screenHeight * 0.4,
+                    height: screenHeight * 0.4,
+                    child: SvgPicture.asset(
+                      'assets/images/in_app_icon.svg',
+                      fit: BoxFit.contain,
+                    ),
+                  ),
                 ),
-              const SizedBox(height: 16),
-            ],
+
+                const Spacer(flex: 1),
+                Text(
+                  UiDict.authWelcome,
+                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: colorScheme.onSurface,
+                  ),
+                ),
+                const Spacer(flex: 1),
+                Text(
+                  UiDict.authDesc,
+                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                    color: colorScheme.onSurfaceVariant,
+                    height: 1.5,
+                  ),
+                ),
+                const Spacer(flex: 2),
+
+                if (authController.isLoading)
+                  Center(
+                    child: CircularProgressIndicator(
+                      color: colorScheme.primary,
+                    ),
+                  )
+                else
+                  CustomButton(
+                    title: UiDict.authSkip,
+                    color: colorScheme.primary,
+                    icon: FontAwesomeIcons.khanda,
+                    onTap: () => _loginHandle(context),
+                  ),
+                const SizedBox(height: 16),
+              ],
+            ),
           ),
         ),
       ),

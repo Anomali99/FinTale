@@ -20,9 +20,9 @@ class CustomTabBar extends StatelessWidget {
         indicatorSize: TabBarIndicatorSize.tab,
         dividerColor: Colors.transparent,
         indicator: BoxDecoration(
-          color: colorScheme.primary.withOpacity(0.2),
+          color: colorScheme.primary.withValues(alpha: 0.2),
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: colorScheme.primary.withOpacity(0.5)),
+          border: Border.all(color: colorScheme.primary.withValues(alpha: 0.5)),
         ),
         labelColor: colorScheme.primary,
         labelStyle: const TextStyle(

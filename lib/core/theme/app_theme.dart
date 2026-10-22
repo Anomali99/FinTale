@@ -34,6 +34,12 @@ class AppTheme {
         bodyMedium: TextStyle(color: AppColors.textDark),
         bodySmall: TextStyle(color: AppColors.textSecondaryDark),
       ),
+      bottomSheetTheme: const BottomSheetThemeData(
+        constraints: BoxConstraints(maxWidth: 600),
+      ),
+      dialogTheme: const DialogThemeData(
+        constraints: BoxConstraints(maxWidth: 600),
+      ),
     );
   }
 
@@ -45,9 +51,13 @@ class AppTheme {
       colorScheme: const ColorScheme.light(
         primary: AppColors.primaryLight,
         onPrimary: Colors.white,
+        secondary: Color(0xFFDAC07A),
+        onSecondary: Color(0xFF3E2C00),
         surface: AppColors.surfaceLight,
         onSurface: AppColors.textLight,
         surfaceContainerHighest: AppColors.surfaceVariantLight,
+        onSurfaceVariant: AppColors.textSecondaryLight,
+        outline: Color(0xFFD4CBBE),
         error: AppColors.error,
       ),
       appBarTheme: const AppBarTheme(
@@ -62,11 +72,24 @@ class AppTheme {
       ),
       cardTheme: CardThemeData(
         color: AppColors.surfaceLight,
+        elevation: 1,
+        shadowColor: const Color(0x1A000000),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       ),
       textTheme: const TextTheme(
         bodyMedium: TextStyle(color: AppColors.textLight),
         bodySmall: TextStyle(color: AppColors.textSecondaryLight),
+      ),
+      bottomSheetTheme: const BottomSheetThemeData(
+        constraints: BoxConstraints(maxWidth: 600),
+      ),
+      bottomAppBarTheme: const BottomAppBarThemeData(
+        color: AppColors.surfaceLight,
+        elevation: 8,
+        shadowColor: Color(0x1A000000),
+      ),
+      dialogTheme: const DialogThemeData(
+        constraints: BoxConstraints(maxWidth: 600),
       ),
     );
   }

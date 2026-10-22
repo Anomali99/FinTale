@@ -6,6 +6,7 @@ import '../../../controllers/settings_controller.dart';
 import '../../../core/constants/ui_dict.dart';
 import '../../../core/utils/global_messenger.dart';
 import '../../../core/utils/hash_helper.dart';
+import '../../../widgets/responsive_container.dart';
 
 enum PinStep { enterOld, enterNew, confirmNew }
 
@@ -115,8 +116,8 @@ class _CreatePinScreenState extends State<CreatePinScreen> {
     } else {
       GlobalMessenger.showMessage(
         context,
-        message: UiDict.confirmPinWorng,
-        isSuccess: true,
+        message: UiDict.confirmPinWrong,
+        isSuccess: false,
       );
 
       setState(() {
@@ -176,100 +177,105 @@ class _CreatePinScreenState extends State<CreatePinScreen> {
         ),
       ),
       body: SafeArea(
-        child: Column(
-          children: [
-            const SizedBox(height: 24),
-            Text(
-              _currentTitle,
-              style: TextStyle(
-                fontFamily: 'Poppins',
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: colorScheme.onSurface,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              _currentSubtitle,
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 14,
-                color: colorScheme.onSurfaceVariant,
-              ),
-            ),
-            const SizedBox(height: 48),
-
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: List.generate(6, (index) {
-                bool isFilled = index < _currentInputText.length;
-                return AnimatedContainer(
-                  duration: const Duration(milliseconds: 150),
-                  margin: const EdgeInsets.symmetric(horizontal: 12),
-                  width: 16,
-                  height: 16,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: isFilled
-                        ? colorScheme.primary
-                        : colorScheme.onSurface.withOpacity(0.1),
-                    border: Border.all(
-                      color: isFilled
-                          ? colorScheme.primary
-                          : colorScheme.onSurfaceVariant.withOpacity(0.3),
-                      width: 1.5,
-                    ),
-                  ),
-                );
-              }),
-            ),
-
-            const Spacer(),
-
-            if (_currentStep == PinStep.enterOld &&
-                widget.userEmail != null &&
-                widget.userEmail!.isNotEmpty)
-              TextButton(
-                onPressed: () {
-                  /* TODO: Implement Send OTP*/
-                },
-                child: Text(
-                  UiDict.forgotPin,
-                  style: TextStyle(
-                    color: colorScheme.primary,
-                    fontWeight: FontWeight.bold,
-                  ),
+        child: ResponsiveContainer(
+          child: Column(
+            children: [
+              const SizedBox(height: 24),
+              Text(
+                _currentTitle,
+                style: TextStyle(
+                  fontFamily: 'Poppins',
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: colorScheme.onSurface,
                 ),
               ),
-
-            if (!(_currentStep == PinStep.enterOld &&
-                widget.userEmail != null &&
-                widget.userEmail!.isNotEmpty))
+              const SizedBox(height: 8),
+              Text(
+                _currentSubtitle,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 14,
+                  color: colorScheme.onSurfaceVariant,
+                ),
+              ),
               const SizedBox(height: 48),
 
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 24),
-              child: Column(
-                children: [
-                  _buildNumpadRow(['1', '2', '3']),
-                  const SizedBox(height: 20),
-                  _buildNumpadRow(['4', '5', '6']),
-                  const SizedBox(height: 20),
-                  _buildNumpadRow(['7', '8', '9']),
-                  const SizedBox(height: 20),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const SizedBox(width: 68, height: 68),
-                      _buildNumberButton('0'),
-                      _buildBackButton(),
-                    ],
-                  ),
-                ],
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: List.generate(6, (index) {
+                  bool isFilled = index < _currentInputText.length;
+                  return AnimatedContainer(
+                    duration: const Duration(milliseconds: 150),
+                    margin: const EdgeInsets.symmetric(horizontal: 12),
+                    width: 16,
+                    height: 16,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: isFilled
+                          ? colorScheme.primary
+                          : colorScheme.onSurface.withValues(alpha: 0.1),
+                      border: Border.all(
+                        color: isFilled
+                            ? colorScheme.primary
+                            : colorScheme.onSurfaceVariant.withValues(
+                                alpha: 0.3,
+                              ),
+                        width: 1.5,
+                      ),
+                    ),
+                  );
+                }),
               ),
-            ),
-            const SizedBox(height: 24),
-          ],
+
+              const Spacer(),
+
+              if (_currentStep == PinStep.enterOld &&
+                  widget.userEmail != null &&
+                  widget.userEmail!.isNotEmpty)
+                TextButton(
+                  onPressed: () {},
+                  child: Text(
+                    UiDict.forgotPin,
+                    style: TextStyle(
+                      color: colorScheme.primary,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+
+              if (!(_currentStep == PinStep.enterOld &&
+                  widget.userEmail != null &&
+                  widget.userEmail!.isNotEmpty))
+                const SizedBox(height: 48),
+
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 40,
+                  vertical: 24,
+                ),
+                child: Column(
+                  children: [
+                    _buildNumpadRow(['1', '2', '3']),
+                    const SizedBox(height: 20),
+                    _buildNumpadRow(['4', '5', '6']),
+                    const SizedBox(height: 20),
+                    _buildNumpadRow(['7', '8', '9']),
+                    const SizedBox(height: 20),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const SizedBox(width: 68, height: 68),
+                        _buildNumberButton('0'),
+                        _buildBackButton(),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 24),
+            ],
+          ),
         ),
       ),
     );
@@ -278,7 +284,7 @@ class _CreatePinScreenState extends State<CreatePinScreen> {
   Widget _buildNumpadRow(List<String> numbers) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: numbers.map((num) => _buildNumberButton(num)).toList(),
+      children: numbers.map((n) => _buildNumberButton(n)).toList(),
     );
   }
 
@@ -293,7 +299,7 @@ class _CreatePinScreenState extends State<CreatePinScreen> {
         height: 68,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          color: colorScheme.surfaceContainerHighest.withOpacity(0.5),
+          color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
         ),
         child: Center(
           child: Text(
@@ -322,7 +328,7 @@ class _CreatePinScreenState extends State<CreatePinScreen> {
         child: Center(
           child: FaIcon(
             FontAwesomeIcons.deleteLeft,
-            color: colorScheme.onSurface.withOpacity(0.8),
+            color: colorScheme.onSurface.withValues(alpha: 0.8),
             size: 22,
           ),
         ),

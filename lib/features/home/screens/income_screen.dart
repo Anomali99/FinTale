@@ -5,7 +5,6 @@ import 'package:provider/provider.dart';
 
 import '../../../controllers/settings_controller.dart';
 import '../../../controllers/wallet_controller.dart';
-import '../../../core/constants/category_dict.dart';
 import '../../../core/constants/gamification_dict.dart';
 import '../../../core/constants/screen_dict.dart';
 import '../../../core/constants/ui_dict.dart';
@@ -16,8 +15,10 @@ import '../../../models/transaction_detail_model.dart';
 import '../../../models/transaction_model.dart';
 import '../../../models/wallet_model.dart';
 import '../../../widgets/custom_button.dart';
+import '../../../widgets/custom_category_input.dart';
 import '../../../widgets/custom_date_time_picker.dart';
 import '../../../widgets/note_container.dart';
+import '../../../widgets/responsive_container.dart';
 
 class IncomeScreen extends StatefulWidget {
   final Map<Enum, double>? allocation;
@@ -42,7 +43,7 @@ class _IncomeScreenState extends State<IncomeScreen> {
   TransactionCategory? _selectedCategory;
   bool _isFeeActive = false;
   bool _isAllocationActive = false;
-  bool _isReservedActive = false;
+  bool _isSavingsActive = false;
 
   Decimal get _cleanAmount =>
       NumberUtils.parseToDecimal(_amountController.text);
@@ -58,8 +59,6 @@ class _IncomeScreenState extends State<IncomeScreen> {
   }
 
   Decimal? get _maxAmount {
-    if (_isReservedActive) return _selectedWallet?.reservedAmount;
-
     if (widget.isTransfer && _selectedWallet != null) {
       return _selectedWallet?.amount;
     }
@@ -96,7 +95,7 @@ class _IncomeScreenState extends State<IncomeScreen> {
         amount -= _cleanFee;
         details.add(
           TransactionDetailModel(
-            title: 'Fee',
+            title: UiDict.feeAmount,
             amount: _cleanFee,
             category: TransactionCategory.utilities,
             flow: FlowType.expense,
@@ -120,7 +119,7 @@ class _IncomeScreenState extends State<IncomeScreen> {
       Navigator.pop(context, {
         "transaction": transaction,
         "auto_allocation": _isAllocationActive,
-        "use_reserved": _isReservedActive,
+        "use_reserved": _isSavingsActive,
       });
     }
   }
@@ -151,7 +150,7 @@ class _IncomeScreenState extends State<IncomeScreen> {
     final settingsController = context.read<SettingsController>();
     final walletController = context.read<WalletController>();
     final colorScheme = Theme.of(context).colorScheme;
-    final wallets = walletController.wallets;
+    final wallets = walletController.allWallets;
     final isRpg = settingsController.isRpgMode;
 
     return Scaffold(
@@ -174,318 +173,379 @@ class _IncomeScreenState extends State<IncomeScreen> {
       bottomNavigationBar: _buildBottomBar(isRpg),
       body: Form(
         key: _formKey,
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.all(24.0),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                TextFormField(
-                  controller: _titleController,
-                  decoration: const InputDecoration(
-                    labelText: UiDict.title,
-                    border: OutlineInputBorder(),
-                  ),
-                  validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return UiDict.requiredTitle;
-                    }
-                    return null;
-                  },
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final isWide = constraints.maxWidth >= 700;
+
+            final titleField = TextFormField(
+              controller: _titleController,
+              decoration: const InputDecoration(
+                labelText: UiDict.title,
+                border: OutlineInputBorder(),
+              ),
+              validator: (value) {
+                if (value == null || value.trim().isEmpty) {
+                  return UiDict.requiredTitle;
+                }
+                return null;
+              },
+            );
+
+            final displayWallets = widget.isTransfer
+                ? (_isSavingsActive
+                      ? wallets
+                      : wallets.where((w) => !w.isSavings).toList())
+                : wallets;
+
+            final walletDropdown = DropdownButtonFormField<WalletModel>(
+              initialValue: _selectedWallet,
+              decoration: InputDecoration(
+                labelText: widget.isTransfer
+                    ? UiDict.originWallet
+                    : UiDict.saveTo,
+                border: OutlineInputBorder(),
+              ),
+              items: displayWallets.map((wallet) {
+                return DropdownMenuItem(
+                  value: wallet,
+                  child: Text(walletController.getDisplayName(wallet)),
+                );
+              }).toList(),
+              validator: (value) {
+                if (value == null || value.id == 0) {
+                  return UiDict.requiredWallet;
+                }
+                return null;
+              },
+              onChanged: (val) {
+                if (_selectedTarget == val) _selectedTarget = null;
+                setState(() => _selectedWallet = val);
+                _onChanged(
+                  _amountController,
+                  _amountController.text,
+                  max: _maxAmount,
+                );
+                _onChanged(
+                  _feeController,
+                  _feeController.text,
+                  max: NumberUtils.parseToDecimal(_amountController.text),
+                );
+              },
+            );
+
+            final targetWalletDropdown = DropdownButtonFormField<WalletModel>(
+              initialValue: _selectedTarget,
+              decoration: InputDecoration(
+                labelText: UiDict.destinationWallet,
+                border: OutlineInputBorder(),
+              ),
+              items: wallets.where((e) => e.id != _selectedWallet?.id).map((
+                wallet,
+              ) {
+                return DropdownMenuItem(
+                  value: wallet,
+                  child: Text(walletController.getDisplayName(wallet)),
+                );
+              }).toList(),
+              validator: (value) {
+                if (widget.isTransfer && (value == null || value.id == 0)) {
+                  return UiDict.requiredWalletDest;
+                }
+                return null;
+              },
+              onChanged: (val) => setState(() => _selectedTarget = val),
+            );
+
+            final datePicker = CustomDateTimePicker(
+              initialDate: _selectedDate,
+              label: ScreenDict.historyTime.get(isRpg),
+              onChanged: (newDate) {
+                setState(() {
+                  _selectedDate = newDate;
+                });
+              },
+            );
+
+            final amountField = TextFormField(
+              controller: _amountController,
+              keyboardType: TextInputType.number,
+              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+              decoration: InputDecoration(
+                labelText:
+                    '${UiDict.amount} ${widget.isTransfer ? UiDict.transfer.get(false) : UiDict.income.get(false)}',
+                prefixText: 'Rp ',
+                border: OutlineInputBorder(),
+              ),
+              validator: (value) {
+                if (value == null || value.isEmpty || value == '0') {
+                  return UiDict.requiredAmount;
+                }
+                return null;
+              },
+              onChanged: (value) {
+                _onChanged(_amountController, value, max: _maxAmount);
+                _onChanged(
+                  _feeController,
+                  _feeController.text,
+                  max: NumberUtils.parseToDecimal(_amountController.text),
+                );
+              },
+            );
+
+            final categoryDropdown = CustomCategoryInput(
+              type: CategoryType.income,
+              selectedCategory: _selectedCategory,
+              validator: (cat) => cat == null ? UiDict.requiredCategory : null,
+              onChanged: (cat) => setState(() => _selectedCategory = cat),
+            );
+
+            final feeSwitch = SwitchListTile(
+              contentPadding: EdgeInsets.zero,
+              title: const Text(
+                UiDict.feeCheck,
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              subtitle: Text(
+                ScreenDict.getFeeCheckDesc(
+                  isIncome: !widget.isTransfer,
+                  isRpg: isRpg,
                 ),
-                const SizedBox(height: 16),
-
-                DropdownButtonFormField<WalletModel>(
-                  initialValue: _selectedWallet,
-                  decoration: InputDecoration(
-                    labelText: widget.isTransfer
-                        ? UiDict.originWallet
-                        : UiDict.saveTo,
-                    border: OutlineInputBorder(),
-                  ),
-                  items: wallets.map((wallet) {
-                    return DropdownMenuItem(
-                      value: wallet,
-                      child: Text(wallet.name),
-                    );
-                  }).toList(),
-                  validator: (value) {
-                    if (value == null || value.id == 0) {
-                      return UiDict.requiredWallet;
-                    }
-                    return null;
-                  },
-                  onChanged: (val) {
-                    if (_selectedTarget == val) _selectedTarget = null;
-                    setState(() => _selectedWallet = val);
-                    _onChanged(
-                      _amountController,
-                      _amountController.text,
-                      max: _maxAmount,
-                    );
-                    _onChanged(
-                      _feeController,
-                      _feeController.text,
-                      max: NumberUtils.parseToDecimal(_amountController.text),
-                    );
-                  },
+                style: TextStyle(
+                  fontSize: 12,
+                  color: colorScheme.onSurfaceVariant,
                 ),
-                const SizedBox(height: 16),
+              ),
+              value: _isFeeActive,
+              onChanged: (val) => setState(() => _isFeeActive = val),
+            );
 
-                if (widget.isTransfer) ...[
-                  DropdownButtonFormField<WalletModel>(
-                    initialValue: _selectedTarget,
-                    decoration: InputDecoration(
-                      labelText: UiDict.destinationWallet,
-                      border: OutlineInputBorder(),
-                    ),
-                    items: wallets
-                        .where((e) => e.id != _selectedWallet?.id)
-                        .map((wallet) {
-                          return DropdownMenuItem(
-                            value: wallet,
-                            child: Text(wallet.name),
-                          );
-                        })
-                        .toList(),
-                    validator: (value) {
-                      if (widget.isTransfer &&
-                          (value == null || value.id == 0)) {
-                        return UiDict.requiredWalletDest;
-                      }
-                      return null;
-                    },
-                    onChanged: (val) => setState(() => _selectedTarget = val),
-                  ),
-                  const SizedBox(height: 16),
-                ],
+            final feeField = TextFormField(
+              controller: _feeController,
+              keyboardType: TextInputType.number,
+              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+              decoration: InputDecoration(
+                labelText: UiDict.feeAmount,
+                prefixText: 'Rp ',
+                border: OutlineInputBorder(),
+              ),
+              validator: (value) {
+                if (_isFeeActive &&
+                    (value == null || value.isEmpty || value == '0')) {
+                  return UiDict.requiredFee;
+                }
+                return null;
+              },
+              onChanged: (value) => _onChanged(
+                _feeController,
+                value,
+                max: NumberUtils.parseToDecimal(_amountController.text),
+              ),
+            );
 
-                CustomDateTimePicker(
-                  initialDate: _selectedDate,
-                  label: ScreenDict.historyTime.get(isRpg),
-                  onChanged: (newDate) {
-                    setState(() {
-                      _selectedDate = newDate;
-                    });
-                  },
+            final feeNote = NoteContainer(
+              text:
+                  "Note: ${ScreenDict.getFeeCheckDesc(isIncome: !widget.isTransfer, isRpg: isRpg)}",
+              color: colorScheme.onSurfaceVariant,
+            );
+
+            final reservedSwitch = SwitchListTile(
+              contentPadding: EdgeInsets.zero,
+              title: Text(
+                ScreenDict.getReservedCheck(isRpg: isRpg),
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              subtitle: Text(
+                ScreenDict.getReservedCheckDesc(isRpg: isRpg),
+                style: TextStyle(
+                  fontSize: 12,
+                  color: colorScheme.onSurfaceVariant,
                 ),
-                const SizedBox(height: 16),
+              ),
+              value: _isSavingsActive,
+              onChanged: (val) => setState(() {
+                _isSavingsActive = val;
+                if (!val &&
+                    _selectedWallet != null &&
+                    _selectedWallet!.isSavings) {
+                  _selectedWallet = null;
+                }
+                if (!val &&
+                    _selectedTarget != null &&
+                    _selectedTarget!.isSavings) {
+                  _selectedTarget = null;
+                }
+              }),
+            );
 
-                TextFormField(
-                  controller: _amountController,
-                  keyboardType: TextInputType.number,
-                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                  decoration: InputDecoration(
-                    labelText:
-                        '${UiDict.amount} ${widget.isTransfer ? UiDict.transfer.get(false) : UiDict.income.get(false)}',
-                    prefixText: 'Rp ',
-                    border: OutlineInputBorder(),
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty || value == '0') {
-                      return UiDict.requiredAmount;
-                    }
-                    return null;
-                  },
-                  onChanged: (value) {
-                    _onChanged(_amountController, value, max: _maxAmount);
-                    _onChanged(
-                      _feeController,
-                      _feeController.text,
-                      max: NumberUtils.parseToDecimal(_amountController.text),
-                    );
-                  },
+            final allocationSwitch = SwitchListTile(
+              contentPadding: EdgeInsets.zero,
+              title: Text(
+                UiDict.autoCheck,
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              subtitle: Text(
+                UiDict.autoCheckDesc,
+                style: TextStyle(
+                  fontSize: 12,
+                  color: colorScheme.onSurfaceVariant,
                 ),
-                const SizedBox(height: 16),
+              ),
+              value: _isAllocationActive,
+              onChanged: (val) => setState(() => _isAllocationActive = val),
+            );
 
-                if (!widget.isTransfer) ...[
-                  DropdownButtonFormField<TransactionCategory>(
-                    initialValue: _selectedCategory,
-                    decoration: InputDecoration(
-                      labelText: UiDict.category,
-                      border: OutlineInputBorder(),
-                    ),
-                    items: [
-                      DropdownMenuItem(
-                        value: TransactionCategory.loanDisbursement,
-                        child: Text(CategoryDict.loanDisbursement.get(false)),
-                      ),
-                      DropdownMenuItem(
-                        value: TransactionCategory.business,
-                        child: Text(CategoryDict.business.get(false)),
-                      ),
-                      DropdownMenuItem(
-                        value: TransactionCategory.salary,
-                        child: Text(CategoryDict.salary.get(false)),
-                      ),
-                    ],
-                    validator: (value) {
-                      if (value == null && !widget.isTransfer) {
-                        return UiDict.requiredCategory;
-                      }
-                      return null;
-                    },
-                    onChanged: (val) => setState(() => _selectedCategory = val),
-                  ),
-                  const SizedBox(height: 16),
-                ],
-
-                SwitchListTile(
-                  contentPadding: EdgeInsets.zero,
-                  title: const Text(
-                    UiDict.feeCheck,
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  subtitle: Text(
-                    ScreenDict.getFeeCheckDesc(
-                      isIncome: !widget.isTransfer,
-                      isRpg: isRpg,
-                    ),
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: colorScheme.onSurfaceVariant,
-                    ),
-                  ),
-                  value: _isFeeActive,
-                  onChanged: (val) => setState(() => _isFeeActive = val),
+            final allocationBreakdown = Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: colorScheme.surfaceContainerHighest,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: colorScheme.primary.withValues(alpha: 0.3),
                 ),
-
-                if (_isFeeActive) ...[
-                  const SizedBox(height: 8),
-                  TextFormField(
-                    controller: _feeController,
-                    keyboardType: TextInputType.number,
-                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                    decoration: InputDecoration(
-                      labelText: UiDict.feeAmount,
-                      prefixText: 'Rp ',
-                      border: OutlineInputBorder(),
-                    ),
-                    validator: (value) {
-                      if (_isFeeActive &&
-                          (value == null || value.isEmpty || value == '0')) {
-                        return UiDict.requiredFee;
-                      }
-                      return null;
-                    },
-                    onChanged: (value) => _onChanged(
-                      _feeController,
-                      value,
-                      max: NumberUtils.parseToDecimal(_amountController.text),
-                    ),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    ScreenDict.homeBreakdown.get(isRpg),
+                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 12),
-                  NoteContainer(
-                    text:
-                        "Note: ${ScreenDict.getFeeCheckDesc(isIncome: !widget.isTransfer, isRpg: isRpg)}",
-                    color: colorScheme.onSurfaceVariant,
+                  Divider(
+                    height: 1,
+                    color: colorScheme.onSurface.withValues(alpha: 0.2),
                   ),
-                ],
+                  const SizedBox(height: 12),
 
-                const SizedBox(height: 12),
-
-                if (widget.isTransfer) ...[
-                  SwitchListTile(
-                    contentPadding: EdgeInsets.zero,
-                    title: Text(
-                      ScreenDict.getReservedCheck(isRpg: isRpg),
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    subtitle: Text(
-                      ScreenDict.getReservedCheckDesc(isRpg: isRpg),
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: colorScheme.onSurfaceVariant,
-                      ),
-                    ),
-                    value: _isReservedActive,
-                    onChanged: (val) => setState(() {
-                      if (_selectedWallet != null) {
-                        _isReservedActive = val;
-                        _onChanged(
-                          _amountController,
-                          _amountController.text,
-                          max: _selectedWallet?.reservedAmount,
-                        );
-                        _onChanged(
-                          _feeController,
-                          _feeController.text,
-                          max: NumberUtils.parseToDecimal(
-                            _amountController.text,
-                          ),
-                        );
-                      }
-                    }),
-                  ),
-                ] else ...[
-                  SwitchListTile(
-                    contentPadding: EdgeInsets.zero,
-                    title: Text(
-                      UiDict.autoCheck,
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    subtitle: Text(
-                      UiDict.autoCheckDesc,
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: colorScheme.onSurfaceVariant,
-                      ),
-                    ),
-                    value: _isAllocationActive,
-                    onChanged: (val) =>
-                        setState(() => _isAllocationActive = val),
-                  ),
-
-                  if (_isAllocationActive) ...[
-                    const SizedBox(height: 12),
-
-                    Container(
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: colorScheme.surfaceContainerHighest,
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(
-                          color: colorScheme.primary.withOpacity(0.3),
-                        ),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            ScreenDict.homeBreakdown.get(isRpg),
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const SizedBox(height: 12),
-                          Divider(
-                            height: 1,
-                            color: colorScheme.onSurface.withOpacity(0.2),
-                          ),
-                          const SizedBox(height: 12),
-
-                          if (widget.allocation != null &&
-                              !widget.isTransfer) ...[
-                            ...widget.allocation!.entries.map(
-                              (entry) => Padding(
-                                padding: const EdgeInsets.only(bottom: 8.0),
-                                child: _buildAllocationRow(
-                                  entry.key,
-                                  entry.value,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ],
+                  if (widget.allocation != null && !widget.isTransfer) ...[
+                    ...widget.allocation!.entries.map(
+                      (entry) => Padding(
+                        padding: const EdgeInsets.only(bottom: 8.0),
+                        child: _buildAllocationRow(entry.key, entry.value),
                       ),
                     ),
                   ],
                 ],
-              ],
-            ),
-          ),
+              ),
+            );
+
+            if (isWide) {
+              return SingleChildScrollView(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        flex: 5,
+                        child: ListView(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          padding: const EdgeInsets.only(
+                            top: 24,
+                            bottom: 24,
+                            right: 12,
+                          ),
+                          children: [
+                            titleField,
+                            const SizedBox(height: 16),
+                            walletDropdown,
+                            if (widget.isTransfer) ...[
+                              reservedSwitch,
+                              targetWalletDropdown,
+                              const SizedBox(height: 16),
+                            ],
+                            datePicker,
+                            const SizedBox(height: 16),
+                            amountField,
+                            const SizedBox(height: 16),
+                            if (!widget.isTransfer) ...[
+                              categoryDropdown,
+                              const SizedBox(height: 16),
+                            ],
+                          ],
+                        ),
+                      ),
+                      Expanded(
+                        flex: 5,
+                        child: ListView(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          padding: const EdgeInsets.only(
+                            top: 24,
+                            bottom: 24,
+                            left: 12,
+                          ),
+                          children: [
+                            feeSwitch,
+                            if (_isFeeActive) ...[
+                              const SizedBox(height: 8),
+                              feeField,
+                              const SizedBox(height: 12),
+                              feeNote,
+                            ],
+                            const SizedBox(height: 12),
+                            if (!widget.isTransfer) ...[
+                              allocationSwitch,
+                              if (_isAllocationActive) ...[
+                                const SizedBox(height: 12),
+                                allocationBreakdown,
+                              ],
+                            ],
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            }
+
+            return SingleChildScrollView(
+              child: ResponsiveContainer(
+                child: Padding(
+                  padding: const EdgeInsets.all(24.0),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      titleField,
+                      const SizedBox(height: 16),
+                      walletDropdown,
+                      if (widget.isTransfer) ...[
+                        reservedSwitch,
+                        targetWalletDropdown,
+                        const SizedBox(height: 16),
+                      ],
+                      datePicker,
+                      const SizedBox(height: 16),
+                      amountField,
+                      const SizedBox(height: 16),
+                      if (!widget.isTransfer) ...[
+                        categoryDropdown,
+                        const SizedBox(height: 16),
+                      ],
+                      feeSwitch,
+                      if (_isFeeActive) ...[
+                        const SizedBox(height: 8),
+                        feeField,
+                        const SizedBox(height: 12),
+                        feeNote,
+                      ],
+                      const SizedBox(height: 12),
+                      if (!widget.isTransfer) ...[
+                        allocationSwitch,
+                        if (_isAllocationActive) ...[
+                          const SizedBox(height: 12),
+                          allocationBreakdown,
+                        ],
+                      ],
+                    ],
+                  ),
+                ),
+              ),
+            );
+          },
         ),
       ),
     );
@@ -493,6 +553,7 @@ class _IncomeScreenState extends State<IncomeScreen> {
 
   Widget _buildBottomBar(bool isRpg) {
     final colorScheme = Theme.of(context).colorScheme;
+    final walletController = context.read<WalletController>();
 
     return Container(
       padding: EdgeInsets.only(
@@ -505,7 +566,7 @@ class _IncomeScreenState extends State<IncomeScreen> {
         color: colorScheme.surface,
         boxShadow: [
           BoxShadow(
-            color: colorScheme.onPrimary.withOpacity(0.2),
+            color: colorScheme.onPrimary.withValues(alpha: 0.2),
             offset: const Offset(0, -4),
             blurRadius: 12,
           ),
@@ -516,16 +577,10 @@ class _IncomeScreenState extends State<IncomeScreen> {
         children: [
           if (_selectedWallet != null) ...[
             NoteContainer(
-              text: _isReservedActive
-                  ? ScreenDict.getHomeNote(
-                      _selectedWallet?.name ?? '',
-                      NumberUtils.toIdr(_selectedWallet?.reservedAmount),
-                      isRpg: isRpg,
-                    )
-                  : ScreenDict.getHistoryNote(
-                      _selectedWallet?.name ?? '',
-                      NumberUtils.toIdr(_selectedWallet?.amount),
-                    ),
+              text: ScreenDict.getHistoryNote(
+                walletController.getDisplayName(_selectedWallet!),
+                NumberUtils.toIdr(_selectedWallet?.amount),
+              ),
               color: colorScheme.onSurfaceVariant,
             ),
             const SizedBox(height: 8),
@@ -535,7 +590,9 @@ class _IncomeScreenState extends State<IncomeScreen> {
             decoration: BoxDecoration(
               color: colorScheme.surfaceContainerHighest,
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: colorScheme.primary.withOpacity(0.2)),
+              border: Border.all(
+                color: colorScheme.primary.withValues(alpha: 0.2),
+              ),
             ),
             child: Column(
               children: [

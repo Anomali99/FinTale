@@ -44,7 +44,6 @@ class HomeController with ChangeNotifier {
   }
 
   Future<void> loadData() async {
-    Future.microtask(() => notifyListeners());
     try {
       await _userController.loadData();
       await _walletController.loadData();
@@ -106,9 +105,63 @@ class HomeController with ChangeNotifier {
     try {
       if (wallet.id == null) {
         await _walletController.createWallet(wallet);
-        await _userController.processCreateWallet(context);
+        if (context.mounted) {
+          await _userController.processCreateWallet(context);
+        }
+
+        if (wallet.isEmergency &&
+            wallet.amount > Decimal.zero &&
+            context.mounted) {
+          _userController.addEmergencyTotal(
+            context,
+            wallet.amount,
+            isIncome: true,
+          );
+          await _userController.saveUser();
+        }
       } else {
+        final oldWallet = _walletController.getWalletById(wallet.id);
+        final bool wasEmergency = oldWallet.isEmergency;
+        final bool nowEmergency = wallet.isEmergency;
+
         await _walletController.updateWallet(wallet);
+
+        if (wallet.isParent && oldWallet.type != wallet.type) {
+          final pockets = _walletController.getPocketsForWallet(wallet.id!);
+          for (final pocket in pockets) {
+            final updated = WalletModel(
+              id: pocket.id,
+              name: pocket.name,
+              type: wallet.type,
+              amount: pocket.amount,
+              parentId: pocket.parentId,
+              isSavings: pocket.isSavings,
+              isEmergency: pocket.isEmergency,
+            );
+            await _walletController.updateWallet(updated);
+          }
+        }
+
+        if (wasEmergency != nowEmergency && context.mounted) {
+          Decimal totalAmount = wallet.amount;
+          if (wallet.isParent) {
+            final pockets = _walletController.getPocketsForWallet(wallet.id!);
+            for (final pocket in pockets) {
+              if (pocket.isEmergency == wasEmergency) {
+                totalAmount += pocket.amount;
+              }
+            }
+          }
+
+          if (totalAmount > Decimal.zero) {
+            _userController.addEmergencyTotal(
+              context,
+              totalAmount,
+              isIncome: nowEmergency,
+            );
+            await _userController.saveUser();
+          }
+        }
       }
       await _walletController.loadData();
       return true;
@@ -131,14 +184,24 @@ class HomeController with ChangeNotifier {
         transaction.walletId,
       );
 
+      WalletModel? walletTarget;
+      if (transaction.targetId != null) {
+        walletTarget = _walletController.getWalletById(transaction.targetId!);
+      }
+
       if (transaction.type == TransactionType.income) {
         if (autoAllocation == true) {
-          double onePercentageAmount = transaction.amount.toDouble() / 100;
+          Decimal calcAllocated(double percentage) {
+            if (percentage <= 0.0) return Decimal.zero;
+            Decimal pctDec = Decimal.parse(percentage.toString());
+            return ((transaction.amount * pctDec) / Decimal.fromInt(100))
+                .toDecimal(scaleOnInfinitePrecision: 2);
+          }
+
           Map<Enum, double?> userAllocations = _userController.userAllocations;
 
           double totalLowRisk = userAllocations[SubSectorType.lowRisk] ?? 0.0;
           double emergencyLimit = userAllocations[SectorType.emergency] ?? 0.0;
-          double dreamFund = userAllocations[SubSectorType.dreamFund] ?? 0.0;
 
           double emergencyLowRiskPct = 0.0;
           double investLowRiskPct = 0.0;
@@ -153,13 +216,6 @@ class HomeController with ChangeNotifier {
             }
           }
 
-          if (dreamFund > 0.0) {
-            wallet.addReserved(
-              Decimal.parse((onePercentageAmount * dreamFund).toString()),
-              isIncome: true,
-            );
-          }
-
           void processAllocation(
             SectorType sector,
             SubSectorType? subSector,
@@ -167,9 +223,7 @@ class HomeController with ChangeNotifier {
           ) {
             if (percentage <= 0.0) return;
 
-            Decimal allocatedAmount = Decimal.parse(
-              (onePercentageAmount * percentage).toString(),
-            );
+            Decimal allocatedAmount = calcAllocated(percentage);
 
             int index = pendingAllocations.indexWhere(
               (a) => a.sector == sector && a.subSector == subSector,
@@ -219,48 +273,61 @@ class HomeController with ChangeNotifier {
         }
         wallet.addAmount(transaction.amount, isIncome: true);
       } else {
-        WalletModel walletTarget = _walletController.getWalletById(
-          transaction.targetId,
-        );
-
         Decimal expenseAmount = transaction.detailTransaction.isNotEmpty
             ? transaction.detailTransaction[0].amount
             : transaction.amount;
 
-        Decimal feeAmount = expenseAmount - transaction.amount;
-
-        Decimal availableAmount = wallet.amount - wallet.reservedAmount;
-
-        if (useReserved == true) {
-          Decimal deductedFromReserved = expenseAmount > wallet.reservedAmount
-              ? wallet.reservedAmount
-              : expenseAmount;
-
-          wallet.addReserved(deductedFromReserved, isIncome: false);
-
-          Decimal arrivingReserved = deductedFromReserved > feeAmount
-              ? deductedFromReserved - feeAmount
-              : Decimal.zero;
-
-          walletTarget.addReserved(arrivingReserved, isIncome: true);
-        } else if (expenseAmount > availableAmount) {
-          Decimal overflowAmount = expenseAmount - availableAmount;
-
-          Decimal deductedFromReserved = overflowAmount > wallet.reservedAmount
-              ? wallet.reservedAmount
-              : overflowAmount;
-
-          wallet.addReserved(deductedFromReserved, isIncome: false);
-        }
-
         wallet.addAmount(expenseAmount, isIncome: false);
-        walletTarget.addAmount(transaction.amount, isIncome: true);
+        walletTarget!.addAmount(transaction.amount, isIncome: true);
 
         await _walletController.updateWallet(walletTarget);
       }
 
       await _walletController.updateWallet(wallet);
-      await _userController.processRecordTransaction(context);
+
+      if (context.mounted) {
+        if (transaction.type == TransactionType.income) {
+          if (wallet.isEmergency) {
+            _userController.addEmergencyTotal(
+              context,
+              transaction.amount,
+              isIncome: true,
+            );
+          }
+        } else if (transaction.type == TransactionType.transfer) {
+          if (wallet.isEmergency) {
+            Decimal expenseAmount = transaction.detailTransaction.isNotEmpty
+                ? transaction.detailTransaction[0].amount
+                : transaction.amount;
+            _userController.addEmergencyTotal(
+              context,
+              expenseAmount,
+              isIncome: false,
+            );
+          }
+
+          if (walletTarget!.isEmergency) {
+            _userController.addEmergencyTotal(
+              context,
+              transaction.amount,
+              isIncome: true,
+            );
+          }
+        } else {
+          if (wallet.isEmergency) {
+            _userController.addEmergencyTotal(
+              context,
+              transaction.amount,
+              isIncome: false,
+            );
+          }
+        }
+      }
+      await _userController.saveUser();
+
+      if (context.mounted) {
+        await _userController.processRecordTransaction(context);
+      }
       await loadData();
       return true;
     } catch (e) {

@@ -47,9 +47,9 @@ class UserController with ChangeNotifier {
     }
   }
 
-  void resetSkillAlocaton() {
+  void resetSkillAllocation() {
     if (currentUser != null) {
-      currentUser!.resetSkillAlocaton();
+      currentUser!.resetSkillAllocation();
     }
   }
 
@@ -60,8 +60,10 @@ class UserController with ChangeNotifier {
   }) => currentUser?.addEmergencyTotal(context, amount, isIncome: isIncome);
   void updateEmergencyAmount(BuildContext context, Decimal amount) =>
       currentUser?.updateEmergencyAmount(context, amount);
-  void updateFreeDebt(BuildContext context, bool value) =>
-      currentUser?.updateFreeDebt(context, value);
+  void updateFreeDebt(BuildContext context, bool value) {
+    currentUser?.updateFreeDebt(context, value);
+    notifyListeners();
+  }
 
   void updateBaseDailyLimit(Decimal amount) =>
       budget.updateBaseDailyLimit(amount);
@@ -168,10 +170,10 @@ class UserController with ChangeNotifier {
                 dailyResult.xpReward + weeklyResult.xpReward + result.xpReward,
           );
         } else {
-          progress.updatWeeklyBudget(0, false);
+          progress.updateWeeklyBudget(0, false);
         }
 
-        if (result.xpGranted && context != null) {
+        if (result.xpGranted && context != null && context.mounted) {
           currentUser!.addXp(context, result.xpReward);
         }
 

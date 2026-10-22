@@ -99,7 +99,9 @@ class TransactionController extends ChangeNotifier {
           status: [StatusType.paid],
         );
 
-        _monthlyCache[cacheKey] = List.from(listTransaction);
+        if (!isCustomFilter) {
+          _monthlyCache[cacheKey] = List.from(listTransaction);
+        }
       }
 
       totalIncome = Decimal.zero;

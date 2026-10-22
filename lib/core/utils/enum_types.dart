@@ -97,6 +97,7 @@ enum MonthName {
 }
 
 enum TransactionCategory {
+  // --- Expense ---
   food,
   groceries,
   transport,
@@ -106,11 +107,31 @@ enum TransactionCategory {
   charity,
   utilities,
   debtInstallment,
+  fashion,
+  gadget,
+  streaming,
+  gaming,
+  hobby,
+  concert,
+  travel,
+  hangout,
+  fuel,
+  vehicleService,
+  rideshare,
+  travelTicket,
+  publicTransport,
+  giftGiving,
+  socialEvent,
+  other,
+  // --- Income ---
   salary,
   business,
   loanDisbursement,
   debtCollection,
   dividend,
+  gift,
+  otherIncome,
+  // --- System ---
   transfer,
   lowRisk,
   mediumRisk,
@@ -121,23 +142,35 @@ enum TransactionCategory {
   static List<TransactionCategory> get expenseCategories => [
     food,
     groceries,
+    fashion,
+    gadget,
+    streaming,
+    gaming,
+    hobby,
+    concert,
+    travel,
+    hangout,
+    fuel,
+    vehicleService,
+    rideshare,
+    travelTicket,
+    publicTransport,
     transport,
     entertainment,
-    health,
+    gift,
+    giftGiving,
+    socialEvent,
     charity,
+    health,
+    lending,
+    transfer,
     utilities,
+    other,
   ];
 
   static List<TransactionCategory> get allExpenseCategories => [
-    food,
-    groceries,
-    transport,
-    entertainment,
-    health,
-    lending,
-    charity,
-    utilities,
     debtInstallment,
+    ...expenseCategories,
   ];
 
   static List<TransactionCategory> get incomeCategories => [
@@ -146,6 +179,8 @@ enum TransactionCategory {
     loanDisbursement,
     debtCollection,
     dividend,
+    gift,
+    otherIncome,
   ];
 
   static List<TransactionCategory> get investCategories => [
@@ -171,7 +206,8 @@ enum FlowType {
   income,
   transfer;
 
-  Color getBgColor(BuildContext context) => getColor(context).withOpacity(0.2);
+  Color getBgColor(BuildContext context) =>
+      getColor(context).withValues(alpha: 0.2);
 
   Color getColor(BuildContext context) {
     final isLight = Theme.of(context).brightness == Brightness.light;
@@ -220,7 +256,8 @@ enum TransactionType {
     }
   }
 
-  Color getBgColor(BuildContext context) => getColor(context).withOpacity(0.2);
+  Color getBgColor(BuildContext context) =>
+      getColor(context).withValues(alpha: 0.2);
 
   String get prefix {
     switch (this) {
@@ -247,7 +284,7 @@ enum StatusType {
 
     switch (this) {
       case StatusType.paid:
-        return colorScheme.surfaceContainerHighest.withOpacity(0.5);
+        return colorScheme.surfaceContainerHighest.withValues(alpha: 0.5);
       case StatusType.pending:
       case StatusType.overdue:
         return colorScheme.surfaceContainerHighest;

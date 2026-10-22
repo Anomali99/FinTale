@@ -37,7 +37,7 @@ class AllocationCard extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 12),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
-        side: BorderSide(color: sectorColor.withOpacity(0.2), width: 1.5),
+        side: BorderSide(color: sectorColor.withValues(alpha: 0.2), width: 1.5),
       ),
 
       child: InkWell(
@@ -50,7 +50,7 @@ class AllocationCard extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: sectorColor.withOpacity(0.15),
+                  color: sectorColor.withValues(alpha: 0.15),
                   shape: BoxShape.circle,
                 ),
                 child: FaIcon(
@@ -78,7 +78,9 @@ class AllocationCard extends StatelessWidget {
                         subSectorName,
                         style: TextStyle(
                           fontSize: 13,
-                          color: colorScheme.onSurfaceVariant.withOpacity(0.6),
+                          color: colorScheme.onSurfaceVariant.withValues(
+                            alpha: 0.6,
+                          ),
                           fontWeight: FontWeight.w500,
                         ),
                       ),
