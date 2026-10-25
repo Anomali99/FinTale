@@ -23,8 +23,16 @@ import '../../../widgets/responsive_container.dart';
 class IncomeScreen extends StatefulWidget {
   final Map<Enum, double>? allocation;
   final bool isTransfer;
-  const IncomeScreen({super.key, this.allocation, bool? isTransfer})
-    : isTransfer = isTransfer ?? false;
+  final Decimal? initialAmount;
+  final WalletModel? initialTarget;
+
+  const IncomeScreen({
+    super.key,
+    this.allocation,
+    bool? isTransfer,
+    this.initialAmount,
+    this.initialTarget,
+  }) : isTransfer = isTransfer ?? false;
 
   @override
   State<IncomeScreen> createState() => _IncomeScreenState();
@@ -44,6 +52,26 @@ class _IncomeScreenState extends State<IncomeScreen> {
   bool _isFeeActive = false;
   bool _isAllocationActive = false;
   bool _isSavingsActive = false;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.initialAmount != null) {
+      _amountController.text = NumberUtils.formatNumber(widget.initialAmount!);
+    }
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (widget.initialTarget != null && _selectedTarget == null) {
+      final wallets = context.read<WalletController>().allWallets;
+      final match = wallets.where((w) => w.id == widget.initialTarget!.id);
+      if (match.isNotEmpty) {
+        _selectedTarget = match.first;
+      }
+    }
+  }
 
   Decimal get _cleanAmount =>
       NumberUtils.parseToDecimal(_amountController.text);
@@ -453,8 +481,8 @@ class _IncomeScreenState extends State<IncomeScreen> {
                             if (widget.isTransfer) ...[
                               reservedSwitch,
                               targetWalletDropdown,
-                              const SizedBox(height: 16),
                             ],
+                            const SizedBox(height: 16),
                             datePicker,
                             const SizedBox(height: 16),
                             amountField,
@@ -515,8 +543,8 @@ class _IncomeScreenState extends State<IncomeScreen> {
                       if (widget.isTransfer) ...[
                         reservedSwitch,
                         targetWalletDropdown,
-                        const SizedBox(height: 16),
                       ],
+                      const SizedBox(height: 16),
                       datePicker,
                       const SizedBox(height: 16),
                       amountField,

@@ -157,7 +157,6 @@ enum TransactionCategory {
     publicTransport,
     transport,
     entertainment,
-    gift,
     giftGiving,
     socialEvent,
     charity,
@@ -330,6 +329,7 @@ enum SectorType { living, payDebt, emergency, investment }
 enum SubSectorType {
   essentials,
   dreamFund,
+  emergencySavings,
   lowRisk,
   mediumRisk,
   highRisk;

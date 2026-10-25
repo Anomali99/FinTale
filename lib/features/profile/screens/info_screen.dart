@@ -60,7 +60,10 @@ class InfoScreen extends StatelessWidget {
                 SectorType.payDebt: {"value": "25% ± 3%", "sub": null},
                 SectorType.emergency: {
                   "value": "20% ± 3%",
-                  "sub": {SubSectorType.lowRisk: "20% ± 3%"},
+                  "sub": {
+                    SubSectorType.emergencySavings: "10% ± 2%",
+                    SubSectorType.lowRisk: "10% ± 2%",
+                  },
                 },
                 SectorType.investment: {
                   "value": null,
@@ -88,7 +91,10 @@ class InfoScreen extends StatelessWidget {
                 SectorType.payDebt: {"value": "20% ± 3%", "sub": null},
                 SectorType.emergency: {
                   "value": "20% ± 4%",
-                  "sub": {SubSectorType.lowRisk: "20% ± 4%"},
+                  "sub": {
+                    SubSectorType.emergencySavings: "10% ± 2%",
+                    SubSectorType.lowRisk: "10% ± 2%",
+                  },
                 },
                 SectorType.investment: {
                   "value": "10% ± 2%",
@@ -116,7 +122,10 @@ class InfoScreen extends StatelessWidget {
                 SectorType.payDebt: {"value": "15% ± 5%", "sub": null},
                 SectorType.emergency: {
                   "value": "20% ± 4%",
-                  "sub": {SubSectorType.lowRisk: "20% ± 4%"},
+                  "sub": {
+                    SubSectorType.emergencySavings: "10% ± 2%",
+                    SubSectorType.lowRisk: "10% ± 2%",
+                  },
                 },
                 SectorType.investment: {
                   "value": "20% ± 7%",
@@ -144,7 +153,10 @@ class InfoScreen extends StatelessWidget {
                 SectorType.payDebt: {"value": "10% ± 5%", "sub": null},
                 SectorType.emergency: {
                   "value": "25% ± 5%",
-                  "sub": {SubSectorType.lowRisk: "25% ± 5%"},
+                  "sub": {
+                    SubSectorType.emergencySavings: "15% ± 3%",
+                    SubSectorType.lowRisk: "10% ± 2%",
+                  },
                 },
                 SectorType.investment: {
                   "value": "25% ± 10%",
@@ -172,7 +184,10 @@ class InfoScreen extends StatelessWidget {
                 SectorType.payDebt: {"value": "5% ± 5%", "sub": null},
                 SectorType.emergency: {
                   "value": "30% ± 10%",
-                  "sub": {SubSectorType.lowRisk: "30% ± 10%"},
+                  "sub": {
+                    SubSectorType.emergencySavings: "15% ± 5%",
+                    SubSectorType.lowRisk: "15% ± 5%",
+                  },
                 },
                 SectorType.investment: {
                   "value": "30% ± 10%",
@@ -200,7 +215,10 @@ class InfoScreen extends StatelessWidget {
                 SectorType.payDebt: {"value": "CUSTOM", "sub": null},
                 SectorType.emergency: {
                   "value": "CUSTOM",
-                  "sub": {SubSectorType.lowRisk: "CUSTOM"},
+                  "sub": {
+                    SubSectorType.emergencySavings: "CUSTOM",
+                    SubSectorType.lowRisk: "CUSTOM",
+                  },
                 },
                 SectorType.investment: {
                   "value": "CUSTOM",
@@ -347,6 +365,12 @@ class InfoScreen extends StatelessWidget {
                   skills[SectorType.emergency]['value'],
                   GamificationDict.skillEmergency.color ??
                       Colors.greenAccent.adapt(context),
+                ),
+                _buildSubStatRow(
+                  context,
+                  '- ${GamificationDict.skillEmergencySavings.get(false)}',
+                  skills[SectorType.emergency]['sub']
+                      [SubSectorType.emergencySavings],
                 ),
                 _buildSubStatRow(
                   context,

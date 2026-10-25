@@ -208,6 +208,61 @@ class HomeScreen extends StatelessWidget {
     return null;
   }
 
+  Future<Decimal?> _openTransferToEmergencyWallet(
+    BuildContext context,
+    AllocationModel allocation,
+  ) async {
+    final walletController = context.read<WalletController>();
+    final homeController = context.read<HomeController>();
+    final isRpg = context.read<SettingsController>().isRpgMode;
+    final emergencyWallets = walletController.allWallets
+        .where((w) => w.isEmergency)
+        .toList();
+
+    if (emergencyWallets.isEmpty) {
+      GlobalMessenger.showMessage(
+        context,
+        message: 'Belum ada kantong atau dompet yang ditandai sebagai dana darurat.',
+        isSuccess: false,
+      );
+      return null;
+    }
+
+    final result = await Navigator.pushNamed(
+      context,
+      '/income-record',
+      arguments: {
+        "allocation": homeController.activeAllocations,
+        "isTransfer": true,
+        "initialAmount": allocation.amount,
+        "initialTarget": emergencyWallets.first,
+      },
+    ) as Map<String, dynamic>?;
+
+    if (result != null && context.mounted) {
+      TransactionModel transaction = result['transaction'];
+      bool autoAllocation = result['auto_allocation'] ?? false;
+      bool useReserved = result['use_reserved'] ?? false;
+      bool isSuccess = await homeController.saveTransaction(
+        context,
+        transaction,
+        autoAllocation: autoAllocation,
+        useReserved: useReserved,
+      );
+      if (!context.mounted) return transaction.amount;
+      GlobalMessenger.showMessage(
+        context,
+        message: UiDict.getSaveNotif(
+          UiDict.transfer.get(isRpg),
+          isSuccess: isSuccess,
+        ),
+        isSuccess: isSuccess,
+      );
+      return transaction.amount;
+    }
+    return null;
+  }
+
   void _onTapAllocation(
     BuildContext context,
     AllocationModel allocation,
@@ -226,6 +281,15 @@ class HomeScreen extends StatelessWidget {
         allocationUse = await _openPayDebt(context, allocation, wallets);
         break;
       case SectorType.emergency:
+        if (allocation.subSector == SubSectorType.emergencySavings) {
+          allocationUse = await _openTransferToEmergencyWallet(
+            context,
+            allocation,
+          );
+        } else {
+          allocationUse = await _openAddAsset(context, allocation, wallets);
+        }
+        break;
       case SectorType.investment:
         allocationUse = await _openAddAsset(context, allocation, wallets);
         break;

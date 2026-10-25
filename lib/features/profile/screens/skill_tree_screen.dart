@@ -169,7 +169,7 @@ class _SkillTreeScreenState extends State<SkillTreeScreen> {
                         ),
                         const SizedBox(height: 100),
                         Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 15),
+                          padding: const EdgeInsets.symmetric(horizontal: 10),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
@@ -178,35 +178,42 @@ class _SkillTreeScreenState extends State<SkillTreeScreen> {
                                 GamificationDict.skillRoutine,
                                 allocs[SubSectorType.essentials],
                                 isRpg,
-                                size: 48,
+                                size: 44,
                               ),
                               _buildNode(
                                 SubSectorType.dreamFund,
                                 GamificationDict.skillDream,
                                 allocs[SubSectorType.dreamFund],
                                 isRpg,
-                                size: 48,
+                                size: 44,
+                              ),
+                              _buildNode(
+                                SubSectorType.emergencySavings,
+                                GamificationDict.skillEmergencySavings,
+                                allocs[SubSectorType.emergencySavings],
+                                isRpg,
+                                size: 44,
                               ),
                               _buildNode(
                                 SubSectorType.lowRisk,
                                 CategoryDict.lowRisk,
                                 allocs[SubSectorType.lowRisk],
                                 isRpg,
-                                size: 48,
+                                size: 44,
                               ),
                               _buildNode(
                                 SubSectorType.mediumRisk,
                                 CategoryDict.mediumRisk,
                                 allocs[SubSectorType.mediumRisk],
                                 isRpg,
-                                size: 48,
+                                size: 44,
                               ),
                               _buildNode(
                                 SubSectorType.highRisk,
                                 CategoryDict.highRisk,
                                 allocs[SubSectorType.highRisk],
                                 isRpg,
-                                size: 48,
+                                size: 44,
                               ),
                             ],
                           ),
@@ -384,6 +391,13 @@ class _SkillTreeScreenState extends State<SkillTreeScreen> {
               (controller.freeAllocationLv1[SectorType.living] ?? 0.0).toInt();
           parentExtra =
               (controller.extraFreeAllocationLv1[SectorType.living] ?? 0.0)
+                  .toInt();
+        } else if (selectedNode == SubSectorType.emergencySavings) {
+          parentRegular =
+              (controller.freeAllocationLv1[SectorType.emergency] ?? 0.0)
+                  .toInt();
+          parentExtra =
+              (controller.extraFreeAllocationLv1[SectorType.emergency] ?? 0.0)
                   .toInt();
         } else {
           parentRegular =
@@ -672,6 +686,7 @@ class DynamicSkillTreePainter extends CustomPainter {
     drawConnection(SectorType.living, SubSectorType.essentials);
     drawConnection(SectorType.living, SubSectorType.dreamFund);
 
+    drawConnection(SectorType.emergency, SubSectorType.emergencySavings);
     drawConnection(SectorType.emergency, SubSectorType.lowRisk);
     drawConnection(SectorType.investment, SubSectorType.lowRisk);
     drawConnection(SectorType.investment, SubSectorType.mediumRisk);

@@ -47,6 +47,12 @@ class TransactionDetailModal extends StatelessWidget {
       asset = investController.getAssetById(transaction.assetsId!);
     }
 
+    bool isInvestIncome =
+        transaction.assetsId != null &&
+        transaction.type == TransactionType.income &&
+        asset != null;
+    bool isInvest = transaction.assetsId != null;
+
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
@@ -183,9 +189,7 @@ class TransactionDetailModal extends StatelessWidget {
                     ),
                   ),
 
-                  if (transaction.assetsId != null &&
-                      transaction.type == TransactionType.income &&
-                      asset != null) ...[
+                  if (isInvestIncome) ...[
                     _buildWalletRow(
                       context,
                       label: UiDict.sourceFunds,
@@ -236,7 +240,7 @@ class TransactionDetailModal extends StatelessWidget {
             const SizedBox(height: 12),
 
             ...transaction.detailTransaction.map(
-              (detail) => _buildDetailItem(context, detail),
+              (detail) => _buildDetailItem(context, detail, isInvest),
             ),
 
             const SizedBox(height: 24),
@@ -254,39 +258,70 @@ class TransactionDetailModal extends StatelessWidget {
   }) {
     final colorScheme = Theme.of(context).colorScheme;
 
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Row(
-          children: [
-            FaIcon(icon, size: 14, color: colorScheme.onSurfaceVariant),
-            const SizedBox(width: 8),
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 12,
-                color: colorScheme.onSurfaceVariant,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return SizedBox(
+          width: double.infinity,
+          child: Wrap(
+            alignment: WrapAlignment.spaceBetween,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            runSpacing: 4,
+            children: [
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  FaIcon(icon, size: 14, color: colorScheme.onSurfaceVariant),
+                  const SizedBox(width: 8),
+                  ConstrainedBox(
+                    constraints: BoxConstraints(
+                      maxWidth: constraints.maxWidth - 22,
+                    ),
+                    child: Text(
+                      label,
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: colorScheme.onSurfaceVariant,
+                      ),
+                      softWrap: true,
+                    ),
+                  ),
+                ],
               ),
-            ),
-          ],
-        ),
-        Text(
-          value,
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            color: colorScheme.onSurface,
+
+              ConstrainedBox(
+                constraints: BoxConstraints(maxWidth: constraints.maxWidth),
+                child: Align(
+                  alignment: Alignment.centerRight,
+                  child: Text(
+                    value,
+                    textAlign: TextAlign.end,
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: colorScheme.onSurface,
+                    ),
+                    softWrap: true,
+                  ),
+                ),
+              ),
+            ],
           ),
-        ),
-      ],
+        );
+      },
     );
   }
 
-  Widget _buildDetailItem(BuildContext context, TransactionDetailModel detail) {
+  Widget _buildDetailItem(
+    BuildContext context,
+    TransactionDetailModel detail,
+    bool isInvest,
+  ) {
     final colorScheme = Theme.of(context).colorScheme;
 
-    final categories = transaction.type == TransactionType.income
+    final categories = isInvest
+        ? TransactionCategory.investCategories
+        : transaction.type == TransactionType.income
         ? TransactionCategory.incomeCategories
-        : TransactionCategory.expenseCategories;
+        : TransactionCategory.allExpenseCategories;
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 12.0),

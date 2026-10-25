@@ -200,19 +200,24 @@ class HomeController with ChangeNotifier {
 
           Map<Enum, double?> userAllocations = _userController.userAllocations;
 
+          double emergencySavingsPct =
+              userAllocations[SubSectorType.emergencySavings] ?? 0.0;
           double totalLowRisk = userAllocations[SubSectorType.lowRisk] ?? 0.0;
           double emergencyLimit = userAllocations[SectorType.emergency] ?? 0.0;
+
+          double remainingEmergencyForLowRisk =
+              (emergencyLimit - emergencySavingsPct).clamp(0.0, 100.0);
 
           double emergencyLowRiskPct = 0.0;
           double investLowRiskPct = 0.0;
 
           if (totalLowRisk > 0.0) {
-            if (totalLowRisk <= emergencyLimit) {
+            if (totalLowRisk <= remainingEmergencyForLowRisk) {
               emergencyLowRiskPct = totalLowRisk;
               investLowRiskPct = 0.0;
             } else {
-              emergencyLowRiskPct = emergencyLimit;
-              investLowRiskPct = totalLowRisk - emergencyLimit;
+              emergencyLowRiskPct = remainingEmergencyForLowRisk;
+              investLowRiskPct = totalLowRisk - remainingEmergencyForLowRisk;
             }
           }
 
@@ -258,6 +263,11 @@ class HomeController with ChangeNotifier {
             SectorType.investment,
             SubSectorType.highRisk,
             userAllocations[SubSectorType.highRisk] ?? 0.0,
+          );
+          processAllocation(
+            SectorType.emergency,
+            SubSectorType.emergencySavings,
+            emergencySavingsPct,
           );
           processAllocation(
             SectorType.emergency,

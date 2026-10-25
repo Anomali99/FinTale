@@ -109,7 +109,10 @@ class BackupService {
         return null;
       }
 
-      return importDataFromBytes(fileBytes, storedPassword: storedPassword);
+      return await importDataFromBytes(
+        fileBytes,
+        storedPassword: storedPassword,
+      );
     } catch (e) {
       debugPrint("[BACKUP ERROR] Terjadi kesalahan saat membaca file: $e");
       return null;

@@ -1,11 +1,35 @@
 import 'package:decimal/decimal.dart';
+import 'package:fintale/core/constants/gamification_dict.dart';
+import 'package:fintale/core/utils/enum_types.dart';
 import 'package:fintale/core/utils/hash_helper.dart';
+import 'package:fintale/core/utils/leveling_extension.dart';
 import 'package:fintale/core/utils/number_utils.dart';
 import 'package:fintale/widgets/custom_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
+  group('Skill & Allocation Unit Tests', () {
+    test('AllocationMap includes emergencySavings and matches emergency sector total', () {
+      final allocLv1 = AllocationMap.getAllocationByLevel(1);
+      expect(allocLv1[SectorType.emergency], 20.0);
+      expect(allocLv1[SubSectorType.emergencySavings], 10.0);
+      expect(allocLv1[SubSectorType.lowRisk], 10.0);
+
+      final limitsLv1 = AllocationMap.getAllocationLimitByLevel(1);
+      expect(limitsLv1[SectorType.emergency], 3.0);
+      expect(limitsLv1[SubSectorType.emergencySavings], 2.0);
+      expect(limitsLv1[SubSectorType.lowRisk], 2.0);
+    });
+
+    test('emergencySavings has correct gamification data and null risk', () {
+      final skill = GamificationDict.getSkillByEnum(SubSectorType.emergencySavings);
+      expect(skill.terminology.normal, 'Tabungan Darurat');
+      expect(skill.terminology.rpg, 'Kantong Cadangan');
+      expect(SubSectorType.emergencySavings.getRisk(), isNull);
+    });
+  });
+
   group('NumberUtils Unit Tests', () {
     test('parseToDecimal handles Indonesian currency formatting', () {
       expect(NumberUtils.parseToDecimal('Rp 50.000'), Decimal.parse('50000'));

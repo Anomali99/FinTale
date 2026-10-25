@@ -101,6 +101,17 @@ class GamificationDict {
     color: Color(0xFF4DB6AC),
   );
 
+  static const CategoryModel skillEmergencySavings = CategoryModel(
+    terminology: TermModel(normal: 'Tabungan Darurat', rpg: 'Kantong Cadangan'),
+    description:
+        'Dana tunai likuid di dompet atau kantong darurat yang siap dicairkan seketika saat kondisi mendesak tanpa hambatan likuiditas.',
+    icons: IconModel(
+      normal: FontAwesomeIcons.piggyBank,
+      rpg: FontAwesomeIcons.shieldHeart,
+    ),
+    color: Color(0xFF26A69A),
+  );
+
   static const CategoryModel skillDebt = CategoryModel(
     terminology: TermModel(normal: 'Bayar Hutang', rpg: 'Serang Boss'),
     description: 'Efek buruk (debuff) yang terus menguras loot kamu.',
@@ -290,6 +301,8 @@ class GamificationDict {
         return skillRoutine;
       case SubSectorType.dreamFund:
         return skillDream;
+      case SubSectorType.emergencySavings:
+        return skillEmergencySavings;
       case SubSectorType.lowRisk:
         return CategoryDict.lowRisk;
       case SubSectorType.mediumRisk:
@@ -308,7 +321,7 @@ class GamificationDict {
   static String get missionNote3Title => 'Status Alokasi Bebas';
 
   static String get missionNote1 =>
-      'Node `${CategoryDict.lowRisk.get(false)}` mengambil persentasenya dari `${skillEmergency.get(false)}` maupun `${skillInvestment.get(false)}`. **`${skillEmergency.get(false)}` adalah prioritas mutlak.** Contohnya, alokasi 30% `${CategoryDict.lowRisk.get(false)}` akan menguras penuh 20% kapasitas `${skillEmergency.get(false)}` terlebih dahulu sebelum mengambil sisa 10%-nya dari `${skillInvestment.get(false)}`.';
+      'Node `${CategoryDict.lowRisk.get(false)}` mengambil persentasenya dari sisa kapasitas `${skillEmergency.get(false)}` (setelah `${skillEmergencySavings.get(false)}`) maupun `${skillInvestment.get(false)}`. **`${skillEmergency.get(false)}` adalah prioritas mutlak.** Contohnya, alokasi 30% `${CategoryDict.lowRisk.get(false)}` akan menguras sisa kapasitas `${skillEmergency.get(false)}` terlebih dahulu sebelum mengambil sisanya dari `${skillInvestment.get(false)}`.';
   static String get missionNote2 =>
       'Node `${skillRoutine.get(false)}` berbagi wadah poin yang sama dengan `${skillDream.get(false)}`. Anda memiliki kebebasan untuk menabung sebagian pemasukan Anda ke dalam `${skillDream.get(false)}` untuk mewujudkan tujuan besar atau membeli item legendaris di masa depan.';
   static String get missionNote3 =>
