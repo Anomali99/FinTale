@@ -321,6 +321,8 @@ class TransactionDetailModal extends StatelessWidget {
         ? TransactionCategory.investCategories
         : transaction.type == TransactionType.income
         ? TransactionCategory.incomeCategories
+        : transaction.type == TransactionType.transfer
+        ? TransactionCategory.transferCategories
         : TransactionCategory.allExpenseCategories;
 
     return Padding(

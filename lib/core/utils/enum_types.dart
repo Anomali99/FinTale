@@ -131,13 +131,30 @@ enum TransactionCategory {
   dividend,
   gift,
   otherIncome,
-  // --- System ---
+  // --- Transfer ---
   transfer,
+  pocketTransfer,
+  topUp,
+  emergencyFund,
+  savings,
+  cashWithdrawal,
+  cashDeposit,
+  // --- System ---
   lowRisk,
   mediumRisk,
   highRisk;
 
   CategoryModel get categoryDict => CategoryDict.getByTransactionCategory(this);
+
+  static List<TransactionCategory> get transferCategories => [
+    transfer,
+    pocketTransfer,
+    topUp,
+    emergencyFund,
+    savings,
+    cashWithdrawal,
+    cashDeposit,
+  ];
 
   static List<TransactionCategory> get expenseCategories => [
     food,
@@ -162,7 +179,7 @@ enum TransactionCategory {
     charity,
     health,
     lending,
-    transfer,
+    ...transferCategories,
     utilities,
     other,
   ];
@@ -179,6 +196,7 @@ enum TransactionCategory {
     debtCollection,
     dividend,
     gift,
+    ...transferCategories,
     otherIncome,
   ];
 

@@ -23,16 +23,17 @@ import '../../../widgets/responsive_container.dart';
 class IncomeScreen extends StatefulWidget {
   final Map<Enum, double>? allocation;
   final bool isTransfer;
+  final bool isEmergencyTarget;
   final Decimal? initialAmount;
-  final WalletModel? initialTarget;
 
   const IncomeScreen({
     super.key,
     this.allocation,
     bool? isTransfer,
+    bool? isEmergencyTarget,
     this.initialAmount,
-    this.initialTarget,
-  }) : isTransfer = isTransfer ?? false;
+  }) : isTransfer = isTransfer ?? false,
+       isEmergencyTarget = isEmergencyTarget ?? false;
 
   @override
   State<IncomeScreen> createState() => _IncomeScreenState();
@@ -56,20 +57,13 @@ class _IncomeScreenState extends State<IncomeScreen> {
   @override
   void initState() {
     super.initState();
-    if (widget.initialAmount != null) {
+    if (widget.isEmergencyTarget && widget.initialAmount != null) {
       _amountController.text = NumberUtils.formatNumber(widget.initialAmount!);
     }
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    if (widget.initialTarget != null && _selectedTarget == null) {
-      final wallets = context.read<WalletController>().allWallets;
-      final match = wallets.where((w) => w.id == widget.initialTarget!.id);
-      if (match.isNotEmpty) {
-        _selectedTarget = match.first;
-      }
+    if (widget.isTransfer) {
+      _selectedCategory = widget.isEmergencyTarget
+          ? TransactionCategory.emergencyFund
+          : TransactionCategory.transfer;
     }
   }
 
@@ -112,9 +106,10 @@ class _IncomeScreenState extends State<IncomeScreen> {
               ? UiDict.getNominal(UiDict.transfer.get(false))
               : UiDict.getNominal(UiDict.income.get(false)),
           amount: _cleanAmount,
-          category: widget.isTransfer
-              ? TransactionCategory.transfer
-              : (_selectedCategory ?? TransactionCategory.business),
+          category: _selectedCategory ??
+              (widget.isTransfer
+                  ? TransactionCategory.transfer
+                  : TransactionCategory.business),
           flow: widget.isTransfer ? FlowType.transfer : FlowType.income,
         ),
       ];
@@ -180,6 +175,7 @@ class _IncomeScreenState extends State<IncomeScreen> {
     final colorScheme = Theme.of(context).colorScheme;
     final wallets = walletController.allWallets;
     final isRpg = settingsController.isRpgMode;
+    final isEmergencyTarget = widget.isEmergencyTarget;
 
     return Scaffold(
       backgroundColor: colorScheme.surface,
@@ -267,21 +263,40 @@ class _IncomeScreenState extends State<IncomeScreen> {
                 labelText: UiDict.destinationWallet,
                 border: OutlineInputBorder(),
               ),
-              items: wallets.where((e) => e.id != _selectedWallet?.id).map((
-                wallet,
-              ) {
-                return DropdownMenuItem(
-                  value: wallet,
-                  child: Text(walletController.getDisplayName(wallet)),
-                );
-              }).toList(),
+              items: wallets
+                  .where(
+                    (e) =>
+                        e.id != _selectedWallet?.id &&
+                        (isEmergencyTarget ? e.isEmergency : true),
+                  )
+                  .map((wallet) {
+                    return DropdownMenuItem(
+                      value: wallet,
+                      child: Text(walletController.getDisplayName(wallet)),
+                    );
+                  })
+                  .toList(),
               validator: (value) {
                 if (widget.isTransfer && (value == null || value.id == 0)) {
                   return UiDict.requiredWalletDest;
                 }
                 return null;
               },
-              onChanged: (val) => setState(() => _selectedTarget = val),
+              onChanged: (val) {
+                setState(() {
+                  _selectedTarget = val;
+                  if (widget.isTransfer) {
+                    if (val?.isEmergency == true) {
+                      _selectedCategory = TransactionCategory.emergencyFund;
+                    } else if (val?.isSavings == true) {
+                      _selectedCategory = TransactionCategory.savings;
+                    } else if (val?.parentId != null ||
+                        _selectedWallet?.parentId != null) {
+                      _selectedCategory = TransactionCategory.pocketTransfer;
+                    }
+                  }
+                });
+              },
             );
 
             final datePicker = CustomDateTimePicker(
@@ -321,7 +336,9 @@ class _IncomeScreenState extends State<IncomeScreen> {
             );
 
             final categoryDropdown = CustomCategoryInput(
-              type: CategoryType.income,
+              type: widget.isTransfer
+                  ? CategoryType.transfer
+                  : CategoryType.income,
               selectedCategory: _selectedCategory,
               validator: (cat) => cat == null ? UiDict.requiredCategory : null,
               onChanged: (cat) => setState(() => _selectedCategory = cat),
@@ -487,10 +504,8 @@ class _IncomeScreenState extends State<IncomeScreen> {
                             const SizedBox(height: 16),
                             amountField,
                             const SizedBox(height: 16),
-                            if (!widget.isTransfer) ...[
-                              categoryDropdown,
-                              const SizedBox(height: 16),
-                            ],
+                            categoryDropdown,
+                            const SizedBox(height: 16),
                           ],
                         ),
                       ),
@@ -549,10 +564,8 @@ class _IncomeScreenState extends State<IncomeScreen> {
                       const SizedBox(height: 16),
                       amountField,
                       const SizedBox(height: 16),
-                      if (!widget.isTransfer) ...[
-                        categoryDropdown,
-                        const SizedBox(height: 16),
-                      ],
+                      categoryDropdown,
+                      const SizedBox(height: 16),
                       feeSwitch,
                       if (_isFeeActive) ...[
                         const SizedBox(height: 8),
@@ -583,6 +596,9 @@ class _IncomeScreenState extends State<IncomeScreen> {
     final colorScheme = Theme.of(context).colorScheme;
     final walletController = context.read<WalletController>();
 
+    String getDisplayName(WalletModel? wallet) =>
+        wallet == null ? '' : walletController.getDisplayName(wallet);
+
     return Container(
       padding: EdgeInsets.only(
         left: 24,
@@ -606,7 +622,7 @@ class _IncomeScreenState extends State<IncomeScreen> {
           if (_selectedWallet != null) ...[
             NoteContainer(
               text: ScreenDict.getHistoryNote(
-                walletController.getDisplayName(_selectedWallet!),
+                getDisplayName(_selectedWallet),
                 NumberUtils.toIdr(_selectedWallet?.amount),
               ),
               color: colorScheme.onSurfaceVariant,
@@ -628,14 +644,17 @@ class _IncomeScreenState extends State<IncomeScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
-                        ScreenDict.getHomeIncome(
-                          _selectedWallet?.name ?? '',
-                          isExpense: true,
-                          isRpg: isRpg,
+                      Expanded(
+                        child: Text(
+                          ScreenDict.getHomeIncome(
+                            getDisplayName(_selectedWallet),
+                            isExpense: true,
+                            isRpg: isRpg,
+                          ),
+                          style: TextStyle(color: colorScheme.onSurfaceVariant),
                         ),
-                        style: TextStyle(color: colorScheme.onSurfaceVariant),
                       ),
+                      const SizedBox(width: 8),
                       Text(
                         NumberUtils.toIdr(_cleanAmount),
                         style: TextStyle(
@@ -650,16 +669,19 @@ class _IncomeScreenState extends State<IncomeScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
-                      ScreenDict.getHomeIncome(
-                        widget.isTransfer
-                            ? _selectedTarget?.name ?? ''
-                            : _selectedWallet?.name ?? '',
-                        isExpense: false,
-                        isRpg: isRpg,
+                    Expanded(
+                      child: Text(
+                        ScreenDict.getHomeIncome(
+                          widget.isTransfer
+                              ? getDisplayName(_selectedTarget)
+                              : getDisplayName(_selectedWallet),
+                          isExpense: false,
+                          isRpg: isRpg,
+                        ),
+                        style: TextStyle(color: colorScheme.onSurfaceVariant),
                       ),
-                      style: TextStyle(color: colorScheme.onSurfaceVariant),
                     ),
+                    const SizedBox(width: 8),
                     Text(
                       NumberUtils.toIdr(_cleanAmount - _cleanFee),
                       style: TextStyle(

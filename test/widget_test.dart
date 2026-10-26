@@ -66,6 +66,35 @@ void main() {
     });
   });
 
+  group('TransactionCategory & Transfer Categories Unit Tests', () {
+    test('transferCategories contains expected transfer categories', () {
+      final transferCats = TransactionCategory.transferCategories;
+      expect(transferCats, contains(TransactionCategory.transfer));
+      expect(transferCats, contains(TransactionCategory.pocketTransfer));
+      expect(transferCats, contains(TransactionCategory.topUp));
+      expect(transferCats, contains(TransactionCategory.emergencyFund));
+      expect(transferCats, contains(TransactionCategory.savings));
+      expect(transferCats, contains(TransactionCategory.cashWithdrawal));
+      expect(transferCats, contains(TransactionCategory.cashDeposit));
+    });
+
+    test('incomeCategories and expenseCategories contain all transfer categories', () {
+      for (final cat in TransactionCategory.transferCategories) {
+        expect(TransactionCategory.incomeCategories, contains(cat));
+        expect(TransactionCategory.expenseCategories, contains(cat));
+        expect(TransactionCategory.allExpenseCategories, contains(cat));
+      }
+    });
+
+    test('CategoryDict returns valid definitions for all transfer categories', () {
+      for (final cat in TransactionCategory.transferCategories) {
+        final dict = cat.categoryDict;
+        expect(dict.terminology.normal.isNotEmpty, isTrue);
+        expect(dict.terminology.rpg.isNotEmpty, isTrue);
+      }
+    });
+  });
+
   group('Widget Smoke Tests', () {
     testWidgets('CustomButton renders title and responds to tap', (WidgetTester tester) async {
       bool tapped = false;

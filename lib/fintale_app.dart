@@ -393,7 +393,7 @@ class _FinTaleAppState extends State<FinTaleApp> {
                 isTransfer: args?['isTransfer'],
                 allocation: args?['allocation'],
                 initialAmount: args?['initialAmount'],
-                initialTarget: args?['initialTarget'],
+                isEmergencyTarget: args?['isEmergencyTarget'],
               ),
             );
           case '/add-receivable':

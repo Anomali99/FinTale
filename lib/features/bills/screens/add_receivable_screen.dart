@@ -163,7 +163,7 @@ class _AddReceivableScreenState extends State<AddReceivableScreen> {
         ),
         centerTitle: true,
       ),
-      bottomNavigationBar: _buildBottomBar(isRpg),
+      bottomNavigationBar: _buildBottomBar(_generateTransaction, isRpg),
       body: Form(
         key: _formKey,
         child: LayoutBuilder(
@@ -568,7 +568,7 @@ class _AddReceivableScreenState extends State<AddReceivableScreen> {
     );
   }
 
-  Widget _buildBottomBar(bool isRpg) {
+  Widget _buildBottomBar(bool generateTransaction, bool isRpg) {
     final colorScheme = Theme.of(context).colorScheme;
     final walletController = context.read<WalletController>();
 
@@ -593,7 +593,7 @@ class _AddReceivableScreenState extends State<AddReceivableScreen> {
         mainAxisSize: MainAxisSize.min,
         children: [
           if (widget.initialReceivable == null) ...[
-            if (_selectedWallet != null) ...[
+            if (_selectedWallet != null && generateTransaction) ...[
               NoteContainer(
                 text: ScreenDict.getHistoryNote(
                   walletController.getDisplayName(_selectedWallet!),
@@ -603,60 +603,65 @@ class _AddReceivableScreenState extends State<AddReceivableScreen> {
               ),
               const SizedBox(height: 12),
             ],
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: colorScheme.surfaceContainerHighest,
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(
-                  color: colorScheme.primary.withValues(alpha: 0.2),
+            if (generateTransaction)
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: colorScheme.surfaceContainerHighest,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                    color: colorScheme.primary.withValues(alpha: 0.2),
+                  ),
+                ),
+                child: Column(
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: Text(
+                            ScreenDict.getHomeIncome(
+                              _selectedWallet?.name ?? '',
+                              isExpense: widget.initialReceivable == null,
+                              isRpg: isRpg,
+                            ),
+                            style: TextStyle(
+                              color: colorScheme.onSurfaceVariant,
+                            ),
+                          ),
+                        ),
+                        Text(
+                          NumberUtils.toIdr(_cleanAmount),
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: colorScheme.error,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          ScreenDict.totalReceived,
+                          style: TextStyle(color: colorScheme.onSurfaceVariant),
+                        ),
+                        Text(
+                          NumberUtils.toIdr(
+                            _cleanAmount -
+                                (_isFeeActive ? _cleanFee : Decimal.zero),
+                          ),
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.getSuccess(context),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
               ),
-              child: Column(
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        ScreenDict.getHomeIncome(
-                          _selectedWallet?.name ?? '',
-                          isExpense: false,
-                          isRpg: isRpg,
-                        ),
-                        style: TextStyle(color: colorScheme.onSurfaceVariant),
-                      ),
-                      Text(
-                        NumberUtils.toIdr(_cleanAmount),
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: colorScheme.error,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        ScreenDict.totalReceived,
-                        style: TextStyle(color: colorScheme.onSurfaceVariant),
-                      ),
-                      Text(
-                        NumberUtils.toIdr(
-                          _cleanAmount -
-                              (_isFeeActive ? _cleanFee : Decimal.zero),
-                        ),
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.getSuccess(context),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
             const SizedBox(height: 16),
           ],
           CustomButton(

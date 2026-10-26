@@ -7,6 +7,7 @@ import '../../../controllers/settings_controller.dart';
 import '../../../controllers/wallet_controller.dart';
 import '../../../core/constants/screen_dict.dart';
 import '../../../core/constants/ui_dict.dart';
+import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/enum_types.dart';
 import '../../../core/utils/number_utils.dart';
 import '../../../models/bill_model.dart';
@@ -45,13 +46,15 @@ class _AddDebtModalState extends State<AddDebtModal> {
   WalletModel? _selectedWallet;
   late List<WalletModel> _allWallets;
 
+  Decimal get _cleanAmount =>
+      NumberUtils.parseToDecimal(_totalAmountController.text);
+
+  Decimal get _cleanFee => NumberUtils.parseToDecimal(_adminFeeController.text);
+
   @override
   void initState() {
     super.initState();
     _allWallets = context.read<WalletController>().allWallets;
-    if (_allWallets.isNotEmpty) {
-      _selectedWallet = _allWallets.first;
-    }
     final initialValue = widget.initialDebt;
     if (initialValue != null) {
       _titleController.text = initialValue.title;
@@ -163,6 +166,10 @@ class _AddDebtModalState extends State<AddDebtModal> {
     final bottomInset = MediaQuery.of(context).viewInsets.bottom;
     final isRpg = context.read<SettingsController>().isRpgMode;
     final colorScheme = Theme.of(context).colorScheme;
+
+    String getDisplayName(WalletModel? wallet) => wallet != null
+        ? context.read<WalletController>().getDisplayName(wallet)
+        : '';
 
     return Container(
       padding: EdgeInsets.only(
@@ -365,6 +372,7 @@ class _AddDebtModalState extends State<AddDebtModal> {
                   onChanged: (val) =>
                       setState(() => _generateTransaction = val),
                 ),
+
                 if (_generateTransaction) ...[
                   const SizedBox(height: 8),
                   CustomDateTimePicker(
@@ -383,11 +391,7 @@ class _AddDebtModalState extends State<AddDebtModal> {
                     items: _allWallets.map((wallet) {
                       return DropdownMenuItem(
                         value: wallet,
-                        child: Text(
-                          context.read<WalletController>().getDisplayName(
-                            wallet,
-                          ),
-                        ),
+                        child: Text(getDisplayName(wallet)),
                       );
                     }).toList(),
                     validator: (value) {
@@ -438,10 +442,51 @@ class _AddDebtModalState extends State<AddDebtModal> {
                           : null,
                     ),
                   ],
+                  const SizedBox(height: 32),
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: colorScheme.surfaceContainerHighest,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(
+                        color: colorScheme.primary.withValues(alpha: 0.2),
+                      ),
+                    ),
+                    child: Column(
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Expanded(
+                              child: Text(
+                                ScreenDict.getHomeIncome(
+                                  _selectedWallet == null
+                                      ? ''
+                                      : getDisplayName(_selectedWallet),
+                                  isExpense: false,
+                                  isRpg: isRpg,
+                                ),
+                                style: TextStyle(
+                                  color: colorScheme.onSurfaceVariant,
+                                ),
+                              ),
+                            ),
+                            Text(
+                              NumberUtils.toIdr(_cleanAmount - _cleanFee),
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: AppColors.getSuccess(context),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
                 ],
               ],
 
-              const SizedBox(height: 32),
+              const SizedBox(height: 16),
               CustomButton(
                 title: widget.initialDebt == null
                     ? UiDict.addNew

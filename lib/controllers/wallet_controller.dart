@@ -121,12 +121,12 @@ class WalletController extends ChangeNotifier {
         if (wallet.isPocket) {
           pockets.putIfAbsent(wallet.parentId!, () => []);
           pockets[wallet.parentId!]!.add(wallet);
-
-          if (wallet.isSavings) {
-            totalSavings += wallet.amount;
-          }
         } else {
           wallets.add(wallet);
+        }
+
+        if (wallet.isSavings) {
+          totalSavings += wallet.amount;
         }
 
         totalBalance += wallet.amount;

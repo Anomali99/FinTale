@@ -6,7 +6,7 @@ import '../controllers/settings_controller.dart';
 import '../core/constants/ui_dict.dart';
 import '../core/utils/enum_types.dart';
 
-enum CategoryType { expense, allExpense, income, invest }
+enum CategoryType { expense, allExpense, income, invest, transfer }
 
 class CustomCategoryInput extends FormField<TransactionCategory> {
   final String label;
@@ -183,6 +183,8 @@ class _CustomCategoryInputField extends StatelessWidget {
       return categories!;
     }
     switch (type) {
+      case CategoryType.transfer:
+        return TransactionCategory.transferCategories;
       case CategoryType.income:
         return TransactionCategory.incomeCategories;
       case CategoryType.invest:

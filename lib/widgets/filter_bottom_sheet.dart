@@ -289,7 +289,9 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
                       ),
                     ),
                     const SizedBox(height: 8),
-                    for (var entry in TransactionCategory.incomeCategories)
+                    for (var entry in TransactionCategory.incomeCategories.where(
+                      (c) => !TransactionCategory.transferCategories.contains(c),
+                    ))
                       _buildCategoryCheckbox(entry, isRpg),
                     const SizedBox(height: 24),
                     Text(
@@ -301,7 +303,21 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
                       ),
                     ),
                     const SizedBox(height: 8),
-                    for (var entry in TransactionCategory.allExpenseCategories)
+                    for (var entry in TransactionCategory.allExpenseCategories.where(
+                      (c) => !TransactionCategory.transferCategories.contains(c),
+                    ))
+                      _buildCategoryCheckbox(entry, isRpg),
+                    const SizedBox(height: 24),
+                    Text(
+                      '${UiDict.category} ${UiDict.transfer.get(isRpg)}',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: colorScheme.onSurface,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    for (var entry in TransactionCategory.transferCategories)
                       _buildCategoryCheckbox(entry, isRpg),
                     const SizedBox(height: 24),
                     Text(

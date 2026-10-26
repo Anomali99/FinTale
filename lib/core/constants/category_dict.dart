@@ -146,10 +146,70 @@ class CategoryDict {
   static const CategoryModel transfer = CategoryModel(
     type: 'transfer',
     color: Colors.blueGrey,
-    terminology: TermModel(normal: 'Transfer Uang', rpg: 'Karavan Suplai'),
+    terminology: TermModel(normal: 'Transfer', rpg: 'Karavan Suplai'),
     icons: IconModel(
       normal: FontAwesomeIcons.arrowRightArrowLeft,
       rpg: FontAwesomeIcons.dolly,
+    ),
+  );
+
+  static const CategoryModel pocketTransfer = CategoryModel(
+    type: 'transfer',
+    color: Color(0xFF5C6BC0),
+    terminology: TermModel(normal: 'Antar Kantong', rpg: 'Pindah Kantong Logistik'),
+    icons: IconModel(
+      normal: FontAwesomeIcons.boxesPacking,
+      rpg: FontAwesomeIcons.sackDollar,
+    ),
+  );
+
+  static const CategoryModel topUp = CategoryModel(
+    type: 'transfer',
+    color: Color(0xFF42A5F5),
+    terminology: TermModel(normal: 'Top Up', rpg: 'Isi Saldo Sihir'),
+    icons: IconModel(
+      normal: FontAwesomeIcons.wallet,
+      rpg: FontAwesomeIcons.coins,
+    ),
+  );
+
+  static const CategoryModel emergencyFund = CategoryModel(
+    type: 'transfer',
+    color: Color(0xFFE57373),
+    terminology: TermModel(normal: 'Dana Darurat', rpg: 'Pasokan Darurat'),
+    icons: IconModel(
+      normal: FontAwesomeIcons.shieldHeart,
+      rpg: FontAwesomeIcons.shieldHeart,
+    ),
+  );
+
+  static const CategoryModel savings = CategoryModel(
+    type: 'transfer',
+    color: Color(0xFF26A69A),
+    terminology: TermModel(normal: 'Tabungan', rpg: 'Pundi Tabungan'),
+    icons: IconModel(
+      normal: FontAwesomeIcons.piggyBank,
+      rpg: FontAwesomeIcons.gem,
+    ),
+  );
+
+  static const CategoryModel cashWithdrawal = CategoryModel(
+    type: 'transfer',
+    color: Color(0xFFFF8A65),
+    terminology: TermModel(normal: 'Tarik Tunai', rpg: 'Tarik Koin Peti'),
+    icons: IconModel(
+      normal: FontAwesomeIcons.moneyBillWave,
+      rpg: FontAwesomeIcons.sackDollar,
+    ),
+  );
+
+  static const CategoryModel cashDeposit = CategoryModel(
+    type: 'transfer',
+    color: Color(0xFF66BB6A),
+    terminology: TermModel(normal: 'Setor Tunai', rpg: 'Simpan ke Brankas'),
+    icons: IconModel(
+      normal: FontAwesomeIcons.moneyBills,
+      rpg: FontAwesomeIcons.vault,
     ),
   );
 
@@ -494,6 +554,12 @@ class CategoryDict {
     gift,
     otherIncome,
     transfer,
+    pocketTransfer,
+    topUp,
+    emergencyFund,
+    savings,
+    cashWithdrawal,
+    cashDeposit,
     lowRisk,
     mediumRisk,
     highRisk,
@@ -606,6 +672,18 @@ class CategoryDict {
         return otherIncome;
       case TransactionCategory.transfer:
         return transfer;
+      case TransactionCategory.pocketTransfer:
+        return pocketTransfer;
+      case TransactionCategory.topUp:
+        return topUp;
+      case TransactionCategory.emergencyFund:
+        return emergencyFund;
+      case TransactionCategory.savings:
+        return savings;
+      case TransactionCategory.cashWithdrawal:
+        return cashWithdrawal;
+      case TransactionCategory.cashDeposit:
+        return cashDeposit;
       case TransactionCategory.lowRisk:
         return lowRisk;
       case TransactionCategory.mediumRisk:

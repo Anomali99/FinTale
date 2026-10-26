@@ -222,22 +222,25 @@ class HomeScreen extends StatelessWidget {
     if (emergencyWallets.isEmpty) {
       GlobalMessenger.showMessage(
         context,
-        message: 'Belum ada kantong atau dompet yang ditandai sebagai dana darurat.',
+        message:
+            'Belum ada kantong atau dompet yang ditandai sebagai dana darurat.',
         isSuccess: false,
       );
       return null;
     }
 
-    final result = await Navigator.pushNamed(
-      context,
-      '/income-record',
-      arguments: {
-        "allocation": homeController.activeAllocations,
-        "isTransfer": true,
-        "initialAmount": allocation.amount,
-        "initialTarget": emergencyWallets.first,
-      },
-    ) as Map<String, dynamic>?;
+    final result =
+        await Navigator.pushNamed(
+              context,
+              '/income-record',
+              arguments: {
+                "allocation": homeController.activeAllocations,
+                "isTransfer": true,
+                "initialAmount": allocation.amount,
+                "isEmergencyTarget": true,
+              },
+            )
+            as Map<String, dynamic>?;
 
     if (result != null && context.mounted) {
       TransactionModel transaction = result['transaction'];

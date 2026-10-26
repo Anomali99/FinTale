@@ -321,45 +321,49 @@ class _SellAssetModalState extends State<SellAssetModal> {
                 ),
               ],
               const SizedBox(height: 24),
-
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
                   color: colorScheme.surfaceContainerHighest,
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(16),
                   border: Border.all(
-                    color: colorScheme.primary.withValues(alpha: 0.3),
+                    color: colorScheme.primary.withValues(alpha: 0.2),
                   ),
                 ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                child: Column(
                   children: [
-                    Text(
-                      UiDict.income.get(isRpg),
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: colorScheme.onSurfaceVariant,
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                    Flexible(
-                      child: FittedBox(
-                        fit: BoxFit.scaleDown,
-                        alignment: Alignment.centerRight,
-                        child: Text(
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: Text(
+                            ScreenDict.getHomeIncome(
+                              _selectedWallet == null
+                                  ? ''
+                                  : walletController.getDisplayName(
+                                      _selectedWallet!,
+                                    ),
+                              isExpense: false,
+                              isRpg: isRpg,
+                            ),
+                            style: TextStyle(
+                              color: colorScheme.onSurfaceVariant,
+                            ),
+                          ),
+                        ),
+                        Text(
                           NumberUtils.toIdr(_netAmount),
                           style: TextStyle(
-                            fontFamily: 'Poppins',
                             fontWeight: FontWeight.bold,
-                            fontSize: 20,
                             color: AppColors.getSuccess(context),
                           ),
                         ),
-                      ),
+                      ],
                     ),
                   ],
                 ),
               ),
+
               const SizedBox(height: 24),
 
               CustomButton(

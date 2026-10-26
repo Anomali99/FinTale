@@ -211,13 +211,21 @@ class _PayReceivableModalState extends State<PayReceivableModal> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(
-                          ScreenDict.getHomeIncome(
-                            _selectedWallet?.name ?? '',
-                            isExpense: false,
-                            isRpg: widget.isRpg,
+                        Expanded(
+                          child: Text(
+                            ScreenDict.getHomeIncome(
+                              _selectedWallet == null
+                                  ? ''
+                                  : walletController.getDisplayName(
+                                      _selectedWallet!,
+                                    ),
+                              isExpense: false,
+                              isRpg: widget.isRpg,
+                            ),
+                            style: TextStyle(
+                              color: colorScheme.onSurfaceVariant,
+                            ),
                           ),
-                          style: TextStyle(color: colorScheme.onSurfaceVariant),
                         ),
                         Text(
                           NumberUtils.toIdr(_cleanAmount - _cleanFee),
