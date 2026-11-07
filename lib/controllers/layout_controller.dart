@@ -1,6 +1,8 @@
+import 'package:decimal/decimal.dart';
 import 'package:flutter/material.dart';
 
 import '../controllers/transaction_controller.dart';
+import '../core/utils/enum_types.dart';
 import '../controllers/user_controller.dart';
 import '../controllers/wallet_controller.dart';
 import '../models/transaction_model.dart';
@@ -41,6 +43,22 @@ class LayoutController extends ChangeNotifier with WidgetsBindingObserver {
       final wallet = _walletController.getWalletById(transaction.walletId);
       await _transactionController.createTransaction(transaction);
       wallet.addAmount(transaction.amount, isIncome: false);
+
+      if (wallet.isEmergency && context.mounted) {
+        Decimal expenseAmount = transaction.detailTransaction.isNotEmpty
+            ? transaction.detailTransaction[0].amount
+            : transaction.amount;
+        final firstCategory = transaction.detailTransaction.isNotEmpty
+            ? transaction.detailTransaction[0].category
+            : null;
+        if (firstCategory != TransactionCategory.tax) {
+          _userController.addEmergencyTotal(
+            context,
+            expenseAmount,
+            isIncome: false,
+          );
+        }
+      }
 
       await _walletController.updateWallet(wallet);
       await _walletController.loadData();

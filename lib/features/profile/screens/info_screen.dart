@@ -62,7 +62,7 @@ class InfoScreen extends StatelessWidget {
                   "value": "20% ± 3%",
                   "sub": {
                     SubSectorType.emergencySavings: "10% ± 2%",
-                    SubSectorType.lowRisk: "10% ± 2%",
+                    SubSectorType.lowRisk: "10% ± 1%",
                   },
                 },
                 SectorType.investment: {
@@ -369,8 +369,8 @@ class InfoScreen extends StatelessWidget {
                 _buildSubStatRow(
                   context,
                   '- ${GamificationDict.skillEmergencySavings.get(false)}',
-                  skills[SectorType.emergency]['sub']
-                      [SubSectorType.emergencySavings],
+                  skills[SectorType.emergency]['sub'][SubSectorType
+                      .emergencySavings],
                 ),
                 _buildSubStatRow(
                   context,

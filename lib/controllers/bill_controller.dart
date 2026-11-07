@@ -1,3 +1,4 @@
+import 'package:decimal/decimal.dart';
 import 'package:flutter/material.dart';
 
 import '../controllers/transaction_controller.dart';
@@ -329,14 +330,30 @@ class BillController with ChangeNotifier {
       await _receivableDao.updateMultiple(receivable);
 
       Map<int, WalletModel> wallets = {};
+      Map<int, Decimal> walletIncomes = {};
       for (TransactionModel trx in transactions) {
-        int walletId = trx.id ?? 1;
+        int walletId = trx.walletId ?? 1;
 
         if (!wallets.containsKey(walletId)) {
           wallets[walletId] = _walletController.getWalletById(walletId);
         }
 
         wallets[walletId]?.addAmount(trx.amount, isIncome: true);
+        walletIncomes[walletId] = (walletIncomes[walletId] ?? Decimal.zero) +
+            trx.amount;
+      }
+
+      if (context.mounted) {
+        for (MapEntry<int, Decimal> entry in walletIncomes.entries) {
+          WalletModel? wallet = wallets[entry.key];
+          if (wallet?.isEmergency == true) {
+            _userController.addEmergencyTotal(
+              context,
+              entry.value,
+              isIncome: true,
+            );
+          }
+        }
       }
 
       if (_userController.isNotification) {

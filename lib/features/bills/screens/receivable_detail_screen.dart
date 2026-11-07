@@ -96,34 +96,36 @@ class _ReceivableDetailScreenState extends State<ReceivableDetailScreen> {
       Decimal? fee = result['fee'];
       int? walletId = result['wallet_id'];
       int datetime = result['datetime'];
+      bool generateTransaction = result['generate_transaction'] ?? true;
 
-      List<TransactionDetailModel> details = [
-        TransactionDetailModel(
-          title: '${ScreenDict.billsPayAction.get(false)} $title',
-          amount: amount,
-          category: TransactionCategory.debtCollection,
-          flow: FlowType.income,
-        ),
-      ];
-
-      if (fee != null) {
-        amount -= fee;
-        details.add(
+      if (generateTransaction && walletId != null) {
+        List<TransactionDetailModel> details = [
           TransactionDetailModel(
-            title: UiDict.feeAmount,
-            amount: fee,
-            category: TransactionCategory.utilities,
-            flow: FlowType.expense,
+            title: '${ScreenDict.billsPayAction.get(false)} $title',
+            amount: amount,
+            category: TransactionCategory.debtCollection,
+            flow: FlowType.income,
           ),
-        );
-      }
+        ];
 
-      setState(() {
+        Decimal netAmount = amount;
+        if (fee != null) {
+          netAmount -= fee;
+          details.add(
+            TransactionDetailModel(
+              title: UiDict.feeAmount,
+              amount: fee,
+              category: TransactionCategory.utilities,
+              flow: FlowType.expense,
+            ),
+          );
+        }
+
         _transaction.add(
           TransactionModel(
             type: TransactionType.income,
             title: '${widget.borrowerName} ${UiDict.menuPayDebt.get(false)}',
-            amount: amount,
+            amount: netAmount,
             status: StatusType.paid,
             walletId: walletId,
             receivableId: id,
@@ -131,6 +133,9 @@ class _ReceivableDetailScreenState extends State<ReceivableDetailScreen> {
             detailTransaction: details,
           ),
         );
+      }
+
+      setState(() {
         _records[index].addPayment(amount);
         if (_records[index].isFinished) {
           _records[index].setIntTargetDate(datetime);

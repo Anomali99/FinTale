@@ -36,6 +36,7 @@ class _SellAssetModalState extends State<SellAssetModal> {
   DateTime _selectedDate = DateTime.now();
   WalletModel? _selectedWallet;
   bool _isFeeActive = false;
+  bool _generateTransaction = true;
   Decimal _netAmount = Decimal.zero;
 
   Decimal get _cleanAssetUnit =>
@@ -57,7 +58,7 @@ class _SellAssetModalState extends State<SellAssetModal> {
     Decimal grossAmount = _cleanAssetUnit * _cleanAssetPrice;
     Decimal total = grossAmount;
 
-    if (_isFeeActive) total -= _cleanFeeAmount;
+    if (_generateTransaction && _isFeeActive) total -= _cleanFeeAmount;
 
     setState(() {
       _netAmount = total > Decimal.zero ? total : Decimal.zero;
@@ -69,7 +70,9 @@ class _SellAssetModalState extends State<SellAssetModal> {
       Decimal unitSold = _cleanAssetUnit;
       Decimal pricePerUnit = _cleanAssetPrice;
       Decimal grossAmount = unitSold * pricePerUnit;
-      Decimal feeAmount = _isFeeActive ? _cleanFeeAmount : Decimal.zero;
+      Decimal feeAmount = (_generateTransaction && _isFeeActive)
+          ? _cleanFeeAmount
+          : Decimal.zero;
 
       double fractionSold = unitSold.toDouble() / widget.asset.unit.toDouble();
       Decimal investedDeduction = Decimal.parse(
@@ -98,44 +101,46 @@ class _SellAssetModalState extends State<SellAssetModal> {
         unit: newUnit,
       );
 
-      List<TransactionDetailModel> details = [
-        TransactionDetailModel(
-          title:
-              '${widget.asset.name} ${NumberUtils.formatNumber(unitSold)} ${widget.asset.unitName}',
-          amount: grossAmount,
-          category: TransactionCategory.getTransactionCategory(
-            widget.asset.type,
-          ),
-          flow: FlowType.income,
-        ),
-      ];
-
-      if (_isFeeActive) {
-        details.add(
+      TransactionModel? transaction;
+      if (_generateTransaction) {
+        List<TransactionDetailModel> details = [
           TransactionDetailModel(
-            title: UiDict.feeAmount,
-            amount: feeAmount,
-            category: TransactionCategory.utilities,
-            flow: FlowType.expense,
+            title:
+                '${widget.asset.name} ${NumberUtils.formatNumber(unitSold)} ${widget.asset.unitName}',
+            amount: grossAmount,
+            category: TransactionCategory.assetSale,
+            flow: FlowType.income,
           ),
+        ];
+
+        if (_isFeeActive) {
+          details.add(
+            TransactionDetailModel(
+              title: UiDict.feeAmount,
+              amount: feeAmount,
+              category: TransactionCategory.utilities,
+              flow: FlowType.expense,
+            ),
+          );
+        }
+
+        transaction = TransactionModel(
+          type: TransactionType.income,
+          title: ScreenDict.investSellTitle,
+          amount: _netAmount,
+          status: StatusType.paid,
+          walletId: _selectedWallet?.id,
+          assetsId: widget.asset.id,
+          detailTransaction: details,
+          dateTimestamp: _selectedDate.millisecondsSinceEpoch,
         );
       }
-
-      TransactionModel transaction = TransactionModel(
-        type: TransactionType.income,
-        title: ScreenDict.investSellTitle,
-        amount: _netAmount,
-        status: StatusType.paid,
-        walletId: _selectedWallet?.id,
-        assetsId: widget.asset.id,
-        detailTransaction: details,
-        dateTimestamp: _selectedDate.millisecondsSinceEpoch,
-      );
 
       Navigator.pop(context, {
         "asset": updatedAsset,
         "transaction": transaction,
         "emergency_deduction": investedDeduction,
+        "generate_transaction": _generateTransaction,
       });
     }
   }
@@ -156,7 +161,7 @@ class _SellAssetModalState extends State<SellAssetModal> {
       ),
       decoration: BoxDecoration(
         color: colorScheme.surface,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
       ),
       child: Form(
         key: _formKey,
@@ -203,7 +208,6 @@ class _SellAssetModalState extends State<SellAssetModal> {
                   labelText: '${UiDict.amount} ${widget.asset.unitName}',
                   border: const OutlineInputBorder(),
                 ),
-
                 onChanged: (val) => NumberUtils.formatInput(
                   _unitAmountController,
                   val,
@@ -232,7 +236,6 @@ class _SellAssetModalState extends State<SellAssetModal> {
                   prefixText: 'Rp ',
                   border: const OutlineInputBorder(),
                 ),
-
                 onChanged: (val) => NumberUtils.formatInput(
                   _priceController,
                   val,
@@ -246,123 +249,153 @@ class _SellAssetModalState extends State<SellAssetModal> {
               ),
               const SizedBox(height: 16),
 
-              DropdownButtonFormField<WalletModel>(
-                initialValue: _selectedWallet,
-                decoration: const InputDecoration(
-                  labelText: UiDict.destinationWallet,
-                  border: OutlineInputBorder(),
-                ),
-                items: widget.wallets
-                    .map(
-                      (w) => DropdownMenuItem(
-                        value: w,
-                        child: Text(walletController.getDisplayName(w)),
-                      ),
-                    )
-                    .toList(),
-                onChanged: (val) => setState(() => _selectedWallet = val),
-                validator: (val) =>
-                    val == null ? UiDict.requiredWalletDest : null,
-              ),
-              const SizedBox(height: 16),
-
-              CustomDateTimePicker(
-                initialDate: _selectedDate,
-                label: ScreenDict.historyTime.get(isRpg),
-                onChanged: (newDate) {
-                  setState(() {
-                    _selectedDate = newDate;
-                  });
-                },
-              ),
-              const SizedBox(height: 16),
-
               SwitchListTile(
                 contentPadding: EdgeInsets.zero,
-                title: const Text(
-                  UiDict.feeCheck,
-                  style: TextStyle(fontWeight: FontWeight.bold),
+                title: Text(
+                  ScreenDict.debtGenerateIncome.get(isRpg),
+                  style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
                 subtitle: Text(
-                  ScreenDict.getFeeCheckDesc(isIncome: true, isRpg: isRpg),
+                  ScreenDict.getDebtGenerateIncomeDesc(isRpg: isRpg),
                   style: TextStyle(
                     fontSize: 12,
                     color: colorScheme.onSurfaceVariant,
                   ),
                 ),
-                value: _isFeeActive,
-                onChanged: (val) => setState(() {
-                  _isFeeActive = val;
-                  _calculateTotal();
-                }),
+                value: _generateTransaction,
+                onChanged: (val) {
+                  setState(() {
+                    _generateTransaction = val;
+                    if (!val) {
+                      _selectedWallet = null;
+                      _isFeeActive = false;
+                    }
+                    _calculateTotal();
+                  });
+                },
               ),
 
-              if (_isFeeActive) ...[
+              if (_generateTransaction) ...[
                 const SizedBox(height: 8),
-                TextFormField(
-                  controller: _feeController,
-                  keyboardType: TextInputType.number,
+                DropdownButtonFormField<WalletModel>(
+                  initialValue: _selectedWallet,
                   decoration: const InputDecoration(
-                    labelText: UiDict.feeAmount,
-                    prefixText: 'Rp ',
+                    labelText: UiDict.destinationWallet,
                     border: OutlineInputBorder(),
                   ),
-                  onChanged: (val) => NumberUtils.formatInput(
-                    _feeController,
-                    val,
-                    isDecimal: true,
-                    onCalculated: _calculateTotal,
-                  ),
-                  validator: (val) =>
-                      _isFeeActive &&
-                          (val == null || !NumberUtils.isValidAmount(val))
-                      ? UiDict.requiredFee
+                  items: widget.wallets
+                      .map(
+                        (w) => DropdownMenuItem(
+                          value: w,
+                          child: Text(walletController.getDisplayName(w)),
+                        ),
+                      )
+                      .toList(),
+                  onChanged: (val) => setState(() => _selectedWallet = val),
+                  validator: (val) => _generateTransaction && val == null
+                      ? UiDict.requiredWalletDest
                       : null,
                 ),
-              ],
-              const SizedBox(height: 24),
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: colorScheme.surfaceContainerHighest,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(
-                    color: colorScheme.primary.withValues(alpha: 0.2),
+                const SizedBox(height: 16),
+
+                CustomDateTimePicker(
+                  initialDate: _selectedDate,
+                  label: ScreenDict.historyTime.get(isRpg),
+                  onChanged: (newDate) {
+                    setState(() {
+                      _selectedDate = newDate;
+                    });
+                  },
+                ),
+                const SizedBox(height: 16),
+
+                SwitchListTile(
+                  contentPadding: EdgeInsets.zero,
+                  title: const Text(
+                    UiDict.feeCheck,
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  subtitle: Text(
+                    ScreenDict.getFeeCheckDesc(isIncome: true, isRpg: isRpg),
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                  value: _isFeeActive,
+                  onChanged: (val) => setState(() {
+                    _isFeeActive = val;
+                    _calculateTotal();
+                  }),
+                ),
+
+                if (_isFeeActive) ...[
+                  const SizedBox(height: 8),
+                  TextFormField(
+                    controller: _feeController,
+                    keyboardType: TextInputType.number,
+                    decoration: const InputDecoration(
+                      labelText: UiDict.feeAmount,
+                      prefixText: 'Rp ',
+                      border: OutlineInputBorder(),
+                    ),
+                    onChanged: (val) => NumberUtils.formatInput(
+                      _feeController,
+                      val,
+                      isDecimal: true,
+                      onCalculated: _calculateTotal,
+                    ),
+                    validator: (val) =>
+                        _isFeeActive &&
+                            (val == null || !NumberUtils.isValidAmount(val))
+                        ? UiDict.requiredFee
+                        : null,
+                  ),
+                ],
+                const SizedBox(height: 24),
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: colorScheme.surfaceContainerHighest,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(
+                      color: colorScheme.primary.withValues(alpha: 0.2),
+                    ),
+                  ),
+                  child: Column(
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Expanded(
+                            child: Text(
+                              ScreenDict.getHomeIncome(
+                                _selectedWallet == null
+                                    ? ''
+                                    : walletController.getDisplayName(
+                                        _selectedWallet!,
+                                      ),
+                                isExpense: false,
+                                isRpg: isRpg,
+                              ),
+                              style: TextStyle(
+                                color: colorScheme.onSurfaceVariant,
+                              ),
+                            ),
+                          ),
+                          Text(
+                            NumberUtils.toIdr(_netAmount),
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.getSuccess(context),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
                 ),
-                child: Column(
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Expanded(
-                          child: Text(
-                            ScreenDict.getHomeIncome(
-                              _selectedWallet == null
-                                  ? ''
-                                  : walletController.getDisplayName(
-                                      _selectedWallet!,
-                                    ),
-                              isExpense: false,
-                              isRpg: isRpg,
-                            ),
-                            style: TextStyle(
-                              color: colorScheme.onSurfaceVariant,
-                            ),
-                          ),
-                        ),
-                        Text(
-                          NumberUtils.toIdr(_netAmount),
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.getSuccess(context),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
+              ],
 
               const SizedBox(height: 24),
 

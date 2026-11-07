@@ -37,11 +37,14 @@ class _PayReceivableModalState extends State<PayReceivableModal> {
   DateTime _selectedDate = DateTime.now();
   WalletModel? _selectedWallet;
   bool _isFeeActive = false;
+  bool _generateTransaction = true;
 
   Decimal get _cleanAmount =>
       NumberUtils.parseToDecimal(_amountController.text);
 
   Decimal get _cleanFee => NumberUtils.parseToDecimal(_feeController.text);
+
+  Decimal get _netAmount => _cleanAmount - _cleanFee;
 
   @override
   void dispose() {
@@ -57,6 +60,7 @@ class _PayReceivableModalState extends State<PayReceivableModal> {
         "fee": _isFeeActive ? _cleanFee : null,
         "wallet_id": _selectedWallet?.id,
         "datetime": _selectedDate.millisecondsSinceEpoch,
+        "generate_transaction": _generateTransaction,
       });
     }
   }
@@ -65,6 +69,7 @@ class _PayReceivableModalState extends State<PayReceivableModal> {
   Widget build(BuildContext context) {
     final bottomInset = MediaQuery.of(context).viewInsets.bottom;
     final walletController = context.read<WalletController>();
+    final isRpg = widget.isRpg;
     final colorScheme = Theme.of(context).colorScheme;
 
     return Container(
@@ -123,78 +128,108 @@ class _PayReceivableModalState extends State<PayReceivableModal> {
                     NumberUtils.formatInput(_amountController, val),
               ),
               const SizedBox(height: 16),
-              DropdownButtonFormField<WalletModel>(
-                initialValue: _selectedWallet,
-                decoration: InputDecoration(
-                  labelText: UiDict.saveTo,
-                  border: OutlineInputBorder(),
-                ),
-                items: widget.wallets.map((wallet) {
-                  return DropdownMenuItem(
-                    value: wallet,
-                    child: Text(walletController.getDisplayName(wallet)),
-                  );
-                }).toList(),
-                onChanged: (val) => setState(() => _selectedWallet = val),
-                validator: (val) =>
-                    val == null ? UiDict.requiredWalletDest : null,
-              ),
-              const SizedBox(height: 16),
-
-              CustomDateTimePicker(
-                initialDate: _selectedDate,
-                label: ScreenDict.historyTime.get(widget.isRpg),
-                onChanged: (newDate) {
-                  setState(() {
-                    _selectedDate = newDate;
-                  });
-                },
-              ),
-              const SizedBox(height: 16),
               SwitchListTile(
                 contentPadding: EdgeInsets.zero,
-                title: const Text(
-                  UiDict.feeCheck,
-                  style: TextStyle(fontWeight: FontWeight.bold),
+                title: Text(
+                  ScreenDict.receivableGenerateExpense.get(isRpg),
+                  style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
                 subtitle: Text(
-                  ScreenDict.getFeeCheckDesc(isRpg: widget.isRpg),
+                  ScreenDict.getReceivableGenerateExpenseDesc(isRpg: isRpg),
                   style: TextStyle(
                     fontSize: 12,
                     color: colorScheme.onSurfaceVariant,
                   ),
                 ),
-                value: _isFeeActive,
-                onChanged: (val) => setState(() => _isFeeActive = val),
+                value: _generateTransaction,
+                onChanged: (val) {
+                  setState(() {
+                    _generateTransaction = val;
+                    if (!val) {
+                      _selectedWallet = null;
+                      _isFeeActive = false;
+                    }
+                  });
+                },
               ),
 
-              if (_isFeeActive) ...[
+              if (_generateTransaction) ...[
                 const SizedBox(height: 8),
-                TextFormField(
-                  controller: _feeController,
-                  keyboardType: TextInputType.number,
-                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                DropdownButtonFormField<WalletModel>(
+                  initialValue: _selectedWallet,
                   decoration: InputDecoration(
-                    labelText: UiDict.feeAmount,
-                    prefixText: 'Rp ',
+                    labelText: UiDict.saveTo,
                     border: OutlineInputBorder(),
                   ),
-                  onChanged: (val) =>
-                      NumberUtils.formatInput(_feeController, val),
-                  validator: (val) {
-                    if (_isFeeActive &&
-                        (val == null || !NumberUtils.isValidAmount(val))) {
-                      return UiDict.requiredFee;
-                    }
-                    return null;
+                  items: widget.wallets.map((wallet) {
+                    return DropdownMenuItem(
+                      value: wallet,
+                      child: Text(walletController.getDisplayName(wallet)),
+                    );
+                  }).toList(),
+                  onChanged: (val) => setState(() => _selectedWallet = val),
+                  validator: (val) => _generateTransaction && val == null
+                      ? UiDict.requiredWalletDest
+                      : null,
+                ),
+                const SizedBox(height: 16),
+
+                CustomDateTimePicker(
+                  initialDate: _selectedDate,
+                  label: ScreenDict.historyTime.get(isRpg),
+                  onChanged: (newDate) {
+                    setState(() {
+                      _selectedDate = newDate;
+                    });
                   },
                 ),
-                const SizedBox(height: 12),
-                NoteContainer(
-                  text:
-                      "Note: ${ScreenDict.getFeeCheckDesc(isIncome: true, isRpg: widget.isRpg)}",
-                  color: colorScheme.onSurfaceVariant,
+                const SizedBox(height: 16),
+                SwitchListTile(
+                  contentPadding: EdgeInsets.zero,
+                  title: const Text(
+                    UiDict.feeCheck,
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  subtitle: Text(
+                    ScreenDict.getFeeCheckDesc(isRpg: isRpg),
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                  value: _isFeeActive,
+                  onChanged: (val) => setState(() => _isFeeActive = val),
                 ),
+
+                if (_isFeeActive) ...[
+                  const SizedBox(height: 8),
+                  TextFormField(
+                    controller: _feeController,
+                    keyboardType: TextInputType.number,
+                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                    decoration: InputDecoration(
+                      labelText: UiDict.feeAmount,
+                      prefixText: 'Rp ',
+                      border: OutlineInputBorder(),
+                    ),
+                    onChanged: (val) =>
+                        NumberUtils.formatInput(_feeController, val),
+                    validator: (val) {
+                      if (_isFeeActive &&
+                          (val == null || val.isEmpty || val == '0' ||
+                              !NumberUtils.isValidAmount(val))) {
+                        return UiDict.requiredFee;
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 12),
+                  NoteContainer(
+                    text:
+                        "Note: ${ScreenDict.getFeeCheckDesc(isIncome: true, isRpg: isRpg)}",
+                    color: colorScheme.onSurfaceVariant,
+                  ),
+                ],
               ],
               const SizedBox(height: 16),
               Container(
@@ -213,22 +248,24 @@ class _PayReceivableModalState extends State<PayReceivableModal> {
                       children: [
                         Expanded(
                           child: Text(
-                            ScreenDict.getHomeIncome(
-                              _selectedWallet == null
-                                  ? ''
-                                  : walletController.getDisplayName(
+                            _generateTransaction && _selectedWallet != null
+                                ? ScreenDict.getHomeIncome(
+                                    walletController.getDisplayName(
                                       _selectedWallet!,
                                     ),
-                              isExpense: false,
-                              isRpg: widget.isRpg,
-                            ),
+                                    isExpense: false,
+                                    isRpg: isRpg,
+                                  )
+                                : ScreenDict.totalReceived,
                             style: TextStyle(
                               color: colorScheme.onSurfaceVariant,
                             ),
                           ),
                         ),
                         Text(
-                          NumberUtils.toIdr(_cleanAmount - _cleanFee),
+                          NumberUtils.toIdr(
+                            _generateTransaction ? _netAmount : _cleanAmount,
+                          ),
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             color: AppColors.getSuccess(context),
@@ -241,7 +278,7 @@ class _PayReceivableModalState extends State<PayReceivableModal> {
               ),
               const SizedBox(height: 16),
               CustomButton(
-                title: ScreenDict.receivableApply.get(widget.isRpg),
+                title: ScreenDict.receivableApply.get(isRpg),
                 color: AppColors.getSuccess(context),
                 onTap: _submit,
               ),

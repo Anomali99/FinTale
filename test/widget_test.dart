@@ -89,9 +89,44 @@ void main() {
     test('CategoryDict returns valid definitions for all transfer categories', () {
       for (final cat in TransactionCategory.transferCategories) {
         final dict = cat.categoryDict;
-        expect(dict.terminology.normal.isNotEmpty, isTrue);
-        expect(dict.terminology.rpg.isNotEmpty, isTrue);
+        expect(dict.terminology.normal.isNotEmpty, true);
+        expect(dict.terminology.rpg.isNotEmpty, true);
       }
+    });
+
+    test('assetSale category is wired in incomeCategories and categoryDict', () {
+      expect(
+        TransactionCategory.incomeCategories.contains(
+          TransactionCategory.assetSale,
+        ),
+        true,
+      );
+      final dict = TransactionCategory.assetSale.categoryDict;
+      expect(dict.terminology.normal, 'Jual Aset');
+      expect(dict.terminology.rpg, 'Likuidasi Beban');
+      expect(dict.type, 'income');
+    });
+
+    test('interest and tax categories are wired correctly', () {
+      expect(
+        TransactionCategory.incomeCategories.contains(
+          TransactionCategory.interest,
+        ),
+        true,
+      );
+      expect(
+        TransactionCategory.expenseCategories.contains(
+          TransactionCategory.tax,
+        ),
+        true,
+      );
+      final interestDict = TransactionCategory.interest.categoryDict;
+      expect(interestDict.terminology.normal, 'Bunga Simpanan');
+      expect(interestDict.type, 'income');
+
+      final taxDict = TransactionCategory.tax.categoryDict;
+      expect(taxDict.terminology.normal, 'Pajak & Retribusi');
+      expect(taxDict.type, 'expense');
     });
   });
 

@@ -221,6 +221,10 @@ class HomeController with ChangeNotifier {
             }
           }
 
+          final bool walletIsSavings = wallet.isSavings;
+          final double dreamFundPct =
+              walletIsSavings ? 0.0 : (userAllocations[SubSectorType.dreamFund] ?? 0.0);
+
           void processAllocation(
             SectorType sector,
             SubSectorType? subSector,
@@ -279,6 +283,11 @@ class HomeController with ChangeNotifier {
             SubSectorType.lowRisk,
             investLowRiskPct,
           );
+          processAllocation(
+            SectorType.living,
+            SubSectorType.dreamFund,
+            dreamFundPct,
+          );
           await _userController.saveUser();
         }
         wallet.addAmount(transaction.amount, isIncome: true);
@@ -298,11 +307,16 @@ class HomeController with ChangeNotifier {
       if (context.mounted) {
         if (transaction.type == TransactionType.income) {
           if (wallet.isEmergency) {
-            _userController.addEmergencyTotal(
-              context,
-              transaction.amount,
-              isIncome: true,
-            );
+            final firstCategory = transaction.detailTransaction.isNotEmpty
+                ? transaction.detailTransaction[0].category
+                : null;
+            if (firstCategory != TransactionCategory.interest) {
+              _userController.addEmergencyTotal(
+                context,
+                transaction.amount,
+                isIncome: true,
+              );
+            }
           }
         } else if (transaction.type == TransactionType.transfer) {
           if (wallet.isEmergency) {

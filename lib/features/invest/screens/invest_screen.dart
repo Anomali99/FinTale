@@ -44,7 +44,7 @@ class InvestScreen extends StatelessWidget {
     );
 
     if (result != null && context.mounted) {
-      TransactionModel transaction = result['transaction'];
+      TransactionModel? transaction = result['transaction'];
       AssetsModel updatedAsset = result['asset'];
       Decimal emergencyDeduction = result['emergency_deduction'];
 
@@ -86,7 +86,7 @@ class InvestScreen extends StatelessWidget {
     );
 
     if (result != null && context.mounted) {
-      bool isSuccess = await investController.claimDeviden(result);
+      bool isSuccess = await investController.claimDeviden(context, result);
       await historyController.applyFilter();
       await analyticsController.applyFilter();
       if (!context.mounted) return;

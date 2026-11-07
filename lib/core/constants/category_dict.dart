@@ -87,6 +87,16 @@ class CategoryDict {
     ),
   );
 
+  static const CategoryModel tax = CategoryModel(
+    type: 'expense',
+    color: Colors.brown,
+    terminology: TermModel(normal: 'Pajak & Retribusi', rpg: 'Upeti Kerajaan'),
+    icons: IconModel(
+      normal: FontAwesomeIcons.receipt,
+      rpg: FontAwesomeIcons.stamp,
+    ),
+  );
+
   static const CategoryModel salary = CategoryModel(
     type: 'income',
     color: Colors.green,
@@ -133,6 +143,16 @@ class CategoryDict {
     ),
   );
 
+  static const CategoryModel assetSale = CategoryModel(
+    type: 'income',
+    color: Colors.orange,
+    terminology: TermModel(normal: 'Jual Aset', rpg: 'Likuidasi Beban'),
+    icons: IconModel(
+      normal: FontAwesomeIcons.arrowTrendUp,
+      rpg: FontAwesomeIcons.coins,
+    ),
+  );
+
   static const CategoryModel dividend = CategoryModel(
     type: 'income',
     color: Colors.amber,
@@ -140,6 +160,16 @@ class CategoryDict {
     icons: IconModel(
       normal: FontAwesomeIcons.coins,
       rpg: FontAwesomeIcons.sackDollar,
+    ),
+  );
+
+  static const CategoryModel interest = CategoryModel(
+    type: 'income',
+    color: Colors.lime,
+    terminology: TermModel(normal: 'Bunga Simpanan', rpg: 'Bunga Bank Guild'),
+    icons: IconModel(
+      normal: FontAwesomeIcons.percent,
+      rpg: FontAwesomeIcons.coins,
     ),
   );
 
@@ -543,6 +573,7 @@ class CategoryDict {
     charity,
     health,
     utilities,
+    tax,
     lending,
     debtInstallment,
     other,
@@ -550,7 +581,9 @@ class CategoryDict {
     business,
     loanDisbursement,
     debtCollection,
+    assetSale,
     dividend,
+    interest,
     gift,
     otherIncome,
     transfer,
@@ -654,6 +687,8 @@ class CategoryDict {
         return giftGiving;
       case TransactionCategory.socialEvent:
         return socialEvent;
+      case TransactionCategory.tax:
+        return tax;
       case TransactionCategory.other:
         return other;
       case TransactionCategory.salary:
@@ -664,8 +699,12 @@ class CategoryDict {
         return loanDisbursement;
       case TransactionCategory.debtCollection:
         return debtCollection;
+      case TransactionCategory.assetSale:
+        return assetSale;
       case TransactionCategory.dividend:
         return dividend;
+      case TransactionCategory.interest:
+        return interest;
       case TransactionCategory.gift:
         return gift;
       case TransactionCategory.otherIncome:

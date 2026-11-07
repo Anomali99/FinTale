@@ -24,6 +24,7 @@ class IncomeScreen extends StatefulWidget {
   final Map<Enum, double>? allocation;
   final bool isTransfer;
   final bool isEmergencyTarget;
+  final bool isSavingsTarget;
   final Decimal? initialAmount;
 
   const IncomeScreen({
@@ -31,9 +32,11 @@ class IncomeScreen extends StatefulWidget {
     this.allocation,
     bool? isTransfer,
     bool? isEmergencyTarget,
+    bool? isSavingsTarget,
     this.initialAmount,
   }) : isTransfer = isTransfer ?? false,
-       isEmergencyTarget = isEmergencyTarget ?? false;
+       isEmergencyTarget = isEmergencyTarget ?? false,
+       isSavingsTarget = isSavingsTarget ?? false;
 
   @override
   State<IncomeScreen> createState() => _IncomeScreenState();
@@ -57,13 +60,18 @@ class _IncomeScreenState extends State<IncomeScreen> {
   @override
   void initState() {
     super.initState();
-    if (widget.isEmergencyTarget && widget.initialAmount != null) {
+    if ((widget.isEmergencyTarget || widget.isSavingsTarget) &&
+        widget.initialAmount != null) {
       _amountController.text = NumberUtils.formatNumber(widget.initialAmount!);
     }
     if (widget.isTransfer) {
-      _selectedCategory = widget.isEmergencyTarget
-          ? TransactionCategory.emergencyFund
-          : TransactionCategory.transfer;
+      if (widget.isEmergencyTarget) {
+        _selectedCategory = TransactionCategory.emergencyFund;
+      } else if (widget.isSavingsTarget) {
+        _selectedCategory = TransactionCategory.savings;
+      } else {
+        _selectedCategory = TransactionCategory.transfer;
+      }
     }
   }
 
@@ -82,9 +90,14 @@ class _IncomeScreenState extends State<IncomeScreen> {
 
   Decimal? get _maxAmount {
     if (widget.isTransfer && _selectedWallet != null) {
-      return _selectedWallet?.amount;
+      final walletBalance = _selectedWallet!.amount;
+      if (widget.isSavingsTarget && widget.initialAmount != null) {
+        return walletBalance < widget.initialAmount!
+            ? walletBalance
+            : widget.initialAmount;
+      }
+      return walletBalance;
     }
-
     return null;
   }
 
@@ -176,6 +189,7 @@ class _IncomeScreenState extends State<IncomeScreen> {
     final wallets = walletController.allWallets;
     final isRpg = settingsController.isRpgMode;
     final isEmergencyTarget = widget.isEmergencyTarget;
+    final isSavingsTarget = widget.isSavingsTarget;
 
     return Scaffold(
       backgroundColor: colorScheme.surface,
@@ -243,17 +257,19 @@ class _IncomeScreenState extends State<IncomeScreen> {
               },
               onChanged: (val) {
                 if (_selectedTarget == val) _selectedTarget = null;
-                setState(() => _selectedWallet = val);
-                _onChanged(
-                  _amountController,
-                  _amountController.text,
-                  max: _maxAmount,
-                );
-                _onChanged(
-                  _feeController,
-                  _feeController.text,
-                  max: NumberUtils.parseToDecimal(_amountController.text),
-                );
+                setState(() {
+                  _selectedWallet = val;
+                  _onChanged(
+                    _amountController,
+                    _amountController.text,
+                    max: _maxAmount,
+                  );
+                  _onChanged(
+                    _feeController,
+                    _feeController.text,
+                    max: NumberUtils.parseToDecimal(_amountController.text),
+                  );
+                });
               },
             );
 
@@ -267,7 +283,11 @@ class _IncomeScreenState extends State<IncomeScreen> {
                   .where(
                     (e) =>
                         e.id != _selectedWallet?.id &&
-                        (isEmergencyTarget ? e.isEmergency : true),
+                        (isEmergencyTarget
+                            ? e.isEmergency
+                            : isSavingsTarget
+                            ? e.isSavings
+                            : true),
                   )
                   .map((wallet) {
                     return DropdownMenuItem(

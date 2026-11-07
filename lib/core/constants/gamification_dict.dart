@@ -325,7 +325,7 @@ class GamificationDict {
   static String get missionNote2 =>
       'Node `${skillRoutine.get(false)}` berbagi wadah poin yang sama dengan `${skillDream.get(false)}`. Anda memiliki kebebasan untuk menabung sebagian pemasukan Anda ke dalam `${skillDream.get(false)}` untuk mewujudkan tujuan besar atau membeli item legendaris di masa depan.';
   static String get missionNote3 =>
-      'Setelah `${skillDebt.get(false)}` Anda lunas atau `${skillEmergency.get(false)}` sudah mencapai kapasitas maksimal, Anda akan membuka "Mode Bebas" (Poin Ekstra) di mana poin tersebut dapat didistribusikan ulang ke node mana pun di dalam pohon alokasi.';
+      'Setelah `${skillDebt.get(false)}` Anda lunas, Anda akan membuka "Mode Bebas" (Poin Ekstra) di mana poin tersebut dapat didistribusikan ulang ke node mana pun di dalam pohon alokasi. Dana darurat yang sudah penuh tetap aktif dan opsional untuk diisi lebih lanjut.';
 
   static List<MissionModel> get allMission => [
     missionRecordTransaction,

@@ -122,13 +122,16 @@ enum TransactionCategory {
   publicTransport,
   giftGiving,
   socialEvent,
+  tax,
   other,
   // --- Income ---
   salary,
   business,
   loanDisbursement,
   debtCollection,
+  assetSale,
   dividend,
+  interest,
   gift,
   otherIncome,
   // --- Transfer ---
@@ -181,6 +184,7 @@ enum TransactionCategory {
     lending,
     ...transferCategories,
     utilities,
+    tax,
     other,
   ];
 
@@ -194,7 +198,9 @@ enum TransactionCategory {
     business,
     loanDisbursement,
     debtCollection,
+    assetSale,
     dividend,
+    interest,
     gift,
     ...transferCategories,
     otherIncome,
