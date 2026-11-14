@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 
+import '../../../controllers/settings_controller.dart';
 import '../../../controllers/wallet_controller.dart';
 import '../../../core/constants/screen_dict.dart';
 import '../../../core/utils/enum_types.dart';
@@ -25,13 +26,29 @@ class WalletDetails extends StatelessWidget {
   Widget build(BuildContext context) {
     final walletController = context.read<WalletController>();
     final colorScheme = Theme.of(context).colorScheme;
-    final cash = walletController.cash;
+    final excludeSavings = !context.select<SettingsController, bool>(
+      (s) => s.isIncludeSavingsInTotal,
+    );
+    final cashWallets = walletController.cashWallets;
+    final totalCash = walletController.getTotalByType(
+      WalletType.cash,
+      excludeSavings: excludeSavings,
+    );
     final bank = walletController.bank;
     final eWallet = walletController.eWallet;
     final platform = walletController.platform;
-    final totalBank = walletController.totalBank;
-    final totalEWallet = walletController.totalEWallet;
-    final totalPlatform = walletController.totalPlatform;
+    final totalBank = walletController.getTotalByType(
+      WalletType.bank,
+      excludeSavings: excludeSavings,
+    );
+    final totalEWallet = walletController.getTotalByType(
+      WalletType.eWallet,
+      excludeSavings: excludeSavings,
+    );
+    final totalPlatform = walletController.getTotalByType(
+      WalletType.platform,
+      excludeSavings: excludeSavings,
+    );
 
     return DraggableScrollableSheet(
       initialChildSize: 0.6,
@@ -53,12 +70,26 @@ class WalletDetails extends StatelessWidget {
               ),
               const SizedBox(height: 24),
 
-              if (cash != null)
-                _buildCashItem(
-                  context: context,
-                  wallet: cash,
-                  walletController: walletController,
-                ),
+              if (cashWallets.isNotEmpty)
+                if (cashWallets.length == 1)
+                  _buildCashItem(
+                    context: context,
+                    wallet: cashWallets.first,
+                    walletController: walletController,
+                    isDefault: true,
+                    excludeSavings: excludeSavings,
+                  )
+                else
+                  _buildWalletGroup(
+                    context: context,
+                    icon: FontAwesomeIcons.coins,
+                    title: ScreenDict.walletCash.get(isRpg),
+                    totalAmount: totalCash,
+                    parents: cashWallets,
+                    walletController: walletController,
+                    defaultCashId: walletController.defaultCash?.id,
+                    excludeSavings: excludeSavings,
+                  ),
 
               Divider(
                 color: colorScheme.onSurface.withValues(alpha: 0.1),
@@ -73,6 +104,7 @@ class WalletDetails extends StatelessWidget {
                   totalAmount: totalBank,
                   parents: bank,
                   walletController: walletController,
+                  excludeSavings: excludeSavings,
                 ),
 
                 Divider(
@@ -89,6 +121,7 @@ class WalletDetails extends StatelessWidget {
                   totalAmount: totalEWallet,
                   parents: eWallet,
                   walletController: walletController,
+                  excludeSavings: excludeSavings,
                 ),
 
                 Divider(
@@ -105,6 +138,7 @@ class WalletDetails extends StatelessWidget {
                   totalAmount: totalPlatform,
                   parents: platform,
                   walletController: walletController,
+                  excludeSavings: excludeSavings,
                 ),
 
                 Divider(
@@ -143,17 +177,22 @@ class WalletDetails extends StatelessWidget {
     required BuildContext context,
     required WalletModel wallet,
     required WalletController walletController,
+    bool isDefault = false,
+    bool excludeSavings = false,
   }) {
     final colorScheme = Theme.of(context).colorScheme;
     final hasPockets = walletController
         .getPocketsForWallet(wallet.id ?? 0)
         .isNotEmpty;
     final displayAmount = hasPockets
-        ? walletController.getParentTotalBalance(wallet.id ?? 0)
-        : wallet.amount;
+        ? walletController.getParentTotalBalance(
+            wallet.id ?? 0,
+            excludeSavings: excludeSavings,
+          )
+        : ((excludeSavings && wallet.isSavings) ? Decimal.zero : wallet.amount);
 
     return GestureDetector(
-      onTap: () => {Navigator.pop(context), onTap(wallet, lock: true)},
+      onTap: () => {Navigator.pop(context), onTap(wallet, lock: isDefault)},
       child: Row(
         children: [
           CircleAvatar(
@@ -196,6 +235,8 @@ class WalletDetails extends StatelessWidget {
     required Decimal totalAmount,
     required List<WalletModel> parents,
     required WalletController walletController,
+    int? defaultCashId,
+    bool excludeSavings = false,
   }) {
     final colorScheme = Theme.of(context).colorScheme;
 
@@ -218,6 +259,8 @@ class WalletDetails extends StatelessWidget {
               context: context,
               wallet: parent,
               walletController: walletController,
+              isLocked: defaultCashId != null && parent.id == defaultCashId,
+              excludeSavings: excludeSavings,
             ),
         ],
       ),
@@ -228,17 +271,22 @@ class WalletDetails extends StatelessWidget {
     required BuildContext context,
     required WalletModel wallet,
     required WalletController walletController,
+    bool isLocked = false,
+    bool excludeSavings = false,
   }) {
     final colorScheme = Theme.of(context).colorScheme;
     final hasPockets = walletController
         .getPocketsForWallet(wallet.id ?? 0)
         .isNotEmpty;
     final displayAmount = hasPockets
-        ? walletController.getParentTotalBalance(wallet.id ?? 0)
-        : wallet.amount;
+        ? walletController.getParentTotalBalance(
+            wallet.id ?? 0,
+            excludeSavings: excludeSavings,
+          )
+        : ((excludeSavings && wallet.isSavings) ? Decimal.zero : wallet.amount);
 
     return GestureDetector(
-      onTap: () => {Navigator.pop(context), onTap(wallet)},
+      onTap: () => {Navigator.pop(context), onTap(wallet, lock: isLocked)},
       child: Padding(
         padding: const EdgeInsets.only(
           left: 56.0,

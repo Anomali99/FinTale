@@ -122,22 +122,42 @@ enum TransactionCategory {
   publicTransport,
   giftGiving,
   socialEvent,
+  tax,
   other,
   // --- Income ---
   salary,
   business,
   loanDisbursement,
   debtCollection,
+  assetSale,
   dividend,
+  interest,
   gift,
   otherIncome,
-  // --- System ---
+  // --- Transfer ---
   transfer,
+  pocketTransfer,
+  topUp,
+  emergencyFund,
+  savings,
+  cashWithdrawal,
+  cashDeposit,
+  // --- System ---
   lowRisk,
   mediumRisk,
   highRisk;
 
   CategoryModel get categoryDict => CategoryDict.getByTransactionCategory(this);
+
+  static List<TransactionCategory> get transferCategories => [
+    transfer,
+    pocketTransfer,
+    topUp,
+    emergencyFund,
+    savings,
+    cashWithdrawal,
+    cashDeposit,
+  ];
 
   static List<TransactionCategory> get expenseCategories => [
     food,
@@ -157,14 +177,14 @@ enum TransactionCategory {
     publicTransport,
     transport,
     entertainment,
-    gift,
     giftGiving,
     socialEvent,
     charity,
     health,
     lending,
-    transfer,
+    ...transferCategories,
     utilities,
+    tax,
     other,
   ];
 
@@ -178,8 +198,11 @@ enum TransactionCategory {
     business,
     loanDisbursement,
     debtCollection,
+    assetSale,
     dividend,
+    interest,
     gift,
+    ...transferCategories,
     otherIncome,
   ];
 
@@ -330,6 +353,7 @@ enum SectorType { living, payDebt, emergency, investment }
 enum SubSectorType {
   essentials,
   dreamFund,
+  emergencySavings,
   lowRisk,
   mediumRisk,
   highRisk;

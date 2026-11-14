@@ -78,6 +78,9 @@ class SkillController with ChangeNotifier {
         SubSectorType.essentials,
         SubSectorType.dreamFund,
       ]);
+      _setupChildCake(SectorType.emergency, [
+        SubSectorType.emergencySavings,
+      ]);
       _setupChildCake(SectorType.investment, [
         SubSectorType.mediumRisk,
         SubSectorType.highRisk,
@@ -185,13 +188,22 @@ class SkillController with ChangeNotifier {
         _userController.updateSkillByKey(SubSectorType.essentials, ess - 1);
       }
     } else if (sector == SectorType.emergency) {
-      double invCake =
-          (freeAllocationLv1[SectorType.investment] ?? 0.0) +
-          (extraFreeAllocationLv1[SectorType.investment] ?? 0.0);
-      if (invCake <= 0) {
-        double low = skillAllocations[SubSectorType.lowRisk] ?? 0.0;
-        if (low > 0) {
-          _userController.updateSkillByKey(SubSectorType.lowRisk, low - 1);
+      double emgSavings =
+          skillAllocations[SubSectorType.emergencySavings] ?? 0.0;
+      if (emgSavings > 0) {
+        _userController.updateSkillByKey(
+          SubSectorType.emergencySavings,
+          emgSavings - 1,
+        );
+      } else {
+        double invCake =
+            (freeAllocationLv1[SectorType.investment] ?? 0.0) +
+            (extraFreeAllocationLv1[SectorType.investment] ?? 0.0);
+        if (invCake <= 0) {
+          double low = skillAllocations[SubSectorType.lowRisk] ?? 0.0;
+          if (low > 0) {
+            _userController.updateSkillByKey(SubSectorType.lowRisk, low - 1);
+          }
         }
       }
     } else if (sector == SectorType.investment) {
@@ -341,6 +353,9 @@ class SkillController with ChangeNotifier {
   SectorType? _getParent(SubSectorType child) {
     if (child == SubSectorType.essentials || child == SubSectorType.dreamFund) {
       return SectorType.living;
+    }
+    if (child == SubSectorType.emergencySavings) {
+      return SectorType.emergency;
     }
     if (child == SubSectorType.mediumRisk || child == SubSectorType.highRisk) {
       return SectorType.investment;

@@ -183,7 +183,7 @@ class HomeScreen extends StatelessWidget {
             as Map<String, dynamic>?;
 
     if (result != null && context.mounted) {
-      TransactionModel transaction = result['transaction'];
+      TransactionModel? transaction = result['transaction'];
       AssetsModel asset = result['asset'];
       bool isSuccess = await investController.saveTransaction(
         context,
@@ -194,11 +194,126 @@ class HomeScreen extends StatelessWidget {
       if (isSuccess) {
         await skillController.loadData();
       }
-      if (!context.mounted) return transaction.amount;
+      if (!context.mounted) return transaction?.amount;
       GlobalMessenger.showMessage(
         context,
         message: UiDict.getSaveNotif(
           ScreenDict.investAssetName.get(isRpg),
+          isSuccess: isSuccess,
+        ),
+        isSuccess: isSuccess,
+      );
+      return transaction?.amount;
+    }
+    return null;
+  }
+
+  Future<Decimal?> _openTransferToSavingsWallet(
+    BuildContext context,
+    AllocationModel allocation,
+  ) async {
+    final walletController = context.read<WalletController>();
+    final homeController = context.read<HomeController>();
+    final isRpg = context.read<SettingsController>().isRpgMode;
+    final savingsWallets = walletController.allWallets
+        .where((w) => w.isSavings)
+        .toList();
+
+    if (savingsWallets.isEmpty) {
+      GlobalMessenger.showMessage(
+        context,
+        message: 'Belum ada kantong atau dompet yang ditandai sebagai tabungan.',
+        isSuccess: false,
+      );
+      return null;
+    }
+
+    final result =
+        await Navigator.pushNamed(
+              context,
+              '/income-record',
+              arguments: {
+                "allocation": homeController.activeAllocations,
+                "isTransfer": true,
+                "initialAmount": allocation.amount,
+                "isSavingsTarget": true,
+              },
+            )
+            as Map<String, dynamic>?;
+
+    if (result != null && context.mounted) {
+      TransactionModel transaction = result['transaction'];
+      bool autoAllocation = result['auto_allocation'] ?? false;
+      bool useReserved = result['use_reserved'] ?? false;
+      bool isSuccess = await homeController.saveTransaction(
+        context,
+        transaction,
+        autoAllocation: autoAllocation,
+        useReserved: useReserved,
+      );
+      if (!context.mounted) return transaction.amount;
+      GlobalMessenger.showMessage(
+        context,
+        message: UiDict.getSaveNotif(
+          UiDict.transfer.get(isRpg),
+          isSuccess: isSuccess,
+        ),
+        isSuccess: isSuccess,
+      );
+      return transaction.amount;
+    }
+    return null;
+  }
+
+  Future<Decimal?> _openTransferToEmergencyWallet(
+    BuildContext context,
+    AllocationModel allocation,
+  ) async {
+    final walletController = context.read<WalletController>();
+    final homeController = context.read<HomeController>();
+    final isRpg = context.read<SettingsController>().isRpgMode;
+    final emergencyWallets = walletController.allWallets
+        .where((w) => w.isEmergency)
+        .toList();
+
+    if (emergencyWallets.isEmpty) {
+      GlobalMessenger.showMessage(
+        context,
+        message:
+            'Belum ada kantong atau dompet yang ditandai sebagai dana darurat.',
+        isSuccess: false,
+      );
+      return null;
+    }
+
+    final result =
+        await Navigator.pushNamed(
+              context,
+              '/income-record',
+              arguments: {
+                "allocation": homeController.activeAllocations,
+                "isTransfer": true,
+                "initialAmount": allocation.amount,
+                "isEmergencyTarget": true,
+              },
+            )
+            as Map<String, dynamic>?;
+
+    if (result != null && context.mounted) {
+      TransactionModel transaction = result['transaction'];
+      bool autoAllocation = result['auto_allocation'] ?? false;
+      bool useReserved = result['use_reserved'] ?? false;
+      bool isSuccess = await homeController.saveTransaction(
+        context,
+        transaction,
+        autoAllocation: autoAllocation,
+        useReserved: useReserved,
+      );
+      if (!context.mounted) return transaction.amount;
+      GlobalMessenger.showMessage(
+        context,
+        message: UiDict.getSaveNotif(
+          UiDict.transfer.get(isRpg),
           isSuccess: isSuccess,
         ),
         isSuccess: isSuccess,
@@ -221,11 +336,26 @@ class HomeScreen extends StatelessWidget {
     Decimal? allocationUse;
     switch (allocation.sector) {
       case SectorType.living:
+        if (allocation.subSector == SubSectorType.dreamFund) {
+          allocationUse = await _openTransferToSavingsWallet(
+            context,
+            allocation,
+          );
+        }
         break;
       case SectorType.payDebt:
         allocationUse = await _openPayDebt(context, allocation, wallets);
         break;
       case SectorType.emergency:
+        if (allocation.subSector == SubSectorType.emergencySavings) {
+          allocationUse = await _openTransferToEmergencyWallet(
+            context,
+            allocation,
+          );
+        } else {
+          allocationUse = await _openAddAsset(context, allocation, wallets);
+        }
+        break;
       case SectorType.investment:
         allocationUse = await _openAddAsset(context, allocation, wallets);
         break;

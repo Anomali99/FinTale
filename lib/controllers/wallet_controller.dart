@@ -14,10 +14,22 @@ class WalletController extends ChangeNotifier {
 
   Map<int, List<WalletModel>> pockets = {};
 
-  WalletModel? cash;
+  /// Semua dompet cash (parent). Bisa lebih dari satu.
+  List<WalletModel> cashWallets = [];
+
+  /// Dompet cash default: cash dengan id terkecil (pertama dibuat via StarterPack).
+  WalletModel? get defaultCash =>
+      cashWallets.isEmpty
+          ? null
+          : cashWallets.reduce((a, b) => (a.id ?? 0) < (b.id ?? 0) ? a : b);
+
+  /// Getter lama dipertahankan sebagai alias ke defaultCash agar kode lama tidak pecah.
+  WalletModel? get cash => defaultCash;
+
   List<WalletModel> bank = [];
   List<WalletModel> eWallet = [];
   List<WalletModel> platform = [];
+  Decimal totalCash = Decimal.zero;
   Decimal totalBank = Decimal.zero;
   Decimal totalEWallet = Decimal.zero;
   Decimal totalPlatform = Decimal.zero;
@@ -46,11 +58,24 @@ class WalletController extends ChangeNotifier {
   List<WalletModel> getPocketsForWallet(int parentId) =>
       pockets[parentId] ?? [];
 
-  Decimal getParentTotalBalance(int parentId) {
+  Decimal getParentTotalBalance(int parentId, {bool excludeSavings = false}) {
     WalletModel parent = getWalletById(parentId);
-    Decimal total = parent.amount;
+    Decimal total =
+        (excludeSavings && parent.isSavings) ? Decimal.zero : parent.amount;
     for (WalletModel pocket in getPocketsForWallet(parentId)) {
+      if (excludeSavings && pocket.isSavings) continue;
       total += pocket.amount;
+    }
+    return total;
+  }
+
+  Decimal getTotalByType(WalletType type, {bool excludeSavings = false}) {
+    Decimal total = Decimal.zero;
+    for (WalletModel wallet in allWallets) {
+      if (wallet.type == type) {
+        if (excludeSavings && wallet.isSavings) continue;
+        total += wallet.amount;
+      }
     }
     return total;
   }
@@ -107,12 +132,14 @@ class WalletController extends ChangeNotifier {
 
       wallets = [];
       pockets = {};
+      cashWallets = [];
       bank = [];
       eWallet = [];
       platform = [];
 
       totalBalance = Decimal.zero;
       totalSavings = Decimal.zero;
+      totalCash = Decimal.zero;
       totalBank = Decimal.zero;
       totalEWallet = Decimal.zero;
       totalPlatform = Decimal.zero;
@@ -121,12 +148,12 @@ class WalletController extends ChangeNotifier {
         if (wallet.isPocket) {
           pockets.putIfAbsent(wallet.parentId!, () => []);
           pockets[wallet.parentId!]!.add(wallet);
-
-          if (wallet.isSavings) {
-            totalSavings += wallet.amount;
-          }
         } else {
           wallets.add(wallet);
+        }
+
+        if (wallet.isSavings) {
+          totalSavings += wallet.amount;
         }
 
         totalBalance += wallet.amount;
@@ -145,7 +172,10 @@ class WalletController extends ChangeNotifier {
             totalPlatform += wallet.amount;
             break;
           case WalletType.cash:
-            if (wallet.isParent) cash = wallet;
+            if (wallet.isParent) {
+              cashWallets.add(wallet);
+              totalCash += wallet.amount;
+            }
         }
       }
     } catch (e) {

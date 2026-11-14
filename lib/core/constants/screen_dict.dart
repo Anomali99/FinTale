@@ -39,6 +39,7 @@ class ScreenDict {
   static const String historyInformation = 'Informasi Dasar';
   static const String breakdownDetail = 'Rincian Item';
   static const String totalReceived = 'Total diterima peminjam';
+  static const String totalPaidIn = 'Total pembayaran diterima';
 
   static const TermModel homeTotalBalance = TermModel(
     normal: 'Total Saldo',
@@ -240,6 +241,10 @@ class ScreenDict {
   static const TermModel receivableGenerateExpense = TermModel(
     normal: 'Generate Transaksi Pengeluaran?',
     rpg: 'Catat Pengeluaran Dana?',
+  );
+  static const TermModel receivableGenerateIncome = TermModel(
+    normal: 'Generate Transaksi Pemasukan?',
+    rpg: 'Catat Penerimaan Dana?',
   );
 
   static const TermModel investModal = TermModel(
@@ -456,6 +461,10 @@ class ScreenDict {
   static String getReceivableGenerateExpenseDesc({bool isRpg = false}) => isRpg
       ? 'Otomatis catat dana yang keluar dari kas guild saat piutang dicatat.'
       : 'Otomatis mencatat pengeluaran ke histori saat piutang dicatat.';
+
+  static String getReceivableGenerateIncomeDesc({bool isRpg = false}) => isRpg
+      ? 'Otomatis catat dana yang masuk ke kas guild saat pembayaran piutang dicatat.'
+      : 'Otomatis mencatat pemasukan ke histori saat pembayaran piutang dicatat.';
 
   static String getTargetDateDesc({bool isRpg = false}) =>
       'Aktifkan untuk notifikasi atau ${billsMaster.get(isRpg)} otomatis generate setiap periode tertentu.';

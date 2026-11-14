@@ -91,11 +91,20 @@ class InvestController with ChangeNotifier {
     }
   }
 
-  Future<bool> claimDeviden(TransactionModel transaction) async {
+  Future<bool> claimDeviden(BuildContext context, TransactionModel transaction) async {
     try {
       await _transactionController.createTransaction(transaction);
       final wallet = _walletController.getWalletById(transaction.walletId);
       wallet.addAmount(transaction.amount, isIncome: true);
+
+      if (wallet.isEmergency && context.mounted) {
+        _userController.addEmergencyTotal(
+          context,
+          transaction.amount,
+          isIncome: true,
+        );
+      }
+
       await _walletController.updateWallet(wallet);
       await _walletController.loadData();
       return true;
@@ -107,30 +116,49 @@ class InvestController with ChangeNotifier {
 
   Future<bool> sellAsset(
     BuildContext context,
-    TransactionModel transaction,
+    TransactionModel? transaction,
     AssetsModel asset,
     Decimal emergencyDeduction,
   ) async {
     try {
       await _assetDao.update(asset);
 
-      final wallet = _walletController.getWalletById(transaction.walletId);
-      wallet.addAmount(transaction.amount, isIncome: true);
+      if (transaction != null) {
+        final wallet = _walletController.getWalletById(transaction.walletId);
+        wallet.addAmount(transaction.amount, isIncome: true);
 
-      if (asset.isEmergency && context.mounted) {
-        _userController.addEmergencyTotal(
-          context,
-          emergencyDeduction,
-          isIncome: false,
-        );
+        if (asset.isEmergency && context.mounted) {
+          _userController.addEmergencyTotal(
+            context,
+            emergencyDeduction,
+            isIncome: false,
+          );
+        }
+
+        if (wallet.isEmergency && context.mounted) {
+          _userController.addEmergencyTotal(
+            context,
+            transaction.amount,
+            isIncome: true,
+          );
+        }
+
+        await _walletController.updateWallet(wallet);
+        await _walletController.loadData();
+        await _transactionController.createTransaction(transaction);
+        if (context.mounted) {
+          await _userController.processRecordTransaction(context);
+        }
+      } else {
+        if (asset.isEmergency && context.mounted) {
+          _userController.addEmergencyTotal(
+            context,
+            emergencyDeduction,
+            isIncome: false,
+          );
+        }
       }
 
-      await _walletController.updateWallet(wallet);
-      await _walletController.loadData();
-      await _transactionController.createTransaction(transaction);
-      if (context.mounted) {
-        await _userController.processRecordTransaction(context);
-      }
       await _userController.saveUser();
       await loadData();
 
@@ -143,35 +171,48 @@ class InvestController with ChangeNotifier {
 
   Future<bool> saveTransaction(
     BuildContext context,
-    TransactionModel transaction,
+    TransactionModel? transaction,
     AssetsModel asset, {
     bool useReserved = false,
   }) async {
     try {
       if (asset.id == null) {
         int assetId = await _assetDao.create(asset);
-        transaction.setAssetId(assetId);
+        transaction?.setAssetId(assetId);
       } else {
         await _assetDao.update(asset);
       }
 
-      final wallet = _walletController.getWalletById(transaction.walletId);
-      wallet.addAmount(transaction.amount, isIncome: false);
+      if (transaction != null) {
+        final wallet = _walletController.getWalletById(transaction.walletId);
+        wallet.addAmount(transaction.amount, isIncome: false);
 
-      if (asset.isEmergency && context.mounted) {
-        _userController.addEmergencyTotal(
-          context,
-          transaction.detailTransaction[0].amount,
-          isIncome: true,
-        );
+        if (wallet.isEmergency && context.mounted) {
+          _userController.addEmergencyTotal(
+            context,
+            transaction.amount,
+            isIncome: false,
+          );
+        }
+
+        if (asset.isEmergency && context.mounted) {
+          _userController.addEmergencyTotal(
+            context,
+            transaction.detailTransaction.isNotEmpty
+                ? transaction.detailTransaction[0].amount
+                : transaction.amount,
+            isIncome: true,
+          );
+        }
+
+        await _walletController.updateWallet(wallet);
+        await _walletController.loadData();
+        await _transactionController.createTransaction(transaction);
+        if (context.mounted) {
+          await _userController.processRecordTransaction(context);
+        }
       }
 
-      await _walletController.updateWallet(wallet);
-      await _walletController.loadData();
-      await _transactionController.createTransaction(transaction);
-      if (context.mounted) {
-        await _userController.processRecordTransaction(context);
-      }
       await _userController.saveUser();
       await loadData();
       return true;

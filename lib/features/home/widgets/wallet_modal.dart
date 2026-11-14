@@ -250,11 +250,10 @@ class _WalletModalState extends State<WalletModal>
                     border: OutlineInputBorder(),
                   ),
                   items: [
-                    if (widget.lock)
-                      DropdownMenuItem(
-                        value: WalletType.cash,
-                        child: Text(ScreenDict.walletCash.get(isRpg)),
-                      ),
+                    DropdownMenuItem(
+                      value: WalletType.cash,
+                      child: Text(ScreenDict.walletCash.get(isRpg)),
+                    ),
                     DropdownMenuItem(
                       value: WalletType.bank,
                       child: Text(ScreenDict.walletBank.get(isRpg)),
@@ -268,6 +267,7 @@ class _WalletModalState extends State<WalletModal>
                       child: Text(ScreenDict.walletPlatform.get(isRpg)),
                     ),
                   ],
+                  // lock = default cash: tipe dikunci, tidak bisa diubah
                   onChanged: !widget.lock
                       ? (val) => setState(() => _selectedType = val!)
                       : null,
@@ -339,14 +339,12 @@ class _WalletModalState extends State<WalletModal>
                 _buildBalanceTable(colorScheme, walletController),
               ],
 
-              if (!widget.lock) ...[
-                const SizedBox(height: 24),
-                CustomButton(
-                  title: _isEditing ? UiDict.saveChanges : UiDict.addNew,
-                  color: colorScheme.primary,
-                  onTap: _submit,
-                ),
-              ],
+              const SizedBox(height: 24),
+              CustomButton(
+                title: _isEditing ? UiDict.saveChanges : UiDict.addNew,
+                color: colorScheme.primary,
+                onTap: _submit,
+              ),
             ],
           ),
         ),

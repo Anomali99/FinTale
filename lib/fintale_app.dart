@@ -392,6 +392,9 @@ class _FinTaleAppState extends State<FinTaleApp> {
               builder: (_) => IncomeScreen(
                 isTransfer: args?['isTransfer'],
                 allocation: args?['allocation'],
+                initialAmount: args?['initialAmount'],
+                isEmergencyTarget: args?['isEmergencyTarget'],
+                isSavingsTarget: args?['isSavingsTarget'],
               ),
             );
           case '/add-receivable':

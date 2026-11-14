@@ -63,6 +63,7 @@ class _BuyAssetScreenState extends State<BuyAssetScreen>
   bool _isDevidenActive = false;
   bool _isEmergencyActive = false;
   bool _isFeeActive = false;
+  bool _generateTransaction = true;
 
   bool _isNewAssetTab = true;
   bool _isHideTab = false;
@@ -220,41 +221,46 @@ class _BuyAssetScreenState extends State<BuyAssetScreen>
             '${ScreenDict.investAddModal.normal} ${assetToReturn.name}';
       }
 
-      List<TransactionDetailModel> details = [
-        TransactionDetailModel(
-          title: '${assetToReturn.name} $cleanUnit ${assetToReturn.unitName}',
-          amount: cleanAssetAmount,
-          category: TransactionCategory.getTransactionCategory(riskType),
-          flow: FlowType.expense,
-        ),
-      ];
+      TransactionModel? transaction;
 
-      if (_isFeeActive) {
-        details.add(
+      if (_generateTransaction) {
+        List<TransactionDetailModel> details = [
           TransactionDetailModel(
-            title: UiDict.feeAmount,
-            amount: NumberUtils.parseToDecimal(_feeController.text),
-            category: TransactionCategory.utilities,
+            title: '${assetToReturn.name} $cleanUnit ${assetToReturn.unitName}',
+            amount: cleanAssetAmount,
+            category: TransactionCategory.getTransactionCategory(riskType),
             flow: FlowType.expense,
           ),
+        ];
+
+        if (_isFeeActive) {
+          details.add(
+            TransactionDetailModel(
+              title: UiDict.feeAmount,
+              amount: NumberUtils.parseToDecimal(_feeController.text),
+              category: TransactionCategory.utilities,
+              flow: FlowType.expense,
+            ),
+          );
+        }
+
+        transaction = TransactionModel(
+          type: TransactionType.expense,
+          title: transactionTitle,
+          amount: _amount,
+          status: StatusType.paid,
+          walletId: _selectedWallet?.id,
+          assetsId: assetToReturn.id,
+          detailTransaction: details,
+          dateTimestamp: _selectedDate.millisecondsSinceEpoch,
         );
       }
-
-      TransactionModel transaction = TransactionModel(
-        type: TransactionType.expense,
-        title: transactionTitle,
-        amount: _amount,
-        status: StatusType.paid,
-        walletId: _selectedWallet?.id,
-        assetsId: assetToReturn.id,
-        detailTransaction: details,
-        dateTimestamp: _selectedDate.millisecondsSinceEpoch,
-      );
 
       Navigator.pop(context, {
         "asset": assetToReturn,
         "transaction": transaction,
-        'use_reserved': _isSavingsActive,
+        'use_reserved': _generateTransaction ? _isSavingsActive : false,
+        'generate_transaction': _generateTransaction,
       });
     }
   }
@@ -466,7 +472,37 @@ class _BuyAssetScreenState extends State<BuyAssetScreen>
               onChanged: !_isLockWallet
                   ? (val) => setState(() => _selectedWallet = val)
                   : null,
-              validator: (val) => val == null ? UiDict.requiredWallet : null,
+              validator: (val) =>
+                  (_generateTransaction && val == null)
+                      ? UiDict.requiredWallet
+                      : null,
+            );
+
+            final generateTransactionSwitch = SwitchListTile(
+              contentPadding: EdgeInsets.zero,
+              title: Text(
+                ScreenDict.receivableGenerateExpense.get(isRpg),
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
+              subtitle: Text(
+                ScreenDict.getReceivableGenerateExpenseDesc(isRpg: isRpg),
+                style: TextStyle(
+                  fontSize: 12,
+                  color: colorScheme.onSurfaceVariant,
+                ),
+              ),
+              value: _generateTransaction,
+              onChanged: (val) {
+                setState(() {
+                  _generateTransaction = val;
+                  if (!val) {
+                    _selectedWallet = null;
+                    _isFeeActive = false;
+                    _isSavingsActive = false;
+                  }
+                });
+                _calculateTotal();
+              },
             );
 
             final datePicker = CustomDateTimePicker(
@@ -657,25 +693,29 @@ class _BuyAssetScreenState extends State<BuyAssetScreen>
                             left: 12,
                           ),
                           children: [
-                            walletDropdown,
-                            if (widget.pendingAllocation == null)
-                              reservedSwitch,
-                            const SizedBox(height: 16),
-                            datePicker,
-                            const SizedBox(height: 16),
+                            generateTransactionSwitch,
+                            if (_generateTransaction) ...[
+                              walletDropdown,
+                              if (widget.pendingAllocation == null)
+                                reservedSwitch,
+                              const SizedBox(height: 16),
+                              datePicker,
+                              const SizedBox(height: 16),
+                            ],
                             if (_isNewAssetTab) ...[
                               dividendSwitch,
                               emergencySwitch,
                             ],
-                            feeSwitch,
-                            if (_isFeeActive) ...[
-                              const SizedBox(height: 8),
-                              feeField,
-                              const SizedBox(height: 12),
-                              feeNote,
+                            if (_generateTransaction) ...[
+                              feeSwitch,
+                              if (_isFeeActive) ...[
+                                const SizedBox(height: 8),
+                                feeField,
+                                const SizedBox(height: 12),
+                                feeNote,
+                              ],
+                              roundedSwitch,
                             ],
-
-                            roundedSwitch,
                           ],
                         ),
                       ),
@@ -709,20 +749,25 @@ class _BuyAssetScreenState extends State<BuyAssetScreen>
                       const SizedBox(height: 16),
                       priceField,
                       const SizedBox(height: 16),
-                      walletDropdown,
-                      if (widget.pendingAllocation == null) reservedSwitch,
-                      const SizedBox(height: 16),
-                      datePicker,
-                      const SizedBox(height: 16),
-                      if (_isNewAssetTab) ...[dividendSwitch, emergencySwitch],
-                      feeSwitch,
-                      if (_isFeeActive) ...[
-                        const SizedBox(height: 8),
-                        feeField,
-                        const SizedBox(height: 12),
-                        feeNote,
+                      generateTransactionSwitch,
+                      if (_generateTransaction) ...[
+                        walletDropdown,
+                        if (widget.pendingAllocation == null) reservedSwitch,
+                        const SizedBox(height: 16),
+                        datePicker,
+                        const SizedBox(height: 16),
                       ],
-                      roundedSwitch,
+                      if (_isNewAssetTab) ...[dividendSwitch, emergencySwitch],
+                      if (_generateTransaction) ...[
+                        feeSwitch,
+                        if (_isFeeActive) ...[
+                          const SizedBox(height: 8),
+                          feeField,
+                          const SizedBox(height: 12),
+                          feeNote,
+                        ],
+                        roundedSwitch,
+                      ],
                     ],
                   ),
                 ),
@@ -758,7 +803,7 @@ class _BuyAssetScreenState extends State<BuyAssetScreen>
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          if (_selectedWallet != null) ...[
+          if (_generateTransaction && _selectedWallet != null) ...[
             NoteContainer(
               text: widget.pendingAllocation != null
                   ? ScreenDict.getPendingNote(
@@ -772,35 +817,37 @@ class _BuyAssetScreenState extends State<BuyAssetScreen>
             ),
             const SizedBox(height: 8),
           ],
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                ScreenDict.expenseAmount.get(isRpg),
-                style: TextStyle(
-                  fontSize: 14,
-                  color: colorScheme.onSurfaceVariant,
+          if (_generateTransaction) ...[
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  ScreenDict.expenseAmount.get(isRpg),
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: colorScheme.onSurfaceVariant,
+                  ),
                 ),
-              ),
-              const SizedBox(width: 16),
-              Flexible(
-                child: FittedBox(
-                  fit: BoxFit.scaleDown,
-                  alignment: Alignment.centerRight,
-                  child: Text(
-                    NumberUtils.toIdr(_amount, showFull: true),
-                    style: TextStyle(
-                      fontFamily: 'Poppins',
-                      fontWeight: FontWeight.bold,
-                      fontSize: 22,
-                      color: colorScheme.primary,
+                const SizedBox(width: 16),
+                Flexible(
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    alignment: Alignment.centerRight,
+                    child: Text(
+                      NumberUtils.toIdr(_amount, showFull: true),
+                      style: TextStyle(
+                        fontFamily: 'Poppins',
+                        fontWeight: FontWeight.bold,
+                        fontSize: 22,
+                        color: colorScheme.primary,
+                      ),
                     ),
                   ),
                 ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
+              ],
+            ),
+            const SizedBox(height: 16),
+          ],
           CustomButton(
             title: _isNewAssetTab
                 ? ScreenDict.investBuyAsset.get(isRpg)

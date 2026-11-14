@@ -156,11 +156,12 @@ class AllocationMap {
       return {
         SectorType.living: 55.0,
         SectorType.payDebt: noDebt ? null : 25.0,
-        SectorType.emergency: maxEmergency ? null : 20.0,
-        SectorType.investment: maxEmergency ? 0.0 : null,
+        SectorType.emergency: 20.0,
+        SectorType.investment: null,
         SubSectorType.essentials: 55.0,
         SubSectorType.dreamFund: 0.0,
-        SubSectorType.lowRisk: maxEmergency ? 0.0 : 20.0,
+        SubSectorType.emergencySavings: 10.0,
+        SubSectorType.lowRisk: 10.0,
         SubSectorType.mediumRisk: null,
         SubSectorType.highRisk: null,
       };
@@ -169,11 +170,12 @@ class AllocationMap {
       return {
         SectorType.living: 50.0,
         SectorType.payDebt: noDebt ? null : 20.0,
-        SectorType.emergency: maxEmergency ? null : 20.0,
+        SectorType.emergency: 20.0,
         SectorType.investment: 10.0,
         SubSectorType.essentials: 50.0,
         SubSectorType.dreamFund: 0.0,
-        SubSectorType.lowRisk: maxEmergency ? 0.0 : 20.0,
+        SubSectorType.emergencySavings: 10.0,
+        SubSectorType.lowRisk: 10.0,
         SubSectorType.mediumRisk: 10.0,
         SubSectorType.highRisk: null,
       };
@@ -182,11 +184,12 @@ class AllocationMap {
       return {
         SectorType.living: 45.0,
         SectorType.payDebt: noDebt ? null : 15.0,
-        SectorType.emergency: maxEmergency ? null : 20.0,
+        SectorType.emergency: 20.0,
         SectorType.investment: 20.0,
         SubSectorType.essentials: 45.0,
         SubSectorType.dreamFund: 0.0,
-        SubSectorType.lowRisk: maxEmergency ? 0.0 : 20.0,
+        SubSectorType.emergencySavings: 10.0,
+        SubSectorType.lowRisk: 10.0,
         SubSectorType.mediumRisk: 15.0,
         SubSectorType.highRisk: 5.0,
       };
@@ -195,11 +198,12 @@ class AllocationMap {
       return {
         SectorType.living: 40.0,
         SectorType.payDebt: noDebt ? null : 10.0,
-        SectorType.emergency: maxEmergency ? null : 25.0,
+        SectorType.emergency: 25.0,
         SectorType.investment: 25.0,
         SubSectorType.essentials: 40.0,
         SubSectorType.dreamFund: 0.0,
-        SubSectorType.lowRisk: maxEmergency ? 0.0 : 25.0,
+        SubSectorType.emergencySavings: 15.0,
+        SubSectorType.lowRisk: 10.0,
         SubSectorType.mediumRisk: 15.0,
         SubSectorType.highRisk: 10.0,
       };
@@ -208,11 +212,12 @@ class AllocationMap {
     return {
       SectorType.living: 35.0,
       SectorType.payDebt: noDebt ? null : 5.0,
-      SectorType.emergency: maxEmergency ? null : 30.0,
+      SectorType.emergency: 30.0,
       SectorType.investment: 30.0,
       SubSectorType.essentials: 35.0,
       SubSectorType.dreamFund: 0.0,
-      SubSectorType.lowRisk: maxEmergency ? 0.0 : 30.0,
+      SubSectorType.emergencySavings: 15.0,
+      SubSectorType.lowRisk: 15.0,
       SubSectorType.mediumRisk: 15.0,
       SubSectorType.highRisk: 15.0,
     };
@@ -227,7 +232,8 @@ class AllocationMap {
         SectorType.investment: null,
         SubSectorType.essentials: 0.0,
         SubSectorType.dreamFund: 0.0,
-        SubSectorType.lowRisk: 3.0,
+        SubSectorType.emergencySavings: 2.0,
+        SubSectorType.lowRisk: 2.0,
         SubSectorType.mediumRisk: null,
         SubSectorType.highRisk: null,
       };
@@ -240,7 +246,8 @@ class AllocationMap {
         SectorType.investment: 2.0,
         SubSectorType.essentials: 0.0,
         SubSectorType.dreamFund: 0.0,
-        SubSectorType.lowRisk: 4.0,
+        SubSectorType.emergencySavings: 2.0,
+        SubSectorType.lowRisk: 2.0,
         SubSectorType.mediumRisk: 2.0,
         SubSectorType.highRisk: null,
       };
@@ -253,7 +260,8 @@ class AllocationMap {
         SectorType.investment: 7.0,
         SubSectorType.essentials: 0.0,
         SubSectorType.dreamFund: 0.0,
-        SubSectorType.lowRisk: 4.0,
+        SubSectorType.emergencySavings: 2.0,
+        SubSectorType.lowRisk: 2.0,
         SubSectorType.mediumRisk: 5.0,
         SubSectorType.highRisk: 2.0,
       };
@@ -266,7 +274,8 @@ class AllocationMap {
         SectorType.investment: 10.0,
         SubSectorType.essentials: 0.0,
         SubSectorType.dreamFund: 0.0,
-        SubSectorType.lowRisk: 5.0,
+        SubSectorType.emergencySavings: 3.0,
+        SubSectorType.lowRisk: 2.0,
         SubSectorType.mediumRisk: 5.0,
         SubSectorType.highRisk: 5.0,
       };
@@ -279,7 +288,8 @@ class AllocationMap {
         SectorType.investment: 10.0,
         SubSectorType.essentials: 0.0,
         SubSectorType.dreamFund: 0.0,
-        SubSectorType.lowRisk: 10.0,
+        SubSectorType.emergencySavings: 5.0,
+        SubSectorType.lowRisk: 5.0,
         SubSectorType.mediumRisk: 5.0,
         SubSectorType.highRisk: 5.0,
       };
@@ -291,6 +301,7 @@ class AllocationMap {
       SectorType.investment: 0.0,
       SubSectorType.essentials: 0.0,
       SubSectorType.dreamFund: 0.0,
+      SubSectorType.emergencySavings: 0.0,
       SubSectorType.lowRisk: 0.0,
       SubSectorType.mediumRisk: 0.0,
       SubSectorType.highRisk: 0.0,

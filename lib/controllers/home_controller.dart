@@ -200,21 +200,37 @@ class HomeController with ChangeNotifier {
 
           Map<Enum, double?> userAllocations = _userController.userAllocations;
 
+          double emergencySavingsPct =
+              userAllocations[SubSectorType.emergencySavings] ?? 0.0;
           double totalLowRisk = userAllocations[SubSectorType.lowRisk] ?? 0.0;
           double emergencyLimit = userAllocations[SectorType.emergency] ?? 0.0;
+
+          double remainingEmergencyForLowRisk =
+              (emergencyLimit - emergencySavingsPct).clamp(0.0, 100.0);
 
           double emergencyLowRiskPct = 0.0;
           double investLowRiskPct = 0.0;
 
           if (totalLowRisk > 0.0) {
-            if (totalLowRisk <= emergencyLimit) {
+            if (totalLowRisk <= remainingEmergencyForLowRisk) {
               emergencyLowRiskPct = totalLowRisk;
               investLowRiskPct = 0.0;
             } else {
-              emergencyLowRiskPct = emergencyLimit;
-              investLowRiskPct = totalLowRisk - emergencyLimit;
+              emergencyLowRiskPct = remainingEmergencyForLowRisk;
+              investLowRiskPct = totalLowRisk - remainingEmergencyForLowRisk;
             }
           }
+
+          final bool walletIsSavings = wallet.isSavings;
+          final bool walletIsEmergency = wallet.isEmergency;
+
+          // Kalau income masuk langsung ke dompet darurat, jangan buat alokasi
+          // emergencySavings pending — dana sudah masuk ke tempat yang benar.
+          // Sama logikanya dengan walletIsSavings mematikan dreamFund.
+          if (walletIsEmergency) emergencySavingsPct = 0.0;
+
+          final double dreamFundPct =
+              walletIsSavings ? 0.0 : (userAllocations[SubSectorType.dreamFund] ?? 0.0);
 
           void processAllocation(
             SectorType sector,
@@ -261,6 +277,11 @@ class HomeController with ChangeNotifier {
           );
           processAllocation(
             SectorType.emergency,
+            SubSectorType.emergencySavings,
+            emergencySavingsPct,
+          );
+          processAllocation(
+            SectorType.emergency,
             SubSectorType.lowRisk,
             emergencyLowRiskPct,
           );
@@ -268,6 +289,11 @@ class HomeController with ChangeNotifier {
             SectorType.investment,
             SubSectorType.lowRisk,
             investLowRiskPct,
+          );
+          processAllocation(
+            SectorType.living,
+            SubSectorType.dreamFund,
+            dreamFundPct,
           );
           await _userController.saveUser();
         }
@@ -288,11 +314,16 @@ class HomeController with ChangeNotifier {
       if (context.mounted) {
         if (transaction.type == TransactionType.income) {
           if (wallet.isEmergency) {
-            _userController.addEmergencyTotal(
-              context,
-              transaction.amount,
-              isIncome: true,
-            );
+            final firstCategory = transaction.detailTransaction.isNotEmpty
+                ? transaction.detailTransaction[0].category
+                : null;
+            if (firstCategory != TransactionCategory.interest) {
+              _userController.addEmergencyTotal(
+                context,
+                transaction.amount,
+                isIncome: true,
+              );
+            }
           }
         } else if (transaction.type == TransactionType.transfer) {
           if (wallet.isEmergency) {
@@ -311,6 +342,19 @@ class HomeController with ChangeNotifier {
               context,
               transaction.amount,
               isIncome: true,
+            );
+            // Transfer ke dompet dana darurat — kurangi pending emergencySavings
+            await usePendingBySector(
+              amount: transaction.amount,
+              sector: SectorType.emergency,
+              subSector: SubSectorType.emergencySavings,
+            );
+          } else if (walletTarget.isSavings) {
+            // Transfer ke dompet tabungan — kurangi pending dreamFund
+            await usePendingBySector(
+              amount: transaction.amount,
+              sector: SectorType.living,
+              subSector: SubSectorType.dreamFund,
             );
           }
         } else {

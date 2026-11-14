@@ -87,6 +87,16 @@ class CategoryDict {
     ),
   );
 
+  static const CategoryModel tax = CategoryModel(
+    type: 'expense',
+    color: Colors.brown,
+    terminology: TermModel(normal: 'Pajak & Retribusi', rpg: 'Upeti Kerajaan'),
+    icons: IconModel(
+      normal: FontAwesomeIcons.receipt,
+      rpg: FontAwesomeIcons.stamp,
+    ),
+  );
+
   static const CategoryModel salary = CategoryModel(
     type: 'income',
     color: Colors.green,
@@ -133,6 +143,16 @@ class CategoryDict {
     ),
   );
 
+  static const CategoryModel assetSale = CategoryModel(
+    type: 'income',
+    color: Colors.orange,
+    terminology: TermModel(normal: 'Jual Aset', rpg: 'Likuidasi Beban'),
+    icons: IconModel(
+      normal: FontAwesomeIcons.arrowTrendUp,
+      rpg: FontAwesomeIcons.coins,
+    ),
+  );
+
   static const CategoryModel dividend = CategoryModel(
     type: 'income',
     color: Colors.amber,
@@ -143,13 +163,83 @@ class CategoryDict {
     ),
   );
 
+  static const CategoryModel interest = CategoryModel(
+    type: 'income',
+    color: Colors.lime,
+    terminology: TermModel(normal: 'Bunga Simpanan', rpg: 'Bunga Bank Guild'),
+    icons: IconModel(
+      normal: FontAwesomeIcons.percent,
+      rpg: FontAwesomeIcons.coins,
+    ),
+  );
+
   static const CategoryModel transfer = CategoryModel(
     type: 'transfer',
     color: Colors.blueGrey,
-    terminology: TermModel(normal: 'Transfer Uang', rpg: 'Karavan Suplai'),
+    terminology: TermModel(normal: 'Transfer', rpg: 'Karavan Suplai'),
     icons: IconModel(
       normal: FontAwesomeIcons.arrowRightArrowLeft,
       rpg: FontAwesomeIcons.dolly,
+    ),
+  );
+
+  static const CategoryModel pocketTransfer = CategoryModel(
+    type: 'transfer',
+    color: Color(0xFF5C6BC0),
+    terminology: TermModel(normal: 'Antar Kantong', rpg: 'Pindah Kantong Logistik'),
+    icons: IconModel(
+      normal: FontAwesomeIcons.boxesPacking,
+      rpg: FontAwesomeIcons.sackDollar,
+    ),
+  );
+
+  static const CategoryModel topUp = CategoryModel(
+    type: 'transfer',
+    color: Color(0xFF42A5F5),
+    terminology: TermModel(normal: 'Top Up', rpg: 'Isi Saldo Sihir'),
+    icons: IconModel(
+      normal: FontAwesomeIcons.wallet,
+      rpg: FontAwesomeIcons.coins,
+    ),
+  );
+
+  static const CategoryModel emergencyFund = CategoryModel(
+    type: 'transfer',
+    color: Color(0xFFE57373),
+    terminology: TermModel(normal: 'Dana Darurat', rpg: 'Pasokan Darurat'),
+    icons: IconModel(
+      normal: FontAwesomeIcons.shieldHeart,
+      rpg: FontAwesomeIcons.shieldHeart,
+    ),
+  );
+
+  static const CategoryModel savings = CategoryModel(
+    type: 'transfer',
+    color: Color(0xFF26A69A),
+    terminology: TermModel(normal: 'Tabungan', rpg: 'Pundi Tabungan'),
+    icons: IconModel(
+      normal: FontAwesomeIcons.piggyBank,
+      rpg: FontAwesomeIcons.gem,
+    ),
+  );
+
+  static const CategoryModel cashWithdrawal = CategoryModel(
+    type: 'transfer',
+    color: Color(0xFFFF8A65),
+    terminology: TermModel(normal: 'Tarik Tunai', rpg: 'Tarik Koin Peti'),
+    icons: IconModel(
+      normal: FontAwesomeIcons.moneyBillWave,
+      rpg: FontAwesomeIcons.sackDollar,
+    ),
+  );
+
+  static const CategoryModel cashDeposit = CategoryModel(
+    type: 'transfer',
+    color: Color(0xFF66BB6A),
+    terminology: TermModel(normal: 'Setor Tunai', rpg: 'Simpan ke Brankas'),
+    icons: IconModel(
+      normal: FontAwesomeIcons.moneyBills,
+      rpg: FontAwesomeIcons.vault,
     ),
   );
 
@@ -483,6 +573,7 @@ class CategoryDict {
     charity,
     health,
     utilities,
+    tax,
     lending,
     debtInstallment,
     other,
@@ -490,10 +581,18 @@ class CategoryDict {
     business,
     loanDisbursement,
     debtCollection,
+    assetSale,
     dividend,
+    interest,
     gift,
     otherIncome,
     transfer,
+    pocketTransfer,
+    topUp,
+    emergencyFund,
+    savings,
+    cashWithdrawal,
+    cashDeposit,
     lowRisk,
     mediumRisk,
     highRisk,
@@ -588,6 +687,8 @@ class CategoryDict {
         return giftGiving;
       case TransactionCategory.socialEvent:
         return socialEvent;
+      case TransactionCategory.tax:
+        return tax;
       case TransactionCategory.other:
         return other;
       case TransactionCategory.salary:
@@ -598,14 +699,30 @@ class CategoryDict {
         return loanDisbursement;
       case TransactionCategory.debtCollection:
         return debtCollection;
+      case TransactionCategory.assetSale:
+        return assetSale;
       case TransactionCategory.dividend:
         return dividend;
+      case TransactionCategory.interest:
+        return interest;
       case TransactionCategory.gift:
         return gift;
       case TransactionCategory.otherIncome:
         return otherIncome;
       case TransactionCategory.transfer:
         return transfer;
+      case TransactionCategory.pocketTransfer:
+        return pocketTransfer;
+      case TransactionCategory.topUp:
+        return topUp;
+      case TransactionCategory.emergencyFund:
+        return emergencyFund;
+      case TransactionCategory.savings:
+        return savings;
+      case TransactionCategory.cashWithdrawal:
+        return cashWithdrawal;
+      case TransactionCategory.cashDeposit:
+        return cashDeposit;
       case TransactionCategory.lowRisk:
         return lowRisk;
       case TransactionCategory.mediumRisk:
