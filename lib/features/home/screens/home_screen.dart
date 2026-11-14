@@ -183,7 +183,7 @@ class HomeScreen extends StatelessWidget {
             as Map<String, dynamic>?;
 
     if (result != null && context.mounted) {
-      TransactionModel transaction = result['transaction'];
+      TransactionModel? transaction = result['transaction'];
       AssetsModel asset = result['asset'];
       bool isSuccess = await investController.saveTransaction(
         context,
@@ -194,7 +194,7 @@ class HomeScreen extends StatelessWidget {
       if (isSuccess) {
         await skillController.loadData();
       }
-      if (!context.mounted) return transaction.amount;
+      if (!context.mounted) return transaction?.amount;
       GlobalMessenger.showMessage(
         context,
         message: UiDict.getSaveNotif(
@@ -203,7 +203,7 @@ class HomeScreen extends StatelessWidget {
         ),
         isSuccess: isSuccess,
       );
-      return transaction.amount;
+      return transaction?.amount;
     }
     return null;
   }

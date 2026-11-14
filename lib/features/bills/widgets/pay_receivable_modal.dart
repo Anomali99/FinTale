@@ -131,11 +131,12 @@ class _PayReceivableModalState extends State<PayReceivableModal> {
               SwitchListTile(
                 contentPadding: EdgeInsets.zero,
                 title: Text(
-                  ScreenDict.receivableGenerateExpense.get(isRpg),
+                  // Penerimaan piutang = uang masuk, jadi istilah pemasukan
+                  ScreenDict.receivableGenerateIncome.get(isRpg),
                   style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
                 subtitle: Text(
-                  ScreenDict.getReceivableGenerateExpenseDesc(isRpg: isRpg),
+                  ScreenDict.getReceivableGenerateIncomeDesc(isRpg: isRpg),
                   style: TextStyle(
                     fontSize: 12,
                     color: colorScheme.onSurfaceVariant,
@@ -231,51 +232,50 @@ class _PayReceivableModalState extends State<PayReceivableModal> {
                   ),
                 ],
               ],
-              const SizedBox(height: 16),
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: colorScheme.surfaceContainerHighest,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(
-                    color: colorScheme.primary.withValues(alpha: 0.2),
+              if (_generateTransaction) ...[
+                const SizedBox(height: 16),
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: colorScheme.surfaceContainerHighest,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(
+                      color: colorScheme.primary.withValues(alpha: 0.2),
+                    ),
                   ),
-                ),
-                child: Column(
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Expanded(
-                          child: Text(
-                            _generateTransaction && _selectedWallet != null
-                                ? ScreenDict.getHomeIncome(
-                                    walletController.getDisplayName(
-                                      _selectedWallet!,
-                                    ),
-                                    isExpense: false,
-                                    isRpg: isRpg,
-                                  )
-                                : ScreenDict.totalReceived,
-                            style: TextStyle(
-                              color: colorScheme.onSurfaceVariant,
+                  child: Column(
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Expanded(
+                            child: Text(
+                              _selectedWallet != null
+                                  ? ScreenDict.getHomeIncome(
+                                      walletController.getDisplayName(
+                                        _selectedWallet!,
+                                      ),
+                                      isExpense: false,
+                                      isRpg: isRpg,
+                                    )
+                                  : ScreenDict.totalPaidIn,
+                              style: TextStyle(
+                                color: colorScheme.onSurfaceVariant,
+                              ),
                             ),
                           ),
-                        ),
-                        Text(
-                          NumberUtils.toIdr(
-                            _generateTransaction ? _netAmount : _cleanAmount,
+                          Text(
+                            NumberUtils.toIdr(_netAmount),
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.getSuccess(context),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
-              ),
+              ],
               const SizedBox(height: 16),
               CustomButton(
                 title: ScreenDict.receivableApply.get(isRpg),

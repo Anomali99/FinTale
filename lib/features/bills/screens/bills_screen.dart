@@ -306,6 +306,15 @@ class BillsScreen extends StatelessWidget {
           transaction,
           useReserved: useReserved,
         );
+        // Jika tagihan terkait hutang, kurangi pending alokasi payDebt
+        if (isSuccess &&
+            (transaction.debtId != null ||
+                transaction.type == TransactionType.debt)) {
+          await homeController.usePendingBySector(
+            amount: transaction.amount,
+            sector: SectorType.payDebt,
+          );
+        }
         message = ScreenDict.getBillNotif(isSuccess: isSuccess, isRpg: isRpg);
       } else {
         isSuccess = await billController.payDebt(
@@ -313,10 +322,12 @@ class BillsScreen extends StatelessWidget {
           transaction,
           useReserved: useReserved,
         );
-        await homeController.usePendingBySector(
-          amount: transaction.amount,
-          sector: SectorType.payDebt,
-        );
+        if (isSuccess) {
+          await homeController.usePendingBySector(
+            amount: transaction.amount,
+            sector: SectorType.payDebt,
+          );
+        }
         message = ScreenDict.getDebtNotif(isSuccess: isSuccess, isRpg: isRpg);
       }
       await historyController.applyFilter();
@@ -331,6 +342,7 @@ class BillsScreen extends StatelessWidget {
   }
 
   void _openActiveBillModal(BuildContext context, TransactionModel data) async {
+    final homeController = context.read<HomeController>();
     final billController = context.read<BillController>();
     final historyController = context.read<HistoryController>();
     final analyticsController = context.read<AnalyticsController>();
@@ -346,12 +358,20 @@ class BillsScreen extends StatelessWidget {
     if (result != null && context.mounted) {
       TransactionModel transaction = result['transaction'];
       bool useReserved = result['use_reserved'];
-      await billController.payBill(
+      bool isSuccess = await billController.payBill(
         context,
         transaction,
         useReserved: useReserved,
         checkExisting: false,
       );
+      if (isSuccess &&
+          (transaction.debtId != null ||
+              transaction.type == TransactionType.debt)) {
+        await homeController.usePendingBySector(
+          amount: transaction.amount,
+          sector: SectorType.payDebt,
+        );
+      }
       await historyController.applyFilter();
       await analyticsController.applyFilter();
     }

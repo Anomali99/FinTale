@@ -222,6 +222,13 @@ class HomeController with ChangeNotifier {
           }
 
           final bool walletIsSavings = wallet.isSavings;
+          final bool walletIsEmergency = wallet.isEmergency;
+
+          // Kalau income masuk langsung ke dompet darurat, jangan buat alokasi
+          // emergencySavings pending — dana sudah masuk ke tempat yang benar.
+          // Sama logikanya dengan walletIsSavings mematikan dreamFund.
+          if (walletIsEmergency) emergencySavingsPct = 0.0;
+
           final double dreamFundPct =
               walletIsSavings ? 0.0 : (userAllocations[SubSectorType.dreamFund] ?? 0.0);
 
@@ -335,6 +342,19 @@ class HomeController with ChangeNotifier {
               context,
               transaction.amount,
               isIncome: true,
+            );
+            // Transfer ke dompet dana darurat — kurangi pending emergencySavings
+            await usePendingBySector(
+              amount: transaction.amount,
+              sector: SectorType.emergency,
+              subSector: SubSectorType.emergencySavings,
+            );
+          } else if (walletTarget.isSavings) {
+            // Transfer ke dompet tabungan — kurangi pending dreamFund
+            await usePendingBySector(
+              amount: transaction.amount,
+              sector: SectorType.living,
+              subSector: SubSectorType.dreamFund,
             );
           }
         } else {

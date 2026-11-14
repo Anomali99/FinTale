@@ -230,21 +230,43 @@ class BillController with ChangeNotifier {
       final wallet = _walletController.getWalletById(transaction.walletId);
       wallet.addAmount(transaction.amount, isIncome: false);
 
-      if (transaction.debtId != null) {
-        final debt = getDebtById(transaction.debtId);
+      if (wallet.isEmergency && context.mounted) {
+        _userController.addEmergencyTotal(
+          context,
+          transaction.amount,
+          isIncome: false,
+        );
+      }
 
-        if (debt.bill != null) {
+      // Deteksi debtId: dari transaction langsung, atau dari tagihan terkait
+      int? targetDebtId = transaction.debtId;
+      BillModel? relatedBill;
+      if (transaction.billId != null) {
+        try {
+          relatedBill = getBillById(transaction.billId);
+          targetDebtId ??= relatedBill.debtId;
+        } catch (_) {}
+      }
+
+      if (targetDebtId != null) {
+        final debt = getDebtById(targetDebtId);
+        debt.addPayment(transaction.detailTransaction[0].amount);
+
+        final billToUpdate = debt.bill ?? relatedBill;
+        if (billToUpdate != null) {
           if (debt.isFinished) {
-            debt.bill?.toggleActive(false);
+            billToUpdate.toggleActive(false);
           }
-          debt.bill?.advanceToNextBill();
+          billToUpdate.advanceToNextBill();
+          await _billDao.update(billToUpdate);
         }
+
         await _debtDao.update(debt);
         if (context.mounted) {
           await _userController.processDebtPayment(context);
         }
       } else {
-        final bill = getBillById(transaction.billId ?? 1);
+        final bill = relatedBill ?? getBillById(transaction.billId ?? 1);
         bill.advanceToNextBill();
         await _billDao.update(bill);
       }
@@ -262,6 +284,7 @@ class BillController with ChangeNotifier {
       await _transactionController.createTransaction(transaction);
       await _walletController.updateWallet(wallet);
       await loadDebtData();
+      await loadBillData();
 
       if (context.mounted) {
         _userController.updateFreeDebt(context, isFreeDebt);
@@ -292,6 +315,14 @@ class BillController with ChangeNotifier {
       wallet.addAmount(transaction.amount, isIncome: false);
       debt.addPayment(transaction.detailTransaction[0].amount);
 
+      if (wallet.isEmergency && context.mounted) {
+        _userController.addEmergencyTotal(
+          context,
+          transaction.amount,
+          isIncome: false,
+        );
+      }
+
       if (debt.bill != null) {
         if (debt.isFinished) {
           debt.bill?.toggleActive(false);
@@ -302,6 +333,7 @@ class BillController with ChangeNotifier {
       await _debtDao.update(debt);
       await _walletController.updateWallet(wallet);
       await loadDebtData();
+      await loadBillData();
 
       if (context.mounted) {
         _userController.updateFreeDebt(context, isFreeDebt);
@@ -510,6 +542,14 @@ class BillController with ChangeNotifier {
 
       final wallet = _walletController.getWalletById(transaction.walletId);
       wallet.addAmount(transaction.amount, isIncome: false);
+
+      if (wallet.isEmergency && context.mounted) {
+        _userController.addEmergencyTotal(
+          context,
+          transaction.amount,
+          isIncome: false,
+        );
+      }
 
       await _walletController.updateWallet(wallet);
       await _walletController.loadData();

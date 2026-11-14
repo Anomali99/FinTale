@@ -15,6 +15,7 @@ import '../../../models/transaction_model.dart';
 import '../../../models/wallet_model.dart';
 import '../../../widgets/custom_button.dart';
 import '../../../widgets/custom_date_time_picker.dart';
+import '../../../widgets/note_container.dart';
 
 class SellAssetModal extends StatefulWidget {
   final AssetsModel asset;
@@ -350,6 +351,12 @@ class _SellAssetModalState extends State<SellAssetModal> {
                             (val == null || !NumberUtils.isValidAmount(val))
                         ? UiDict.requiredFee
                         : null,
+                  ),
+                  const SizedBox(height: 12),
+                  NoteContainer(
+                    text:
+                        "Note: ${ScreenDict.getFeeCheckDesc(isIncome: true, isRpg: isRpg)}",
+                    color: colorScheme.onSurfaceVariant,
                   ),
                 ],
                 const SizedBox(height: 24),

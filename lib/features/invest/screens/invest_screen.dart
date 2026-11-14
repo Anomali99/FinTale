@@ -149,9 +149,10 @@ class InvestScreen extends StatelessWidget {
             as Map<String, dynamic>?;
 
     if (result != null && context.mounted) {
-      TransactionModel transaction = result['transaction'];
+      TransactionModel? transaction = result['transaction'];
       AssetsModel asset = result['asset'];
-      bool useReserved = result['use_reserved'];
+      bool useReserved = result['use_reserved'] ?? false;
+      bool generateTransaction = result['generate_transaction'] ?? true;
       bool isSuccess = await investController.saveTransaction(
         context,
         transaction,
@@ -162,13 +163,15 @@ class InvestScreen extends StatelessWidget {
       if (isSuccess) {
         await skillController.loadData();
       }
-      await homeController.usePendingBySector(
-        amount: transaction.amount,
-        sector: asset.isEmergency
-            ? SectorType.emergency
-            : SectorType.investment,
-        subSector: asset.type.getSubSector(),
-      );
+      if (generateTransaction && transaction != null) {
+        await homeController.usePendingBySector(
+          amount: transaction.amount,
+          sector: asset.isEmergency
+              ? SectorType.emergency
+              : SectorType.investment,
+          subSector: asset.type.getSubSector(),
+        );
+      }
       await historyController.applyFilter();
       await analyticsController.applyFilter();
       if (!context.mounted) return;
@@ -203,20 +206,23 @@ class InvestScreen extends StatelessWidget {
             as Map<String, dynamic>?;
 
     if (result != null && context.mounted) {
-      TransactionModel transaction = result['transaction'];
+      TransactionModel? transaction = result['transaction'];
       AssetsModel asset = result['asset'];
+      bool generateTransaction = result['generate_transaction'] ?? true;
       bool isSuccess = await investController.saveTransaction(
         context,
         transaction,
         asset,
       );
-      await homeController.usePendingBySector(
-        amount: transaction.amount,
-        sector: asset.isEmergency
-            ? SectorType.emergency
-            : SectorType.investment,
-        subSector: asset.type.getSubSector(),
-      );
+      if (generateTransaction && transaction != null) {
+        await homeController.usePendingBySector(
+          amount: transaction.amount,
+          sector: asset.isEmergency
+              ? SectorType.emergency
+              : SectorType.investment,
+          subSector: asset.type.getSubSector(),
+        );
+      }
       await historyController.applyFilter();
       await analyticsController.applyFilter();
       if (!context.mounted) return;
