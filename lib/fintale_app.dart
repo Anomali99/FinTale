@@ -31,6 +31,9 @@ import 'features/profile/screens/skill_tree_screen.dart';
 import 'features/settings/screens/create_pin_screen.dart';
 import 'features/settings/screens/settings_screen.dart';
 import 'features/settings/screens/verify_pin_screen.dart';
+import 'remote/features/ui/draft_review_screen.dart';
+import 'remote/models/transaction_draft.dart';
+import 'remote/services/feature_availability_service.dart';
 
 class FinTaleApp extends StatefulWidget {
   const FinTaleApp({super.key});
@@ -39,20 +42,33 @@ class FinTaleApp extends StatefulWidget {
   State<FinTaleApp> createState() => _FinTaleAppState();
 }
 
-class _FinTaleAppState extends State<FinTaleApp> {
+class _FinTaleAppState extends State<FinTaleApp> with WidgetsBindingObserver {
   final _navigatorKey = GlobalKey<NavigatorState>();
   static const _importChannel = MethodChannel('id.my.anomali99.fintale/import');
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _importChannel.setMethodCallHandler(_handleMethodCall);
   }
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _importChannel.setMethodCallHandler(null);
     super.dispose();
+  }
+
+  /// Segarkan status fitur online saat aplikasi kembali aktif.
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      final context = _navigatorKey.currentContext;
+      if (context != null && context.mounted) {
+        context.read<FeatureAvailabilityService>().refreshOnResume();
+      }
+    }
   }
 
   Future<dynamic> _handleMethodCall(MethodCall call) async {
@@ -438,6 +454,15 @@ class _FinTaleAppState extends State<FinTaleApp> {
                 userEmail: args?['userEmail'],
                 title: args?['title'],
               ),
+            );
+          case DraftReviewScreen.routeName:
+            final draft = args?['draft'] as TransactionDraft?;
+            final onConfirm =
+                args?['onConfirm'] as void Function(TransactionDraft)?;
+            if (draft == null || onConfirm == null) return null;
+            return MaterialPageRoute(
+              builder: (_) =>
+                  DraftReviewScreen(draft: draft, onConfirm: onConfirm),
             );
           default:
             return null;

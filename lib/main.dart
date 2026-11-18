@@ -24,6 +24,8 @@ import 'data/dao/transaction_dao.dart';
 import 'data/dao/wallet_dao.dart';
 import 'data/pref_service.dart';
 import 'fintale_app.dart';
+import 'remote/auth/auth_token_provider.dart';
+import 'remote/services/feature_availability_service.dart';
 import 'services/auth_service.dart';
 import 'services/notification_service.dart';
 
@@ -51,6 +53,12 @@ void main() async {
   final walletController = WalletController(walletDao);
   final transactionController = TransactionController(transactionDao);
   final authController = AuthController(userController, walletController);
+
+  // Inisialisasi service fitur online (tidak crash jika API_BASE_URL kosong)
+  const tokenProvider = StubAuthTokenProvider();
+  final featureAvailabilityService = FeatureAvailabilityService(
+    tokenProvider: tokenProvider,
+  );
   final layoutController = LayoutController(
     userController,
     walletController,
@@ -98,6 +106,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => historyController),
         ChangeNotifierProvider(create: (_) => analyticsController),
         ChangeNotifierProvider(create: (_) => settingsController),
+        ChangeNotifierProvider.value(value: featureAvailabilityService),
       ],
       child: const FinTaleApp(),
     ),
